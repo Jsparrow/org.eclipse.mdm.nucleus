@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+description = 'MDM Web Application'
+group = 'org.eclipse.mdm'
+version = '1.0.0'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'jettyEclipse'
+apply plugin: 'war'
+apply plugin: 'maven'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		// Embedded Jetty 9 Gradle Plugin
+		classpath (group: 'com.sahlbach.gradle', name: 'gradle-jetty-eclipse-plugin', version: '1.9.+')
+	}
+}
+
+
+dependencies {
+       
+	// Jersey 2.15
+    compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
+	
+	//MDM Components		
+	compile 'org.eclipse.mdm:org.eclipse.mdm.navigator:1.0.0'
+	compile 'org.eclipse.mdm:org.eclipse.mdm.action.delete:1.0.0'
+	compile 'org.eclipse.mdm:org.eclipse.mdm.i18n:1.0.0'
+	
+	//Logging
+	runtime 'org.slf4j:slf4j-simple:1.7.19'	
+    
+}
+
+task collectFrontend() {
+
+	copy {
+		from "${project.projectDir}/src/main/webapp/"
+		into "${project.projectDir}/build/tmp/frontend/"
+	}
+
+	subprojects.each {
+		subproject ->
+		copy {
+			from "${project.projectDir}/../${subproject.name}/src/main/webapp/"
+			into "${project.projectDir}/build/tmp/frontend"
+		}	
+	}	
+}
+
+
+task cleanFrontend(type: Delete) {
+	delete "${project.projectDir}/build/distributions/org.eclipse.mdm.application-1.0.0.zip"
+	delete "${project.projectDir}/build/tmp/frontend"
+}
+
+
+
+task installFrontend(type: Zip, dependsOn: collectFrontend) {
+	from "${project.projectDir}/build/tmp/frontend"
+}
+
+
+
+// Task for directly deploying war file on glassfish4
+task run(dependsOn: 'war', type:Exec) {
+	//${glassfishHome}${File.separator}bin
+    workingDir "D:\\MDM\\MDM5WebClientV2\\Software\\glassfish4\\bin"
+
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        commandLine 'cmd', '/c', 'asadmin.bat'
+    } else {
+        commandLine "./asadmin"
+    }
+
+    args "deploy", "--force=true", "D:\\Workspaces\\mdm5@web2\\org.eclipse.mdm.application\\build\\libs\\org.eclipse.mdm.application-1.0.0.war"
+}
