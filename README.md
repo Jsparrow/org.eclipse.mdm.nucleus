@@ -6,7 +6,7 @@ http://www.eclipse.org/legal/epl-v10.html
 
 
 
-1. build
+build
 
 - minimum requirements
     - JDK 1.8.0_45
@@ -37,9 +37,9 @@ http://www.eclipse.org/legal/epl-v10.html
     and to cleanup the tmp directory 'frontend' at ./org.eclipse.mdm.application/build/tmp
 
 
-2. available projects 
+available projects 
 
--org.eclipse.mdm.application
+- org.eclipse.mdm.application
 
     includes application server configurations and gradle build scripts for the complete
     backend (war) and the complete frontend (zip) (see: 1.build)
@@ -48,7 +48,7 @@ http://www.eclipse.org/legal/epl-v10.html
     provided rest urls: none
     
     
--org.eclipse.mdm.connector
+- org.eclipse.mdm.connector
 
     The mdm connector singelton bean manages the connections for logged on users (Principal) at 
     the the application server. A application server specific login realm module for the MDM application has to
@@ -58,7 +58,7 @@ http://www.eclipse.org/legal/epl-v10.html
     provided rest urls: none
     
     
--org.eclipse.mdm.businesstyperegistry
+- org.eclipse.mdm.businesstyperegistry
 
     The business type registry singleton bean provides actions for registered MDM business object typs.
     Each action has to be a bean which implements the provided interface ActionBeanLI.
@@ -72,7 +72,7 @@ http://www.eclipse.org/legal/epl-v10.html
         return:     a JSON string with a list of actions
     
     
--org.eclipse.mdm.i18n
+- org.eclipse.mdm.i18n
 
     This i18n stateless bean provides localizations for MDM business object type and their attributes.
     
@@ -83,7 +83,7 @@ http://www.eclipse.org/legal/epl-v10.html
         type:       GET
         return:     a JSON string with a list of localizes attributes
        
--org.eclipse.mdm.navigator
+- org.eclipse.mdm.navigator
 
     This navigator stateless bean provides environments and business object children. 
     
@@ -119,7 +119,7 @@ http://www.eclipse.org/legal/epl-v10.html
         type:       GET
         return:     a JSON string with a list of Channels and their attributes
           
--org.eclipse.mdm.action.delete
+- org.eclipse.mdm.action.delete
 
     The delete action stateless bean is a template action bean implementation yet. This action bean implements the
     ActionBeanLI interface of org.eclipse.mdm.businesstyperegistry. This delete action is registered for the MDM business
