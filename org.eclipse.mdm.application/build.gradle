@@ -76,18 +76,3 @@ task installFrontend(type: Zip, dependsOn: collectFrontend) {
 	from "${project.projectDir}/build/tmp/frontend"
 }
 
-
-
-// Task for directly deploying war file on glassfish4
-task run(dependsOn: 'war', type:Exec) {
-	//${glassfishHome}${File.separator}bin
-    workingDir "D:\\MDM\\MDM5WebClientV2\\Software\\glassfish4\\bin"
-
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        commandLine 'cmd', '/c', 'asadmin.bat'
-    } else {
-        commandLine "./asadmin"
-    }
-
-    args "deploy", "--force=true", "D:\\Workspaces\\mdm5@web2\\org.eclipse.mdm.application\\build\\libs\\org.eclipse.mdm.application-1.0.0.war"
-}
