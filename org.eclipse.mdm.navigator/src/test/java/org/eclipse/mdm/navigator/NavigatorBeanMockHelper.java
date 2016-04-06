@@ -181,7 +181,7 @@ public  final class NavigatorBeanMockHelper {
 	private static <T extends Entity> T createEntityMock(Class<T> type, URI uri, String name) throws Exception {
 		
 		HashMap<String, Value> map = new HashMap<String, Value>();
-		map.put("Name", ValueType.STRING.createValue("Name", name));
+		map.put("Name", ValueType.STRING.create("Name", name));
 			
 		EntityCore entityCore = Mockito.mock(EntityCore.class);		
 		when(entityCore.getValues()).thenReturn(map);
@@ -198,7 +198,7 @@ public  final class NavigatorBeanMockHelper {
 	private static Optional<Entity> createDefaultEntityMock(String sourceName, String name) throws Exception {
 		
 		HashMap<String, Value> map = new HashMap<String, Value>();
-		map.put("Name", ValueType.STRING.createValue("Name", name));
+		map.put("Name", ValueType.STRING.create("Name", name));
 			
 		URI uri = new URI(sourceName, "default", 100L);
 		EntityCore entityCore = Mockito.mock(EntityCore.class);		

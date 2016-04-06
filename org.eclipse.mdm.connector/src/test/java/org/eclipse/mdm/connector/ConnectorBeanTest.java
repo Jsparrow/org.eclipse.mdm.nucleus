@@ -212,7 +212,7 @@ public class ConnectorBeanTest {
 		
 		try {
 			HashMap<String, Value> map = new HashMap<String, Value>();
-			map.put("Name", ValueType.STRING.createValue("Name", name));
+			map.put("Name", ValueType.STRING.create("Name", name));
 			
 			EntityCore entityCore = Mockito.mock(EntityCore.class);		
 			when(entityCore.getValues()).thenReturn(map);

@@ -10,8 +10,8 @@ rootProject.name = 'org.eclipse.mdm.application'
 
 def projectList = []
 
-projectList.add("org.eclipse.mdm.api.base");
-projectList.add("org.eclipse.mdm.api.odsadapter");
+projectList.add("../org.eclipse.mdm.api.base");
+projectList.add("../org.eclipse.mdm.api.odsadapter");
 projectList.add("org.eclipse.mdm.connector");
 projectList.add("org.eclipse.mdm.businesstyperegistry");
 projectList.add("org.eclipse.mdm.i18n");
