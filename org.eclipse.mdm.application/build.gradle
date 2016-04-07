@@ -54,35 +54,52 @@ task cleanBackend << {
 }
 cleanBackend.finalizedBy(clean)
 
+
 task installBackend << {
 
-	tasks.getByPath("org.eclipse.mdm.api.base:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.api.base:compileJava").execute()
+	tasks.getByPath("org.eclipse.mdm.api.base:processResources").execute()
+	tasks.getByPath("org.eclipse.mdm.api.base:classes").execute()			
 	tasks.getByPath("org.eclipse.mdm.api.base:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.api.base:install").execute()
 				
 	tasks.getByPath("org.eclipse.mdm.api.odsadapter:compileIDL").execute()	
 	tasks.getByPath("org.eclipse.mdm.api.odsadapter:compileGeneratedJava").execute()		
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:processGeneratedResources").execute()	
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:generatedClasses").execute()
 	tasks.getByPath("org.eclipse.mdm.api.odsadapter:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:processResources").execute()	
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:classes").execute()
 	tasks.getByPath("org.eclipse.mdm.api.odsadapter:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.api.odsadapter:install").execute()
 		
-	tasks.getByPath("org.eclipse.mdm.connector:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.connector:compileJava").execute()
+	tasks.getByPath("org.eclipse.mdm.connector:processResources").execute()
+	tasks.getByPath("org.eclipse.mdm.connector:classes").execute()			
 	tasks.getByPath("org.eclipse.mdm.connector:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.connector:install").execute()
 			
 	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:processResources").execute()
+	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:classes").execute()
 	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:install").execute()
 				
-	tasks.getByPath("org.eclipse.mdm.i18n:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.i18n:compileJava").execute()
+	tasks.getByPath("org.eclipse.mdm.i18n:processResources").execute()		
+	tasks.getByPath("org.eclipse.mdm.i18n:classes").execute()
 	tasks.getByPath("org.eclipse.mdm.i18n:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.i18n:install").execute()
 				
 	tasks.getByPath("org.eclipse.mdm.action.delete:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.action.delete:processResources").execute()	
+	tasks.getByPath("org.eclipse.mdm.action.delete:classes").execute()	
 	tasks.getByPath("org.eclipse.mdm.action.delete:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.action.delete:install").execute()
 				
 	tasks.getByPath("org.eclipse.mdm.navigator:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.navigator:processResources").execute()
+	tasks.getByPath("org.eclipse.mdm.navigator:classes").execute()
 	tasks.getByPath("org.eclipse.mdm.navigator:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.navigator:install").execute()
 			
