@@ -50,6 +50,10 @@ public class ConnectorBean implements ConnectorBeanLI {
 	private final static String ARG_ODS_USER 		= "user";
 	private final static String ARG_ODS_PASSWORD    = "password";
 		
+	//TODO: delete this if a login module is enabled
+	private final static String SUPERUSER_NAME = "sa";
+	private final static String SUPERUSER_PASSWORD = "sa";
+	
 	@Resource 
 	private SessionContext sessionContext;
 	
@@ -67,7 +71,7 @@ public class ConnectorBean implements ConnectorBeanLI {
 		
 		//TODO: delete this if a login module is enabled
 		if(!this.connectionMap.containsKey(principal)) {
-			connect(principal, "sa", "sa");
+			connect(principal, SUPERUSER_NAME, SUPERUSER_PASSWORD);
 		}
 		
 		List<EntityManager> emList = this.connectionMap.get(principal);	
