@@ -25,6 +25,10 @@ http://www.eclipse.org/legal/epl-v10.html
 
     The war file will be generated at <i>./org.eclipse.mdm.application/build/libs/org.eclipse.mdm.application-1.0.0.war</i>
     <br><br>
+    Use the command 'gradlew cleanBackend' to delete the backend war at <i>./org.eclipse.mdm.application/build/libs</i>
+    and to cleanup all build folders at the dependend projects</i>
+    <br><br><br>
+    
 - <b>build angular.js frontend (zip)</b>
     <br>
     The command 'gradlew installFrontend' at org.eclipse.mdm.appliation collects all frontend 
@@ -34,8 +38,8 @@ http://www.eclipse.org/legal/epl-v10.html
     The frontend zip file will be generated at <i>./org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0.zip</i><br>
     Please note the readme file at the generated zip archive.
     <br><br>
-    Use the command 'gradlew cleanFrontend' to delete the fontend zip at ./org.eclipse.mdm.application/build/distributions
-    and to cleanup the tmp directory 'frontend' at ./org.eclipse.mdm.application/build/tmp
+    Use the command 'gradlew cleanFrontend' to delete the fontend zip at <i>./org.eclipse.mdm.application/build/distributions</i>
+    and to cleanup the tmp directory 'frontend' at <i>./org.eclipse.mdm.application/build/tmp</i>
     <br><br><br>
     
 <h3>available projects</h3>
