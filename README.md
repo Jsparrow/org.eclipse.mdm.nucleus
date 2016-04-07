@@ -14,7 +14,7 @@ http://www.eclipse.org/legal/epl-v10.html
   <br><br>
 - <b>build application (war)</b>
     <br>
-    The command 'gradlew install' at org.eclipse.mdm.application installs all projects 
+    The command 'gradlew installBackend' at ./org.eclipse.mdm.nucleus/org.eclipse.mdm.application installs all projects 
     inclusive org.eclipse.mdm.api.base and org.eclipse.mdm.api.odsadapter if this
     projects are checked out at the same root folder as org.eclipse.mdm.nucleus
     for example:
