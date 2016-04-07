@@ -8,15 +8,20 @@
  
 rootProject.name = 'org.eclipse.mdm.application'
 
+
+include   ":org.eclipse.mdm.api.base", ":org.eclipse.mdm.api.base"
+project(":org.eclipse.mdm.api.base").projectDir = new File(settingsDir, "../../org.eclipse.mdm.api.base")
+
+include   ":org.eclipse.mdm.api.odsadapter", ":org.eclipse.mdm.api.base"
+project(":org.eclipse.mdm.api.odsadapter").projectDir = new File(settingsDir, "../../org.eclipse.mdm.api.odsadapter")
+
 def projectList = []
 
-projectList.add("../org.eclipse.mdm.api.base");
-projectList.add("../org.eclipse.mdm.api.odsadapter");
-projectList.add("org.eclipse.mdm.connector");
-projectList.add("org.eclipse.mdm.businesstyperegistry");
-projectList.add("org.eclipse.mdm.i18n");
 projectList.add("org.eclipse.mdm.navigator");
 projectList.add("org.eclipse.mdm.action.delete");
+projectList.add("org.eclipse.mdm.i18n");
+projectList.add("org.eclipse.mdm.businesstyperegistry");
+projectList.add("org.eclipse.mdm.connector");
 
 
 projectList.each {

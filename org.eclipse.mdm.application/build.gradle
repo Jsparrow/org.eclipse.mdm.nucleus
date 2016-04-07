@@ -11,8 +11,8 @@ group = 'org.eclipse.mdm'
 version = '1.0.0'
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'war'
 apply plugin: 'maven'
+apply plugin: 'war'
 sourceCompatibility = 1.8
 
 repositories {
@@ -42,6 +42,52 @@ dependencies {
 	runtime 'org.slf4j:slf4j-simple:1.7.19'	
     
 }
+
+task cleanBackend << {
+	tasks.getByPath("org.eclipse.mdm.api.base:clean").execute()
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:clean").execute()	
+	tasks.getByPath("org.eclipse.mdm.connector:clean").execute()
+	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:clean").execute()
+	tasks.getByPath("org.eclipse.mdm.i18n:clean").execute()	
+	tasks.getByPath("org.eclipse.mdm.action.delete:clean").execute()
+	tasks.getByPath("org.eclipse.mdm.navigator:clean").execute()
+}
+cleanBackend.finalizedBy(clean)
+
+task installBackend << {
+
+	tasks.getByPath("org.eclipse.mdm.api.base:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.api.base:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.api.base:install").execute()
+				
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:compileIDL").execute()	
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:compileGeneratedJava").execute()		
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.api.odsadapter:install").execute()
+		
+	tasks.getByPath("org.eclipse.mdm.connector:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.connector:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.connector:install").execute()
+			
+	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.businesstyperegistry:install").execute()
+				
+	tasks.getByPath("org.eclipse.mdm.i18n:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.i18n:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.i18n:install").execute()
+				
+	tasks.getByPath("org.eclipse.mdm.action.delete:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.action.delete:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.action.delete:install").execute()
+				
+	tasks.getByPath("org.eclipse.mdm.navigator:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.navigator:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.navigator:install").execute()
+			
+}
+installBackend.finalizedBy(install)
 
 
 task collectFrontend() {
