@@ -66,10 +66,10 @@ available projects
 
     provided rest urls:
     
-        url:        http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/MDM_BO_TYPE/actions
-        example:    http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/teststeps/actions
-        type:       GET
-        return:     a JSON string with a list of actions
+    url:        http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/MDM_BO_TYPE/actions
+    example:    http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/teststeps/actions
+    type:       GET
+    return:     a JSON string with a list of actions
     
     
 - org.eclipse.mdm.i18n
