@@ -14,7 +14,7 @@ http://www.eclipse.org/legal/epl-v10.html
   <br><br>
 - <b>build application (war)</b>
     <br>
-    The command 'gradlew installBackend' at ./org.eclipse.mdm.nucleus/org.eclipse.mdm.application installs all projects 
+    The command '<b>gradlew installBackend</b>' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application</i> installs all projects 
     inclusive org.eclipse.mdm.api.base and org.eclipse.mdm.api.odsadapter if this
     projects are checked out at the same root folder as org.eclipse.mdm.nucleus
     for example:
@@ -23,23 +23,23 @@ http://www.eclipse.org/legal/epl-v10.html
      - org.eclispe.mdm.api.odsadapter
      - org.eclipse.mdm.nuclues
 
-    The war file will be generated at <i>./org.eclipse.mdm.application/build/libs/org.eclipse.mdm.application-1.0.0.war</i>
+    The war file will be generated at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/libs/org.eclipse.mdm.application-1.0.0.war</i>
     <br><br>
-    Use the command 'gradlew cleanBackend' to delete the backend war at <i>./org.eclipse.mdm.application/build/libs</i>
+    Use the command '<b>gradlew cleanBackend</b>' to delete the backend war at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/libs</i>
     and to cleanup all build folders at the dependend projects</i>
     <br><br><br>
     
 - <b>build angular.js frontend (zip)</b>
     <br>
-    The command 'gradlew installFrontend' at org.eclipse.mdm.appliation collects all frontend 
-    parts for each project at 'src/main/webapp' and generates a ZIP file with the complete
+    The command '<b>gradlew installFrontend</b>' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application</i> collects all frontend 
+    parts for each project at <i>src/main/webapp</i> and generates a ZIP file with the complete
     frontend.
     <br>
-    The frontend zip file will be generated at <i>./org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0.zip</i><br>
+    The frontend zip file will be generated at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0.zip</i><br>
     Please note the readme file at the generated zip archive.
     <br><br>
-    Use the command 'gradlew cleanFrontend' to delete the fontend zip at <i>./org.eclipse.mdm.application/build/distributions</i>
-    and to cleanup the tmp directory 'frontend' at <i>./org.eclipse.mdm.application/build/tmp</i>
+    Use the command '<b>gradlew cleanFrontend</b>' to delete the fontend zip at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions</i>
+    and to cleanup the tmp directory 'frontend' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/tmp</i>
     <br><br><br>
     
 <h3>available projects</h3>
