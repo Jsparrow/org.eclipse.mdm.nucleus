@@ -51,8 +51,8 @@ public class ConnectorBean implements ConnectorBeanLI {
 	private final static String ARG_ODS_PASSWORD    = "password";
 		
 	//TODO: delete this if a login module is enabled
-	private final static String SUPERUSER_NAME = "sa";
-	private final static String SUPERUSER_PASSWORD = "sa";
+	private final static String SUPERUSER_NAME = "YOUR_SUPERUSER_NAME";
+	private final static String SUPERUSER_PASSWORD = "YOUR_SUPERUSER_PASSWORD";
 	
 	@Resource 
 	private SessionContext sessionContext;
