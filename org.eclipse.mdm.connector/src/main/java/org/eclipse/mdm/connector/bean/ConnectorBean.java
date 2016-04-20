@@ -1,10 +1,13 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.connector.bean;
 
@@ -33,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Bean implementation {@link ConnectorBeanLI}
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Startup
@@ -41,8 +44,6 @@ import org.slf4j.LoggerFactory;
 @LocalBean
 public class ConnectorBean implements ConnectorBeanLI {
 
-	
-	
 	private static final Logger LOG = LoggerFactory.getLogger(ConnectorBean.class); 
 	
 	private final static String ARG_ODS_NAMESERVICE = "nameservice";
@@ -50,10 +51,6 @@ public class ConnectorBean implements ConnectorBeanLI {
 	private final static String ARG_ODS_USER 		= "user";
 	private final static String ARG_ODS_PASSWORD    = "password";
 		
-	//TODO: delete this if a login module is enabled
-	private final static String SUPERUSER_NAME = "YOUR_SUPERUSER_NAME";
-	private final static String SUPERUSER_PASSWORD = "YOUR_SUPERUSER_PASSWORD";
-	
 	@Resource 
 	private SessionContext sessionContext;
 	
@@ -61,21 +58,19 @@ public class ConnectorBean implements ConnectorBeanLI {
 	private EntityManagerFactory<EntityManager> emf;
 		
 	private Map<Principal, List<EntityManager>> connectionMap = new HashMap<Principal, List<EntityManager>>();
-	private Map<Principal, String> authMap = new HashMap<Principal, String>();
-	
+	private ServiceConfigurationReader serviceConfigurationReader = null;
 	
 	
 	@Override
 	public List<EntityManager> getEntityManagers() throws ConnectorException {
 		Principal principal = this.sessionContext.getCallerPrincipal();
 		
-		//TODO: delete this if a login module is enabled
-		if(!this.connectionMap.containsKey(principal)) {
-			connect(principal, SUPERUSER_NAME, SUPERUSER_PASSWORD);
-		}
-		
 		List<EntityManager> emList = this.connectionMap.get(principal);	
 		
+//		workaround if no login module is enabled
+//		if(!this.connectionMap.containsKey(principal)) {
+//			this.connectionMap.put(principal, connect("", ""));
+//		}
 		
 		if(emList == null || emList.size() <= 0) {
 			throw new ConnectorException("no connections available for user with name '" + principal.getName() + "'");
@@ -95,8 +90,7 @@ public class ConnectorBean implements ConnectorBeanLI {
 				if(sourceName.equals(name)) {					
 					return em;
 				}
-			}
-			
+			}			
 			throw new ConnectorException("no data source with environment name '" + name + "' connected!");
 		
 		} catch(DataAccessException e) {
@@ -105,7 +99,7 @@ public class ConnectorBean implements ConnectorBeanLI {
 		
 	}
 	
-
+	
 	
 	@Override
 	public EntityManager getEntityManagerByURI(URI uri) throws ConnectorException {		
@@ -114,46 +108,40 @@ public class ConnectorBean implements ConnectorBeanLI {
 	
 
 	@Override
-	public String connect(Principal principal, String user, String password) {
+	public List<EntityManager> connect(String user, String password) throws ConnectorException {
+
 		
-		try {
-		
-			if(!this.connectionMap.containsKey(principal)) {			
-				List<EntityManager> emList = new ArrayList<EntityManager>();
-				List<ServiceConfiguration> serviceConfigurations = listServiceConfigurations();
+		List<EntityManager> emList = new ArrayList<EntityManager>();
+		ServiceConfigurationReader configReader = getServiceConfigurationReader();
+		List<ServiceConfiguration> serviceConfigurations = configReader.readServiceConfigurations();
 				
-				for(ServiceConfiguration serviceConfiguration : serviceConfigurations) {			
-					connectEntityManagers(user, password, serviceConfiguration, emList);
-				}
-				
-				if(emList == null || emList.size() <= 0) {
-					return "unable to logon user with name '" + user + "' (initial login)";
-				}
-				
-				this.connectionMap.put(principal, emList);
-				this.authMap.put(principal, password);
-				
-				LOG.info("user with name '" + user + "' has been logged on!");
-				
-			} else {
-				String cachedPassword = this.authMap.get(principal);
-				if(!cachedPassword.equals(password)) {
-					return "unable to logon user with name '" + user + "'";
-				}
-			}
-		
-		} catch(ConnectionException e) {
-			return e.getMessage();
+		for(ServiceConfiguration serviceConfiguration : serviceConfigurations) {			
+			connectEntityManagers(user, password, serviceConfiguration, emList);
 		}
+				
+		return emList;		
+	}
+	
+	
+	@Override
+	public void registerConnections(Principal principal, List<EntityManager> emList)
+			throws ConnectorException {
 		
-		return "";
-	}	
+		if(emList == null || emList.size() <= 0) {
+			throw new ConnectorException("no connections for user with name '" + principal.getName() + "' available!");
+		}
+						
+		if(!this.connectionMap.containsKey(principal)) {
+			this.connectionMap.put(principal, emList);
+		} else {		
+			disconnectEntityManagers(emList);
+		}
+	}
 	
 	
 	
 	@Override
-	public void disconnect() {
-		Principal principal = this.sessionContext.getCallerPrincipal();
+	public void disconnect(Principal principal) {		
 		if(this.connectionMap.containsKey(principal)) {
 			List<EntityManager> emList = this.connectionMap.remove(principal);
 			disconnectEntityManagers(emList);
@@ -202,9 +190,11 @@ public class ConnectorBean implements ConnectorBeanLI {
 	}
 	
 	
-	private List<ServiceConfiguration> listServiceConfigurations() throws ConnectionException {
-		ServiceConfigurationReader serviceReader = new ServiceConfigurationReader();
-		return serviceReader.readServiceConfigurations();
+	private ServiceConfigurationReader getServiceConfigurationReader() throws ConnectorException {
+		if(this.serviceConfigurationReader == null) {
+			this.serviceConfigurationReader = new ServiceConfigurationReader();
+		}
+		return serviceConfigurationReader;
 	}
 
 }

@@ -1,42 +1,51 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.businesstyperegistry.bean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
+import org.eclipse.mdm.api.base.EntityManager;
 import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.model.URI;
+import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.businesstyperegistry.ActionBeanLI;
 import org.eclipse.mdm.businesstyperegistry.BusinessTypeRegistryBeanLI;
 import org.eclipse.mdm.businesstyperegistry.BusinessTypeRegistryException;
+import org.eclipse.mdm.connector.ConnectorBeanLI;
+import org.eclipse.mdm.connector.ConnectorException;
 
 /**
  * Bean implementation (BusinessTypeRegistryBeanLI)
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Singleton
 public class BusinessTypeRegistryBean implements BusinessTypeRegistryBeanLI {
 
-	
-	
 	@Inject
 	private BeanManager beanManager;
 	
-	
+	@EJB
+	private ConnectorBeanLI connectorBean;
 		
 	@Override
 	public List<ActionBeanLI> getActions(String sourceName, Class<? extends Entity> type)
@@ -53,6 +62,27 @@ public class BusinessTypeRegistryBean implements BusinessTypeRegistryBeanLI {
 		return actions;	
 	}
 	
+	
+
+	@Override
+	public URI createURI(String sourceName, Class<? extends Entity> type, long id) throws BusinessTypeRegistryException {
+		
+		try {
+		
+			EntityManager em = this.connectorBean.getEntityManagerByName(sourceName);
+			Optional<ModelManager> oMM = em.getModelManager();
+			if(!oMM.isPresent()) {
+				throw new BusinessTypeRegistryException("neccessary ModelManager is not present!");
+			}
+			ModelManager modelManager = oMM.get();
+			String typeName = modelManager.getEntityType(type).getName();
+			return new URI(sourceName, typeName, id);
+		
+		} catch(ConnectorException e) {
+			throw new BusinessTypeRegistryException(e.getMessage(), e);
+		}
+	}
+
 	
 	
 	/**

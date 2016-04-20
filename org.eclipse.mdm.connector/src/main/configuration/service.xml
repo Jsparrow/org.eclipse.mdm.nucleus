@@ -1,0 +1,5 @@
+<services>
+	<service nameServiceHost="in-dbserv1" nameServicePort="2809" nameServiceName="NameService" serviceName="MDMTEST01.ASAM-ODS"/>
+	<service nameServiceHost="in-dbserv1" nameServicePort="2809" nameServiceName="NameService" serviceName="MDM5API_min.ASAM-ODS"/>
+	<service nameServiceHost="in-dbserv1" nameServicePort="2809" nameServiceName="NameService" serviceName="MDMARMADA.ASAM-ODS"/>	
+</services>

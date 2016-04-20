@@ -35,11 +35,23 @@ http://www.eclipse.org/legal/epl-v10.html
     parts for each project at <i>src/main/webapp</i> and generates a ZIP file with the complete
     frontend.
     <br>
-    The frontend zip file will be generated at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0.zip</i><br>
+    The frontend zip file will be generated at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0_frontend.zip</i><br>
     Please note the readme file at the generated zip archive.
     <br><br>
     Use the command '<b>gradlew cleanFrontend</b>' to delete the fontend zip at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions</i>
     and to cleanup the tmp directory 'frontend' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/tmp</i>
+    <br><br><br>
+    
+- <b>build configurations (zip)</b>
+    <br>
+    The command '<b>gradlew installConfiguration</b>' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application</i> collects all component configurations 
+    parts for each project at <i>src/main/configuration</i> and generates a ZIP file with the complete component configurations
+    <br>
+    The configuration zip file will be generated at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0_configuration.zip</i><br>
+    Please note the readme file at the generated zip archive.
+    <br><br>
+    Use the command '<b>gradlew cleanConfiguration</b>' to delete the fontend zip at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions</i>
+    and to cleanup the tmp directory 'configration' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/tmp</i>
     <br><br><br>
     
 <h3>available projects</h3>
@@ -47,7 +59,7 @@ http://www.eclipse.org/legal/epl-v10.html
 - <b>org.eclipse.mdm.application</b>
     <br>
     includes application server configurations and gradle build scripts for the complete
-    backend (war) and the complete frontend (zip) (see: 1.build)
+    backend (war), complete frontend (zip) and configurations (zip) (see: 1.build)
     frontend at: src/main/webapp
     <br><br>
     available rest urls: none
@@ -57,17 +69,13 @@ http://www.eclipse.org/legal/epl-v10.html
     <br>
     The mdm connector singelton bean manages the connections for logged on users (Principal) at 
     the the application server. A application server specific login realm module for the MDM application has to
-    be installed and configured at the used application server. This module has to call the 'connect' method of 
-    this service to create and register MDM connections for a user (Principal).
+    be installed and configured at the used application server. This module has to call the 'connect' (login phase 1) and 
+    'registerConnections' (login phase 2) methods of this service to create and register MDM connections for a user (Principal).
     <br><br>
     available rest urls: none
     <br><br> 
     <b>hint:</b> 
-    - at the current version the login module is disable. If you want to create a connection to MDM systems please add a superuser name and a superuser password 
-      at ConnectorBean source file:
-    <i>./org.eclips.mdm.connector/src/main/java/org/eclipse/mdm/connector/bean/ConnectorBean.java</i> (edit: SUPERUSER_NAME and SUPERUSER_PASSWORD)
-    - configure available MDM data sources to the resource file at <i>./org.eclipse.mdm.connector/src/main/resources/org/eclipse/mdm/connector/configuration/services.properties</i>
-    - note that the defined super user is configured at all defined data sources
+    - configure available MDM data sources at configuration file <i>./org.eclipse.mdm.connector/src/main/configuration/service.xml</i>
     <br><br>
     
 - <b>org.eclipse.mdm.businesstyperegistry</b>
@@ -215,3 +223,68 @@ http://www.eclipse.org/legal/epl-v10.html
         <tr><td>type:</td><td>DELETE</td></tr>
         <tr><td>return:</td><td>an empty JSON string if the delete operation was successful, or the measurement.id if the operation fails</td></tr>
         </table>
+                <br><br>
+- <b>org.eclipse.mdm.contextprovider</b>
+    <br>
+    The contextprovider bean provides the ordered and measured context for the MDM business objects TestStep and Measurement. 
+    The provided context contains always the orderd and measured context parts if available. 
+    
+    available rest urls:
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/teststeps/contexts?teststep.id=TESTSTEP_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/teststeps/context?teststep.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of UnitUnderTest, TestSequence and TestEquipment (ordered and measured)</td></tr>
+        </table>
+        <br>
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/teststeps/contexts/unitundertest?teststep.id=TESTSTEP_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/teststeps/context/unitundertest?teststep.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of UnitUnderTest (ordered and measured)</td></tr>
+        </table>
+        <br>
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/teststeps/contexts/testsequence?teststep.id=TESTSTEP_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/teststeps/context/testsequence?teststep.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of TestSequence (ordered and measured)</td></tr>
+        </table>
+        <br>
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/teststeps/contexts/testequipment?teststep.id=TESTSTEP_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/teststeps/context/testequipment?teststep.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of TestEquipment (ordered and measured)</td></tr>
+        </table>
+        <br>
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/measurements/contexts?measurement.id=MEASUREMENT_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/measurements/context?measurement.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of UnitUnderTest, TestSequence and TestEquipment (ordered and measured)</td></tr>
+        </table>
+        <br>
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/measurements/contexts/unitundertest?measurement.id=MEASUREMENT_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/measurements/context/unitundertest?measurement.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of UnitUnderTest (ordered and measured)</td></tr>
+        </table>
+        <br>
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/measurements/contexts/testsequence?measurement.id=MEASUREMENT_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/measurements/context/testsequence?measurement.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of TestSequence (ordered and measured)</td></tr>
+        </table>
+        <br>
+        <table>
+        <tr><td>url:</td><td>http://SERVER:PORT/APPLICATION_ROOT/mdm/environments/SOURCE_NAME/measurements/contexts/testequipment?measurement.id=MEASUREMENT_ID</td></tr>
+        <tr><td>example:</td><td>http://localhost:8080/org.eclipse.mdm.application-1.0.0/mdm/environments/MDMSource1/measurements/context/testequipment?measurement.id=123</td></tr>
+        <tr><td>type:</td><td>GET/td></tr>
+        <tr><td>return:</td><td>a JSON string with a the context data of TestEquipment (ordered and measured)</td></tr>
+        </table>
+        <br>
+        
+        

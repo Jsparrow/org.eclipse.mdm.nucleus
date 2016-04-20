@@ -1,9 +1,14 @@
-// Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-// All rights reserved. This program and the accompanying materials
-// are made available under the terms of the Eclipse Public License v1.0
-// which accompanies this distribution, and is available at
-// http://www.eclipse.org/legal/epl-v10.html
-import {Component, OnInit} from 'angular2/core';
+// *******************************************************************************
+//   * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+//   * All rights reserved. This program and the accompanying materials
+//   * are made available under the terms of the Eclipse Public License v1.0
+//   * which accompanies this distribution, and is available at
+//   * http://www.eclipse.org/legal/epl-v10.html
+//   *
+//   * Contributors:
+//   * Dennis Schroeder - initial implementation
+//   *******************************************************************************
+import {Component, OnInit, Input, Output, EventEmitter} from 'angular2/core';
 import {Router, RouteConfig} from 'angular2/router';
 
 import {Node} from './node';
@@ -11,47 +16,19 @@ import {NodeService} from './node.service';
 
 import {MDMNodeProviderComponent} from './mdm-node-provider.component';
 
-
-import {MDMDetailComponent} from './mdm-detail.component';
-import {MDMDetailViewComponent} from './mdm-detail-view.component';
+// import {MDMDetailComponent} from './mdm-detail.component';
+// import {MDMDetailViewComponent} from './mdm-detail-view.component';
+// import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.component';
 
 @Component({
-  selector: 'mdm-navigator',
-  template: `<div class="container-fluid">
-   <div class="row">
-     <div class="col-sm-3">
-       <div class="panel-group" style="height: 90vh; overflow-y: auto">
-         <div class="panel panel-default">
-           <div class="panel-heading">
-             <h4 class="panel-title">
-               <a data-toggle="collapse" href="#root"><span class="glyphicon glyphicon-th-list"></span> Navigator</a>
-             </h4>
-           </div>
-           <div id="root" class="panel-collapse collapse">
-             <ul class="list-group">
-               <template ngFor #node [ngForOf]="nodes">
-                 <li class="list-group-item"><span style="cursor: pointer;" [style.margin-left.px]="getMargin()" [ngClass]="isActive(node)" (click)="onOpenNode(node)"></span> <a style="color:black; cursor: pointer;" (click)="onSelectNode(node)">{{node.name}}</a></li>
-                 <div *ngIf="node.active" class="panel-collapse">
-                   <ul class="list-group"><mdm-node-provider  [rootNode]="openNode" [margin]="getMargin()">Loading...</mdm-node-provider></ul>
-                 </div>
-               </template>
-             </ul>
-           </div>
-         </div>
-       </div>
-     </div>
-     <div class="col-sm-9">
-      <mdm-detail></mdm-detail>
-     </div>
-   </div>
-  </div>`,
-  directives [MDMNodeProviderComponent, MDMDetailComponent, MDMDetailViewComponent],
+  selector: '[mdm-navigator]',
+  templateUrl: 'templates/mdm-navigator.component.html',
+  directives [MDMNodeProviderComponent],
   providers: []
 })
-@RouteConfig([
-  { path: '/detailView', component: MDMDetailViewComponent, name: 'DetailView', useAsDefault: true }
-])
 export class MDMNavigatorComponent implements OnInit {
+  @Output() selectingNode = new EventEmitter();
+
   openNode: Node;
   actions: Actions[];
   nodes: Node[];
@@ -72,8 +49,12 @@ export class MDMNavigatorComponent implements OnInit {
     onOpenNode(node: Node) {
       this.activateNode(node);
     }
+    updateSelectedNode(arg) {
+      this.selectedNode = arg
+      this.selectingNode.emit(arg)
+    }
     onSelectNode(node){
-      this._nodeService.setSelectedNode(node)
+      this.selectingNode.emit(node);
     }
     private activateNode(node: Node){
       if (this.openNode === node && this.openNode.active) {

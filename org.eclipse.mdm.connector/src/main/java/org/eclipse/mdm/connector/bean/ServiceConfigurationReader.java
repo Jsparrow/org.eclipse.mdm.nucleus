@@ -1,93 +1,159 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.connector.bean;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 
-import org.eclipse.mdm.api.base.ConnectionException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.eclipse.mdm.connector.ConnectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
- * ServiceConfigurationReader to read service configurations form a resource property file 
- * at 'org/eclipse/mdm/connector/configuration/services'
+ * ServiceConfigurationReader to read MDM Service configurations from a service.xml file
  * 
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 public class ServiceConfigurationReader {
-
 	
+	private static final String ROOT_ELEMENT_NAME = "services";
+	private static final String SERVICE_ELEMENT = "service";
+	private static final String SERVICE_ATTR_NS_HOST = "nameServiceHost";
+	private static final String SERVICE_ATTR_NS_PORT = "nameServicePort";
+	private static final String SERVICE_ATTR_NS_NAME = "nameServiceName";
+	private static final String SERVICE_ATTR_SERVICENAME = "serviceName";
+	
+	private final static String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.connector";
+	private final static String SERVICE_XML_FILE_NAME = "service.xml";		
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ServiceConfigurationReader.class); 
 	
-	private static final String SERVICES_KEY = "SERVICES";
-	private static final String SERVICE_ATTRIBUTE_NAMESERVICE_KEY = "NameService";
-	private static final String SERVICE_ATTRIBUTE_SERVICENAME_KEY = "ServiceName";
-	private static final String SERVICE_KEY_SEPARATOR = ";";
-	
-	private String SERVICE_FILE = "org/eclipse/mdm/connector/configuration/services";
-	private ResourceBundle SERVICE_RESOURCES = ResourceBundle.getBundle(SERVICE_FILE);
-	
-	
-	
-	/**
-	 * reads the service configurations from a resource property file and returns the read
-	 * services as list
-	 * 
-	 * @return the read service as list with {@link ServiceConfiguration} 
-	 * @throws ConnectionException
-	 */
-	public List<ServiceConfiguration> readServiceConfigurations() throws ConnectionException {
-		List<ServiceConfiguration> serviceList = new ArrayList<>();
-		String[] serviceKeys = readServiceKeys();
-		for(String serviceKey : serviceKeys) {
-			
-			String nameServiceKey = serviceKey + "." + SERVICE_ATTRIBUTE_NAMESERVICE_KEY;
-			String serviceNameKey = serviceKey + "." + SERVICE_ATTRIBUTE_SERVICENAME_KEY;
-			
-			addServiceConfiguration(nameServiceKey, serviceNameKey, serviceList);
-		}
-		return serviceList;
-	}
-	
-	
+	public List<ServiceConfiguration> readServiceConfigurations() throws ConnectorException {
 		
-	private String[] readServiceKeys() throws ConnectionException {
+		InputStream is = null; 
+		
 		try {
-			String serviceKey = SERVICE_RESOURCES.getString(SERVICES_KEY);
-			return serviceKey.split(SERVICE_KEY_SEPARATOR);
-		} catch(MissingResourceException e) {
-			String message = "mandatory connector resource key "+ "with name '" + SERVICES_KEY + "' not found";
-			LOG.error(message);
-			throw new ConnectionException(message, e);
+			List<ServiceConfiguration> list = new ArrayList<>();
+			
+			File serviceXML = getServiceFile();
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        
+	        is = new BufferedInputStream(new FileInputStream(serviceXML));
+	        Document doc = db.parse(is);
+	       
+	        Element root = doc.getDocumentElement();
+	        if(!root.getNodeName().equalsIgnoreCase(ROOT_ELEMENT_NAME)) {
+	        	throw new ConnectorException("unable to find root element with name '" + ROOT_ELEMENT_NAME + "'");
+	        }
+	                
+	        Element[] services = getChildElementsByName(root, SERVICE_ELEMENT, true);
+	        for(Element service : services) {
+	        	list.add(readServiceConfiguration(service));
+	        }   
+	        
+	        return list;	        
+		} catch(ParserConfigurationException | SAXException | IOException e) {
+			throw new ConnectorException(e.getMessage(), e);
+		} finally {
+			closeInputStream(is);
 		}
 	}
-	
-	
-	
-	private void addServiceConfiguration(String nameServiceKey, String serviceNameKey, 
-		List<ServiceConfiguration> serviceList) {
 
-		try {
-			String nameService = SERVICE_RESOURCES.getString(nameServiceKey);
-			String serviceName = SERVICE_RESOURCES.getString(serviceNameKey);
-			
-			serviceList.add(new ServiceConfiguration(nameService, serviceName));
+
+	private ServiceConfiguration readServiceConfiguration(Element service) throws ConnectorException {
+		String nameServiceHost = readElementAttribute(SERVICE_ATTR_NS_HOST, "", true, service);
+		String nameServicePort = readElementAttribute(SERVICE_ATTR_NS_PORT, "", true, service);
+		String nameServiceName = readElementAttribute(SERVICE_ATTR_NS_NAME, "NameService", false, service);
+		String serviceName = readElementAttribute(SERVICE_ATTR_SERVICENAME, "", true, service);
+		String nameService = "corbaloc::1.2@" + nameServiceHost + ":" + nameServicePort + "/" + nameServiceName;
+		return new ServiceConfiguration(nameService, serviceName);
+	}
+	
+	
+	private Element[] getChildElementsByName(Element element, String name, boolean mandatory) throws ConnectorException {
 		
-		} catch(MissingResourceException e) {
-			String message = "expected service configuration key not found (expected keys at connector resource are: '" 
-				+ nameServiceKey + "' and '" + serviceNameKey + "')";
-			LOG.error(message);
-		}		
+		List<Element> elements = new ArrayList<Element>();
+		
+		NodeList childNodes = element.getChildNodes();
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node node = childNodes.item(i);
+			if(node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equalsIgnoreCase(name)) {
+				elements.add((Element) node);
+			}					
+		}
+		
+		if(mandatory && elements.size() <= 0) {
+			throw new ConnectorException("mandatory element '" + name + "' not found!");
+		}
+		
+		return elements.toArray(new Element[elements.size()]);
+	}	
+	
+	
+	private String readElementAttribute(String attrName, String defaultValue, boolean mandatory, Element element) 
+		throws ConnectorException {
+			
+		String value = element.getAttribute(attrName);
+		if(value.trim().length() <= 0) {
+			if(mandatory) {
+				String elementName = element.getNodeName();
+				throw new ConnectorException("mandatory attribute '" + attrName + "' at element '" 
+					+ elementName + "' is missing!");
+			}			
+			value = defaultValue;
+		}
+		return value;
+	}
+	
+	
+	private File getServiceFile() throws ConnectorException {
+		File file = new File(COMPONENT_CONFIG_ROOT_FOLDER);
+		if(!file.exists() || !file.isDirectory()) {
+			throw new ConnectorException("mandatory configuration folder '" + file.getAbsolutePath() + "' does not exist!");
+		}
+		File serviceXML = new File(file, SERVICE_XML_FILE_NAME);
+		if(!file.exists()) {
+			throw new ConnectorException("mandatory service configuration file at '" + serviceXML.getAbsolutePath() 
+				+ "' does not exist!");
+		}
+		return serviceXML;
+	}
+	
+	
+	
+	private void closeInputStream(InputStream is) {
+		try {
+			if(is != null) {
+				is.close();
+			}
+		} catch(IOException e) {
+			LOG.error(e.getMessage());
+		}
 	}
 }

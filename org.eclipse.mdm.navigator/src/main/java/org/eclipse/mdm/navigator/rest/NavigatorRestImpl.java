@@ -1,10 +1,13 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.navigator.rest;
 
@@ -27,6 +30,8 @@ import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.URI;
+import org.eclipse.mdm.businesstyperegistry.BusinessTypeRegistryBeanLI;
+import org.eclipse.mdm.businesstyperegistry.BusinessTypeRegistryException;
 import org.eclipse.mdm.businesstyperegistry.rest.transferable.Entry;
 import org.eclipse.mdm.businesstyperegistry.rest.transferable.EntryResponse;
 import org.eclipse.mdm.navigator.NavigatorBeanLI;
@@ -38,7 +43,7 @@ import com.google.gson.Gson;
 
 /**
  * Rest implementation of {@link NavigatorRestIF}
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Path("environments")
@@ -48,6 +53,9 @@ public class NavigatorRestImpl implements NavigatorRestIF {
 	
 	@EJB(beanName = "NavigatorBean")
 	private NavigatorBeanLI navigatorBean;
+	
+	@EJB
+	private BusinessTypeRegistryBeanLI businessTypeRegistry;
 	
 	@Override
 	@GET
@@ -71,12 +79,12 @@ public class NavigatorRestImpl implements NavigatorRestIF {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getTests(@PathParam("SOURCENAME") String sourceName) {
 		try {			
-			URI environmentURI = this.navigatorBean.createURI(sourceName, Environment.class, 1L);
+			URI environmentURI = this.businessTypeRegistry.createURI(sourceName, Environment.class, 1L);
 			List<Test> testList = this.navigatorBean.getTests(environmentURI);		
 			List<Entry> list = entities2Entries(testList);
 			return new Gson().toJson(new EntryResponse(Test.class, list));
 			
-		} catch (NavigatorException e) {
+		} catch (NavigatorException | BusinessTypeRegistryException e) {
 			LOG.error(e.getMessage(), e);
 		}
 		return new Gson().toJson(new EntryResponse());
@@ -93,12 +101,12 @@ public class NavigatorRestImpl implements NavigatorRestIF {
 	public String getTestSteps(@PathParam("SOURCENAME") String sourceName, @QueryParam("test.id") long testId) {
 		
 		try {			
-			URI testURI = this.navigatorBean.createURI(sourceName, Test.class, testId);
+			URI testURI = this.businessTypeRegistry.createURI(sourceName, Test.class, testId);
 			List<TestStep> testStepList = this.navigatorBean.getTestSteps(testURI);	
 			List<Entry> list = entities2Entries(testStepList);
 			return new Gson().toJson(new EntryResponse(TestStep.class, list));
 			
-		} catch (NavigatorException e) {
+		} catch (NavigatorException | BusinessTypeRegistryException e) {
 			LOG.error(e.getMessage(), e);
 		}
 		return new Gson().toJson(new EntryResponse());
@@ -112,12 +120,12 @@ public class NavigatorRestImpl implements NavigatorRestIF {
 	public String getMeasurements(@PathParam("SOURCENAME") String sourceName, @QueryParam("teststep.id") long testStepId) {
 
 		try {			
-			URI testStepURI = this.navigatorBean.createURI(sourceName, TestStep.class, testStepId);
+			URI testStepURI = this.businessTypeRegistry.createURI(sourceName, TestStep.class, testStepId);
 			List<Measurement> measurementsList = this.navigatorBean.getMeasurements(testStepURI);	
 			List<Entry> list = entities2Entries(measurementsList);
 			return new Gson().toJson(new EntryResponse(Measurement.class, list));
 			
-		} catch (NavigatorException e) {
+		} catch (NavigatorException | BusinessTypeRegistryException e) {
 			LOG.error(e.getMessage(), e);
 		}
 		return new Gson().toJson(new EntryResponse());
@@ -130,12 +138,12 @@ public class NavigatorRestImpl implements NavigatorRestIF {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getChannelGroups(@PathParam("SOURCENAME") String sourceName, @QueryParam("measurement.id") long measurmentId) {
 		try {			
-			URI measurementURI = this.navigatorBean.createURI(sourceName, Measurement.class, measurmentId);
+			URI measurementURI = this.businessTypeRegistry.createURI(sourceName, Measurement.class, measurmentId);
 			List<ChannelGroup> channelGroupList = this.navigatorBean.getChannelGroups(measurementURI);	
 			List<Entry> list = entities2Entries(channelGroupList);
 			return new Gson().toJson(new EntryResponse(ChannelGroup.class, list));
 			
-		} catch (NavigatorException e) {
+		} catch (NavigatorException | BusinessTypeRegistryException e) {
 			LOG.error(e.getMessage(), e);
 		}
 		return new Gson().toJson(new EntryResponse());
@@ -148,16 +156,17 @@ public class NavigatorRestImpl implements NavigatorRestIF {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getChannels(@PathParam("SOURCENAME") String sourceName, @QueryParam("channelgroup.id") long channelGroupId) {
 		try {			
-			URI channelGroupURI= this.navigatorBean.createURI(sourceName, ChannelGroup.class, channelGroupId);
+			URI channelGroupURI= this.businessTypeRegistry.createURI(sourceName, ChannelGroup.class, channelGroupId);
 			List<Channel> channelList = this.navigatorBean.getChannels(channelGroupURI);
 			List<Entry> list = entities2Entries(channelList);
 			return new Gson().toJson(new EntryResponse(Channel.class, list));
 			
-		} catch (NavigatorException e) {
+		} catch (NavigatorException | BusinessTypeRegistryException e) {
 			LOG.error(e.getMessage(), e);
 		}
 		return new Gson().toJson(new EntryResponse());
 	}
+	
 	
 	
 	private <T extends Entity> List<Entry> entities2Entries(List<T> entities) {

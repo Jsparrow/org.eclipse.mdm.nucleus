@@ -1,10 +1,13 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.connector;
 
@@ -13,16 +16,17 @@ import java.security.Principal;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.security.auth.spi.LoginModule;
 
 import org.eclipse.mdm.api.base.EntityManager;
-import org.eclipse.mdm.api.base.EntityManagerFactory;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.connector.bean.ConnectorBean;
+import org.eclipse.mdm.connector.bean.ServiceConfiguration;
 
 /**
  * Local interface for {@link ConnectorBean}
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Local
@@ -61,20 +65,44 @@ public interface ConnectorBeanLI {
 	
 	
 	/**
-	 * connect a registered {@link Principal} to the defined MDM data sources via the {@link EntityManagerFactory}
-	 *  
-	 * @param principal registered {@link Principal} 
-	 * @param user name of the user
-	 * @param password password of the user
-	 * @return an empty String if the connection was successful, or an error message for the LoginRealm
-	 * which calls this method from outside.
+	 * tries to connect a user with the given password to the registered {@link ServiceConfiguration}s
+	 * This method is call from a {@link LoginModule} at login phase 1.
+	 * 
+	 * @param user user login credential
+	 * @param password password login credential 
+	 * @return a list connected {@link EntityManager}s  
+	 * @throws ConnectorException if an error occurs during the connection process (phase 1)
 	 */
-	String connect(Principal principal, String user, String password);
+	List<EntityManager> connect(String user, String password)  throws ConnectorException;
 	
 	
 	
 	/**
-	 * disconnect the current {@link Principal} from all connected data sources
+	 * registers all connections for a {@link Principal} at the {@link ConnectorBean}
+	 * This method is call from a {@link LoginModule} at login phase 2.
+	 * 
+	 * @param principal owner of the given connection list (EntityManager list)
+	 * @param emList connection list
+	 * @throws ConnectorException if an error occurs during the connection process (phase 2)
 	 */
-	void disconnect();
+	void registerConnections(Principal principal, List<EntityManager> emList)  throws ConnectorException;
+	
+	
+	
+	/**
+	 * disconnect the given {@link Principal} from all connected data sources
+	 * This method is call from a {@link LoginModule} at logout
+	 * 
+	 * This method is call from a {@link LoginModule}
+	 * @param principal the principal to disconnect
+	 */
+	void disconnect(Principal principal);
+	
+	
+	
+
+	
+
+
+
 }

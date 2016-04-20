@@ -1,10 +1,13 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.navigator;
 
@@ -14,7 +17,6 @@ import javax.ejb.Local;
 
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
-import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
@@ -25,7 +27,7 @@ import org.eclipse.mdm.navigator.bean.NavigatorBean;
 /**
  * Local interface for {@link NavigatorBean}
  * 
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Local
@@ -95,19 +97,6 @@ public interface NavigatorBeanLI {
 	 * @throws NavigatorException if an error occurs during the {@link Channel} load operation
 	 */
 	List<Channel> getChannels(URI channelGroupURI) throws NavigatorException;
-	
-	
-	
-	/**
-	 * creates a valid {@link URI} with a valid source type
-	 *  
-	 * @param sourceName source name (MDM {@link Environment} name)
-	 * @param type MDM Type e.g. TestStep.class
-	 * @param id MDM business object id
-	 * @return the created valid MDM business object {@link URI}
-	 * @throws NavigatorException if an error occurs during the {@link URI} create operation
-	 */
-	URI createURI(String sourceName, Class<? extends Entity> type, long id) throws NavigatorException;
 
 
 }

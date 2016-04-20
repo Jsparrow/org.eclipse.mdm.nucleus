@@ -1,10 +1,13 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.businesstyperegistry;
 
@@ -24,14 +27,21 @@ import java.util.Set;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 
+import org.eclipse.mdm.api.base.model.Channel;
+import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.model.Environment;
+import org.eclipse.mdm.api.base.model.Measurement;
+import org.eclipse.mdm.api.base.model.TestStep;
+import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.businesstyperegistry.bean.BusinessTypeRegistryBean;
+import org.eclipse.mdm.connector.ConnectorBeanLI;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
  * JUNIT Test for {@link BusinessTypeRegistryBean}
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 public class BusinessTypeRegistryBeanTest {
@@ -63,6 +73,44 @@ public class BusinessTypeRegistryBeanTest {
 	}
 	
 	
+	@Test 
+	public void testCreateURI() {		
+
+		BusinessTypeRegistryException businessTypeRegistryException = null;
+		Exception otherException = null;
+						
+		try {
+			String sourceName = "MDMENV";
+			long id = 1L;
+			
+			BusinessTypeRegistryBeanLI businessTypeRegistryBean = createdMockedBusinessRegistryBean();
+			URI envURI = businessTypeRegistryBean.createURI(sourceName, Environment.class, id);			
+			URI testURI = businessTypeRegistryBean.createURI(sourceName, org.eclipse.mdm.api.base.model.Test.class, id);
+			URI testStepURI = businessTypeRegistryBean.createURI(sourceName, TestStep.class, id);	
+			URI measurementURI = businessTypeRegistryBean.createURI(sourceName, Measurement.class, id);	
+			URI channelGroupURI = businessTypeRegistryBean.createURI(sourceName, ChannelGroup.class, id);	
+			URI channelURI = businessTypeRegistryBean.createURI(sourceName, Channel.class, id);	
+			
+			assertEquals("Environment URI check", envURI.toString(), "mdmDataItem://MDMENV/Environment/1");
+			assertEquals("Test URI check", testURI.toString(), "mdmDataItem://MDMENV/Test/1");
+			assertEquals("TestStep URI check", testStepURI.toString(), "mdmDataItem://MDMENV/TestStep/1");
+			assertEquals("Measurement URI check", measurementURI.toString(), "mdmDataItem://MDMENV/Measurement/1");
+			assertEquals("ChannelGroup URI check", channelGroupURI.toString(), "mdmDataItem://MDMENV/ChannelGroup/1");
+			assertEquals("Channel URI check", channelURI.toString(), "mdmDataItem://MDMENV/Channel/1");
+			
+			
+		} catch(BusinessTypeRegistryException e) {
+			businessTypeRegistryException = e;
+		} catch(Exception e) {
+			otherException = e;
+		}
+		
+		assertNull("no navigator exception should occur", businessTypeRegistryException );
+		assertNull("no other exception should occur", otherException);
+	}
+	
+	
+	
 	private BusinessTypeRegistryBeanLI createdMockedBusinessRegistryBean() throws Exception {
 		
 		List<Class<? extends Entity>> typeList = new ArrayList<>();
@@ -81,14 +129,22 @@ public class BusinessTypeRegistryBeanTest {
 		when(bm.getBeans(ActionBeanLI.class)).thenReturn(set);
 		when(bm.getReference(eq(bean), eq(ActionBeanLI.class), anyObject())).thenReturn(actionBean);
 		
-		BusinessTypeRegistryBeanLI businessTypeRegistryBean = new BusinessTypeRegistryBean();
-		Field field = businessTypeRegistryBean.getClass().getDeclaredField("beanManager");
-		field.setAccessible(true);
-		field.set(businessTypeRegistryBean, bm);
-		field.setAccessible(false);
+		ConnectorBeanLI connectorBeanMock = BusinessTypeRegistryMockHelper.createConnectorMock();
 		
-		return businessTypeRegistryBean;
+		BusinessTypeRegistryBeanLI businessTypeRegistryBean = new BusinessTypeRegistryBean();		
 		
+		Field bmField= businessTypeRegistryBean.getClass().getDeclaredField("beanManager");
+		bmField.setAccessible(true);
+		bmField.set(businessTypeRegistryBean, bm);
+		bmField.setAccessible(false);
+		
+		Field connectorField= businessTypeRegistryBean.getClass().getDeclaredField("connectorBean");
+		connectorField.setAccessible(true);
+		connectorField.set(businessTypeRegistryBean, connectorBeanMock);
+		connectorField.setAccessible(false);
+	
+		
+		return businessTypeRegistryBean;		
 	}
 	
 	

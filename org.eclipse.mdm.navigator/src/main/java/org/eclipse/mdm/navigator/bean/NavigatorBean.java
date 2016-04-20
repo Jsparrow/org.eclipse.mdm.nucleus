@@ -1,10 +1,13 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.navigator.bean;
 
@@ -26,7 +29,6 @@ import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.connector.ConnectorBeanLI;
 import org.eclipse.mdm.connector.ConnectorException;
 import org.eclipse.mdm.navigator.NavigatorBeanLI;
@@ -34,7 +36,7 @@ import org.eclipse.mdm.navigator.NavigatorException;
 
 /**
  * Bean implementation of {@link NavigatorBeanLI}
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Stateless
@@ -43,8 +45,6 @@ public class NavigatorBean implements NavigatorBeanLI {
 
 	@EJB
 	private ConnectorBeanLI connectorBean;
-
-	
 	
 	@Override	
 	public List<Environment> getEnvironments() throws NavigatorException {
@@ -100,27 +100,6 @@ public class NavigatorBean implements NavigatorBeanLI {
 		return getChildren(Channel.class, channelGroupURI);
 	}	
 	
-	
-	
-	@Override
-	public URI createURI(String sourceName, Class<? extends Entity> type, long id) throws NavigatorException {
-		
-		try {
-		
-			EntityManager em = this.connectorBean.getEntityManagerByName(sourceName);
-			Optional<ModelManager> oMM = em.getModelManager();
-			if(!oMM.isPresent()) {
-				throw new NavigatorException("neccessary ModelManager is not present!");
-			}
-			ModelManager modelManager = oMM.get();
-			String typeName = modelManager.getEntityType(type).getName();
-			return new URI(sourceName, typeName, id);
-		
-		} catch(ConnectorException e) {
-			throw new NavigatorException(e.getMessage(), e);
-		}
-	}	
-
 	
 	
 	private <T extends Entity> List<T> getChildren(Class<T> type, URI parentURI) throws NavigatorException {

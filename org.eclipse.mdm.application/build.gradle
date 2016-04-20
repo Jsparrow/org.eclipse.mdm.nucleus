@@ -1,10 +1,13 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial configuration
+  *******************************************************************************/ 
 
 description = 'MDM Web Application'
 group = 'org.eclipse.mdm'
@@ -29,18 +32,22 @@ buildscript {
 
 
 dependencies {
-       
-	// Jersey 2.15
-    compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
-	
-	//MDM Components		
+
+ 	compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
+
+	compile 'javax:javaee-api:7.0'
+
+	compile 'org.eclipse.mdm:org.eclipse.mdm.search:1.0.0'	
+	compile 'org.eclipse.mdm:org.eclipse.mdm.contextprovider:1.0.0'	
 	compile 'org.eclipse.mdm:org.eclipse.mdm.navigator:1.0.0'
 	compile 'org.eclipse.mdm:org.eclipse.mdm.action.delete:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.i18n:1.0.0'
-	
-	//Logging
-	runtime 'org.slf4j:slf4j-simple:1.7.19'	
-    
+	compile 'org.eclipse.mdm:org.eclipse.mdm.i18n:1.0.0'	
+}
+
+
+war {	
+	webXml = file('src/main/configuration/web.xml')
+	webInf  {from 'src/main/configuration/glassfish-web.xml'}		
 }
 
 task cleanBackend << {
@@ -102,6 +109,18 @@ task installBackend << {
 	tasks.getByPath("org.eclipse.mdm.navigator:classes").execute()
 	tasks.getByPath("org.eclipse.mdm.navigator:jar").execute()
 	tasks.getByPath("org.eclipse.mdm.navigator:install").execute()
+		
+	tasks.getByPath("org.eclipse.mdm.contextprovider:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.contextprovider:processResources").execute()
+	tasks.getByPath("org.eclipse.mdm.contextprovider:classes").execute()
+	tasks.getByPath("org.eclipse.mdm.contextprovider:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.contextprovider:install").execute()
+	
+	tasks.getByPath("org.eclipse.mdm.search:compileJava").execute()	
+	tasks.getByPath("org.eclipse.mdm.search:processResources").execute()
+	tasks.getByPath("org.eclipse.mdm.search:classes").execute()
+	tasks.getByPath("org.eclipse.mdm.search:jar").execute()
+	tasks.getByPath("org.eclipse.mdm.search:install").execute()
 			
 }
 installBackend.finalizedBy(install)
@@ -125,13 +144,38 @@ task collectFrontend() {
 
 
 task cleanFrontend(type: Delete) {
-	delete "${project.projectDir}/build/distributions/org.eclipse.mdm.application-1.0.0.zip"
+	delete "${project.projectDir}/build/distributions/org.eclipse.mdm.application-1.0.0_frontend.zip"
 	delete "${project.projectDir}/build/tmp/frontend"
 }
 
 
 
 task installFrontend(type: Zip, dependsOn: collectFrontend) {
+	archiveName = "org.eclipse.mdm.application-1.0.0_frontend.zip"
 	from "${project.projectDir}/build/tmp/frontend"
 }
 
+
+task collectConfiguration() {
+
+	subprojects.each {
+		subproject ->
+		copy {
+			from "${project.projectDir}/../${subproject.name}/src/main/configuration/"
+			into "${project.projectDir}/build/tmp/configuration/${subproject.name}"
+		}	
+	}
+}
+
+
+task cleanConfiguration(type: Delete) {
+	delete "${project.projectDir}/build/distributions/org.eclipse.mdm.application-1.0.0_configuration.zip"
+	delete "${project.projectDir}/build/tmp/configuration"
+}
+
+
+
+task installConfiguration(type: Zip, dependsOn: collectFrontend) {
+	archiveName = "org.eclipse.mdm.application-1.0.0_configuration.zip"
+	from "${project.projectDir}/build/tmp/configuration"
+}

@@ -1,27 +1,28 @@
-// Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-// All rights reserved. This program and the accompanying materials
-// are made available under the terms of the Eclipse Public License v1.0
-// which accompanies this distribution, and is available at
-// http://www.eclipse.org/legal/epl-v10.html
-import {Component, OnInit} from 'angular2/core';
+// *******************************************************************************
+//   * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+//   * All rights reserved. This program and the accompanying materials
+//   * are made available under the terms of the Eclipse Public License v1.0
+//   * which accompanies this distribution, and is available at
+//   * http://www.eclipse.org/legal/epl-v10.html
+//   *
+//   * Contributors:
+//   * Dennis Schroeder - initial implementation
+//   *******************************************************************************
+import {Component, OnInit, Input, Output, EventEmitter} from 'angular2/core';
 import {Router} from 'angular2/router';
 
 import {Node} from './node';
 import {NodeService} from './node.service';
 
 @Component({
-  selector: 'mdm-node-provider',
-  template: `<template ngFor #node [ngForOf]="nodes">
-  <li class="list-group-item"><span style="cursor: pointer;" [style.margin-left.px]="getMargin()" [ngClass]="isActive(node)" (click)="onOpenNode(node)"></span> <a style="color:black; cursor: pointer;" (click)="onSelectNode(node)">{{node.name}}</a></li>
-  <div *ngIf="node.active" class="panel-collapse">
-      <ul class="list-group"><mdm-node-provider [rootNode]="openNode" [margin]="getMargin()">Loading...</mdm-node-provider></ul>
-    </div>
-  </template>`,
+  selector: '[mdm-node-provider]',
+  templateUrl: 'templates/mdm-node-provider.component.html',
   directives [MDMNodeProviderComponent],
   providers: [],
   inputs: ['rootNode', 'margin']
 })
 export class MDMNodeProviderComponent implements OnInit {
+  @Output() selectingNode = new EventEmitter();
   rootNode: Node;
   margin: number;
 
@@ -55,7 +56,11 @@ export class MDMNodeProviderComponent implements OnInit {
     this.openNode.active = true;
   }
   onSelectNode(node){
-    this._nodeService.setSelectedNode(node);
+    this.selectingNode.emit(node);
+  }
+  updateSelectedNode(arg) {
+    this.selectedNode = arg
+    this.selectingNode.emit(arg)
   }
   isActive(node: Node){
     if node.active {

@@ -1,14 +1,16 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.connector;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -34,12 +36,14 @@ import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.connector.bean.ConnectorBean;
+import org.eclipse.mdm.connector.bean.ServiceConfiguration;
+import org.eclipse.mdm.connector.bean.ServiceConfigurationReader;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
  * JUNIT Test for {@link ConnectorBean}
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 public class ConnectorBeanTest {
@@ -120,10 +124,10 @@ public class ConnectorBeanTest {
 			when(principal.toString()).thenReturn("testuser");
 			
 			ConnectorBeanLI connectorBean = createMockedConnectorBean();		
-			String result = connectorBean.connect(principal, "user", "password");
+			List<EntityManager> emList = connectorBean.connect("user", "password");
 			
-			assertNotNull("result string should not be null", result);
-			assertEquals("result string should be empty", "", result);
+			assertNotNull("EntityManager list should not be null", emList);
+			assertNotEquals("EntityManager list size be grather then 0", 0, emList.size());
 			
 		} catch(ConnectorException e) {
 			connectorException = e;
@@ -136,6 +140,30 @@ public class ConnectorBeanTest {
 	}
 	
 	
+	@Test
+	public void testRegisterConnections() {
+		ConnectorException connectorException = null;
+		Exception otherException = null;
+		
+		try {
+			Principal principal = Mockito.mock(Principal.class);
+			when(principal.toString()).thenReturn("testuser");
+			
+			ConnectorBeanLI connectorBean = createMockedConnectorBean();		
+			List<EntityManager> emList = connectorBean.connect("user", "password");
+			
+			connectorBean.registerConnections(principal, emList);
+			
+		} catch(ConnectorException e) {
+			connectorException = e;
+		} catch(Exception e) {
+			otherException = e;
+		}
+		
+		assertNull("no ConnectorException should be thrown", connectorException);
+		assertNull("no other exception should be thrown", otherException);
+	}
+	
 	
 	@Test
 	public void testDisconnect() {
@@ -147,7 +175,7 @@ public class ConnectorBeanTest {
 			when(principal.toString()).thenReturn("testuser");
 			
 			ConnectorBeanLI connectorBean = createMockedConnectorBean();		
-			connectorBean.disconnect();
+			connectorBean.disconnect(principal);
 						
 		} catch(ConnectorException e) {
 			connectorException = e;
@@ -184,6 +212,13 @@ public class ConnectorBeanTest {
 		Map<Principal, List<EntityManager>> map = new HashMap<>();
 		map.put(principal, emList);
 	
+		List<ServiceConfiguration> scList = new ArrayList<>();
+		scList.add(new ServiceConfiguration("nameService", "serviceName"));
+		
+		ServiceConfigurationReader scReaderMock = Mockito.mock(ServiceConfigurationReader.class);
+		when(scReaderMock.readServiceConfigurations()).thenReturn(scList);
+		
+		
 		ConnectorBeanLI connectorBean = new ConnectorBean();
 	
 		Field scField = connectorBean.getClass().getDeclaredField("sessionContext");
@@ -200,6 +235,11 @@ public class ConnectorBeanTest {
 		emfField.setAccessible(true);
 		emfField.set(connectorBean, emf);
 		emfField.setAccessible(false);	
+		
+		Field scrField = connectorBean.getClass().getDeclaredField("serviceConfigurationReader");
+		scrField.setAccessible(true);
+		scrField.set(connectorBean, scReaderMock);
+		scrField.setAccessible(false);
 		
 		return connectorBean;
 	}

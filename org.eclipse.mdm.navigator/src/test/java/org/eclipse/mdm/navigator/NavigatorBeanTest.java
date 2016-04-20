@@ -1,14 +1,19 @@
-/*
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/
 
 package org.eclipse.mdm.navigator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -18,14 +23,13 @@ import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.navigator.bean.NavigatorBean;
 import org.junit.Test;
 
 
 /**
  * JUNIT Test for {@link NavigatorBean}
- * @author Gigatronik Ingolstadt GmbH
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 public class NavigatorBeanTest {
@@ -196,42 +200,7 @@ public class NavigatorBeanTest {
 		assertNull("no other exception should occur", otherException);
 		
 	}
-	
-	@Test 
-	public void testCreateURI() {		
 
-		NavigatorException navigatorExcpetion = null;
-		Exception otherException = null;
-						
-		try {
-			String sourceName = "MDMENV";
-			long id = 1L;
-			
-			NavigatorBeanLI navigatorBean = createMockedNavigatorBean();
-			URI envURI = navigatorBean.createURI(sourceName, Environment.class, id);			
-			URI testURI = navigatorBean.createURI(sourceName, org.eclipse.mdm.api.base.model.Test.class, id);
-			URI testStepURI = navigatorBean.createURI(sourceName, TestStep.class, id);	
-			URI measurementURI = navigatorBean.createURI(sourceName, Measurement.class, id);	
-			URI channelGroupURI = navigatorBean.createURI(sourceName, ChannelGroup.class, id);	
-			URI channelURI = navigatorBean.createURI(sourceName, Channel.class, id);	
-			
-			assertEquals("Environment URI check", envURI.toString(), "mdmDataItem://MDMENV/Environment/1");
-			assertEquals("Test URI check", testURI.toString(), "mdmDataItem://MDMENV/Test/1");
-			assertEquals("TestStep URI check", testStepURI.toString(), "mdmDataItem://MDMENV/TestStep/1");
-			assertEquals("Measurement URI check", measurementURI.toString(), "mdmDataItem://MDMENV/Measurement/1");
-			assertEquals("ChannelGroup URI check", channelGroupURI.toString(), "mdmDataItem://MDMENV/ChannelGroup/1");
-			assertEquals("Channel URI check", channelURI.toString(), "mdmDataItem://MDMENV/Channel/1");
-			
-			
-		} catch(NavigatorException e) {
-			navigatorExcpetion = e;
-		} catch(Exception e) {
-			otherException = e;
-		}
-		
-		assertNull("no navigator exception should occur", navigatorExcpetion);
-		assertNull("no other exception should occur", otherException);
-	}
 	
 	public NavigatorBeanLI createMockedNavigatorBean() throws Exception {
 		NavigatorBeanLI navigatorBean = new NavigatorBean();

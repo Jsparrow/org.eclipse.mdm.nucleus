@@ -1,8 +1,13 @@
-// Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-// All rights reserved. This program and the accompanying materials
-// are made available under the terms of the Eclipse Public License v1.0
-// which accompanies this distribution, and is available at
-// http://www.eclipse.org/legal/epl-v10.html
+// *******************************************************************************
+//   * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+//   * All rights reserved. This program and the accompanying materials
+//   * are made available under the terms of the Eclipse Public License v1.0
+//   * which accompanies this distribution, and is available at
+//   * http://www.eclipse.org/legal/epl-v10.html
+//   *
+//   * Contributors:
+//   * Dennis Schroeder - initial implementation
+//   *******************************************************************************
 import {Injectable} from 'angular2/core';
 import {Http, Response, Headers, RequestOptions} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
@@ -10,19 +15,18 @@ import {Observable} from 'rxjs/Observable';
 import {LocalizationService} from './localization.service';
 import {Localization} from './localization';
 import {Node} from './node';
+import {PropertyService} from './properties'
 
 @Injectable()
 export class NodeService {
   constructor(private http: Http,
-              private _local: LocalizationService){}
+              private _local: LocalizationService
+              private _prop: PropertyService){}
 
-  selectedNode: Node;
-  locals: Localization[] = [];
-
-  private _host = "127.0.0.1"
-  private _port = "8080"
-  private _url = 'http://' + this._host + ':' + this._port
-  private _nodeUrl = this._url + '/org.eclipse.mdm.application-1.0.0/mdm/environments'
+  private _host = this._prop.api_host
+  private _port = this._prop.api_port
+  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix
+  private _nodeUrl = this._url + '/mdm/environments'
 
   private getRootNodes(){
     return this.http.get(this._nodeUrl)
@@ -30,9 +34,8 @@ export class NodeService {
     .catch(this.handleError);
   }
 
-  setSelectedNode(node: Node) {
-    this.selectedNode = node;
-    this.getLocalization(node);
+  serachNodes(){
+
   }
 
   getNodes(node: Node) {
@@ -42,12 +45,11 @@ export class NodeService {
     return this.getNode(this.getUrl(node))
   }
 
-  private getLocalization(node: Node) {
-    console.log("debug")
-    this._local.getLocalization(node).subscribe(
-      locals => this.locals = locals
-      error => this.errorMessage = <any>error);
-  }
+  // private getLocalization(node: Node) {
+  //   this._local.getLocalization(node).subscribe(
+  //     locals => this.locals = locals
+  //     error => this.errorMessage = <any>error);
+  // }
 
   addNode (name: string) : Observable<Node>  {
     let body = JSON.stringify({ name });
