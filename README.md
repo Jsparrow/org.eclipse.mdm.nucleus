@@ -36,7 +36,10 @@ http://www.eclipse.org/legal/epl-v10.html
     frontend.
     <br>
     The frontend zip file will be generated at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0_frontend.zip</i><br>
-    Please note the readme file at the generated zip archive.
+    Unzip this archive at the doc root folder at your web server and edit the file ./app/properties.ts to set the variables host, port and prefix for your deployed 
+    backend application.
+    <br>
+    (doc root path example: <i>GLASSFISH_ROOPT/glassfish/domains/domain1/docroot</i>)
     <br><br>
     Use the command '<b>gradlew cleanFrontend</b>' to delete the fontend zip at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions</i>
     and to cleanup the tmp directory 'frontend' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/tmp</i>
@@ -48,7 +51,9 @@ http://www.eclipse.org/legal/epl-v10.html
     parts for each project at <i>src/main/configuration</i> and generates a ZIP file with the complete component configurations
     <br>
     The configuration zip file will be generated at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions/org.eclipse.mdm.application-1.0.0_configuration.zip</i><br>
-    Please note the readme file at the generated zip archive.
+    Unzip the archive at the configuration directory and edit the configurations files (for example: service.xml at org.eclipse.mdm.connector)
+    <br>
+    (configuration path example: <i>GLASSFISH_ROOPT/glassfish/domains/domain1/config</i>)
     <br><br>
     Use the command '<b>gradlew cleanConfiguration</b>' to delete the fontend zip at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/distributions</i>
     and to cleanup the tmp directory 'configration' at <i>./org.eclipse.mdm.nucleus/org.eclipse.mdm.application/build/tmp</i>
