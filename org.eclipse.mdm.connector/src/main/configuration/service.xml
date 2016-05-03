@@ -1,3 +1,3 @@
 <services>
-	<service nameServiceHost="YOUR_HOST" nameServicePort="YOUR_PORT" nameServiceName="NameService" serviceName="YOUR_SERVICE.ASAM-ODS"/>	
+	<service nameServiceHost="HOST" nameServicePort="PORT" nameServiceName="NameService" serviceName="YOUR_SERVICE.ASAM-ODS"/>
 </services>

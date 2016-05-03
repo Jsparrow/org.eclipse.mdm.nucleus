@@ -9,13 +9,12 @@
   * Sebastian Dirsch - initial configuration
   *******************************************************************************/
 
-description = 'MDM Connector'
+description = 'business object service'
 version = '1.0.0'
 
 dependencies {
-   
-    compile 'javax:javaee-api:7.0'
 
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
+    compile 'com.google.code.gson:gson:2.6.2'
+	compile project(':org.eclipse.mdm.connector')
+	
 }

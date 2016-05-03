@@ -1,0 +1,84 @@
+/*******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial configuration
+  *******************************************************************************/ 
+
+description = 'mdm nuclues'
+apply plugin: 'war'
+apply plugin: 'maven'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+subprojects {
+	group = 'org.eclipse.mdm'
+	
+	apply plugin: 'java'
+	apply plugin: 'maven'
+	sourceCompatibility = 1.8
+    
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-core:1.+'
+    }
+}
+                 
+dependencies { 	
+  compile project(':org.eclipse.mdm.application')
+}
+
+
+task collectFrontend() {
+
+	subprojects.each {
+		subproject ->
+		copy {
+			from "${project.projectDir}/${subproject.name}/src/main/webapp/"
+			into "${project.projectDir}/build/tmp/mdmweb/frontend"
+		}	
+	}	
+}
+
+
+task collectConfiguration() {
+
+	subprojects.each {
+		subproject ->
+		copy {
+			from "${project.projectDir}/${subproject.name}/src/main/configuration/"
+			into "${project.projectDir}/build/tmp/mdmweb/configuration/${subproject.name}"
+		}	
+	}
+}
+
+
+task distribute(type: Zip) {
+	archiveName = "mdm_web.zip"
+	from "${project.projectDir}/build/tmp/mdmweb"
+	from "${project.projectDir}/build/libs/"	
+}
+
+war {	
+	webXml = file('org.eclipse.mdm.application/src/main/webconfig/web.xml')
+	webInf  {from 'org.eclipse.mdm.application/src/main/webconfig/glassfish-web.xml'}
+} 
+
+war.finalizedBy(collectConfiguration)
+war.finalizedBy(collectFrontend)
+war.finalizedBy(distribute)
+

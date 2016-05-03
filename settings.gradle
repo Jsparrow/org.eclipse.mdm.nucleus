@@ -7,15 +7,14 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial configuration
-  *******************************************************************************/
+  *******************************************************************************/ 
+ 
+rootProject.name = 'org.eclipse.mdm.nucleus'
 
-description = 'MDM Connector'
-version = '1.0.0'
+include 'org.eclipse.mdm.application'
+include 'org.eclipse.mdm.connector'
+include 'org.eclipse.mdm.businessobjects'
 
-dependencies {
-   
-    compile 'javax:javaee-api:7.0'
 
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
-}
+ 
+

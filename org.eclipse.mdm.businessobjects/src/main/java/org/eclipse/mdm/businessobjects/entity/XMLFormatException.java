@@ -6,16 +6,21 @@
   * http://www.eclipse.org/legal/epl-v10.html
   *
   * Contributors:
-  * Sebastian Dirsch - initial configuration
+  * Sebastian Dirsch - initial implementation
   *******************************************************************************/
 
-description = 'MDM Connector'
-version = '1.0.0'
+package org.eclipse.mdm.businessobjects.entity;
 
-dependencies {
-   
-    compile 'javax:javaee-api:7.0'
+public class XMLFormatException extends RuntimeException {
+	
+	private static final long serialVersionUID = -4196754501456211418L;
 
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
+	public XMLFormatException(String message) {
+		super(message);
+	}	
+
+	public XMLFormatException(String message, Throwable t) {
+		super(message, t);
+	}
+	
 }

@@ -26,12 +26,7 @@ public class ApplicationConfig extends ResourceConfig {
 
 	public ApplicationConfig() {
 		packages("org.eclipse.mdm.application", 
-			"org.eclipse.mdm.navigator.rest", 
-			"org.eclipse.mdm.businesstyperegistry.rest", 
-			"org.eclipse.mdm.i18n.rest",
-			"org.eclipse.mdm.action.delete.rest",
-			"org.eclipse.mdm.contextprovider.rest",
-			"org.eclipse.mdm.search.rest");
+			"org.eclipse.mdm.businessobjects.boundary");
 	}
 
 	
