@@ -33,21 +33,22 @@ The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war**, the fronte
 
 ## available rest URLs
    
- **Business Object: Environment**
+**Business Object: Environment** 
+
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/localizations
-
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments_
       
 **Business Object: Test**
+
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/TESTID
-
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/tests/123_
 
 **Business Object: TestStep**
+
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID
@@ -55,10 +56,10 @@ The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war**, the fronte
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID/contexts/unitundertest
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID/contexts/testsequence
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID/contexts/testequipment
-
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/teststeps/1234/contexts_
 
 **Business Object: Measurement**
+
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID
@@ -66,20 +67,18 @@ The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war**, the fronte
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/unitundertest
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/testsequence
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/testequipment
-
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/measurements/12345/contexts_
    
 **Business Object: ChannelGroup**
+
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups/CHANNELGROUPID
-
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/channelgroups/12345_
-   
+* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/channelgroups/12345_ 
    
 **Business Object: Channel**
+
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels /localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/CHANNELID
-
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/channels/123456_
