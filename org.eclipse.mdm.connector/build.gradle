@@ -13,8 +13,6 @@ description = 'MDM Connector'
 version = '1.0.0'
 
 dependencies {
-   
-    compile 'javax:javaee-api:7.0'
 
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'

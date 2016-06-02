@@ -33,6 +33,8 @@ import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.businessobjects.entity.ContextResponse;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
+import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
+import org.eclipse.mdm.businessobjects.entity.SearchAttributeResponse;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +52,25 @@ public class MeasurementResource {
 	@EJB
 	private MeasurementService measurementService;
 	
-	
+	/**
+	 * delegates the request to the {@link MeasurementService}
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @return the result of the delegated request as {@link Response}
+	 */
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/searchattributes")
+	public Response getSearchAttributes(@PathParam("SOURCENAME") String sourceName) {
+		try {
+			List<SearchAttribute> searchAttributes = this.measurementService.getSearchAttributes(sourceName);
+			return ServiceUtils.toResponse(new SearchAttributeResponse(searchAttributes), Status.OK);
+		} catch (RuntimeException e) {
+			LOG.error(e.getMessage(), e);
+			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
 	/**
 	 * delegates the request to the {@link MeasurementService}
@@ -115,7 +135,7 @@ public class MeasurementResource {
 			@PathParam("MEASUREMENT_ID") long measurementId) {
 		try {			
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.
-				getContext(sourceName, measurementId);			
+				getContext(sourceName, measurementId);		
 			return ServiceUtils.toResponse(new ContextResponse(contextMap), Status.OK);
 		
 		} catch(RuntimeException e) {

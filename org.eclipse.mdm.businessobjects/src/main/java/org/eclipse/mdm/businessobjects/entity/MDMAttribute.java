@@ -19,13 +19,13 @@ package org.eclipse.mdm.businessobjects.entity;
 public class MDMAttribute {
 
 	/** name of the attribute value */
-	public final String name;
+	private final String name;
 	/** string value of the attribute value*/
-	public final String value;
+	private final String value;
 	/** unit of the attribute value*/
-	public final String unit;
+	private final String unit;
 	/** data type of the attribute value */
-	public final String dataType;
+	private final String dataType;
 	
 	
 	
@@ -42,5 +42,22 @@ public class MDMAttribute {
 		this.value = value;
 		this.unit = unit;
 		this.dataType = dataType;
+	}
+	
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public String getValue() {
+		return this.value;
+	}
+	
+	public String getUnit() {
+		return this.unit;
+	}
+	
+	public String getDataType() {
+		return this.dataType;
 	}
 }

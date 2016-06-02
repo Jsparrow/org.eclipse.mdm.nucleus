@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.ejb.SessionContext;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.EntityManagerFactory;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.EntityCore;

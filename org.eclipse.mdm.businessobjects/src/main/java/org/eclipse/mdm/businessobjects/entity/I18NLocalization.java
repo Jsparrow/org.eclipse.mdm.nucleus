@@ -19,11 +19,10 @@ package org.eclipse.mdm.businessobjects.entity;
 public class I18NLocalization {
 
 	
-	
 	/** name of the attribute */
-	public final String name;
+	private final String name;
 	/** localized name of the attribute */
-	public final String localizedName;
+	private final String localizedName;
 	
 	
 	
@@ -37,4 +36,13 @@ public class I18NLocalization {
 		this.localizedName = localizedName;
 	}
 	
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	
+	public String getLocalizedName() {
+		return this.localizedName;
+	}
 }

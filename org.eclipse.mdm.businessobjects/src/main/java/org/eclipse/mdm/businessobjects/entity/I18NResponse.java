@@ -12,6 +12,7 @@
 package org.eclipse.mdm.businessobjects.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,7 +38,7 @@ public class I18NResponse {
 	
 	
 	/** transferable data content */
-	public final List<I18NLocalization> data;
+	private final List<I18NLocalization> data;
 	
 	
 	
@@ -51,6 +52,11 @@ public class I18NResponse {
 	}
 	
 		
+	
+	public List<I18NLocalization> getData() {
+		return Collections.unmodifiableList(this.data);
+	}
+	
 	
 	private List<I18NLocalization> toTransferable(Map<EntityType, String> localizedEntityTypeMap, 
 		Map<Attribute, String> localizedAttributeMap) {

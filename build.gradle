@@ -9,9 +9,11 @@
   * Sebastian Dirsch - initial configuration
   *******************************************************************************/ 
 
-description = 'mdm nuclues'
+description = 'mdm nucleus'
 apply plugin: 'war'
 apply plugin: 'maven'
+apply plugin: 'eclipse'
+
 sourceCompatibility = 1.8
 
 repositories {
@@ -22,6 +24,7 @@ repositories {
 subprojects {
 	group = 'org.eclipse.mdm'
 	
+	apply plugin: 'eclipse'
 	apply plugin: 'java'
 	apply plugin: 'maven'
 	sourceCompatibility = 1.8
@@ -32,26 +35,15 @@ subprojects {
         jcenter()
     }
 
-    dependencies {
+    dependencies {    	
         testCompile 'junit:junit:4.12'
         testCompile 'org.mockito:mockito-core:1.+'
     }
 }
                  
 dependencies { 	
+ 
   compile project(':org.eclipse.mdm.application')
-}
-
-
-task collectFrontend() {
-
-	subprojects.each {
-		subproject ->
-		copy {
-			from "${project.projectDir}/${subproject.name}/src/main/webapp/"
-			into "${project.projectDir}/build/tmp/mdmweb/frontend"
-		}	
-	}	
 }
 
 
@@ -66,7 +58,6 @@ task collectConfiguration() {
 	}
 }
 
-
 task distribute(type: Zip) {
 	archiveName = "mdm_web.zip"
 	from "${project.projectDir}/build/tmp/mdmweb"
@@ -74,11 +65,21 @@ task distribute(type: Zip) {
 }
 
 war {	
+	from ('org.eclipse.mdm.application/build') {
+		include('app')
+		include('app/**/*')
+	}
+	from ( 'org.eclipse.mdm.application/build/nodeModules' ) {
+		include 'node_modules'
+		include 'node_modules/**/*'
+	}
+	from ( 'org.eclipse.mdm.application/src/main/webapp' ) {
+		exclude 'app'
+	}
 	webXml = file('org.eclipse.mdm.application/src/main/webconfig/web.xml')
 	webInf  {from 'org.eclipse.mdm.application/src/main/webconfig/glassfish-web.xml'}
 } 
 
 war.finalizedBy(collectConfiguration)
-war.finalizedBy(collectFrontend)
 war.finalizedBy(distribute)
 

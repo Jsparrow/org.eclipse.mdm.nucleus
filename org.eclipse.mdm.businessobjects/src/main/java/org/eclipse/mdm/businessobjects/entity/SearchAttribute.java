@@ -37,7 +37,6 @@ public class SearchAttribute {
 		this.attrName = attrName;
 		this.valueType = valueType;
 		this.criteria = criteria;
-		
 	}
 	
 	
@@ -47,7 +46,7 @@ public class SearchAttribute {
 	 * @return the name of the MDM business object (e.g. TestStep)
 	 */
 	public String getBoType() {
-		return boType;
+		return this.boType;
 	}
 	
 	
@@ -57,7 +56,7 @@ public class SearchAttribute {
 	 * @return the name of an attribute for the MDM business object (e.g. Name)
 	 */
 	public String getAttrName() {
-		return attrName;
+		return this.attrName;
 	}
 	
 	
@@ -66,7 +65,7 @@ public class SearchAttribute {
 	 * @return the value type of this attribute (e.g. String)
 	 */
 	public String getValueType() {
-		return valueType;
+		return this.valueType;
 	}
 	
 	
@@ -75,7 +74,7 @@ public class SearchAttribute {
 	 * @return the default criteria 
 	 */
 	public String getCriteria() {
-		return criteria;
+		return this.criteria;
 	}
 	
 }

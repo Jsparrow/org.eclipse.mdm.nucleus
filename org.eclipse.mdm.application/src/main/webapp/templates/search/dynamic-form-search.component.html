@@ -1,0 +1,27 @@
+<!-- *******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Dennis Schroeder - initial implementation
+  ******************************************************************************* -->
+<div [ngFormModel]="form" class="form-inline">
+  <label [attr.for]="search.key">{{search.label}}:</label>
+  <div [ngSwitch]="search.controlType" class="form-group">
+    <div class="input-group">
+      <input *ngSwitchWhen="'textbox'" [ngControl]="search.key"
+              [id]="search.key" [type]="search.type"
+              class="form-control">
+      <select [id]="search.key" *ngSwitchWhen="'dropdown'" [ngControl]="search.key">
+        <option *ngFor="let opt of search.options" [value]="opt.key">{{opt.value}}</option>
+      </select>
+      <span class="input-group-addon">
+        <input type="checkbox" aria-label="...">
+      </span>
+    </div>
+  </div>
+  <div class="errorMessage" *ngIf="!isValid">{{search.label}} is required</div>
+</div>

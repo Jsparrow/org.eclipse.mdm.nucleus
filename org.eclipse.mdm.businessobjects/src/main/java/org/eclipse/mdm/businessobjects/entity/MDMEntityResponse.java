@@ -12,6 +12,7 @@
 package org.eclipse.mdm.businessobjects.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -32,9 +33,9 @@ public class MDMEntityResponse {
 	
 	
 	/** type of all content entries (e.g. TestStep) */
-	public final String type;	
+	private final String type;	
 	/** transferable data content */
-	public final List<MDMEntity> data;
+	private final List<MDMEntity> data;
 	
 	
 	
@@ -65,6 +66,15 @@ public class MDMEntityResponse {
 	}
 	
 	
+	
+	public String getType() {
+		return this.type;
+	}
+	
+	
+	public List<MDMEntity> getData() {
+		return Collections.unmodifiableList(this.data);
+	}
 	
 	private <T extends Entity> List<MDMEntity> toTransferable(List<T> businessObjects) {
 		List<MDMEntity> mdmEntityList = new ArrayList<MDMEntity>();

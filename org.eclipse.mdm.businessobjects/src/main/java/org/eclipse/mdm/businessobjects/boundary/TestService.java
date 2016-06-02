@@ -17,7 +17,7 @@ import java.util.Optional;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.URI;
@@ -25,8 +25,9 @@ import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
+import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityAccessException;
+import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
@@ -70,7 +71,15 @@ public class TestService {
 		}
 	}
 	
-	
+	/**
+	 * Returns the {@link SearchAttribute} for the entity type Test in the given data source.
+	 * @param sourceName The name of the data source.
+	 * @return the found {@link SearchAttribute}s
+	 */
+	public List<SearchAttribute> getSearchAttributes(String sourceName) {
+		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+		return this.searchActivity.listAvailableAttributes(em, Test.class);
+	}
 	
 	/**
 	 * returns a {@link Test} identified by the given id.

@@ -1,0 +1,34 @@
+<!-- *******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Dennis Schroeder - initial implementation
+  ******************************************************************************* -->
+<div>
+  <form (ngSubmit)="onSubmit()" [ngFormModel]="form">
+    <div *ngFor="let group of groups" class="form-row">
+      <accordion>
+         <accordion-group heading="{{group.name}}">
+           <div *ngFor="let search of group.items">
+             <df-search [search]="search" [form]="form"></df-search>
+           </div>
+         </accordion-group>
+      </accordion>
+    </div>
+    <div class="form-row">
+      <button class="btn btn-default" type="submit" [disabled]="!form.valid">Search</button>
+    </div>
+  </form>
+  <h4>Results:</h4>
+  <div *ngIf="nodes">
+    <ul class="list-group">
+      <li *ngFor="let node of nodes" class="list-group-item">
+        {{node.name}} <span (click)="add2Basket(node)" class="glyphicon glyphicon-shopping-cart" style="cursor: pointer;"></span>
+      </li>
+    </ul>
+  </div>
+</div>

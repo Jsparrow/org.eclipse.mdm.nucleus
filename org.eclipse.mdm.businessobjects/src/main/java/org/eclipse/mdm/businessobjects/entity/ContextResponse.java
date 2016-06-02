@@ -12,6 +12,7 @@
 package org.eclipse.mdm.businessobjects.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,36 +24,22 @@ import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 
-/**
- * ContextResponse (Container for {@link ContextData)
- * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
- *
- */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ContextResponse {
 
 	
-	
 	/** transferable data content */
-	public List<ContextCollection> data = new ArrayList<>();
+	private List<ContextCollection> data;
 	
-	
-	
-	/**
-	 * Constructor
-	 */
-	public ContextResponse() {
-	}
-	
-	
+		
 	
 	/**
 	 * Constructor
 	 * @param contextMap map with context data (ordered and measured)
 	 */
 	public ContextResponse(Map<String, Map<ContextType, ContextRoot>> contextMap) {
-		
+		this.data = new ArrayList<>();
 		ContextCollection contextData = new ContextCollection();
 		contextData.setOrderedContext(contextMap.get(ContextActivity.CONTEXT_GROUP_ORDERED));		
 		contextData.setMeasuredContext(contextMap.get(ContextActivity.CONTEXT_GROUP_MEASURED));				
@@ -60,5 +47,7 @@ public class ContextResponse {
 	}
 	
 	
-	
+	public List<ContextCollection> getData() {
+		return Collections.unmodifiableList(this.data);
+	}
 }

@@ -12,6 +12,7 @@
 package org.eclipse.mdm.businessobjects.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class SearchDefinition {
 	
 	private final String name;
 	private final String resultType;	
-	private List<SearchAttribute> attributeList = new ArrayList<>();
+	private List<SearchAttribute> attributeList;
 	
 	
 	
@@ -33,9 +34,10 @@ public class SearchDefinition {
 	 * @param name name of this search definition 
 	 * @param resultType result type by executing this defined search (e.g. TestStep)
 	 */
-	public SearchDefinition(String name, String resultType) {
+	public SearchDefinition(String name, String resultType) {		
 		this.name = name;
 		this.resultType = resultType;
+		this.attributeList = new ArrayList<>();
 	}
 	
 	
@@ -59,7 +61,7 @@ public class SearchDefinition {
 	 * @return the name of this search definition
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 	
 	
@@ -79,7 +81,7 @@ public class SearchDefinition {
 	 * @return the defined {@link SearchAttribute}s for ths search definition
 	 */
 	public List<SearchAttribute> listSearchAttributes() {
-		return attributeList;
+		return Collections.unmodifiableList(this.attributeList);
 	}
 
 }

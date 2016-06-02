@@ -17,7 +17,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Entity;
@@ -27,7 +27,6 @@ import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 

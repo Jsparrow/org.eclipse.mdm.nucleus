@@ -1,42 +1,66 @@
-<!-- 
-*******************************************************************************
-* Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-* Sebastian Dirsch - initial implementation
-*******************************************************************************/
--->
+<!-- ******************************************************************************* 
+	* Copyright (c) 2016 Gigatronik Ingolstadt GmbH * All rights reserved. This 
+	program and the accompanying materials * are made available under the terms 
+	of the Eclipse Public License v1.0 * which accompanies this distribution, 
+	and is available at * http://www.eclipse.org/legal/epl-v10.html * * Contributors: 
+	* Sebastian Dirsch - initial implementation *******************************************************************************/ -->
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0">
 
 	<security-constraint>
-        <web-resource-collection>
-            <web-resource-name>
-                Entire Application
-            </web-resource-name>
-            <url-pattern>/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>MDM</role-name>
-        </auth-constraint>
-    </security-constraint>
+		<web-resource-collection>
+			<web-resource-name>MDM WEB (protected)</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>MDM</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>MDM WEB (unprotected)</web-resource-name>
+			<url-pattern>/login.css</url-pattern>
+		</web-resource-collection>
+	</security-constraint>
+
+	<servlet>
+		<servlet-name>org.eclipse.mdm.application.ApplicationConfig
+		</servlet-name>
+		<init-param>
+			<param-name>jersey.config.server.provider.packages</param-name>
+			<param-value>org.codehaus.jackson.jaxrs</param-value>
+		</init-param>
+	</servlet>
+
+	<filter>
+		<filter-name>MDMRequestFilter</filter-name>
+		<filter-class>org.eclipse.mdm.application.logout.MDMRequestFilter
+		</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>MDMRequestFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
 
 	<security-role>
-        <role-name>MDM</role-name>
-    </security-role>
-	
+		<role-name>MDM</role-name>
+	</security-role>
+
 	<login-config>
-        <auth-method>BASIC</auth-method>
-        <realm-name>MDMLoginRealm</realm-name>
-    </login-config>
-   
-    <session-config>
-    	<session-timeout>1</session-timeout>
+		<auth-method>FORM</auth-method>
+		<realm-name>MDMLoginRealm</realm-name>
+		<form-login-config>
+			<form-login-page>/login.jsp</form-login-page>
+			<form-error-page>/error.jsp</form-error-page>
+		</form-login-config>
+	</login-config>
+
+	<session-config>
+		<session-timeout>20</session-timeout>
 	</session-config>
-  	
-	
+
 </web-app>

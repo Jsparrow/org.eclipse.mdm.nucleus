@@ -58,8 +58,7 @@ public class EnvironmentResource {
 	public Response getEnvironments() {
 		try {		
 			List<Environment> environments = this.environmentService.getEnvironments();		
-			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environments), Status.OK);
-			
+            return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environments), Status.OK);		
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -80,7 +79,7 @@ public class EnvironmentResource {
 	public Response getEnvironment(@PathParam("SOURCENAME") String sourceName) {
 		try {
 			Environment environment = this.environmentService.getEnvironment(sourceName);
-			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);
+		    return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);		
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);

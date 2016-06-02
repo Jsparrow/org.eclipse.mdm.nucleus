@@ -12,6 +12,7 @@
 package org.eclipse.mdm.businessobjects.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -30,7 +31,7 @@ public class SearchDefinitionResponse {
 	
 	
 	/** transferable data content */
-	public List<SearchDefinition> data;
+	private List<SearchDefinition> data;
 	
 	
 	
@@ -39,7 +40,7 @@ public class SearchDefinitionResponse {
 	 * @param searchDefinitions list of {@link SearchDefinition}s to transfer
 	 */
 	public SearchDefinitionResponse(List<SearchDefinition> searchDefinitions) {
-		this.data = searchDefinitions;
+		this.data = new ArrayList<>(searchDefinitions);
 	}
 	
 	
@@ -48,5 +49,11 @@ public class SearchDefinitionResponse {
 	 */
 	public SearchDefinitionResponse() {
 		this.data = new ArrayList<>();
+	}
+	
+		
+	
+	public List<SearchDefinition> getData() {
+		return Collections.unmodifiableList(this.data);
 	}
 }

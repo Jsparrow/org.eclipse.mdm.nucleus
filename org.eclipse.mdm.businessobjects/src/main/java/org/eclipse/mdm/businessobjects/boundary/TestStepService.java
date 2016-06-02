@@ -17,7 +17,7 @@ import java.util.Optional;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
@@ -28,9 +28,10 @@ import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
+import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.NavigationActivity;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityAccessException;
+import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
@@ -77,15 +78,26 @@ public class TestStepService {
 				URI testURI = ServiceUtils.createMDMURI(em, sourceName, TestStep.PARENT_TYPE_TEST, id);
 				return this.navigationActivity.getTestSteps(testURI);
 			}
-			
+	
 			return this.searchActivity.search(em, TestStep.class, filter);
+			
 	
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		} 
 	}
 	
-			
+	/**
+	 * Returns the {@link SearchAttribute} for the entity type TestStep in the given data source.
+	 * @param sourceName The name of the data source.
+	 * @return the found {@link SearchAttribute}s
+	 */
+	public List<SearchAttribute> getSearchAttributes(String sourceName) {
+		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+		return this.searchActivity.listAvailableAttributes(em, TestStep.class);
+	}
+	
+	
 	/**
 	 * returns a {@link TestStep} identified by the given id.
 	 * 

@@ -25,7 +25,7 @@ import javax.ejb.Startup;
 import javax.security.auth.spi.LoginModule;
 
 import org.eclipse.mdm.api.base.ConnectionException;
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.EntityManagerFactory;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.URI;
@@ -182,6 +182,8 @@ public class ConnectorService {
 		if(this.connectionMap.containsKey(principal)) {
 			List<EntityManager> emList = this.connectionMap.remove(principal);
 			disconnectEntityManagers(emList);
+			LOG.info("user with name '" + principal.getName() + "' has been disconnected!");
+			LOG.debug("number of active users: " + this.connectionMap.keySet().size());
 		}
 		
 	}
@@ -224,6 +226,7 @@ public class ConnectorService {
 			}
 		} catch(ConnectionException e) {
 			LOG.error("unable to logout user from MDM datasource (reason: " + e.getMessage() + ")");
+			throw new ConnectorServiceException(e.getMessage(), e);
 		}
 	}
 	

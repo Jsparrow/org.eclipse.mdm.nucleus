@@ -1,0 +1,23 @@
+<!-- *******************************************************************************
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Dennis Schroeder - initial implementation
+  ******************************************************************************* -->
+  <div class="container-fluid">
+    <div>
+      <form>
+        <label *ngFor="let env of envs" class="radio-inline"><input type="radio" name="env" (click)="selectEnv(env.sourceName)">{{env.name}}</label>
+      </form>
+    </div>
+    <div class="form-group">
+      <select class="form-control">
+        <option *ngFor="let opt of definitions.options" (click)="selected(opt.value)">{{opt.value}}</option>
+      </select>
+      <dynamic-form [searches]="searches" [groups]="groups" [env]="selectedEnv" [type]="type"></dynamic-form>
+    </div>
+  </div>

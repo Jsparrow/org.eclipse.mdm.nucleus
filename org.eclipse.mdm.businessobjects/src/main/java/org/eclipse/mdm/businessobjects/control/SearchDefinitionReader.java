@@ -28,8 +28,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.mdm.businessobjects.entity.SearchDefinition;
-import org.eclipse.mdm.businessobjects.entity.XMLFormatException;
-import org.eclipse.mdm.businessobjects.entity.XMLParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

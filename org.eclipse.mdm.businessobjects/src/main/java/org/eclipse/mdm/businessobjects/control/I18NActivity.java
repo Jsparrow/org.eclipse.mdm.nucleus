@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;

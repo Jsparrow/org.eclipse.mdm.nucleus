@@ -18,13 +18,13 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityAccessException;
+import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**

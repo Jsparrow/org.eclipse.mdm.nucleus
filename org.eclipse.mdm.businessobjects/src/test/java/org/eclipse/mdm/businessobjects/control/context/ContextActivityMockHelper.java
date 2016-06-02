@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
@@ -35,6 +35,7 @@ import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
+import org.eclipse.mdm.api.base.model.EntityCore.ChildrenStore;
 import org.mockito.Mockito;
 
 
@@ -65,12 +66,12 @@ public  final class ContextActivityMockHelper {
 	private static EntityManager createEntityManagerMock(String sourceName) throws Exception {
 		
 		URI uri = new URI(sourceName, "Environment", 1L);
-		Environment env = createEntityMock(Environment.class, uri, sourceName);
+		Environment env = createEntityMock(Environment.class, uri, sourceName, null);
 		
 		EntityManager em = Mockito.mock(EntityManager.class);
 		
-		TestStep testStep = createEntityMock(TestStep.class, URI_TESTSTEP, "TestStepWithContext");
-		Measurement measurement = createEntityMock(Measurement.class, URI_MEASUREMENT, "MeasurementWithContext");
+		TestStep testStep = createEntityMock(TestStep.class, URI_TESTSTEP, "TestStepWithContext", null);
+		Measurement measurement = createEntityMock(Measurement.class, URI_MEASUREMENT, "MeasurementWithContext", null);
 		
 		when(em.loadEnvironment()).thenReturn(env);
 		when(em.load(URI_TESTSTEP)).thenReturn(Optional.of(testStep));	
@@ -91,15 +92,19 @@ public  final class ContextActivityMockHelper {
 	}
 	
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, URI uri, String name) 
+	private static <T extends Entity> T createEntityMock(Class<T> type, URI uri, String name,ChildrenStore childrenStore) 
 		throws Exception {
 		
 		HashMap<String, Value> map = new HashMap<String, Value>();
 		map.put("Name", ValueType.STRING.create("Name", name));
+				
 		
 		EntityCore entityCore = Mockito.mock(EntityCore.class);		
 		when(entityCore.getValues()).thenReturn(map);
 		when(entityCore.getURI()).thenReturn(uri);	
+		if(childrenStore != null) {
+			when(entityCore.getChildrenStore()).thenReturn(childrenStore);
+		}
 		
 		Constructor<T> constructor  = type.getDeclaredConstructor(EntityCore.class);
 		constructor.setAccessible(true);
@@ -112,35 +117,47 @@ public  final class ContextActivityMockHelper {
 	private static ContextRoot createUUTContextRootMock(String type) throws Exception {
 		
 		URI contextRootURI = new URI("MDM", "UnitUnderTest", 1L);		
-		List<ContextComponent> ccList = createContextComponentMocks("UUT");				
-		ContextRoot cr = createEntityMock(ContextRoot.class, contextRootURI, "MessungUUT_" + type);
-		when(cr.getContextComponents()).thenReturn(ccList);
-		return cr;
+		List<ContextComponent> ccList = createContextComponentMocks("UUT");		
+		
+		ChildrenStore childrenStore = new ChildrenStore();
+		for(ContextComponent cc : ccList) {
+			childrenStore.add(cc);
+		}
+		
+		return createEntityMock(ContextRoot.class, contextRootURI, "MessungUUT_" + type, childrenStore);
 	}
 	
 	private static ContextRoot createTSQContextRootMock(String type) throws Exception {
 		
 		URI contextRootURI = new URI("MDM", "TestSequence", 1L);		
 		List<ContextComponent> ccList = createContextComponentMocks("TSQ");	
-		ContextRoot cr = createEntityMock(ContextRoot.class, contextRootURI, "MessungTSQ_" + type);		
-		when(cr.getContextComponents()).thenReturn(ccList);
-		return cr;
+		
+		ChildrenStore childrenStore = new ChildrenStore();
+		for(ContextComponent cc : ccList) {
+			childrenStore.add(cc);
+		}
+		
+		return createEntityMock(ContextRoot.class, contextRootURI, "MessungTSQ_" + type, childrenStore);		
 	}
 	
 	private static ContextRoot createTEQContextRootMock(String type) throws Exception {
 		
 		URI contextRootURI = new URI("MDM", "TestEquipment", 1L);		
 		List<ContextComponent> ccList = createContextComponentMocks("TEQ");			
-		ContextRoot cr = createEntityMock(ContextRoot.class, contextRootURI, "MessungTEQ_" + type);	
-		when(cr.getContextComponents()).thenReturn(ccList);
-		return cr;
+				
+		ChildrenStore childrenStore = new ChildrenStore();
+		for(ContextComponent cc : ccList) {
+			childrenStore.add(cc);
+		}
+		
+		return createEntityMock(ContextRoot.class, contextRootURI, "MessungTEQ_" + type, childrenStore);		
 	}
 	
 	private static List<ContextComponent> createContextComponentMocks(String type) throws Exception {
 		List<ContextComponent> ccList = new ArrayList<>();
 		for(int i=0; i< CC_COUNT; i++) {
 			URI ccURI = new URI("MDM", "CC_" + String.valueOf(System.currentTimeMillis()), Long.valueOf(i));
-			ContextComponent cc = createEntityMock(ContextComponent.class, ccURI, type + "_ContextComponent_" + i);
+			ContextComponent cc = createEntityMock(ContextComponent.class, ccURI, type + "_ContextComponent_" + i, null);
 			when(cc.getValues()).thenReturn(createValues(type));
 			ccList.add(cc);
 		}

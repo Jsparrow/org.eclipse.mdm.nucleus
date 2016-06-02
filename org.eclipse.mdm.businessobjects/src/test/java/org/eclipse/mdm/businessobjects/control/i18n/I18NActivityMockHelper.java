@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Entity;

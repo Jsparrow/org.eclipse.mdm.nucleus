@@ -20,7 +20,7 @@ import java.util.Optional;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.base.EntityManager;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.ContextDescribable;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
@@ -28,7 +28,6 @@ import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 

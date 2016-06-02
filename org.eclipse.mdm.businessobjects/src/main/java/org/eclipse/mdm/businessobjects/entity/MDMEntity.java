@@ -12,6 +12,7 @@
 package org.eclipse.mdm.businessobjects.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,17 +29,17 @@ import org.eclipse.mdm.api.base.model.Value;
 public class MDMEntity {
 
 	/** name of the MDM business object */
-	public final String name;
+	private final String name;
 	/** id of the MDM business object */
-	public final long id;
+	private final long id;
 	/** type as String of the MDM business object (e.g. TestStep) */
-	public final String type;
+	private final String type;
 	/** source type name of the business object at the data source */
-	public final String sourceType;
+	private final String sourceType;
 	/** source name (e.g. MDM Environment name) */
-	public final String sourceName;
+	private final String sourceName;
 	/** list of attribute to transfer */
-	public final List<MDMAttribute> attributes;
+	private List<MDMAttribute> attributes;
 	
 	
 	
@@ -59,6 +60,31 @@ public class MDMEntity {
 		this.attributes = convertAttributeValues(values);
 	}
 	
+	
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public long getId() {
+		return this.id;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+	
+	public String getSourceType() {
+		return this.sourceType;
+	}
+	
+	public String getSourceName() {
+		return this.sourceName;
+	}
+	
+	public List<MDMAttribute> getAttributes() {
+		return Collections.unmodifiableList(this.attributes);
+	}
 	
 	
 	/**

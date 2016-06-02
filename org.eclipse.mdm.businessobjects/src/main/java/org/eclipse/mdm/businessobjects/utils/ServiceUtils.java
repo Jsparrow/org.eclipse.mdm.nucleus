@@ -13,12 +13,11 @@ package org.eclipse.mdm.businessobjects.utils;
 
 import java.util.Optional;
 
-
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.eclipse.mdm.api.base.EntityManager;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.URI;
@@ -26,9 +25,8 @@ import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.api.base.query.SearchService;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityAccessException;
-
-import com.google.gson.Gson;
+import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 
 public final class ServiceUtils {
 
@@ -56,9 +54,9 @@ public final class ServiceUtils {
 	 * @param status {@link Status} of the {@link Response}
 	 * @return the created {@link Response}
 	 */
-	public static Response toResponse(Object responseEntry, Status status) {
-		String response = new Gson().toJson(responseEntry);
-		return Response.status(status).entity(response).type(MediaType.APPLICATION_JSON).build();
+	public static Response toResponse(Object response, Status status) {		
+		GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
+		return Response.status(status).entity(genEntity).type(MediaType.APPLICATION_JSON).build();
 	}
 	
 	
@@ -141,10 +139,10 @@ public final class ServiceUtils {
 	@SuppressWarnings("unchecked")
 	public static <T extends Entity> T lookupEntityByURI(Class<T> type, EntityManager em, URI uri) throws DataAccessException  {
 
-		Optional<? extends Entity> optinal = em.load(uri);
-		if(!optinal.isPresent()) {
+		Optional<? extends Entity> optional = em.load(uri);
+		if(!optional.isPresent()) {
 			throw new MDMEntityAccessException("mdm entity with uri '" + uri.toString() + " not found");
 		}
-		return (T)optinal.get();		
+		return (T)optional.get();		
 	}
 }

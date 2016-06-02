@@ -29,10 +29,9 @@ import org.eclipse.mdm.api.base.model.Value;
  */
 public class ContextCollection {
 	
-	
-	
 	public Map<ContextType, List<MDMEntity>> contextMeasured = new HashMap<>();
 	public Map<ContextType, List<MDMEntity>> contextOrdered= new HashMap<>();	
+	
 	
 	
 	
@@ -41,6 +40,7 @@ public class ContextCollection {
 	 * @param contextMap the measured context data map
 	 */
 	public void setMeasuredContext(Map<ContextType, ContextRoot> contextMap) {
+
 		for(java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
 			
 			ContextType contextType = setEntry.getKey();
@@ -62,6 +62,7 @@ public class ContextCollection {
 	 * @param contextMap the ordered context data map
 	 */
 	public void setOrderedContext(Map<ContextType, ContextRoot> contextMap) {
+		
 		for(java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
 			
 			ContextType contextType = setEntry.getKey();
