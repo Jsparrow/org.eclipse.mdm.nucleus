@@ -19,8 +19,6 @@ import java.util.Map;
 import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
-import org.eclipse.mdm.api.base.model.URI;
-import org.eclipse.mdm.api.base.model.Value;
 
 /**
  * ContextData (Entity for context data (ordered and measured))
@@ -49,7 +47,7 @@ public class ContextCollection {
 			this.contextMeasured.put(contextType, new ArrayList<>());
 			
 			for(ContextComponent contextComponent : contextRoot.getContextComponents()) {
-				MDMEntity entity = contextComponent2Entry(contextComponent);
+				MDMEntity entity = new MDMEntity(contextComponent);
 				this.contextMeasured.get(contextType).add(entity);		
 			}
 		}
@@ -71,21 +69,11 @@ public class ContextCollection {
 			this.contextOrdered.put(contextType, new ArrayList<>());
 			
 			for(ContextComponent contextComponent : contextRoot.getContextComponents()) {
-				MDMEntity entity = contextComponent2Entry(contextComponent);
+				MDMEntity entity = new MDMEntity(contextComponent);
 				this.contextOrdered.get(contextType).add(entity);		
 			}
 		}
 	}
-	
-	
-	
-	private MDMEntity contextComponent2Entry(ContextComponent contextComponent) {
-		String name = contextComponent.getName();
-		String type = ContextComponent.class.getName();
-		URI uri = contextComponent.getURI();
-		Map<String, Value> values = contextComponent.getValues();
-		return new MDMEntity(name, type, uri, values);
-	}
-	
+		
 	
 }

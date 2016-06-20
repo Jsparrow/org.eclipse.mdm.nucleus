@@ -17,7 +17,6 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Entity;
@@ -25,9 +24,8 @@ import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
@@ -64,14 +62,14 @@ public class NavigationActivity {
 	
 	
 	/**
-	 * returns all MDM {@link Test} business objects of the connected MDM system identified by the given {@link URI}
+	 * returns all MDM {@link Test} business objects of the connected MDM system identified by the given name
 	 * 
-	 * @param environemntURI {@link URI} to identify the MDM system 
+	 * @param sourceName Name of the MDM system
 	 * @return MDM {@link Test} business objects
 	 */
-	public List<Test> getTests(URI environemntURI) {
+	public List<Test> getTests(String sourceName) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByURI(environemntURI);
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.loadAll(Test.class);			
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
@@ -79,62 +77,64 @@ public class NavigationActivity {
 	}
 
 	
-	
 	/**
-	 * returns all MDM {@link TestStep} business object children for a MDM {@link Test} identified by the given {@link URI}
+	 * returns all MDM {@link TestStep} business object children for a MDM {@link Test} 
+	 * identified by the given source name and {@link Test} ID.
 	 * 
-	 * @param testURI {@link URI} to identify the parent MDM {@link Test}
+	 * @param sourceName Name of the MDM system
+	 * @param testID The {@code Test} instance ID
 	 * @return MDM {@link TestStep} business objects
 	 */
-	public List<TestStep> getTestSteps(URI testURI) {
-		return getChildren(TestStep.class, testURI);
+	public List<TestStep> getTestSteps(String sourceName, Long testID) {
+		return getChildren(sourceName, Test.class, testID, TestStep.class);
 	}
 
 	
-	
 	/**
-	 * returns all MDM {@link Measurement} business object children for a MDM {@link TestStep} identified by the given {@link URI}
+	 * returns all MDM {@link Measurement} business object children for a MDM {@link TestStep} 
+	 * identified by the given source name and {@link TestStep} ID.
 	 * 
-	 * @param testStepURI URI to identify the parent MDM TestStep
-	 * @return MDM Measurement business objects
+	 * @param sourceName Name of the MDM system
+	 * @param testStepID The {@code TestStep} instance ID
+	 * @return MDM {@link Measurement} business objects
 	 */
-	public List<Measurement> getMeasurements(URI testStepURI) {		
-		return getChildren(Measurement.class, testStepURI);
+	public List<Measurement> getMeasurements(String sourceName, Long testStepID) {
+		return getChildren(sourceName, TestStep.class, testStepID, Measurement.class);
 	}
 
 	
-	
 	/**
-	 * returns all MDM ChannelGroup business object children for a MDM {@link Measurement} identified by the given {@link URI}
+	 * returns all MDM {@link ChannelGroup} business object children for a MDM {@link Measurement} 
+	 * identified by the given source name and {@link Measurement} ID.
 	 * 
-	 * @param measurementURI {@link URI} to identify the parent MDM {@link Measurement}
+	 * @param sourceName Name of the MDM system
+	 * @param measurementID The {@code Measurement} instance ID
 	 * @return MDM {@link ChannelGroup} business objects
 	 */
-	public List<ChannelGroup> getChannelGroups(URI measurementURI) {
-		return getChildren(ChannelGroup.class, measurementURI);
+	public List<ChannelGroup> getChannelGroups(String sourceName, Long measurementID) {
+		return getChildren(sourceName, Measurement.class, measurementID, ChannelGroup.class);
 	}
+	
 
-	
-	
 	/**
-	 * returns all MDM {@link Channel} business object children for a MDM {@link ChannelGroup} identified by the given {@link URI} 
+	 * returns all MDM {@link Channel} business object children for a MDM {@link ChannelGroup} 
+	 * identified by the given source name and {@link ChannelGroup} ID.
 	 * 
-	 * @param channelGroupURI {@link URI} to identify the parent MDM {@link ChannelGroup}
+	 * @param sourceName Name of the MDM system
+	 * @param channelGroupID The {@code ChannelGroup} instance ID
 	 * @return MDM {@link Channel} business objects
 	 */
-	public List<Channel> getChannels(URI channelGroupURI) {
-		return getChildren(Channel.class, channelGroupURI);
-	}	
+	public List<Channel> getChannels(String sourceName, Long channelGroupID) {
+		return getChildren(sourceName, ChannelGroup.class, channelGroupID, Channel.class);
+	}
 	
 	
-	
-	private <T extends Entity> List<T> getChildren(Class<T> type, URI parentURI) {
-		
-		try {			
-			EntityManager em = this.connectorService.getEntityManagerByURI(parentURI);	
-			T parentEntity = ServiceUtils.lookupEntityByURI(type, em, parentURI);			
-			return em.loadChildren(parentEntity, type);
-		
+	private <T extends Entity> List<T> getChildren(String sourceName, Class<? extends Entity> parentType, 
+			Long parentID, Class<T> childType) {
+		try {
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			Entity parent = em.load(parentType, parentID);
+			return em.loadChildren(parent, childType);		
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

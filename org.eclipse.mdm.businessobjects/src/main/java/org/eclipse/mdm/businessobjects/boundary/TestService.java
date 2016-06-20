@@ -12,23 +12,20 @@ package org.eclipse.mdm.businessobjects.boundary;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Test;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
-import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
@@ -91,16 +88,7 @@ public class TestService {
 	public Test getTest(String sourceName, long testId) {
 		try {		
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			URI testURI = ServiceUtils.createMDMURI(em, sourceName, Test.class, testId);
-			Optional<Test> optional = em.load(testURI);
-			
-			if(!optional.isPresent()) {
-				String message = "mdm Test with id '" + testId 
-					+ "' does not exist at data source with name '"	+ sourceName + "'";
-				throw new MDMEntityAccessException(message);
-			}
-			
-			return optional.get();
+			return em.load(Test.class, testId);
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

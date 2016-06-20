@@ -19,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -97,9 +98,16 @@ public class EnvironmentResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{SOURCENAME}/localizations") 
-	public Response localize(@PathParam("SOURCENAME") String sourceName) {
+	public Response localize(@PathParam("SOURCENAME") String sourceName, @QueryParam("all") boolean all) {
 		
-		try {		
+		try {	
+			
+			if(all) {
+				Map<Attribute, String> localizedAttributeMap = this.environmentService.localizeAllAttributes(sourceName);
+				Map<EntityType, String> localizedEntityTypeMap = this.environmentService.localizeAllTypes(sourceName);			
+				return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
+			}
+			
 			Map<Attribute, String> localizedAttributeMap = this.environmentService.localizeAttributes(sourceName);
 			Map<EntityType, String> localizedEntityTypeMap = this.environmentService.localizeType(sourceName);			
 			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);

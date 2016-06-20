@@ -33,10 +33,10 @@ public class SearchParamParser {
 	public static final String AND_DELIMITER = " and ";
 	public static final String OR_DELIMITER = " or ";
 
-	private static final String EQUALS_OPERATOR = "eq";
-	private static final String LESS_THAN_OPERATOR = "lt";
-	private static final String LIKE_OPERATOR = "lk";
-	private static final String GREATER_THAN_OPERATOR = "gt";
+	public static final String EQUALS_OPERATOR = "eq";
+	public static final String LESS_THAN_OPERATOR = "lt";
+	public static final String LIKE_OPERATOR = "lk";
+	public static final String GREATER_THAN_OPERATOR = "gt";
 
 	/**
 	 * Parses the given filter string.

@@ -40,8 +40,6 @@ public class I18NResponse {
 	/** transferable data content */
 	private final List<I18NLocalization> data;
 	
-	
-	
 	/**
 	 * 
 	 * @param localizedEntityTypeMap
@@ -66,13 +64,22 @@ public class I18NResponse {
 		Set<Entry<EntityType, String>> entityTypeSet = localizedEntityTypeMap.entrySet();
 		
 		for(Entry<EntityType, String> entry : entityTypeSet) {
-			localizationList.add(new I18NLocalization(entry.getKey().getName(), entry.getValue()));
+			
+			EntityType entityType = entry.getKey();
+			String key = entityType.getName();
+			
+			localizationList.add(new I18NLocalization(key, entry.getValue()));
 		}
 		
 		Set<Entry<Attribute, String>> attributeSet = localizedAttributeMap.entrySet();
 		
 		for(Entry<Attribute, String> entry : attributeSet) {
-			localizationList.add(new I18NLocalization(entry.getKey().getName(), entry.getValue()));
+			
+			Attribute attribute = entry.getKey();		
+			EntityType entityType = attribute.getEntityType();			
+			String key = entityType.getName() + "." + attribute.getName();
+			
+			localizationList.add(new I18NLocalization(key, entry.getValue()));
 		}
 		
 		return localizationList;

@@ -12,20 +12,18 @@ package org.eclipse.mdm.businessobjects.boundary;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
@@ -74,8 +72,7 @@ public class MeasurementService {
 			
 			if(ServiceUtils.isParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP)) {
 				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP);
-				URI testStepURI = ServiceUtils.createMDMURI(em, sourceName, Measurement.PARENT_TYPE_TESTSTEP, id);
-				return this.navigationActivity.getMeasurements(testStepURI);
+				return this.navigationActivity.getMeasurements(sourceName, id);
 			}
 			
 			return this.searchActivity.search(em, Measurement.class, filter);
@@ -105,16 +102,7 @@ public class MeasurementService {
 	public Measurement getMeasurement(String sourceName, long measurementId) {
 		try {		
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			URI measurementURI = ServiceUtils.createMDMURI(em, sourceName, Measurement.class, measurementId);
-			Optional<Measurement> optional = em.load(measurementURI);
-			
-			if(!optional.isPresent()) {
-				String message = "mdm Measurement with id '" + measurementId 
-						+ "' does not exist at data source with name '"	+ sourceName + "'";
-				throw new MDMEntityAccessException(message);
-			}
-			
-			return optional.get();
+			return em.load(Measurement.class, measurementId);
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -130,9 +118,7 @@ public class MeasurementService {
 	 * @return a map with the complete context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, long measurementId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI measurementURI = ServiceUtils.createMDMURI(em, sourceName, Measurement.class, measurementId);
-		return this.contextActivity.getMeasurementContext(measurementURI);
+		return this.contextActivity.getMeasurementContext(sourceName, measurementId);
 	}
 	
 	
@@ -145,9 +131,7 @@ public class MeasurementService {
 	 * @return a map with the UnitUnderTest context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, long measurementId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI measurementURI = ServiceUtils.createMDMURI(em, sourceName, Measurement.class, measurementId);
-		return this.contextActivity.getMeasurementContext(measurementURI, ContextType.UNITUNDERTEST);
+		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.UNITUNDERTEST);
 	}
 	
 	
@@ -160,9 +144,7 @@ public class MeasurementService {
 	 * @return a map with the TestSequence context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, long measurementId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI measurementURI = ServiceUtils.createMDMURI(em, sourceName, Measurement.class, measurementId);
-		return this.contextActivity.getMeasurementContext(measurementURI, ContextType.TESTSEQUENCE);
+		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.TESTSEQUENCE);
 	}
 	
 	
@@ -175,9 +157,7 @@ public class MeasurementService {
 	 * @return a map with the TestEquipment context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, long measurementId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI measurementURI = ServiceUtils.createMDMURI(em, sourceName, Measurement.class, measurementId);
-		return this.contextActivity.getMeasurementContext(measurementURI, ContextType.TESTEQUIPMENT);
+		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.TESTEQUIPMENT);
 	}
 	
 	

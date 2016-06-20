@@ -18,11 +18,11 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -97,6 +97,28 @@ public class EnvironmentService {
 	 */
 	public Map<EntityType, String> localizeType(String sourceName) {
 		return this.i18nActivity.localizeType(sourceName, Environment.class);
+	}
+	
+
+	
+	/**
+	 * returns all localized attributes
+	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @return the localized attributes from the given source
+	 */
+	public Map<Attribute, String> localizeAllAttributes(String sourceName) {		
+		return this.i18nActivity.localizeAllAttributes(sourceName);
+	}
+	
+	
+	
+	/**
+	 * returns all localized types
+	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @return the localized types from the given source
+	 */
+	public Map<EntityType, String> localizeAllTypes(String sourceName) {
+		return this.i18nActivity.localizeAllTypes(sourceName);
 	}
 	
 }

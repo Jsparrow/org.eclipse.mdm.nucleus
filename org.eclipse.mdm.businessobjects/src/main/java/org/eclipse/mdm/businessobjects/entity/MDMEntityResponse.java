@@ -79,9 +79,7 @@ public class MDMEntityResponse {
 	private <T extends Entity> List<MDMEntity> toTransferable(List<T> businessObjects) {
 		List<MDMEntity> mdmEntityList = new ArrayList<MDMEntity>();
 		for(Entity  businessObject : businessObjects) {				
-			MDMEntity mdmEntity = new MDMEntity( businessObject.getName(),  businessObject.getClass().getSimpleName(),
-				businessObject.getURI(), businessObject.getValues());
-			
+			MDMEntity mdmEntity = new MDMEntity(businessObject);
 			mdmEntityList.add(mdmEntity);
 		}
 		return mdmEntityList;	

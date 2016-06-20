@@ -20,15 +20,13 @@ import java.util.Optional;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.ContextDescribable;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 
@@ -48,27 +46,27 @@ public class ContextActivity  {
 	@EJB
 	private ConnectorService connectorService;
 	
-
 	
 	/**
 	 * returns the ordered and measurement context for a {@link TestStep} MDM business object identified by 
-	 * the given {@link URI}. If no {@link ContextType}s are defined for this method call, the method returns all context 
-	 * informations of the available {@link ContextType}s. Otherwise you can specify a list of {@link ContextType}s. 
+	 * the given MDM system name and {@link TestStep} ID. If no {@link ContextType}s are defined for this 
+	 * method call, the method returns all context informations of the available {@link ContextType}s. 
+	 * Otherwise you can specify a list of {@link ContextType}s. 
 	 * 
 	 * Possible {@link ContextType}s are {@link ContextType}.UNITUNDERTEST, {@link ContextType}.TESTSEQUENCE 
 	 * and {@link ContextType}.TESTEQUIPMENT.
 	 *   
-	 * @param testStepURI {@link URI} to identify the {@link TestStep}
+	 * @param sourceName the MDM system name
+	 * @param testStepID instance id if the {@link TestStep}
 	 * @param contextTypes list of {@link ContextType}s
 	 * @return the ordered and measured context data as context object for the identified {@link TestStep}
 	 * @throws ContextProviderException if an error occurs during lookup the context informations
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getTestStepContext(URI testStepURI, ContextType... contextTypes)  {
-		
+	public Map<String, Map<ContextType, ContextRoot>> getTestStepContext(String sourceName, Long testStepID, ContextType... contextTypes)  {
 		try {
-		
-			EntityManager em = this.connectorService.getEntityManagerByURI(testStepURI);
-			TestStep testStep = ServiceUtils.lookupEntityByURI(TestStep.class, em, testStepURI);
+			
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			TestStep testStep = em.load(TestStep.class, testStepID);
 					
 			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, contextTypes);
 			Map<ContextType, ContextRoot> measuredContext = lookupMeasuredContextByTestStep(em, 
@@ -83,30 +81,30 @@ public class ContextActivity  {
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
-		
 	}
-	
 	
 	
 	/**
 	 * returns the ordered and measurement context for a {@link Measurement} MDM business object identified by
-	 * the given {@link URI}. If no {@link ContextType}s are defined for this method call, the method returns all context 
-	 * informations of the available {@link ContextType}s. Otherwise you can specify a list of {@link ContextType}s.
+	 * the given MDM system name and {@link Measurement} ID. If no {@link ContextType}s are defined for this 
+	 * method call, the method returns all context informations of the available {@link ContextType}s. 
+	 * Otherwise you can specify a list of {@link ContextType}s.
 	 *  
 	 * Possible {@link ContextType}s are {@link ContextType}.UNITUNDERTEST, {@link ContextType}.TESTSEQUENCE 
 	 * and {@link ContextType}.TESTEQUIPMENT.
 	 * 
-	 * @param measurementURI {@link URI} to identify the {@link Measurement}
+	 * @param sourceName the MDM system name
+	 * @param measurementID instance id if the {@link Measurement}
 	 * @param contextTypes list of {@link ContextType}s
 	 * @return the ordered and measured context data as context object for the identified {@link Measurement}
 	 * @throws ContextProviderException if an error occurs during lookup the context informations
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getMeasurementContext(URI measurementURI, ContextType... contextTypes) {
+	public Map<String, Map<ContextType, ContextRoot>> getMeasurementContext(String sourceName, Long measurementID, ContextType... contextTypes) {
 		
 		try {					
 			
-			EntityManager em = this.connectorService.getEntityManagerByURI(measurementURI);
-			Measurement measurement =  ServiceUtils.lookupEntityByURI(Measurement.class, em, measurementURI);
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			Measurement measurement =  em.load(Measurement.class, measurementID);
 			
 			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, contextTypes);
 			Map<ContextType, ContextRoot> orderedContext = lookupOrderedContextByMeasurement(em, 

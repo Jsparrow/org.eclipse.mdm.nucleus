@@ -12,18 +12,16 @@ package org.eclipse.mdm.businessobjects.boundary;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.NavigationActivity;
@@ -68,8 +66,7 @@ public class ChannelService {
 			
 			if(ServiceUtils.isParentFilter(em, filter, Channel.PARENT_TYPE_CHANNELGROUP)) {
 				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Channel.PARENT_TYPE_CHANNELGROUP);
-				URI channelGroupURI = ServiceUtils.createMDMURI(em, sourceName, Channel.PARENT_TYPE_CHANNELGROUP, id);
-				return this.navigationActivity.getChannels(channelGroupURI);
+				return this.navigationActivity.getChannels(sourceName, id);
 			}
 			
 			return this.searchActivity.search(em, Channel.class, filter);
@@ -92,16 +89,7 @@ public class ChannelService {
 	public Channel getChannel(String sourceName, long channelId) {
 		try {		
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			URI channelURI = ServiceUtils.createMDMURI(em, sourceName, Channel.class, channelId);
-			Optional<Channel> optional = em.load(channelURI);
-			
-			if(!optional.isPresent()) {
-				String message = "mdm Channelwith id '" + channelId 
-					+ "' does not exist at data source with name '"	+ sourceName + "'";
-				throw new MDMEntityAccessException(message);
-			}
-			
-			return optional.get();
+			return em.load(Channel.class, channelId);
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

@@ -12,18 +12,16 @@ package org.eclipse.mdm.businessobjects.boundary;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.NavigationActivity;
@@ -69,8 +67,7 @@ public class ChannelGroupService {
 			
 			if(ServiceUtils.isParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT)) {
 				long id = ServiceUtils.extactIdFromParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT);
-				URI measurementURI = ServiceUtils.createMDMURI(em, sourceName, ChannelGroup.PARENT_TYPE_MEASUREMENT, id);
-				return this.navigationActivity.getChannelGroups(measurementURI);
+				return this.navigationActivity.getChannelGroups(sourceName, id);
 			}
 			
 			return this.searchActivity.search(em, ChannelGroup.class, filter);
@@ -92,16 +89,7 @@ public class ChannelGroupService {
 	public ChannelGroup getChannelGroup(String sourceName, long channelGroupId) {
 		try {		
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			URI channelGroupURI = ServiceUtils.createMDMURI(em, sourceName, ChannelGroup.class, channelGroupId);
-			Optional<ChannelGroup> optional = em.load(channelGroupURI);
-			
-			if(!optional.isPresent()) {
-				String message = "mdm ChannelGroup with id '" + channelGroupId 	
-					+ "' does not exist at data source with name '"	+ sourceName + "'";
-				throw new MDMEntityAccessException(message);
-			}
-			
-			return optional.get();
+			return em.load(ChannelGroup.class, channelGroupId);
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

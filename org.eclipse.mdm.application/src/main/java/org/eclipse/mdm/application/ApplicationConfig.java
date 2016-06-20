@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.application;
 
@@ -17,17 +17,15 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * Application configuration
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @ApplicationPath("mdm")
 public class ApplicationConfig extends ResourceConfig {
-	
 
 	public ApplicationConfig() {
-		packages("org.eclipse.mdm.application", 
-			"org.eclipse.mdm.businessobjects.boundary");
+		packages("org.eclipse.mdm.application", "org.eclipse.mdm.businessobjects.boundary", "org.eclipse.mdm.filerelease.boundary");
 	}
 
-	
 }

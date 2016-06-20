@@ -12,20 +12,18 @@ package org.eclipse.mdm.businessobjects.boundary;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.model.URI;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
@@ -75,8 +73,7 @@ public class TestStepService {
 			
 			if(ServiceUtils.isParentFilter(em, filter, TestStep.PARENT_TYPE_TEST)) {
 				long id = ServiceUtils.extactIdFromParentFilter(em, filter, TestStep.PARENT_TYPE_TEST);
-				URI testURI = ServiceUtils.createMDMURI(em, sourceName, TestStep.PARENT_TYPE_TEST, id);
-				return this.navigationActivity.getTestSteps(testURI);
+				return this.navigationActivity.getTestSteps(sourceName, id);
 			}
 	
 			return this.searchActivity.search(em, TestStep.class, filter);
@@ -108,16 +105,7 @@ public class TestStepService {
 	public TestStep getTestStep(String sourceName, long testStepId) {
 		try {		
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			URI testStepURI = ServiceUtils.createMDMURI(em, sourceName, TestStep.class, testStepId);
-			Optional<TestStep> optional = em.load(testStepURI);
-			
-			if(!optional.isPresent()) {				
-				String message = "TestStep with id '" + testStepId 
-					+ "' does not exist at data source with name '"	+ sourceName + "'";
-				throw new MDMEntityAccessException(message);
-			}
-			
-			return optional.get();
+			return em.load(TestStep.class, testStepId);
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -133,9 +121,7 @@ public class TestStepService {
 	 * @return a map with the complete context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, long testStepId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI testStepURI = ServiceUtils.createMDMURI(em, sourceName, TestStep.class, testStepId);
-		return this.contextActivity.getTestStepContext(testStepURI);
+		return this.contextActivity.getTestStepContext(sourceName, testStepId);
 	}
 	
 	
@@ -148,9 +134,7 @@ public class TestStepService {
 	 * @return a map with the UnitUnderTest context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, long testStepId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI testStepURI = ServiceUtils.createMDMURI(em, sourceName, TestStep.class, testStepId);
-		return this.contextActivity.getTestStepContext(testStepURI, ContextType.UNITUNDERTEST);
+		return this.contextActivity.getTestStepContext(sourceName, testStepId, ContextType.UNITUNDERTEST);
 	}
 	
 	
@@ -163,9 +147,7 @@ public class TestStepService {
 	 * @return a map with the TestSequence context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, long testStepId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI testStepURI = ServiceUtils.createMDMURI(em, sourceName, TestStep.class, testStepId);
-		return this.contextActivity.getTestStepContext(testStepURI, ContextType.TESTSEQUENCE);
+		return this.contextActivity.getTestStepContext(sourceName, testStepId, ContextType.TESTSEQUENCE);
 	}
 	
 		
@@ -178,9 +160,7 @@ public class TestStepService {
 	 * @return a map with the TestEquipment context data (ordered and measured)
 	 */
 	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, long testStepId) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		URI testStepURI = ServiceUtils.createMDMURI(em, sourceName, TestStep.class, testStepId);
-		return this.contextActivity.getTestStepContext(testStepURI, ContextType.TESTEQUIPMENT);
+		return this.contextActivity.getTestStepContext(sourceName, testStepId, ContextType.TESTEQUIPMENT);
 	}
 	
 	

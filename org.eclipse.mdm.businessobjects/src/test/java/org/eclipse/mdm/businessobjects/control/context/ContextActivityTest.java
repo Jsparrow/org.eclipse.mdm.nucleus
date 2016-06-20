@@ -35,7 +35,7 @@ public class ContextActivityTest {
 		
 		ContextActivity contextActitity = createMockedActivity();
 		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.
-			getTestStepContext(ContextActivityMockHelper.URI_TESTSTEP);
+			getTestStepContext("MDM", 1L);
 
 		assertNotNull("context should not be null", contextMap);		
 		checkContextContent(contextMap);
@@ -49,7 +49,7 @@ public class ContextActivityTest {
 		
 		ContextActivity contextActitity = createMockedActivity();
 		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.
-			getMeasurementContext(ContextActivityMockHelper.URI_MEASUREMENT);
+			getMeasurementContext("MDM", 1L);
 
 		assertNotNull("context should not be null", contextMap);
 		checkContextContent(contextMap);		

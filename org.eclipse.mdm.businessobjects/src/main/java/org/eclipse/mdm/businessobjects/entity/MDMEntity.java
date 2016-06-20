@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.mdm.api.base.model.BaseEntity;
-import org.eclipse.mdm.api.base.model.URI;
+import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Value;
 
 /**
@@ -42,25 +42,20 @@ public class MDMEntity {
 	private List<MDMAttribute> attributes;
 	
 	
-	
+
 	/**
-	 * Constructor 
+	 * Constructor.
 	 * 
-	 * @param name name of the MDM business object
-	 * @param type type as String of the MDM business object (e.g. TestStep)
-	 * @param uri URI of an MDM business object
-	 * @param values values of a MDM business object
+	 * @param entity the business object
 	 */
-	public MDMEntity(String name, String type, URI uri, Map<String, Value> values) {
-		this.name = name;
-		this.id = uri.getID();	
-		this.type = type;
-		this.sourceType = uri.getTypeName();
-		this.sourceName = uri.getSourceName();
-		this.attributes = convertAttributeValues(values);
+	public MDMEntity(Entity entity) {
+		this.name = entity.getName();
+		this.id = entity.getID();
+		this.type = entity.getClass().getSimpleName();
+		this.sourceType = entity.getTypeName();
+		this.sourceName = entity.getSourceName();
+		this.attributes = convertAttributeValues(entity.getValues());
 	}
-	
-	
 	
 	public String getName() {
 		return this.name;
