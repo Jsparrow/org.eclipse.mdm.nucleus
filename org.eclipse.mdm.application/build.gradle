@@ -24,16 +24,32 @@ dependencies {
 }
 
 buildscript {
-	repositories { maven { url "https://plugins.gradle.org/m2/" } }
-
-	dependencies { classpath "com.moowork.gradle:gradle-node-plugin:0.12" }
+	repositories { 
+		maven { 
+			url "https://plugins.gradle.org/m2/" 
+		} 
+	}
+	dependencies { 
+		classpath "com.moowork.gradle:gradle-node-plugin:0.12" 
+	}
 }
 
 buildscript {
 	repositories {
-		maven { url "https://plugins.gradle.org/m2/" }
+		maven { 
+			url "https://plugins.gradle.org/m2/" 
+		}
 	}
-	dependencies { classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.8.0" }
+	dependencies { 
+		classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.8.0" 
+	}
+}
+
+
+task copy_websources(type: Copy) {
+
+	from '/src/main/webapp'	
+	into "${project.buildDir}/node"
 }
 
 
@@ -42,37 +58,28 @@ node {
 	npmVersion = '3.9.2'
 	distBaseUrl = 'https://nodejs.org/dist'
 	download = true
-	workDir = file("${project.buildDir}/nodejs")
-	nodeModulesDir = file("${project.buildDir}/nodeModules")
+	workDir = file("${project.buildDir}/node/nodejs")
+	nodeModulesDir = file("${project.buildDir}/node")
 	if (!nodeModulesDir.isDirectory()) {
 		nodeModulesDir.mkdirs()
 	}
 }
 
-task deleteTMPFiles(type: Delete) {
-	delete fileTree("${project.buildDir}") { include "nodeModules/*", "ts/*" }
+task webpack(type: NodeTask) {
+  	script = file("${project.buildDir}/node/node_modules/webpack/bin/webpack.js")
+  	 args = ['--config', "${project.buildDir}/node/webpack.config.js"]
 }
 
-task copyFilesToModulesFolder(type: Copy) {
-	from '/src/main/webapp/app' , '/src/main/webapp/tsconfig.json', '/src/main/webapp/package.json', '/src/main/webapp/typings.json', '/src/main/webapp/systemjs.config.js'
-	into "${project.buildDir}/nodeModules"
+task copy_loginsites(type: Copy) {
+	from 	"${project.buildDir}/node/login.jsp", 
+			"${project.buildDir}/node/login.css", 
+			"${project.buildDir}/node/error.jsp"
+			
+	into	 "${project.buildDir}/node/dist"
 }
 
-copyFilesToModulesFolder.dependsOn(deleteTMPFiles)
-
-compileTypeScript.dependsOn(copyFilesToModulesFolder)
-compileTypeScript.dependsOn(npmInstall)
-
-compileTypeScript {
-	projectFile = new File("${project.buildDir}/nodeModules")
-	source = file("${project.buildDir}/nodeModules")
-	outputDir = file("${project.buildDir}/app");
-	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-		compilerExecutable "${project.buildDir}/nodejs/node-v4.3.2-windows-x64/bin/node.exe ${project.buildDir}/nodeModules/node_modules/typescript/lib/tsc.js"
-	} else {
-		compilerExecutable "${project.buildDir}/nodejs/node-v4.3.2-linux-x86/bin/node ${project.buildDir}/nodeModules/node_modules/typescript/lib/tsc.js"
-	}
-}
-
-compileJava.dependsOn(compileTypeScript)
+compileJava.dependsOn(copy_loginsites)
+copy_loginsites.dependsOn(webpack)
+webpack.dependsOn(npmInstall)
+npmInstall.dependsOn(copy_websources)
 

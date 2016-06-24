@@ -14,18 +14,18 @@ import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
 
-import {Localization} from '../localization';
-import {LocalizationService} from '../localization.service';
+import {Localization} from '../localization/localization';
+import {LocalizationService} from '../localization/localization.service';
 
 @Component({
   selector: 'mdm-detail-view',
-  templateUrl: 'templates/details/mdm-detail-view.component.html',
+  template: require('../../templates/details/mdm-detail-view.component.html'),
   directives: [],
   providers: [],
   inputs: []
 })
 
-export class MDMDetailViewComponent implements OnChanges{
+export class MDMDetailViewComponent{
   @Input() selectedNode: Node;
   locals: Localization[] = [];
   errorMessage: string;
@@ -34,26 +34,18 @@ export class MDMDetailViewComponent implements OnChanges{
               private _loaclService: LocalizationService,
               private _basketService: BasketService){}
 
-  ngOnChanges(){
-    this.locals = [];
-    if (this.selectedNode){
-      this._loaclService.getLocalization(this.selectedNode).subscribe(
-        locals => this.locals = locals,
-        error => this.errorMessage = <any>error);
-    }
-  }
-
   add2Basket(){
     if (this.selectedNode){
       this._basketService.addNode(this.selectedNode);
     }
   }
 
-  getTrans(attr: string){
-    let pos = this.locals.map(function(e) { return e.name; }).indexOf(attr);
-    if (pos !== -1) {
-      return this.locals[pos].localizedName
-    }
-    return attr;
+  isActive(){
+    if (this.selectedNode){return}
+    return "disabled"
+  }
+
+  getTrans(type: string, attr: string){
+    return this._loaclService.getTranslation(type, attr)
   }
 }

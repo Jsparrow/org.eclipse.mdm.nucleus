@@ -11,6 +11,11 @@
 
 package org.eclipse.mdm.filerelease.entity;
 
+/**
+ * Represents a request for a {@link FileRelease}
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 public class FileReleaseRequest {
 
 	public String sourceName;

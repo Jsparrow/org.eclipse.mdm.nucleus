@@ -28,6 +28,13 @@ import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * FileReleasePersistance bean implementation.
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @Stateless
 public class FileReleasePersistance {
 
@@ -35,6 +42,11 @@ public class FileReleasePersistance {
 	
 	private static final String TARGET_FILE_NAME = "mdm_filerelease_storage.sav";
 	
+	/**
+	 * Persists the given file release map.
+	 * 
+	 * @param map The map to persist.
+	 */
 	public void save(Map<String, FileRelease> map) {
 		
 		String userHomePath = System.getProperty("user.home");
@@ -44,6 +56,12 @@ public class FileReleasePersistance {
 		writeFile(targetFile, map);
 	}	
 	
+	/**
+	 * 
+	 * Loads the {@link FileRelease} into a map.
+	 * 
+	 * @return The map that contains the {@link FileRelease}s
+	 */
 	public Map<String, FileRelease> load() {
 		
 		String userHomePath = System.getProperty("user.home");

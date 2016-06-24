@@ -15,7 +15,7 @@ import {NodeService} from './node.service';
 
 @Component({
   selector: 'mdm-node-provider',
-  templateUrl: 'templates/navigator/mdm-node-provider.component.html',
+  template: require('../../templates/navigator/mdm-node-provider.component.html'),
   styles: ['.panel-body {padding: 0px;}'],
   directives: [MDMNodeProviderComponent],
   providers: [],

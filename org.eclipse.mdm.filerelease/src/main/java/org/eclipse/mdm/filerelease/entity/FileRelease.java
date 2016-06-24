@@ -15,6 +15,11 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * FileRelease entity
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @XmlRootElement
 public class FileRelease implements Serializable {
 	

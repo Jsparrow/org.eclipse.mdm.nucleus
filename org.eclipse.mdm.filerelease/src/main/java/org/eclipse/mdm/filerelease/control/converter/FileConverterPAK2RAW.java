@@ -21,7 +21,13 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.eclipse.mdm.property.BeanProperty;
 
-
+/**
+ * 
+ * {@link IFileConverter} implementation for converting PAK to RAW
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @RequestScoped
 public class FileConverterPAK2RAW extends AbstractFileConverter {
 	

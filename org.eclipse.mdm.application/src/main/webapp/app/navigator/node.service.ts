@@ -12,15 +12,12 @@ import {Injectable} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
-import {LocalizationService} from '../localization.service';
-import {Localization} from '../localization';
 import {Node} from './node';
 import {PropertyService} from '../properties'
 
 @Injectable()
 export class NodeService {
   constructor(private http: Http,
-              private _local: LocalizationService,
               private _prop: PropertyService){}
 
   private _host = this._prop.api_host
@@ -36,8 +33,20 @@ export class NodeService {
     .catch(this.handleError);
   }
 
-  serachNodes(query, env, type){
+  private getNode(url: string) {
+    return this.http.get(url)
+    .map(res => <Node[]> res.json().data)
+    .catch(this.handleError);
+  }
+
+  searchNodes(query, env, type){
     return this.http.get(this._nodeUrl + "/" + env + "/" + type + "?" + query)
+              .map(res => <Node[]> res.json().data)
+              .catch(this.handleError);
+  }
+
+  searchFT(query, env){
+    return this.http.get(this._nodeUrl + "/" + env + "/search?q=" + query)
               .map(res => <Node[]> res.json().data)
               .catch(this.handleError);
   }
@@ -82,12 +91,6 @@ export class NodeService {
       case 'Channel':
         return
     }
-  }
-
-  private getNode(url: string) {
-    return this.http.get(url)
-    .map(res => <Node[]> res.json().data)
-    .catch(this.handleError);
   }
 
   private handleError(error: Response) {

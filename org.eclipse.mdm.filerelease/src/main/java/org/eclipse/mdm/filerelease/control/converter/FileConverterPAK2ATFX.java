@@ -25,6 +25,13 @@ import org.eclipse.mdm.filerelease.control.FileReleaseException;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.eclipse.mdm.property.BeanProperty;
 
+/**
+ * 
+ * {@link IFileConverter} implementation for converting PAK to ATFX
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @RequestScoped
 public class FileConverterPAK2ATFX extends AbstractFileConverter {
 
@@ -52,7 +59,6 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 	@BeanProperty
 	private String pakInputAttribute = "";
 		
-	
 	
 	@Override
 	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em) throws FileConverterException {

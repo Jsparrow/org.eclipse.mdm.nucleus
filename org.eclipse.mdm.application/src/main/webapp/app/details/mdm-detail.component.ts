@@ -19,7 +19,7 @@ import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.compone
 
 @Component({
   selector: 'mdm-detail',
-  templateUrl: 'templates/details/mdm-detail.component.html',
+  template: require('../../templates/details/mdm-detail.component.html'),
   directives: [ROUTER_DIRECTIVES, MDMDetailViewComponent, MDMDescriptiveDataComponent],
   providers: []
 })

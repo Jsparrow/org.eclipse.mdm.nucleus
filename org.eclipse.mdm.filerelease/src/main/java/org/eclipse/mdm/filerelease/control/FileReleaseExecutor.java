@@ -16,6 +16,13 @@ import java.util.concurrent.Executor;
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
 
+/**
+ * 
+ * {@link Executor} implementation.
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @Stateless
 public class FileReleaseExecutor implements Executor {
 

@@ -11,12 +11,25 @@
 import {Component, Input} from '@angular/core';
 import {ControlGroup} from '@angular/common';
 import {SearchBase} from './search-base';
+import {LocalizationService} from '../localization/localization.service';
+
 @Component({
   selector:'df-search',
-  templateUrl:'templates/search/dynamic-form-search.component.html'
+  template: require('../../templates/search/dynamic-form-search.component.html')
 })
 export class DynamicFormSearchComponent {
   @Input() search:SearchBase<any>;
   @Input() form:ControlGroup;
-  get isValid() { return this.form.controls[this.search.key].valid; }
+
+  constructor(private localservice : LocalizationService) {}
+  get isValid() {
+    return this.form.controls[this.search.key].valid;
+  }
+  getTrans(label: string){
+    let a = label.split(".")
+    return this.localservice.getTranslation(a[0], a[1])
+  }
+  removeItem(item){
+    this.search.active = false;
+  }
 }

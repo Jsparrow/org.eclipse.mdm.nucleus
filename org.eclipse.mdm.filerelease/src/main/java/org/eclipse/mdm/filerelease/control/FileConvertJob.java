@@ -25,6 +25,12 @@ import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *  Job for converting files.
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 public class FileConvertJob implements Runnable {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(FileConvertJob.class);
@@ -34,6 +40,14 @@ public class FileConvertJob implements Runnable {
 	private final TestStep testStep;
 	private final EntityManager em;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param fileRelease The {@link FileRelease} that contains the link to the file to convert
+	 * @param fileConverter The {@link IFileConverter} to use for the conversion
+	 * @param testStep The {@link TestStep} 
+	 * @param em The {@link EntityManager}
+	 */
 	public FileConvertJob(FileRelease fileRelease, IFileConverter fileConverter, 
 		TestStep testStep, EntityManager em) {
 		
@@ -43,6 +57,9 @@ public class FileConvertJob implements Runnable {
 		this.em = em;
 	}
 
+	/**
+	 * Executes the file conversion.
+	 */
 	@Override
 	public void run() {
 		try {						

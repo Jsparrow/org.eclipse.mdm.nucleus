@@ -12,18 +12,18 @@
   <form (ngSubmit)="onSubmit()" [ngFormModel]="form">
     <div *ngFor="let group of groups" class="form-row">
       <accordion>
-         <accordion-group heading="{{group.name}}">
+         <accordion-group *ngIf="hasActiveItems(group.name)" heading="{{getTrans(group.name)}}" [isOpen]=true>
            <div *ngFor="let search of group.items">
-             <df-search [search]="search" [form]="form"></df-search>
+             <df-search *ngIf="search.active" [search]="search" [form]="form"></df-search>
            </div>
          </accordion-group>
       </accordion>
     </div>
     <div class="form-row">
-      <button class="btn btn-default" type="submit" [disabled]="!form.valid">Search</button>
+      <button class="btn btn-default" type="submit" [disabled]="!form.valid">Suchen</button>
     </div>
   </form>
-  <h4>Results:</h4>
+  <h4>Ergebnisse:</h4>
   <div *ngIf="nodes">
     <ul class="list-group">
       <li *ngFor="let node of nodes" class="list-group-item">

@@ -6,12 +6,16 @@ import {SearchBase} from './search-base';
 export class SearchControlService {
   constructor(private fb:FormBuilder){ }
 
-  toControlGroup(searches:SearchBase<any>[] ) {
+  toControlGroup(searches) {
     let group = {};
-
-    searches.forEach(search => {
-      group[search.key] = search.required ? [search.value || '', Validators.required] : [search.value || ''];
-    });
+    for (let i = 0; i < searches.length; i++){
+      searches[i].items.forEach(search => {
+        group[search.key] = search.required ? [search.value || '', Validators.required] : [search.value || ''];
+      });
+    }
+    // searches.forEach(search => {
+    //   group[search.key] = search.required ? [search.value || '', Validators.required] : [search.value || ''];
+    // });
     return this.fb.group(group);
   }
 }

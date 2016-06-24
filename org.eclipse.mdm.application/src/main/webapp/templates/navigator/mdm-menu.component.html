@@ -15,8 +15,8 @@
         <accordion-group heading={{navigator}} [isOpen]="true">
             <mdm-navigator (selectingNode)="updateSelectedNode($event)"></mdm-navigator>
         </accordion-group>
-        <accordion-group heading={{basket}}>
-          <mdm-basket></mdm-basket>
+        <accordion-group heading={{basket}} [isOpen]="true">
+          <mdm-basket (onSelect)="updateSelectedNode($event)"></mdm-basket>
         </accordion-group>
       </accordion>
     </div>

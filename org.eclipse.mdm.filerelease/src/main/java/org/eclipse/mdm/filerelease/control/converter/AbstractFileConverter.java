@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
  * All rights reserved. This program and the accompanying materials
@@ -36,16 +37,46 @@ import org.eclipse.mdm.filerelease.utils.FileReleaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * Abstract implementation of {@link IFileConverter}. Provides some utility
+ * methods for further {@link IFileConverter} implementations.
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 public abstract class AbstractFileConverter implements IFileConverter {
 
 	protected static final Logger LOG = LoggerFactory.getLogger(AbstractFileConverter.class);
 
-
+	/**
+	 * 
+	 * Creates a zip file from the given folder.
+	 * 
+	 * @param targetFile
+	 *            The path to the zip file to create
+	 * @param folderToZip
+	 *            The path to the folder to zip.
+	 * @throws FileConverterException
+	 *             Thrown if an error occurs.
+	 */
 	protected void zipFolder(String targetFile, String folderToZip) throws FileConverterException {
 		zipFolder(targetFile, folderToZip, false);
 	}
 
-
+	
+	/**
+	 * Creates a zip file from the given folder.
+	 * 
+	 * @param targetFile
+	 *            The path to the zip file to create
+	 * @param folderToZip
+	 *            The path to the folder to zip.
+	 * @param overWrite
+	 *            True if the target file should be overwritten.
+	 * @throws FileConverterException
+	 *             Thrown if an error occurs.
+	 */
 	protected void zipFolder(String targetFile, String folderToZip, boolean overWrite) throws FileConverterException {
 		File source = new File(folderToZip);
 		File target = new File(targetFile);
@@ -62,9 +93,21 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		zipFiles(listAllFilesRecursive(source), target, folderToZip);
 	}
 
-
+	/**
+	 * 
+	 * Locates the attribute value for the given string attribute.
+	 * 
+	 * @param em
+	 *            The entity manager that manages the attribute
+	 * @param testStep
+	 *            The {@link TestStep}
+	 * @param entityName
+	 *            The name of the entity that belongs to the attribute.
+	 * @param attributeName
+	 *            The name of the attribute.
+	 * @return The attribute value.
+	 */
 	protected String locateStringAttributeValue(EntityManager em, TestStep testStep, String entityName, String attributeName) {
-
 		try {
 			SearchService searchService = FileReleaseUtils.getSearchService(em);
 			List<EntityType> list = searchService.listEntityTypes(TestStep.class);
@@ -90,18 +133,29 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		}
 	}
 
-
-
+	/**
+	 * Creates a new directory
+	 * 
+	 * @param path
+	 *            The path to the directory to create
+	 * @return The created directory {@link File}
+	 */
 	protected File createDirectory(String path) {
 		File directory = new File(path);
-		if(!directory.exists()) {
-			if(!directory.mkdir()) {
+		if (!directory.exists()) {
+			if (!directory.mkdir()) {
 				throw new FileReleaseException("unable to create directory at '" + directory.getAbsolutePath() + "'");
 			}
 		}
 		return directory;
 	}
 
+	/**
+	 * Deletes the given directory
+	 * 
+	 * @param directory
+	 *            The directory to delete.
+	 */
 	protected void deleteDirectory(File directory) {
 
 		if(!directory.exists()) {
@@ -122,7 +176,11 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		}
 	}
 
-
+	/**
+	 * Locates the directory {@link File} for the given path 
+	 * @param inputPath The path to the directory.
+	 * @return The {@link File}
+	 */
 	protected File locateInputDirectory(String inputPath) {
 		File pakInputDirectory = new File(inputPath);
 		if(!pakInputDirectory.exists()) {
@@ -135,7 +193,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 
 		return pakInputDirectory;
 	}
-
 
 	private void zipFiles(List<File> list, File target, String sourcePath) throws FileConverterException {
 
@@ -155,7 +212,7 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		}
 	}
 
-
+	
 	private List<File> listAllFilesRecursive(File sourceFolder) {
 		List<File> files = new ArrayList<>();
 		File[] subFiles = sourceFolder.listFiles();
@@ -168,8 +225,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		}
 		return files;
 	}
-
-
 
 	private void zipFile(File file, ZipOutputStream zipStream, String sourcePath) throws FileConverterException {
 
@@ -195,7 +250,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 
 	}
 
-
 	private void closeZipTargetOutputStream(ZipOutputStream zipStream, File file) throws FileConverterException {
 		try {
 			if (zipStream != null) {
@@ -206,7 +260,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 					"unable to close zip output stream at file '" + file.getAbsolutePath() + "'", e);
 		}
 	}
-
 
 	private void closeZipSourceInputStream(BufferedInputStream in, File file) throws FileConverterException {
 		try {
@@ -219,7 +272,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		}
 	}
 
-
 	private EntityType locateEntityType(List<EntityType> list, String entityName) {
 		for(EntityType entityType : list) {
 			if(entityType.getName().equals(entityName)) {
@@ -228,7 +280,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		}
 		throw new FileReleaseException("entity with name '" + entityName + "' not available for TestStep query");
 	}
-
 
 	private Attribute locateAttribute(EntityType entityType, String attributeName) {
 		List<Attribute> list = entityType.getAttributes();

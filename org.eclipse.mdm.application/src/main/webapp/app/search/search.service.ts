@@ -59,9 +59,9 @@ export class SearchService{
         key:'definitions',
         label: 'definitions',
         options: [
-          {key:'1', value:'tests'},
-          {key:'2', value:'teststeps'},
-          {key:'3', value:'measurements'}
+          {key:'1', value:'tests', label:'Versuchen'},
+          {key:'2', value:'teststeps', label:'Versuchsschritten'},
+          {key:'3', value:'measurements', label:'Messungen'}
         ],
         order: 1
       })

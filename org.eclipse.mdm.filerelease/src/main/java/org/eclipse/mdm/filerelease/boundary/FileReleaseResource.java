@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 package org.eclipse.mdm.filerelease.boundary;
 
 import java.util.List;
@@ -32,7 +32,12 @@ import org.eclipse.mdm.filerelease.utils.FileReleaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * {@link FileRelease} resource
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @Path("/filereleases")
 public class FileReleaseResource {
 
@@ -40,8 +45,15 @@ public class FileReleaseResource {
 	
 	@EJB
 	private FileReleaseService fileReleaseService;
-	
-	
+
+	/**
+	 * 
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease}
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{IDENTIFIER}")
@@ -54,22 +66,33 @@ public class FileReleaseResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param state
+	 *            The state of the {@link FileRelease}s to return
+	 * @return @return the result of the delegated request as {@link Response}
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getReleases(@QueryParam("status") String state) {	
 		try {
 			List<FileRelease> list = this.fileReleaseService.getReleases(state);
 			return FileReleaseUtils.toResponse(list, Status.OK);
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param state
+	 *            The state of the incoming {@link FileRelease}s to return
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/incomming") 
@@ -82,9 +105,14 @@ public class FileReleaseResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param state
+	 *            The state of the outgoing {@link FileRelease}s to return
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/outgoing") 
@@ -97,15 +125,14 @@ public class FileReleaseResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	@GET
-	@Path("/asdf")
-	@Produces(MediaType.APPLICATION_JSON)
-	public FileReleaseRequest getFileReleaseRequest() {
-		FileReleaseRequest reReq = new FileReleaseRequest();
-		return reReq;
-	}
-	
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param request
+	 *            The {@link FileReleaseRequest} to create.
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create")
@@ -118,7 +145,14 @@ public class FileReleaseResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to approve.
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{IDENTIFIER}/approve()")
@@ -126,13 +160,21 @@ public class FileReleaseResource {
 		try {
 			this.fileReleaseService.approve(identifier);
 			return Response.ok().build();
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to reject.
+	 * @param message
+	 *            The reject message.
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{IDENTIFIER}/reject()")
@@ -145,8 +187,14 @@ public class FileReleaseResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to delete.
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{IDENTIFIER}")
@@ -159,73 +207,5 @@ public class FileReleaseResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
-	
-	/* -------------------------------------------------------- TEST Methods ----------------------------------------------*/
-	
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/create/{SOURCENAME}/{ID}/{CONVERTER}") 
-	public Response testCreate(@PathParam("SOURCENAME") String sourceName, @PathParam("ID") long id, @PathParam("CONVERTER") String converter) {
-		try {
-			FileReleaseRequest request = new FileReleaseRequest();
-			request.sourceName = sourceName;
-			request.typeName = "TestStep";
-			request.id = id;
-			request.format = converter;
-			request.message= "here IAM a new FileRelease request";
-			request.validity = 5;
-			this.fileReleaseService.create(request);
-			return Response.ok().build();
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
- 	}
-	
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{IDENTIFIER}/delete/") 
-	public Response testDelete(@PathParam("IDENTIFIER") String identifier) {
-		try {			
-			this.fileReleaseService.delete(identifier);			
-			return Response.ok().build();
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
 
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{IDENTIFIER}/approve/") 
-	public Response testApprove(@PathParam("IDENTIFIER") String identifier) {
-		try {			
-			this.fileReleaseService.approve(identifier);			
-			return Response.ok().build();
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
-	
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{IDENTIFIER}/reject/") 
-	public Response testReject(@PathParam("IDENTIFIER") String identifier) {
-		try {			
-			this.fileReleaseService.reject(identifier, "rejected");			
-			return Response.ok().build();
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
-	
 }

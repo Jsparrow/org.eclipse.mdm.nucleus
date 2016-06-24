@@ -8,18 +8,19 @@
   * Contributors:
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
-<div [ngFormModel]="form" class="form-inline">
-  <label [attr.for]="search.key">{{search.label}}:</label>
+<div [ngFormModel]="form">
   <div [ngSwitch]="search.controlType" class="form-group">
-    <div class="input-group">
+    <label for="search.key" class="col-sm-1 control-label">{{getTrans(search.label)}}:</label>
+    <div class="col-sm-11 input-group">
       <input *ngSwitchWhen="'textbox'" [ngControl]="search.key"
               [id]="search.key" [type]="search.type"
-              class="form-control">
+              class="form-control" placeholder="{{getTrans(search.label)}}">
       <select [id]="search.key" *ngSwitchWhen="'dropdown'" [ngControl]="search.key">
         <option *ngFor="let opt of search.options" [value]="opt.key">{{opt.value}}</option>
       </select>
-      <span class="input-group-addon">
-        <input type="checkbox" aria-label="...">
+      <span class="input-group-btn">
+        <!-- <button type="button" class="glyphicon glyphicon-remove"></button> -->
+        <button type="button" class="btn btn-default" (click)="removeItem()"><span class="glyphicon glyphicon-remove"></span></button>
       </span>
     </div>
   </div>

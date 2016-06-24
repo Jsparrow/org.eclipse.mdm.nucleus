@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="form-group">
+      <form>
+        <label *ngFor="let env of envs" class="radio-inline"><input type="checkbox" name="env" (click)="selectEnv(env.sourceName)" checked>{{env.name}}</label>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="input-group">
+    <input class="form-control" #query
+    (keyup.enter)="onSubmit(query.value)">
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" (click)="onSubmit(query.value)">Go!</button>
+    </span>
+  </div>
+</div>
+<div class="container-fluid">
+<h4>Ergebnisse:</h4>
+  <div *ngIf="nodes">
+    <ul class="list-group">
+      <li *ngFor="let node of nodes" class="list-group-item">
+        {{node.name}} <span (click)="add2Basket(node)" class="glyphicon glyphicon-shopping-cart" style="cursor: pointer;"></span>
+      </li>
+    </ul>
+  </div>
+</div>

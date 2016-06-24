@@ -65,17 +65,11 @@ task distribute(type: Zip) {
 }
 
 war {	
-	from ('org.eclipse.mdm.application/build') {
-		include('app')
-		include('app/**/*')
+	from ('org.eclipse.mdm.application/build/node/dist') {
+		include('assets/*')
+		include('*')
 	}
-	from ( 'org.eclipse.mdm.application/build/nodeModules' ) {
-		include 'node_modules'
-		include 'node_modules/**/*'
-	}
-	from ( 'org.eclipse.mdm.application/src/main/webapp' ) {
-		exclude 'app'
-	}
+	
 	webXml = file('org.eclipse.mdm.application/src/main/webconfig/web.xml')
 	webInf  {from 'org.eclipse.mdm.application/src/main/webconfig/glassfish-web.xml'}
 } 

@@ -15,7 +15,6 @@ import {Context} from './context';
 import {PropertyService} from '../properties';
 
 import {Node} from '../navigator/node';
-import {Localization} from '../localization';
 
 import {Components} from './context';
 
@@ -29,7 +28,6 @@ export class ContextService {
   private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix
   private _contextUrl = this._url + '/mdm/environments'
 
-  private _cache : Localization[];
   private test : {}
   private errorMessage: string;
 

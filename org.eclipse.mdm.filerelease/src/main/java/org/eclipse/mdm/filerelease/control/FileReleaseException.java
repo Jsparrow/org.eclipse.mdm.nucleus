@@ -11,15 +11,31 @@
 
 package org.eclipse.mdm.filerelease.control;
 
+/**
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 public class FileReleaseException extends RuntimeException {
 
 	
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param message The error message.
+	 */
 	public FileReleaseException(String message) {
 		super(message);
 	}
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param message The error message
+	 * @param t The {@link Throwable} that caused the exception
+	 */
 	public FileReleaseException(String message, Throwable t) {
 		super(message, t);
 	}

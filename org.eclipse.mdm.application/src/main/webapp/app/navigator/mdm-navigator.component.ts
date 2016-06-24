@@ -18,12 +18,12 @@ import {MDMNodeProviderComponent} from './mdm-node-provider.component';
 
 @Component({
   selector: 'mdm-navigator',
-  templateUrl: 'templates/navigator/mdm-navigator.component.html',
+  template: require('../../templates/navigator/mdm-navigator.component.html'),
   directives: [MDMNodeProviderComponent, ACCORDION_DIRECTIVES],
   providers: []
 })
 export class MDMNavigatorComponent implements OnInit {
-  @Output() selectingNode = new EventEmitter();
+  @Output() selectingNode = new EventEmitter<Node>();
 
   openNode: Node;
   selectedNode: Node;
@@ -33,44 +33,44 @@ export class MDMNavigatorComponent implements OnInit {
   constructor(
     private _nodeService: NodeService) {}
 
-    getNodes(){
-      let node: Node;
-      this._nodeService.getNodes(node).subscribe(
-        nodes => this.nodes = nodes,
-        error => this.errorMessage = <any>error);
+  getNodes(){
+    let node: Node;
+    this._nodeService.getNodes(node).subscribe(
+      nodes => this.nodes = nodes,
+      error => this.errorMessage = <any>error);
+  }
+  ngOnInit(){
+    this.getNodes();
+  }
+  onOpenNode(node: Node) {
+    this.activateNode(node);
+  }
+  updateSelectedNode(arg) {
+    this.selectedNode = arg
+    this.selectingNode.emit(arg)
+  }
+  onSelectNode(node){
+    this.selectingNode.emit(node);
+  }
+  private activateNode(node: Node){
+    if (this.openNode === node && this.openNode.active) {
+      this.openNode.active = false;
+      return
     }
-    ngOnInit(){
-      this.getNodes();
+    if (this.openNode) {
+      this.openNode.active = false;
     }
-    onOpenNode(node: Node) {
-      this.activateNode(node);
+    this.openNode = node;
+    this.openNode.active = true;
+  }
+  isActive(node: Node){
+    if (node.active) {
+      return "glyphicon glyphicon-chevron-down"
+    } else {
+      return "glyphicon glyphicon-chevron-right"
     }
-    updateSelectedNode(arg) {
-      this.selectedNode = arg
-      this.selectingNode.emit(arg)
-    }
-    onSelectNode(node){
-      this.selectingNode.emit(node);
-    }
-    private activateNode(node: Node){
-      if (this.openNode === node && this.openNode.active) {
-        this.openNode.active = false;
-        return
-      }
-      if (this.openNode) {
-        this.openNode.active = false;
-      }
-      this.openNode = node;
-      this.openNode.active = true;
-    }
-    isActive(node: Node){
-      if (node.active) {
-        return "glyphicon glyphicon-chevron-down"
-      } else {
-        return "glyphicon glyphicon-chevron-right"
-      }
-    }
-    getMargin(){
-      return 10;
-    }
+  }
+  getMargin(){
+    return 10;
+  }
 }

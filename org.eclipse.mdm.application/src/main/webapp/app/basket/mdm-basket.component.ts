@@ -8,18 +8,19 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Node} from '../navigator/node';
 import {BasketService} from './basket.service';
 
 @Component({
   selector: 'mdm-basket',
-  templateUrl: 'templates/basket/mdm-basket.component.html',
+  template: require('../../templates/basket/mdm-basket.component.html'),
   styles: ['.remove {color:black; cursor: pointer; float: right}'],
   directives: [],
   providers: []
 })
 export class MDMBasketComponent {
+  @Output() onSelect = new EventEmitter<Node>();
   activeNode: Node;
 
   constructor(private _basketService : BasketService){}
@@ -34,7 +35,8 @@ export class MDMBasketComponent {
     this._basketService.removeNode(node);
   }
 
-  selectedNode(node){
+  selectNode(node){
     this.activeNode = node;
+    this.onSelect.emit(node);
   }
 }

@@ -20,18 +20,18 @@ import {DynamicFormSearchComponent} from './dynamic-form-search.component';
 import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
+import {LocalizationService} from '../localization/localization.service';
 
 
 @Component({
   selector:'dynamic-form',
-  templateUrl:'templates/search/dynamic-form.component.html',
+  template: require('../../templates/search/dynamic-form.component.html'),
   directives: [DynamicFormSearchComponent, ACCORDION_DIRECTIVES],
   providers:  [SearchControlService]
 })
 export class DynamicForm implements OnChanges, OnInit{
-  @Input() searches: SearchBase<any>[] = [];
   @Input() groups = [];
-  @Input() env: string;
+  @Input() env: Node[];
   @Input() type: string;
   form: ControlGroup;
   nodes: Node[] = [];
@@ -39,16 +39,29 @@ export class DynamicForm implements OnChanges, OnInit{
 
   constructor(private scs: SearchControlService,
               private service: NodeService,
-              private basket: BasketService) {}
+              private basket: BasketService,
+              private localservice : LocalizationService) {}
 
   ngOnInit(){
-    this.form = this.scs.toControlGroup(this.searches);
+    this.form = this.scs.toControlGroup(this.groups);
   }
   ngOnChanges(){
-    this.form = this.scs.toControlGroup(this.searches)
+    this.form = this.scs.toControlGroup(this.groups);
   }
   onSubmit() {
-    this.getResults(this.form.value)
+    this.nodes = []
+    this.getResults(this.form.value);
+  }
+
+  hasActiveItems(group) {
+    let g = this.groups.map(function(x){return x.name}).indexOf(group)
+    let i = this.groups[g].items.map(function(x){
+      return x.active
+    }).filter(function(v){
+      return v == true
+    })
+    if (i.length > 0){return true}
+    return false
   }
 
   getResults(values) {
@@ -63,12 +76,17 @@ export class DynamicForm implements OnChanges, OnInit{
     if (query == "filter=") {
       return
     }
-    this.service.serachNodes(query.slice(0,-5), this.env, this.type).subscribe(
-      nodes => this.nodes = nodes,
-      error => this.errorMessage = <any>error);
+    for (let i in this.env){
+      this.service.searchNodes(query.slice(0,-5), this.env[i].sourceName, this.type).subscribe(
+        nodes => this.nodes = this.nodes.concat(nodes),
+        error => this.errorMessage = <any>error);
+    }
   }
-
   add2Basket(node: Node){
     this.basket.addNode(node);
+  }
+
+  getTrans(label: string){
+    return this.localservice.getTranslation(label, "")
   }
 }

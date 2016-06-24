@@ -18,7 +18,7 @@ import {Node} from '../navigator/node';
 
 @Component({
   selector: 'mdm-detail-context',
-  templateUrl: 'templates/details/mdm-detail-descriptive-data.component.html',
+  template: require('../../templates/details/mdm-detail-descriptive-data.component.html'),
   providers: [ContextService],
   directives: [TAB_DIRECTIVES, ACCORDION_DIRECTIVES]
 })
@@ -50,7 +50,7 @@ export class MDMDescriptiveDataComponent implements OnChanges{
         contexts => this.contexts = contexts,
         error => this.errorMessage = <any>error);
     } else {
-      this.status = "no context data available"
+      this.status = "keine Beschreibende Daten vorhanden"
     }
   }
 

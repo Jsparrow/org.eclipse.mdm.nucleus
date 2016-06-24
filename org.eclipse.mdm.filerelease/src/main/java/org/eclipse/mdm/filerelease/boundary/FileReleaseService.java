@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.filerelease.boundary;
 
@@ -31,29 +31,56 @@ import org.eclipse.mdm.filerelease.entity.FileReleaseRequest;
 import org.eclipse.mdm.filerelease.utils.FileReleasePermissionUtils;
 import org.eclipse.mdm.filerelease.utils.FileReleaseUtils;
 
+/**
+ * FileReleaseService Bean implementation with available {@link FileRelease}
+ * operations
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @Stateless
 public class FileReleaseService {
-	
+
 	@EJB
 	private ConnectorService connectorService;
 	@EJB
 	private FileReleaseManager manager;
 	@EJB
 	private FileConvertJobManager converter;
-	
+
+	/**
+	 * Returns the the {@link FileRelease} with the given identifier
+	 * 
+	 * @param identifier
+	 *            The identifier
+	 * @return The {@link FileRelease}
+	 */
 	public FileRelease getRelease(String identifier) {
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);
 		return this.manager.getRelease(user.getName(), identifier);
 	}
-	
-	public List<FileRelease> getReleases(String state) {		
+
+	/**
+	 * Returns all {@link FileRelease}s with the given state.
+	 * 
+	 * @param state
+	 *            The state of the {@link FileRelease}s
+	 * @return The {@link FileRelease}
+	 */
+	public List<FileRelease> getReleases(String state) {
 		Set<FileRelease> fileReleases = new HashSet<>();
 		fileReleases.addAll(getIncommingReleases(state));
 		fileReleases.addAll(getOutgoingReleases(state));
 		return new ArrayList<>(fileReleases);
 	}
-	
-		
+
+	/**
+	 * Returns all incoming {@link FileRelease}s with the given state.
+	 * 
+	 * @param state
+	 *            The state of the incoming {@link FileRelease}s
+	 * @return The incoming {@link FileRelease}
+	 */
 	public List<FileRelease> getIncommingReleases(String state) {
 		
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);				
@@ -62,9 +89,14 @@ public class FileReleaseService {
 		}
 		return this.manager.getReleases(user.getName(), FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING, state);
 	}
-	
-	
-		
+
+	/**
+	 * Returns all outgoing {@link FileRelease}s with the given state.
+	 * 
+	 * @param state
+	 *            The state of the outgoing {@link FileRelease}s
+	 * @return The outgoing {@link FileRelease}
+	 */
 	public List<FileRelease> getOutgoingReleases(String state) {
 		
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);				
@@ -73,10 +105,16 @@ public class FileReleaseService {
 		}
 		return this.manager.getReleases(user.getName(), FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING, state);
 	}
-	
+
+	/**
+	 * Creates a new {@link FileRelease}. Approves the {@link FileRelease} if
+	 * the sender is equals the reciever of the {@link FileRelease}.
+	 * 
+	 * @param request
+	 *            The {@link FileReleaseRequest} that holds the information to create a new {@link FileRelease}
+	 */
 	public void create(FileReleaseRequest request) {
 		checkFileReleaseRequest(request);
-		
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);		
 		
 		List<FileRelease> list = this.manager.getReleases(user.getName(), 
@@ -109,7 +147,12 @@ public class FileReleaseService {
 		
 	}
 
-	
+	/**
+	 * Deletes the {@link FileRelease} with the given identifier.
+	 * 
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to delete.
+	 */
 	public void delete(String identifier) {
 
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);		
@@ -124,9 +167,15 @@ public class FileReleaseService {
 		this.manager.removeFileRelease(fileRelease);
 	}
 	
-	
+
+	/**
+	 * Approve the {@link FileRelease} with the given identifier.
+	 * 
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to approve.
+	 */
 	public void approve(String identifier) {
-		
+
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);		
 		FileRelease fileRelease = this.manager.getRelease(user.getName(), identifier);	
 
@@ -134,9 +183,18 @@ public class FileReleaseService {
 		
 		this.converter.release(fileRelease);
 	}
-	
-	
-	public void reject(String identifier, String message) {		
+
+	/**
+	 * Rejects the {@link FileRelease} with the given identifier. Sets the given
+	 * message as reject message.
+	 * 
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to reject.
+	 * @param message
+	 *            The reject message.
+	 */
+	public void reject(String identifier, String message) {
+
 
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);		
 		FileRelease fileRelease = this.manager.getRelease(user.getName(), identifier);		
@@ -173,5 +231,5 @@ public class FileReleaseService {
 		}
 		
 	}
-	
+
 }

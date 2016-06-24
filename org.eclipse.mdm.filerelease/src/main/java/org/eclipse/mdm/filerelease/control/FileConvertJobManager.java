@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.filerelease.control;
 
@@ -28,23 +28,38 @@ import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * FileConvertJobManager Bean implementation.
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 @Stateless
 public class FileConvertJobManager {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FileConvertJobManager.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(FileConvertJobManager.class);
+
 	@Inject
 	Executor executor;
-	
+
 	@EJB
 	private ConnectorService connectorService;
-	
+
 	@Inject
 	private FileConverterPAK2RAW fileConverterPAK2RAW;
-	@Inject 
+	@Inject
 	private FileConverterPAK2ATFX fileConverterPAK2ATFX;
-	
-	public void release(FileRelease fileRelease) {	
+
+	/**
+	 * Releases the given {@link FileRelease}. Starts a new
+	 * {@link FileConvertJob}.
+	 * 
+	 * @param fileRelease
+	 *            The {@link FileRelease} to release.
+	 */
+	public void release(FileRelease fileRelease) {
+
 		
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(fileRelease.sourceName);
@@ -61,24 +76,19 @@ public class FileConvertJobManager {
 		} catch(DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
-		
+
 	}
-	
-	public IFileConverter getFileConverterByFormat(FileRelease fileRelease) {
-		if(fileRelease.format.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2RAW)) {
+
+	private IFileConverter getFileConverterByFormat(FileRelease fileRelease) {
+		if (fileRelease.format.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2RAW)) {
 			return this.fileConverterPAK2RAW;
-	
-		} else if(fileRelease.format.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX)) {
+
+		} else if (fileRelease.format.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX)) {
 			return this.fileConverterPAK2ATFX;
 		}
-		
-		throw new FileReleaseException("no FileConverter found for format '" + fileRelease.format 
-		+ "' on executing FileRelease with identifier '" + fileRelease.identifier + "'!");
+
+		throw new FileReleaseException("no FileConverter found for format '" + fileRelease.format
+				+ "' on executing FileRelease with identifier '" + fileRelease.identifier + "'!");
 	}
 
-	
-	
-	
-
-	
 }

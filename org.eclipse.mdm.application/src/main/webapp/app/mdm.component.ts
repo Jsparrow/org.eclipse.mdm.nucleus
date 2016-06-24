@@ -8,33 +8,39 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {HTTP_PROVIDERS} from '@angular/http';
 import {Routes, Router, ROUTER_DIRECTIVES} from '@angular/router';
 
 import {MDMMenuComponent} from './navigator/mdm-menu.component';
 import {MDMSearchComponent} from './search/mdm-search.component';
+import {MDMFullTextSearchComponent} from './search/mdm-full-text-search.component';
 
 import {NodeService} from './navigator/node.service';
 import {BasketService} from './basket/basket.service';
-import {LocalizationService} from './localization.service';
+import {LocalizationService} from './localization/localization.service';
 import {PropertyService} from './properties';
 
 @Component({
   selector: 'mdm-web',
-  templateUrl: 'templates/mdm.component.html',
+  template: require('../templates/mdm.component.html'),
   directives: [ROUTER_DIRECTIVES],
   providers: [HTTP_PROVIDERS, NodeService, LocalizationService, PropertyService, BasketService]
 })
 @Routes([
   {path: '/mdmmenu', component: MDMMenuComponent},
-  {path: '/mdmsearch', component: MDMSearchComponent}
+  {path: '/mdmsearch', component: MDMSearchComponent},
+  {path: '/mdmfulltextsearch', component: MDMFullTextSearchComponent}
 ])
 export class MDMComponent implements OnInit{
   brand = 'openMDM5 Web';
   _comp: string = "MDMMenu";
+  viewContainerRef;
 
-  constructor(private router: Router){}
+  constructor(private router: Router,
+              viewContainerRef:ViewContainerRef){
+                this.viewContainerRef = viewContainerRef;
+              }
 
   ngOnInit(){
     this.router.navigate(['/mdmmenu'])

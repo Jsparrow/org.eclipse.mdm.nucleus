@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- * Sebastian Dirsch - initial implementation
- *******************************************************************************/
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Sebastian Dirsch - initial implementation
+  *******************************************************************************/ 
 
 package org.eclipse.mdm.filerelease.utils;
 
@@ -32,11 +32,23 @@ import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * Provides utility methods
+ * 
+ * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ *
+ */
 public final class FileReleaseUtils {
 
 
 	private static final Logger LOG = LoggerFactory.getLogger(FileReleaseUtils.class);
 
+	/**
+	 * Returns the {@link User} that is logged in on the given {@link ConnectorService}
+	 * @param connectorService The {@link ConnectorService}
+	 * @return The {@link User}
+	 */
 	public static User getLoggedOnUser(ConnectorService connectorService) {
 
 		try {
@@ -51,17 +63,31 @@ public final class FileReleaseUtils {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
 	}
-
-
-
+		
+	
+	/**
+	 * Returns the {@link User} that is responsible for the given {@link TestStep}
+	 * 
+	 * @param connectorService The {@link ConnectorService}
+	 * @param testStep The {@link TestStep}
+	 * @return The responsible {@link User}
+	 */
 	public static User getResponsiblePerson(ConnectorService connectorService, TestStep testStep) {
 		EntityManager em = connectorService.getEntityManagerByName(testStep.getSourceName());
 		Test test = getTestParent(em, testStep);
 		return extractUser(test.getResponsiblePerson());
 	}
-
-
-
+	
+	
+	/**
+	 * 
+	 * Loads the {@link TestStep} with the given URI from the given {@link ConnectorService}
+	 * 
+	 * @param connectorService The {@link ConnectorService}
+	 * @param sourceName The source name
+	 * @param id The id of the {@link TestStep}
+	 * @return The loaded {@link TestStep}
+	 */
 	public static TestStep loadTestStep(ConnectorService connectorService, String sourceName, Long id) {
 		try {
 			EntityManager em = connectorService.getEntityManagerByName(sourceName);
@@ -69,24 +95,41 @@ public final class FileReleaseUtils {
 		} catch(DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
-	}
-
-
+	}	
+	
+	/**
+	 * 
+	 * Returns the {@link SearchService} for the given {@link EntityManager}
+	 * 
+	 * @param em The {@link EntityManager}
+	 * @return The {@link SearchService}
+	 */
 	public static SearchService getSearchService(EntityManager em) {
 		Optional<SearchService> optional = em.getSearchService();
 		if(!optional.isPresent()) {
 			throw new FileReleaseException("mandatory MDM SearchService not found");
 		}
 		return optional.get();
-
+		
 	}
 
+	/**
+	 * 
+	 * Creates a {@link Response} with the given status. 
+	 * 
+	 * @param response The object that should be returned in the response.
+	 * @param status The status of the response.
+	 * @return The {@link Response}
+	 */
 	public static Response toResponse(Object response, Status status) {
 		GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
 		return Response.status(status).entity(genEntity).type(MediaType.APPLICATION_JSON).build();
 	}
-
-
+	
+	/**
+	 * Deletes a filelink
+	 * @param fileLink The filelink to delete
+	 */
 	public static void deleteFileLink(String fileLink) {
 
 		File file = new File(fileLink);
@@ -101,6 +144,11 @@ public final class FileReleaseUtils {
 	}
 
 
+	/**
+	 * Checks if the given format is a valid file converter format.
+	 * @param format The format as string
+	 * @return TRUE if the format is valid. Otherwise FALSE.
+	 */
 	public static boolean isFormatValid(String format) {
 		boolean valid = false;
 
@@ -115,18 +163,16 @@ public final class FileReleaseUtils {
 		return valid;
 	}
 
-
-
-
+	
 	private static User extractUser(Optional<User> oUser) {
 		if(!oUser.isPresent()) {
 			throw new FileReleaseException("unable to locate neccessary User for file release service");
 		}
 		return oUser.get();
 	}
-
-
-
+	
+	
+	
 	private static Test getTestParent(EntityManager em, TestStep testStep) {
 		try {
 			Optional<Test> oTest = em.loadParent(testStep, TestStep.PARENT_TYPE_TEST);

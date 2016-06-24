@@ -20,8 +20,9 @@
     </div>
     <div class="collapse navbar-collapse" id="bs-mdm-navbar">
       <ul class="nav navbar-nav">
-        <li [ngClass]="isActive('MDMMenu')"><a [routerLink]="['/mdmmenu']" (click)="activate('MDMMenu')"> MDM</a></li>
-        <li [ngClass]="isActive('MDMSearch')"><a [routerLink]="['/mdmsearch']" (click)="activate('MDMSearch')"> Search</a></li>
+        <li [ngClass]="isActive('MDMMenu')"><a [routerLink]="['/mdmmenu']" (click)="activate('MDMMenu')"> Navigator</a></li>
+        <li [ngClass]="isActive('MDMSearch')"><a [routerLink]="['/mdmsearch']" (click)="activate('MDMSearch')"> MDM Suche</a></li>
+        <li [ngClass]="isActive('MDMFullTextSearch')"><a [routerLink]="['/mdmfulltextsearch']" (click)="activate('MDMFullTextSearch')"> Volltext Suche</a></li>
       </ul>
     </div>
   </div>
