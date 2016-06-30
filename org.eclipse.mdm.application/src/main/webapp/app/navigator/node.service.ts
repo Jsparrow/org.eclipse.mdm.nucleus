@@ -92,6 +92,13 @@ export class NodeService {
         return
     }
   }
+  compareNode(node1, node2){
+    if (node1 == undefined || node2 == undefined) { return }
+    let n1 = node1.name + node1.id + node1.type + node1.sourceName
+    let n2 = node2.name + node2.id + node2.type + node2.sourceName
+    if (n1 == n2) { return true }
+    return false
+  }
 
   private handleError(error: Response) {
     console.error(error);

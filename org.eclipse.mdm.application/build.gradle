@@ -12,7 +12,6 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 description = 'MDM Web Application'
 version = '1.0.0'
-apply plugin: "de.richsource.gradle.plugins.typescript"
 apply plugin: 'com.moowork.node'
 
 dependencies {
@@ -34,21 +33,10 @@ buildscript {
 	}
 }
 
-buildscript {
-	repositories {
-		maven { 
-			url "https://plugins.gradle.org/m2/" 
-		}
-	}
-	dependencies { 
-		classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.8.0" 
-	}
-}
-
 
 task copy_websources(type: Copy) {
 
-	from '/src/main/webapp'	
+	from './src/main/webapp'	
 	into "${project.buildDir}/node"
 }
 
@@ -82,4 +70,8 @@ compileJava.dependsOn(copy_loginsites)
 copy_loginsites.dependsOn(webpack)
 webpack.dependsOn(npmInstall)
 npmInstall.dependsOn(copy_websources)
+copy_websources.dependsOn(npmSetup)
+npmSetup.dependsOn(nodeSetup)
+
+
 

@@ -54,13 +54,13 @@ export class MDMDescriptiveDataComponent implements OnChanges{
     }
   }
 
-  getTrans(attr: string){
-    let pos = this._nodeService.locals.map(function(e) { return e.name; }).indexOf(attr);
-    if (pos !== -1) {
-      return this._nodeService.locals[pos].localizedName
-    }
-    return attr;
-  }
+  // getTrans(attr: string){
+  //   let pos = this._nodeService.locals.map(function(e) { return e.name; }).indexOf(attr);
+  //   if (pos !== -1) {
+  //     return this._nodeService.locals[pos].localizedName
+  //   }
+  //   return attr;
+  // }
 
   diffToggle(){
     this._diff = !this._diff

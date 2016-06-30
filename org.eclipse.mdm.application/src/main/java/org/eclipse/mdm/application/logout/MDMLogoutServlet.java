@@ -34,7 +34,7 @@ public class MDMLogoutServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.logout();
 		req.getSession().invalidate();	
-		resp.sendRedirect(req.getContextPath() + "/index.jsp");	
+		resp.sendRedirect(req.getContextPath() + "/index.html");	
 	}
 
 	

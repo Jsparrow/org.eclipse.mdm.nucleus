@@ -21,7 +21,8 @@ import {BasketService} from './basket.service';
 })
 export class MDMBasketComponent {
   @Output() onSelect = new EventEmitter<Node>();
-  activeNode: Node;
+  @Output() onActive = new EventEmitter<Node>();
+  @Input() activeNode: Node;
 
   constructor(private _basketService : BasketService){}
 
@@ -37,6 +38,7 @@ export class MDMBasketComponent {
 
   selectNode(node){
     this.activeNode = node;
+    this.onActive.emit(node);
     this.onSelect.emit(node);
   }
 }

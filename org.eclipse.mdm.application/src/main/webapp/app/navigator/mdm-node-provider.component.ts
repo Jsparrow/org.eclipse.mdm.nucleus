@@ -16,13 +16,15 @@ import {NodeService} from './node.service';
 @Component({
   selector: 'mdm-node-provider',
   template: require('../../templates/navigator/mdm-node-provider.component.html'),
-  styles: ['.panel-body {padding: 0px;}'],
   directives: [MDMNodeProviderComponent],
   providers: [],
   inputs: ['rootNode', 'indent']
 })
 export class MDMNodeProviderComponent implements OnInit {
-  @Output() selectingNode = new EventEmitter();
+  @Output() selectingNode = new EventEmitter<Node>();
+  @Output() onActive = new EventEmitter<Node>();
+  @Input() activeNode: Node;
+
   rootNode: Node;
   indent: number;
 
@@ -56,14 +58,23 @@ export class MDMNodeProviderComponent implements OnInit {
     this.openNode = node;
     this.openNode.active = true;
   }
+  updateActiveNode(node){
+    this.activeNode = node
+    this.onActive.emit(node)
+  }
   onSelectNode(node){
     this.selectingNode.emit(node);
   }
   updateSelectedNode(node) {
     this.selectedNode = node
+    this.activeNode = node
+    this.onActive.emit(node)
     this.selectingNode.emit(node)
   }
-  isActive(node: Node){
+  isActive(node){
+    if (this._nodeService.compareNode(this.activeNode, node)) {return "active"}
+  }
+  isOpen(node: Node){
     if (node.active) {
       return "glyphicon glyphicon-chevron-down"
     } else {

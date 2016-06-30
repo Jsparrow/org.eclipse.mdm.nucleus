@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.filerelease.entity.FileRelease;
+import org.eclipse.mdm.filerelease.entity.FileReleaseAction;
 import org.eclipse.mdm.filerelease.entity.FileReleaseRequest;
 import org.eclipse.mdm.filerelease.utils.FileReleaseUtils;
 import org.slf4j.Logger;
@@ -135,12 +136,11 @@ public class FileReleaseResource {
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/create")
 	public Response create(FileReleaseRequest request) {
 		try {
 			this.fileReleaseService.create(request);
 			return Response.ok().build();
-	} catch(RuntimeException e) {
+		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
@@ -155,10 +155,17 @@ public class FileReleaseResource {
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/{IDENTIFIER}/approve()")
-	public Response approve(@PathParam("IDENTIFIER") String identifier) {
+	@Path("/{IDENTIFIER}")
+	public Response approve(@PathParam("IDENTIFIER") String identifier, FileReleaseAction action) {
 		try {
-			this.fileReleaseService.approve(identifier);
+			if(action.action.equalsIgnoreCase(FileReleaseAction.FILE_RELEASE_ACTION_APPROVE)) {
+				this.fileReleaseService.approve(identifier);
+			} else if(action.action.equalsIgnoreCase(FileReleaseAction.FILE_RELEASE_ACTION_REJECT)) {
+				this.fileReleaseService.reject(identifier, action.message);
+			} else {
+				throw new WebApplicationException("unsupported FileRelease action command '" 
+					+ action.action + "'", Status.BAD_REQUEST);
+			}			
 			return Response.ok().build();
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
@@ -166,27 +173,6 @@ public class FileReleaseResource {
 		}
 	}
 
-	/**
-	 * delegates the request to the {@link FileReleaseService}
-	 * 
-	 * @param identifier
-	 *            The identifier of the {@link FileRelease} to reject.
-	 * @param message
-	 *            The reject message.
-	 * @return the result of the delegated request as {@link Response}
-	 */
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/{IDENTIFIER}/reject()")
-	public Response reject(@PathParam("IDENTIFIER") String identifier, String message) {
-		try {
-			this.fileReleaseService.reject(identifier, message);
-			return Response.ok().build();
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
 
 	/**
 	 * delegates the request to the {@link FileReleaseService}
@@ -208,4 +194,27 @@ public class FileReleaseResource {
 		}
 	}
 
+	//Remove this: Only for Test
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/makedata") 
+	public Response getMakeData() {
+		try {
+			for(int i=0; i<10; i++) {
+				FileReleaseRequest request = new FileReleaseRequest();
+				request.sourceName = "MDMTEST01";
+				request.typeName = "TestStep";
+				request.id = (long)30516;
+				request.validity = 5;
+				request.message = "test release " + (i+1);
+				request.format = "PAK2RAW";				
+				this.fileReleaseService.create(request);
+			}
+			return Response.ok().build();
+		} catch(RuntimeException e) {
+			LOG.error(e.getMessage(), e);
+			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 }

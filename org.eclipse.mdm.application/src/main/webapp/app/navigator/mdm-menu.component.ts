@@ -38,7 +38,8 @@ import {MDMSearchComponent} from '../search/mdm-search.component';
   {path: '/search', component: MDMSearchComponent}
 ])
 export class MDMMenuComponent{
-  selectedNode: Node
+  selectedNode: Node;
+  activeNode: Node;
   closeOther:boolean = false;
   navigator:string = "Navigation";
   basket:string = "Warenkorb";
@@ -47,5 +48,8 @@ export class MDMMenuComponent{
 
   updateSelectedNode(node: Node) {
     this.selectedNode = node
+  }
+  updateActiveNode(node: Node) {
+    this.activeNode = node
   }
 }

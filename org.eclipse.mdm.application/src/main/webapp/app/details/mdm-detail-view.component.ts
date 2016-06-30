@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, Input, OnChanges, SimpleChange} from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';

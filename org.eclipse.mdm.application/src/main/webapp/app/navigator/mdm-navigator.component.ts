@@ -24,6 +24,8 @@ import {MDMNodeProviderComponent} from './mdm-node-provider.component';
 })
 export class MDMNavigatorComponent implements OnInit {
   @Output() selectingNode = new EventEmitter<Node>();
+  @Output() onActive = new EventEmitter<Node>();
+  @Input() activeNode: Node;
 
   openNode: Node;
   selectedNode: Node;
@@ -45,12 +47,19 @@ export class MDMNavigatorComponent implements OnInit {
   onOpenNode(node: Node) {
     this.activateNode(node);
   }
-  updateSelectedNode(arg) {
-    this.selectedNode = arg
-    this.selectingNode.emit(arg)
+  updateSelectedNode(node) {
+    this.selectedNode = node
+    this.activeNode = node
+    this.onActive.emit(node)
+    this.selectingNode.emit(node)
+  }
+  updateActiveNode(node){
+    this.activeNode = node
+    this.onActive.emit(node)
   }
   onSelectNode(node){
     this.selectingNode.emit(node);
+    this.onActive.emit(node);
   }
   private activateNode(node: Node){
     if (this.openNode === node && this.openNode.active) {
@@ -63,7 +72,10 @@ export class MDMNavigatorComponent implements OnInit {
     this.openNode = node;
     this.openNode.active = true;
   }
-  isActive(node: Node){
+  isActive(node){
+    if (this._nodeService.compareNode(this.activeNode, node)) {return "active"}
+  }
+  isOpen(node: Node){
     if (node.active) {
       return "glyphicon glyphicon-chevron-down"
     } else {

@@ -10,10 +10,10 @@
   ******************************************************************************* -->
 <ul class="list-group" style="max-height:70vh;overflow-y:auto;">
   <div *ngFor="let node of nodes">
-    <li class="list-group-item">
-      <span style="cursor: pointer;" [style.margin-left.px]="getMargin()" [ngClass]="isActive(node)" (click)="onOpenNode(node)"></span>
+    <li class="list-group-item" [ngClass]="isActive(node)">
+      <span style="cursor: pointer;" [style.margin-left.px]="getMargin()" [ngClass]="isOpen(node)" (click)="onOpenNode(node)"></span>
       <a style="color:black; cursor: pointer;" (click)="onSelectNode(node)">{{node.name}}</a>
     </li>
-    <mdm-node-provider *ngIf="node.active" [rootNode]="openNode" [indent]="getMargin()" (selectingNode)="updateSelectedNode($event)">Loading...</mdm-node-provider>
+    <mdm-node-provider *ngIf="node.active" [rootNode]="openNode" [indent]="getMargin()" [activeNode]="activeNode" (selectingNode)="updateSelectedNode($event)" (onActive)="updateActiveNode($event)">Loading...</mdm-node-provider>
   </div>
 </ul>

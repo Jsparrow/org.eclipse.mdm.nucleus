@@ -8,14 +8,17 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {SearchBase} from './search-base';
+import {Component, Input} from '@angular/core';
+import {Release} from './filerelease.service';
 
-export class DropdownSearch extends SearchBase<string>{
-  controlType = 'dropdown';
-  options:{key:string, value:string}[] = [];
+@Component({
+  selector: 'mdm-filerelease-details',
+  template: require('../../templates/filerelease/mdm-filerelease-details.component.html'),
+  styles: [],
+  directives: [],
+  providers: []
+})
+export class MDMFilereleaseDetailsComponent {
+  @Input() release: Release
 
-  constructor(options:{} = {}){
-    super(options);
-    this.options = options['options'] || [];
-  }
 }
