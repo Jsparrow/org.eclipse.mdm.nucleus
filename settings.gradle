@@ -16,4 +16,5 @@ include 'org.eclipse.mdm.connector'
 include 'org.eclipse.mdm.businessobjects'
 include 'org.eclipse.mdm.filerelease'
 include 'org.eclipse.mdm.property'
+include 'org.eclipse.mdm.freetextindexer'
 

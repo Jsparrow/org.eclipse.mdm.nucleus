@@ -1,0 +1,9 @@
+/build/
+.classpath
+.project
+/bin/
+/.gradle/
+
+/..gitignore.un~
+/.gitignore~
+/.gradle/
