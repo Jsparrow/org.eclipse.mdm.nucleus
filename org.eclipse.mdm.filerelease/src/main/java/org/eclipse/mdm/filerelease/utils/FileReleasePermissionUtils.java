@@ -16,7 +16,6 @@ import java.util.List;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
 import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
-import org.eclipse.mdm.filerelease.entity.FileReleaseRequest;
 
 /**
  * Provides utility methods for checking permissions on {@link FileRelease}s
@@ -40,11 +39,11 @@ public final class FileReleasePermissionUtils {
 	 *             if the user is not allowed to create the {@link FileRelease}s
 	 * 
 	 */
-	public static void canCreate(FileReleaseRequest request, String userName, List<FileRelease> list) {
+	public static void canCreate(FileRelease newFileRelease, String userName, List<FileRelease> list) {
 		for(FileRelease fileRelease : list) {
-			boolean sourceNameEqual = fileRelease.sourceName.equals(request.sourceName);
-			boolean typeNameEqual = fileRelease.typeName.equals(request.typeName);
-			boolean idEqual = fileRelease.id == request.id;
+			boolean sourceNameEqual = fileRelease.sourceName.equals(newFileRelease.sourceName);
+			boolean typeNameEqual = fileRelease.typeName.equals(newFileRelease.typeName);
+			boolean idEqual = fileRelease.id == newFileRelease.id;
 			
 			if(sourceNameEqual && typeNameEqual && idEqual) {
 				throw new FileReleaseException("FileRelease for user '" + userName + "' and path'" 
@@ -100,6 +99,32 @@ public final class FileReleasePermissionUtils {
 				+ fileRelease.state + "'");
 		}	
 	}
+	
+	
+	
+	/**
+	 * Checks if the user with the given name has the permission to release the
+	 * given {@link FileRelease}
+	 * 
+	 * @param fileRelease
+	 *            The {@link FileRelease} to check
+	 * @param userName
+	 *            The name of the user to check the permissions
+	 * @throws FileReleaseException
+	 *             if the user is not allowed to approve the {@link FileRelease}
+	 */
+	public static void canRelease(FileRelease fileRelease, String userName) {
+		if(!fileRelease.receiver.equalsIgnoreCase(userName)) {
+			throw new FileReleaseException("user with name '" + userName + "' can't release FileRelease with id '" 
+				+ fileRelease.identifier + "'");
+		}
+		
+		if(!fileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
+			throw new FileReleaseException("unable to release FileRelease in state '" 
+				+ fileRelease.state + "'");
+		}	
+	}
+	
 
 	/**
 	 * Checks if the user with the given name is allowed to reject the given

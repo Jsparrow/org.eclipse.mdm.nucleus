@@ -16,12 +16,15 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-    <a class="navbar-brand">{{brand}}</a>
+    <a class="navbar-brand"></a>
   </div>
   <div class="collapse navbar-collapse" id="bs-mdm-detail-navbar">
     <ul class="nav navbar-nav">
       <li [ngClass]="isActive('DetailView')"><a (click)="activate('DetailView')" style="cursor:pointer;"> Attribute</a></li>
-      <li [ngClass]="isActive('DescriptiveData')"><a (click)="activate('DescriptiveData')" style="cursor:pointer;"> Beschreibende Daten</a></li>
+      <li [ngClass]="isActive('DescriptiveData')"><a (click)="activate('DescriptiveData')" style="cursor:pointer;"> Auftrags-/Messkontext</a></li>
+      <li [ngClass]="isActive('Search')"><a (click)="activate('Search')" style="cursor:pointer;"> MDM Suche</a></li>
+      <li [ngClass]="isActive('SearchFT')"><a (click)="activate('SearchFT')" style="cursor:pointer;"> Volltextsuche</a></li>
+      <li [ngClass]="isActive('Release')"><a (click)="activate('Release')" style="cursor:pointer;"> Freigabeübersicht</a></li>
     </ul>
   </div>
 </div>
@@ -31,4 +34,13 @@
 </div>
 <div class="container-fluid" *ngIf="_comp==='DescriptiveData'">
   <mdm-detail-context [selectedNode]=selectedNode></mdm-detail-context>
+</div>
+<div class="container-fluid" *ngIf="_comp==='Search'">
+  <mdm-search></mdm-search>
+</div>
+<div class="container-fluid" *ngIf="_comp==='SearchFT'">
+  <mdm-full-text-search></mdm-full-text-search>
+</div>
+<div class="container-fluid" *ngIf="_comp==='Release'">
+  <mdm-filerelease></mdm-filerelease>
 </div>

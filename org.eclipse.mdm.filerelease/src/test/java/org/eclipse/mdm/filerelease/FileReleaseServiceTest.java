@@ -21,7 +21,6 @@ import org.eclipse.mdm.filerelease.boundary.FileReleaseService;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
 import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
-import org.eclipse.mdm.filerelease.entity.FileReleaseRequest;
 import org.junit.Test;
 
 public class FileReleaseServiceTest {
@@ -69,25 +68,25 @@ public class FileReleaseServiceTest {
 	public void testCreate() throws Exception {
 		FileReleaseService fileReleaseService = createMockedService();
 		
-		FileReleaseRequest request1 = new FileReleaseRequest();
+		FileRelease request1 = new FileRelease();
 		request1.sourceName = "MDMENV";
 		request1.typeName = "TestStep";
 		request1.id = 123L;
 		request1.format = FileReleaseManager.CONVERTER_FORMAT_PAK2RAW;
-		request1.message = "new file release";
+		request1.orderMessage = "new file release";
 		request1.validity = 10;
-		List<FileRelease> fileReleases = fileReleaseService.getReleases(FileReleaseManager.FILE_RELEASE_STATE_ORDERED);
+		List<FileRelease> fileReleases = fileReleaseService.getReleases(null);
 		fileReleaseService.create(request1);
 
-		FileReleaseRequest request2 = new FileReleaseRequest();
+		FileRelease request2 = new FileRelease();
 		request2.sourceName = "MDMENV";
 		request2.typeName = "TestStep";
 		request2.id = 1234L;
 		request2.format = FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX;
-		request2.message = "new file release";
+		request2.orderMessage = "new file release";
 		request2.validity = 10;
 		fileReleaseService.create(request2);
-		fileReleases = fileReleaseService.getReleases(FileReleaseManager.FILE_RELEASE_STATE_ORDERED);
+		fileReleases = fileReleaseService.getReleases(null);
 		assertNotNull("The fileReleases list should not be null.", fileReleases);
 		int expectedSize = FileReleaseServiceMockHelper.NUM_FILE_REL_IN + FileReleaseServiceMockHelper.NUM_FILE_REL_OUT
 				+ 2;
@@ -97,12 +96,12 @@ public class FileReleaseServiceTest {
 	@Test(expected = FileReleaseException.class)
 	public void testCreateWithInvalidFileRelease() throws Exception {
 		FileReleaseService fileReleaseService = createMockedService();
-		FileReleaseRequest request = new FileReleaseRequest();
+		FileRelease request = new FileRelease();
 		request.sourceName = "MDMENV";
 		request.typeName = "TestStep";
 		request.id = 123L;
 		request.format = FileReleaseManager.CONVERTER_FORMAT_PAK2RAW;
-		request.message = "new file release";
+		request.orderMessage = "new file release";
 		request.validity = 0;
 		fileReleaseService.create(request);
 	}
@@ -110,12 +109,12 @@ public class FileReleaseServiceTest {
 	@Test(expected = FileReleaseException.class)
 	public void testCreateWithUnsuppotedType() throws Exception {
 		FileReleaseService fileReleaseService = createMockedService();
-		FileReleaseRequest request = new FileReleaseRequest();
+		FileRelease request = new FileRelease();
 		request.sourceName = "MDMENV";
 		request.typeName = "TestStep";
 		request.id = 123L;
 		request.format = "Some unsupported type";
-		request.message = "new file release";
+		request.orderMessage = "new file release";
 		request.validity = 0;
 		fileReleaseService.create(request);
 	}
@@ -134,14 +133,25 @@ public class FileReleaseServiceTest {
 	@Test
 	public void testApprove() throws Exception {
 		FileReleaseService fileReleaseService = createMockedService();
-		fileReleaseService.approve(FileReleaseServiceMockHelper.ID_IN_PREFIX + "1");
+		FileRelease release2Approve = new FileRelease();
+		release2Approve.identifier = FileReleaseServiceMockHelper.ID_IN_PREFIX + "1";
+		release2Approve.state = FileReleaseManager.FILE_RELEASE_STATE_APPROVED;
+		fileReleaseService.approve(release2Approve);
 	}
 
 	@Test
 	public void testReject() throws Exception {
 		FileReleaseService fileReleaseService = createMockedService();
-		fileReleaseService.reject(FileReleaseServiceMockHelper.ID_IN_PREFIX + "1", "message");
-		FileRelease fileRelease = fileReleaseService.getRelease(FileReleaseServiceMockHelper.ID_IN_PREFIX + "1");
+		
+		FileRelease release2Reject = new FileRelease();
+		release2Reject.identifier = FileReleaseServiceMockHelper.ID_IN_PREFIX + "1";
+		release2Reject.state = FileReleaseManager.FILE_RELEASE_STATE_REJECTED;
+		release2Reject.rejectMessage = "reject message";
+		
+		fileReleaseService.reject(release2Reject);
+		
+		FileRelease fileRelease = fileReleaseService.getRelease(FileReleaseServiceMockHelper.ID_IN_PREFIX + "1");		
+		
 		assertNotNull("FileRelease should not be null.", fileRelease);
 		assertEquals("FileRelease state should be " + FileReleaseManager.FILE_RELEASE_STATE_REJECTED, fileRelease.state,
 				FileReleaseManager.FILE_RELEASE_STATE_REJECTED);

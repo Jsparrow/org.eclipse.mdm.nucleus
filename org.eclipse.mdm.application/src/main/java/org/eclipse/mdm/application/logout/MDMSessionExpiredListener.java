@@ -31,7 +31,7 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 @SessionScoped
 @Default
 public class MDMSessionExpiredListener implements Serializable {
-	
+
 	private static final long serialVersionUID = -1250150736708611890L;
 
 	@Inject
@@ -45,7 +45,7 @@ public class MDMSessionExpiredListener implements Serializable {
 	/**
 	 * Bind the user principal to this cdi bean.
 	 */
-	public void setUserPrincipal() {	
+	public void update() {		
 		if (this.userPrincipal == null) {
 			this.userPrincipal = servletRequest.getUserPrincipal();
 		}
@@ -56,7 +56,7 @@ public class MDMSessionExpiredListener implements Serializable {
 		if (this.userPrincipal != null) {
 			this.connectorService.disconnect(this.userPrincipal);
 		}
-	}
-
+		
+	}	
 
 }

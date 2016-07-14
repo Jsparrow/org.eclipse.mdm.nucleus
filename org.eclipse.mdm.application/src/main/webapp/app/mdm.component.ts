@@ -13,9 +13,6 @@ import {HTTP_PROVIDERS} from '@angular/http';
 import {Routes, Router, ROUTER_DIRECTIVES} from '@angular/router';
 
 import {MDMMenuComponent} from './navigator/mdm-menu.component';
-import {MDMSearchComponent} from './search/mdm-search.component';
-import {MDMFullTextSearchComponent} from './search/mdm-full-text-search.component';
-import {MDMFilereleaseComponent} from './filerelease/mdm-filerelease.component';
 
 import {NodeService} from './navigator/node.service';
 import {BasketService} from './basket/basket.service';
@@ -31,9 +28,6 @@ import {FilereleaseService} from './filerelease/filerelease.service';
 })
 @Routes([
   {path: '/mdmmenu', component: MDMMenuComponent},
-  {path: '/mdmsearch', component: MDMSearchComponent},
-  {path: '/mdmfulltextsearch', component: MDMFullTextSearchComponent},
-  {path: '/mdmapproval', component: MDMFilereleaseComponent}
 ])
 export class MDMComponent implements OnInit{
   brand = 'openMDM5 Web';

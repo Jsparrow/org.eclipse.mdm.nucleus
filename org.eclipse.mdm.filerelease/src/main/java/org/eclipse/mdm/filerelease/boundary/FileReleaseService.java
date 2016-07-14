@@ -27,7 +27,6 @@ import org.eclipse.mdm.filerelease.control.FileConvertJobManager;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
 import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
-import org.eclipse.mdm.filerelease.entity.FileReleaseRequest;
 import org.eclipse.mdm.filerelease.utils.FileReleasePermissionUtils;
 import org.eclipse.mdm.filerelease.utils.FileReleaseUtils;
 
@@ -85,9 +84,13 @@ public class FileReleaseService {
 		
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);				
 		if(state == null || state.trim().length() <= 0) { 
-			return this.manager.getReleases(user.getName(), FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING);
+			List<FileRelease> list =  this.manager.getReleases(user.getName(), 
+				FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING);
+			return FileReleaseUtils.filterByConnectedSources(list, this.connectorService);
 		}
-		return this.manager.getReleases(user.getName(), FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING, state);
+		List<FileRelease> list = this.manager.getReleases(user.getName(), 
+			FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING, state);
+		return FileReleaseUtils.filterByConnectedSources(list, this.connectorService);
 	}
 
 	/**
@@ -101,9 +104,13 @@ public class FileReleaseService {
 		
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);				
 		if(state == null || state.trim().length() <= 0) { 
-			return this.manager.getReleases(user.getName(), FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING);
+			List<FileRelease> list = this.manager.getReleases(user.getName(), 
+				FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING);
+			return FileReleaseUtils.filterByConnectedSources(list, this.connectorService);
 		}
-		return this.manager.getReleases(user.getName(), FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING, state);
+		List<FileRelease> list = this.manager.getReleases(user.getName(), 
+			FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING, state);
+		return FileReleaseUtils.filterByConnectedSources(list, this.connectorService);
 	}
 
 	/**
@@ -113,36 +120,30 @@ public class FileReleaseService {
 	 * @param request
 	 *            The {@link FileReleaseRequest} that holds the information to create a new {@link FileRelease}
 	 */
-	public void create(FileReleaseRequest request) {
-		checkFileReleaseRequest(request);
+	public void create(FileRelease newFileRelease) {
+		checkFileReleaseRequest(newFileRelease);
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);		
 		
 		List<FileRelease> list = this.manager.getReleases(user.getName(), 
 				FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING);
-		FileReleasePermissionUtils.canCreate(request, user.getName(), list);
+		FileReleasePermissionUtils.canCreate(newFileRelease, user.getName(), list);
 		
-		TestStep testStep = FileReleaseUtils.loadTestStep(connectorService, request.sourceName, request.id);
+		TestStep testStep = FileReleaseUtils.loadTestStep(connectorService, newFileRelease.sourceName, newFileRelease.id);
 		User receiver = FileReleaseUtils.getResponsiblePerson(this.connectorService, testStep);
-				
-		FileRelease fileRelease = new FileRelease();
 		
-		fileRelease.identifier = UUID.randomUUID().toString();
-		fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_ORDERED;
+		newFileRelease.identifier = UUID.randomUUID().toString();
+		newFileRelease.name = testStep.getName();
+		newFileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_ORDERED;
+		newFileRelease.sender = user.getName();
+		newFileRelease.receiver = receiver.getName();
 		
-		fileRelease.sourceName = request.sourceName;
-		fileRelease.typeName = request.typeName;
-		fileRelease.id = request.id;
-		fileRelease.format = request.format;
-		fileRelease.validity = request.validity;
-		fileRelease.orderMessage = request.message;
+		this.manager.addFileRelease(newFileRelease);
 		
-		fileRelease.sender = user.getName();
-		fileRelease.receiver = receiver.getName();
-
-		this.manager.addFileRelease(fileRelease);
-		
-		if(fileRelease.sender.equalsIgnoreCase(fileRelease.receiver)) {
-			approve(fileRelease.identifier);
+		if(newFileRelease.sender.equalsIgnoreCase(newFileRelease.receiver)) {			
+			FileRelease fileRelease2Approve = new FileRelease();
+			fileRelease2Approve.identifier = newFileRelease.identifier;
+			fileRelease2Approve.state = FileReleaseManager.FILE_RELEASE_STATE_APPROVED;
+			approve(fileRelease2Approve);
 		}
 		
 	}
@@ -174,14 +175,17 @@ public class FileReleaseService {
 	 * @param identifier
 	 *            The identifier of the {@link FileRelease} to approve.
 	 */
-	public void approve(String identifier) {
+	public FileRelease approve(FileRelease updatedFileRelease) {
 
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);		
-		FileRelease fileRelease = this.manager.getRelease(user.getName(), identifier);	
-
+		FileRelease fileRelease = this.manager.getRelease(user.getName(), updatedFileRelease.identifier);
+			
 		FileReleasePermissionUtils.canApprove(fileRelease, user.getName());
+		fileRelease.state = updatedFileRelease.state;
 		
+		FileReleasePermissionUtils.canRelease(fileRelease, user.getName());
 		this.converter.release(fileRelease);
+		return fileRelease;
 	}
 
 	/**
@@ -193,41 +197,40 @@ public class FileReleaseService {
 	 * @param message
 	 *            The reject message.
 	 */
-	public void reject(String identifier, String message) {
-
+	public FileRelease reject(FileRelease updatedFileRelease) {
 
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);		
-		FileRelease fileRelease = this.manager.getRelease(user.getName(), identifier);		
+		FileRelease fileRelease = this.manager.getRelease(user.getName(), updatedFileRelease.identifier);
 		
 		FileReleasePermissionUtils.canReject(fileRelease, user.getName());
-		
-		fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_REJECTED;
-		fileRelease.rejectMessage = message;
+		fileRelease.state = updatedFileRelease.state;
+		fileRelease.rejectMessage = updatedFileRelease.rejectMessage;		
+		return fileRelease;
 	}
 	
-	private void checkFileReleaseRequest(FileReleaseRequest request) {
-		if(request.sourceName == null || request.sourceName.trim().length() < 1) {
+	private void checkFileReleaseRequest(FileRelease newFileRelease) {
+		if(newFileRelease.sourceName == null || newFileRelease.sourceName.trim().length() < 1) {
 			throw new FileReleaseException("source name for new FileRelease is missing!");
 		}
 
-		if(request.typeName == null || request.typeName.trim().length() < 1) {
+		if(newFileRelease.typeName == null || newFileRelease.typeName.trim().length() < 1) {
 			throw new FileReleaseException("type name for new FileRelease is missing!");
 		}
 
-		if(request.id < 1) {
+		if(newFileRelease.id < 1) {
 			throw new FileReleaseException("is is not valid for new FileRelease");
 		}
 
-		if(request.validity <= 0) {
+		if(newFileRelease.validity <= 0) {
 			throw new FileReleaseException("validity [days] is not set for new FileRelease");
 		}
 		
-		if(request.format == null || request.format.trim().length() <= 0) {
+		if(newFileRelease.format == null || newFileRelease.format.trim().length() <= 0) {
 			throw new FileReleaseException("output format for new FileRelease is missing!");
 		}
 		
-		if(!FileReleaseUtils.isFormatValid(request.format)) {
-			throw new FileReleaseException("unsupported file output format '" + request.format + "' was defined for new FileRelease");
+		if(!FileReleaseUtils.isFormatValid(newFileRelease.format)) {
+			throw new FileReleaseException("unsupported file output format '" + newFileRelease.format + "' was defined for new FileRelease");
 		}
 		
 	}

@@ -21,7 +21,7 @@ import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 
 /**
- * ContextData (Entity for context data (ordered and measured))
+ * ContextCollection (Entity for context data (ordered and measured))
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */

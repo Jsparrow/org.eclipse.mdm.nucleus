@@ -42,6 +42,7 @@ public class FileReleaseManager {
 
 	public static final String FILE_RELEASE_STATE_ORDERED = "RELEASE_ORDERED";
 	public static final String FILE_RELEASE_STATE_REJECTED = "RELEASE_REJECTED";
+	public static final String FILE_RELEASE_STATE_APPROVED = "RELEASE_APPROVED";
 	public static final String FILE_RELEASE_STATE_PROGRESSING = "RELEASE_PROGRESSING";
 	public static final String FILE_RELEASE_STATE_PROGRESSING_ERROR = "RELEASE_PROGRESSING_ERROR";
 	public static final String FILE_RELEASE_STATE_RELEASED = "RELEASE_RELEASED";

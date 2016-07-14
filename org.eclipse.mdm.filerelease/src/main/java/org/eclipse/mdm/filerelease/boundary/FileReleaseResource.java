@@ -26,9 +26,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
-import org.eclipse.mdm.filerelease.entity.FileReleaseAction;
-import org.eclipse.mdm.filerelease.entity.FileReleaseRequest;
+import org.eclipse.mdm.filerelease.entity.FileReleaseResponse;
 import org.eclipse.mdm.filerelease.utils.FileReleaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class FileReleaseResource {
 	public Response getRelease(@PathParam("IDENTIFIER") String identifier) {
 		try {
 			FileRelease fileRelease = this.fileReleaseService.getRelease(identifier);
-			return FileReleaseUtils.toResponse(fileRelease, Status.OK);
+			return FileReleaseUtils.toResponse(new FileReleaseResponse(fileRelease), Status.OK);
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -77,56 +77,28 @@ public class FileReleaseResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getReleases(@QueryParam("status") String state) {	
-		try {
-			List<FileRelease> list = this.fileReleaseService.getReleases(state);
-			return FileReleaseUtils.toResponse(list, Status.OK);
+	public Response getReleases(@QueryParam ("direction") String direction, @QueryParam("state") String state) {	
+		try {			
+	
+			List<FileRelease> list = null;
+			
+			if((direction != null) && direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING)) {
+				list = this.fileReleaseService.getIncommingReleases(state);	
+			} else if((direction != null) && direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING)) {
+				list = this.fileReleaseService.getOutgoingReleases(state);		
+			} else {
+				list = this.fileReleaseService.getReleases(state);
+			}
+						
+			return FileReleaseUtils.toResponse(new FileReleaseResponse(list), Status.OK);
+			
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	/**
-	 * delegates the request to the {@link FileReleaseService}
-	 * 
-	 * @param state
-	 *            The state of the incoming {@link FileRelease}s to return
-	 * @return the result of the delegated request as {@link Response}
-	 */
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/incomming") 
-	public Response getIncommingReleases(@QueryParam("status") String state) {
-		try {
-			List<FileRelease> list = this.fileReleaseService.getIncommingReleases(state);
-			return FileReleaseUtils.toResponse(list, Status.OK);
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * delegates the request to the {@link FileReleaseService}
-	 * 
-	 * @param state
-	 *            The state of the outgoing {@link FileRelease}s to return
-	 * @return the result of the delegated request as {@link Response}
-	 */
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/outgoing") 
-	public Response getOutgoingReleases(@QueryParam("status") String state) {
-		try {
-			List<FileRelease> list = this.fileReleaseService.getOutgoingReleases(state);
-			return FileReleaseUtils.toResponse(list, Status.OK);
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
-
+	
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
@@ -136,9 +108,9 @@ public class FileReleaseResource {
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response create(FileReleaseRequest request) {
+	public Response create(FileRelease newFileRelease) {
 		try {
-			this.fileReleaseService.create(request);
+			this.fileReleaseService.create(newFileRelease);
 			return Response.ok().build();
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
@@ -156,17 +128,24 @@ public class FileReleaseResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{IDENTIFIER}")
-	public Response approve(@PathParam("IDENTIFIER") String identifier, FileReleaseAction action) {
+	public Response update(@PathParam("IDENTIFIER") String identifier, FileRelease updatedFileRelease) {
 		try {
-			if(action.action.equalsIgnoreCase(FileReleaseAction.FILE_RELEASE_ACTION_APPROVE)) {
-				this.fileReleaseService.approve(identifier);
-			} else if(action.action.equalsIgnoreCase(FileReleaseAction.FILE_RELEASE_ACTION_REJECT)) {
-				this.fileReleaseService.reject(identifier, action.message);
-			} else {
-				throw new WebApplicationException("unsupported FileRelease action command '" 
-					+ action.action + "'", Status.BAD_REQUEST);
-			}			
-			return Response.ok().build();
+						
+			if(identifier != updatedFileRelease.identifier) {
+				throw new WebApplicationException("illegal update post request (identifier is not matching)", Status.FORBIDDEN);
+			}
+			
+			if(updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
+				FileRelease fr = this.fileReleaseService.approve(updatedFileRelease);
+				return FileReleaseUtils.toResponse(new FileReleaseResponse(fr), Status.OK);
+			} else if(updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_REJECTED)) {
+				FileRelease fr = this.fileReleaseService.reject(updatedFileRelease);
+				return FileReleaseUtils.toResponse(new FileReleaseResponse(fr), Status.OK);
+			} 
+			String errorMessage = "permission denied: only state updates are allowd "
+					+ "(expected stats: RELEASE_APPROVED or RELEASE_REJECTED";
+			throw new WebApplicationException(errorMessage, Status.FORBIDDEN);
+			
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -201,12 +180,12 @@ public class FileReleaseResource {
 	public Response getMakeData() {
 		try {
 			for(int i=0; i<10; i++) {
-				FileReleaseRequest request = new FileReleaseRequest();
+				FileRelease request = new FileRelease();
 				request.sourceName = "MDMTEST01";
 				request.typeName = "TestStep";
 				request.id = (long)30516;
 				request.validity = 5;
-				request.message = "test release " + (i+1);
+				request.orderMessage = "test release " + (i+1);
 				request.format = "PAK2RAW";				
 				this.fileReleaseService.create(request);
 			}

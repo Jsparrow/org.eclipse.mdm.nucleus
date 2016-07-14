@@ -23,9 +23,6 @@ export class SearchControlService {
         group[search.key] = search.required ? [search.value || '', Validators.required] : [search.value || ''];
       });
     }
-    // searches.forEach(search => {
-    //   group[search.key] = search.required ? [search.value || '', Validators.required] : [search.value || ''];
-    // });
     return this.fb.group(group);
   }
 }

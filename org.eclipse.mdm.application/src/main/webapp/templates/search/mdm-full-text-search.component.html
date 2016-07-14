@@ -31,7 +31,7 @@
   <div *ngIf="nodes">
     <ul class="list-group">
       <li *ngFor="let node of nodes" class="list-group-item">
-        {{node.name}} <span (click)="add2Basket(node)" class="glyphicon glyphicon-shopping-cart" style="cursor: pointer;"></span>
+        <span (click)="add2Basket(node)" class="glyphicon glyphicon-shopping-cart" style="cursor: pointer;"></span> {{node.name}} 
       </li>
     </ul>
   </div>

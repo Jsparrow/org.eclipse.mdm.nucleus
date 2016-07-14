@@ -28,12 +28,14 @@ public class FileRelease implements Serializable {
 	public String identifier = "";
 	public String state = "";
 	
+	public String name = "";
 	public String sourceName = "";
 	public String typeName = "";
 	public long id = 0L;
 		
 	public String sender = "";
-	public String receiver = ""; 
+	public String receiver = "";
+	
 	
 	public String orderMessage = "";
 	public String rejectMessage = "";

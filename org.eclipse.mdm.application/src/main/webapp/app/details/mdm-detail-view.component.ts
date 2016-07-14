@@ -9,30 +9,37 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input} from '@angular/core';
+import {ControlGroup, Control, Validators} from '@angular/common';
 
 import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
 
+import {Release, FilereleaseService} from '../filerelease/filerelease.service';
+
 import {Localization} from '../localization/localization';
 import {LocalizationService} from '../localization/localization.service';
+
+import {MODAL_DIRECTVES, BS_VIEW_PROVIDERS} from 'ng2-bootstrap/ng2-bootstrap';
+import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
 
 @Component({
   selector: 'mdm-detail-view',
   template: require('../../templates/details/mdm-detail-view.component.html'),
-  directives: [],
+  directives: [MODAL_DIRECTVES, MDMFilereleaseCreateComponent],
   providers: [],
+  viewProviders: [BS_VIEW_PROVIDERS],
   inputs: []
 })
 
 export class MDMDetailViewComponent{
   @Input() selectedNode: Node;
   locals: Localization[] = [];
-  errorMessage: string;
 
   constructor(private _nodeService: NodeService,
               private _loaclService: LocalizationService,
-              private _basketService: BasketService){}
+              private _basketService: BasketService,
+              private _releaseService: FilereleaseService){}
 
   add2Basket(){
     if (this.selectedNode){
@@ -40,9 +47,13 @@ export class MDMDetailViewComponent{
     }
   }
 
-  isActive(){
-    if (this.selectedNode){return}
-    return "disabled"
+  isShopable(){
+    if (this.selectedNode.name != undefined){return false}
+    return true
+  }
+  isReleasable(){
+    if (this.selectedNode.sourceType == 'TestStep'){return false}
+    return true
   }
 
   getTrans(type: string, attr: string){

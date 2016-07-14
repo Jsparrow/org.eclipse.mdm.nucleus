@@ -16,11 +16,14 @@ import {Node} from '../navigator/node';
 
 import {MDMDetailViewComponent} from './mdm-detail-view.component';
 import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.component';
+import {MDMSearchComponent} from '../search/mdm-search.component';
+import {MDMFullTextSearchComponent} from '../search/mdm-full-text-search.component';
+import {MDMFilereleaseComponent} from '../filerelease/mdm-filerelease.component';
 
 @Component({
   selector: 'mdm-detail',
   template: require('../../templates/details/mdm-detail.component.html'),
-  directives: [ROUTER_DIRECTIVES, MDMDetailViewComponent, MDMDescriptiveDataComponent],
+  directives: [ROUTER_DIRECTIVES, MDMDetailViewComponent, MDMDescriptiveDataComponent, MDMSearchComponent, MDMFullTextSearchComponent, MDMFilereleaseComponent],
   providers: []
 })
 export class MDMDetailComponent {

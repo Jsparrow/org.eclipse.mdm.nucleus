@@ -20,17 +20,16 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.mdm.api.base.model.ContextRoot;
-import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.api.base.model.ContextSensor;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ContextResponse {
+public class ContextSensorResponse {
 
 	
 	/** transferable data content */
-	private List<ContextCollection> data;
+	private List<ContextSensorCollection> data;
 	
 		
 	
@@ -38,20 +37,20 @@ public class ContextResponse {
 	 * Constructor
 	 * @param contextMap map with context data (ordered and measured)
 	 */
-	public ContextResponse(Map<String, Map<ContextType, ContextRoot>> contextMap) {
+	public ContextSensorResponse(Map<String, List<ContextSensor>> sensorMap) { 
 		this.data = new ArrayList<>();
-		ContextCollection contextData = new ContextCollection();
-		contextData.setOrderedContext(contextMap.get(ContextActivity.CONTEXT_GROUP_ORDERED));		
-		contextData.setMeasuredContext(contextMap.get(ContextActivity.CONTEXT_GROUP_MEASURED));				
-		this.data.add(contextData);
+		ContextSensorCollection contextSensorData = new ContextSensorCollection();
+		contextSensorData.setOrderedSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_ORDERED));
+		contextSensorData.setMeasuredSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED));			
+		this.data.add(contextSensorData);
 	}
 	
 	
 	/**
-	 * returns the context data
-	 * @return the context data
+	 * returns the {@link ContextSensor} data
+	 * @return the {@link ContextSensor} data
 	 */
-	public List<ContextCollection> getData() {
+	public List<ContextSensorCollection> getData() {
 		return Collections.unmodifiableList(this.data);
 	}
 }

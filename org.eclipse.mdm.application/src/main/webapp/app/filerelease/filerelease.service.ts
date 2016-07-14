@@ -21,46 +21,46 @@ export class FilereleaseService {
 
   url = "http://" + this.prop.api_host + ":" + this.prop.api_port + this.prop.api_prefix + "/mdm/filereleases"
 
-  update(){
-
-  }
-
   readAll(){
     return this.read("")
   }
   readIncomming(){
-    return this.read("/incomming")
+    return this.read("?direction=incomming")
   }
   readOutgoging(){
-    return this.read("/outgoing")
+    return this.read("?direction=outgoing")
   }
-  private read(type: string){
-    return this.http.get(this.url + type)
+  private read(query: string){
+    return this.http.get(this.url + query)
     .map(res => <Release[]> res.json().data)
     .catch(this.handleError);
   }
 
-  create(){
-
+  create(release: Release){
+    let body = JSON.stringify({ release });
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    return this.http.post(this.url, body, options)
+                    .map(this.extractData)
+                    .catch(this.handleError);
   }
-  delete(){
-
+  delete(release: Release){
+    return this.http.delete(this.url + "/" + release.id).subscribe(data => {}, err => console.log(err))
   }
 
   approve(release: Release){
-    let action = "RELEASE_ACTION_APPROVE"
-    this.action(release, action)
+    release.state = "RELEASE_ACTION_APPROVE"
+    return this.update(release)
   }
   reject(release: Release){
-    let action = "RELEASE_ACTION_REJECT"
-    this.action(release, action)
+    release.state = "RELEASE_ACTION_REJECT"
+    return this.update(release)
   }
-  private action(release: Release, action: string){
-    let body = JSON.stringify({ action });
+  private update(release: Release){
+    let body = JSON.stringify({ release });
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
-    console.log(body);
-    this.http.post(this.url + "/" + release.id, body, options)
+    return this.http.post(this.url + "/" + release.identifier, body, options)
                     .map(this.extractData)
                     .catch(this.handleError);
   }
@@ -77,18 +77,19 @@ export class FilereleaseService {
 }
 
 export class Release {
-  errorMessage: string;
-  expire: number;
-  fileLink: string;
-  format: string;
-  id: number;
   identifier: string;
-  orderMessage: string;
-  receiver: string;
-  rejectMessage: string;
-  sender: string;
-  sourceName: string;
   state: string;
+  name: string;
+  sourceName: string;
   typeName: string;
-  validity: number;
+  id: number;
+  sender: string;
+  receiver: string;
+  orderMessage: string;
+  rejectMessage: string;
+  errorMessage: string;
+  format: string;
+  fileLink: string;
+  validity:number;
+  expire: number;
 }

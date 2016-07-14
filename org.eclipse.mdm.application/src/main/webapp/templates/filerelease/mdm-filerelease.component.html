@@ -9,49 +9,57 @@
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
 <div class="container-fluid">
-  <div class="btn-group">
-    <button type="button" class="btn btn-default">Neue Anfrage</button>
-    <button type="button" class="btn btn-default" disabled>Alle genehmigen</button>
+  <div class="box1">
+    <div class="well">
+      <h2>Freigabeantragseingang</h2>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Antragsteller</th>
+          <th>Freigabedauer</th>
+          <th>Format</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of incoming" [ngClass]="getState(data)" (click)=setData(data) (click)='setEvent("approve")' (click)=lgModal.show()>
+          <td>{{data.sender}}</td>
+          <td>{{data.validity}} Tage</td>
+          <td>{{getFormat(data.format)}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>Absender</th>
-        <th>Gültigkeit</th>
-        <th>Datei</th>
-        <th>Fromat</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let data of incomming">
-        <td>{{data.sender}}</td>
-        <td>{{data.validity}}</td>
-        <td>{{data.fileLink}}</td>
-        <td>{{data.format}}</td>
-      </tr>
-    </tbody>
-  </table>
+</div>
+<div class="container-fluid">
+  <div class="box2">
+    <div class="well">
+      <h2>Freigabeantragsausgang</h2>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Messungsverantwortlicher</th>
+          <th>Freigabedauer</th>
+          <th>freigegeben bis</th>
+          <th>Fromat</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of outgoing" [ngClass]="getState(data)" (click)=setData(data) (click)='setEvent("edit")'>
+          <td (click)=lgModal.show()>{{data.receiver}}</td>
+          <td (click)=lgModal.show()>{{data.validity}} Tage</td>
+          <td (click)=lgModal.show()>{{getDate(data.expire)}}</td>
+          <td (click)=lgModal.show()>{{getFormat(data.format)}}</td>
+          <td>
+            <a *ngIf="data.state == 'RELEASE_APPROVED'" href="{{data.fileLink}}" download><span class="glyphicon glyphicon-download"></span></a>
+            <span *ngIf="data.state != 'RELEASE_APPROVED'" class="glyphicon glyphicon-ban-circle"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  <div class="container-fluid">
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>Empfänger</th>
-        <th>Gültigkeit</th>
-        <th>Datei</th>
-        <th>Fromat</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let data of outgoing" (click)=lgModal.show() (click)=setData(data)>
-        <td>{{data.receiver}}</td>
-        <td>{{data.validity}}</td>
-        <td>{{data.fileLink}}</td>
-        <td>{{data.format}}</td>
-      </tr>
-    </tbody>
-  </table>
 </div>
 
 <div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
@@ -61,15 +69,36 @@
         <button type="button" class="close" (click)="lgModal.hide()">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Freiabe</h4>
+        <h4 class="modal-title">Freigabe</h4>
       </div>
       <div class="modal-body">
-        <div class="container-fuild">
-          <mdm-filerelease-details [release]=release></mdm-filerelease-details>
-          <div class="btn-group">
-            <button type="button" class="btn btn-default" (click)="approveRelease()">Genemigen</button>
-            <button type="button" class="btn btn-default" (click)="rejectRelease()">Ablehnen</button>
-          </div>
+        <mdm-filerelease-display [release]=release ></mdm-filerelease-display>
+        <div class="btn-group" *ngIf='event=="approve"'>
+          <button type="button" class="btn btn-success" (click)="approveRelease()" (click)="lgModal.hide()">Genemigen</button>
+          <button type="button" class="btn btn-danger" (click)="smModal.show()" (click)="lgModal.hide()">Ablehnen</button>
+        </div>
+        <div class="btn-group" *ngIf='event=="edit"'>
+          <button type="button" class="btn btn-default" (click)="deleteRelease()" (click)="lgModal.hide()" [disabled]=isDeletable()>Anfrage zurückziehen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #smModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="smModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Begründung</h4>
+      </div>
+      <div class="modal-body">
+        <textarea #reason cols="35" rows="4" class="form-control"></textarea>
+        <div class="btn-group">
+          <button type="button" class="btn btn-danger" (click)="rejectRelease(reason.value)" (click)=smModal.hide() (click)="reason.value = ''">Ablehnen</button>
+          <button type="button" class="btn btn-default" (click)="smModal.hide()" (click)="reason.value = ''">Abbrechen</button>
         </div>
       </div>
     </div>

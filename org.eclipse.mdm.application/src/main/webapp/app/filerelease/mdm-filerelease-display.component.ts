@@ -12,13 +12,22 @@ import {Component, Input} from '@angular/core';
 import {Release} from './filerelease.service';
 
 @Component({
-  selector: 'mdm-filerelease-details',
-  template: require('../../templates/filerelease/mdm-filerelease-details.component.html'),
+  selector: 'mdm-filerelease-display',
+  template: require('../../templates/filerelease/mdm-filerelease-display.component.html'),
   styles: [],
   directives: [],
   providers: []
 })
-export class MDMFilereleaseDetailsComponent {
+export class MDMFilereleaseDisplayComponent {
   @Input() release: Release
 
+  getFormat(format){
+    if (format == 'PAK2RAW') {return 'PAK'}
+    if (format == 'PAK2ATFX') {return 'ATFX'}
+    return format
+  }
+  getDate(date){
+    var d = new Date(date*1000);
+    return d.getDate() + "." + d.getMonth() + "." + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
+  }
 }
