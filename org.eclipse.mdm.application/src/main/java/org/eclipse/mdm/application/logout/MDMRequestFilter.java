@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.application.logout;
 
@@ -23,6 +23,7 @@ import javax.servlet.ServletResponse;
 
 /**
  * MDMRequestFilter
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -38,9 +39,11 @@ public class MDMRequestFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {	
-		sessionExpiredListener.setUserPrincipal();
-		chain.doFilter(request, response);	
+			throws IOException, ServletException {
+		if (sessionExpiredListener != null) {
+			sessionExpiredListener.setUserPrincipal();
+		}
+		chain.doFilter(request, response);
 	}
 
 	@Override

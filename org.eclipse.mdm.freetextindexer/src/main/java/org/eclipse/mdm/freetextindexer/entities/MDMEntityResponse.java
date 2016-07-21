@@ -12,6 +12,7 @@
 package org.eclipse.mdm.freetextindexer.entities;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -22,6 +23,7 @@ import org.eclipse.mdm.api.base.model.ContextDescribable;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.EntityManager;
 
@@ -38,8 +40,7 @@ public class MDMEntityResponse {
 	public String source;
 
 	public String type;
-	
-	
+
 	/** transferable data content */
 	public MDMEntity data;
 
@@ -79,9 +80,13 @@ public class MDMEntityResponse {
 
 			for (ContextRoot root : contexts.values()) {
 				MDMEntity entity = toTransferable(root);
-				data.children.add(entity);
+				data.components.add(entity);
 				for (ContextComponent comp : root.getContextComponents()) {
-					entity.children.add(toTransferable(comp));
+					MDMEntity compEntity = toTransferable(comp);
+					entity.components.add(compEntity);
+					for (Entry<String, Value> entry : comp.getValues().entrySet()) {
+						compEntity.attributes.put(entry.getKey(), entry.getValue().toString());
+					}
 				}
 			}
 		}

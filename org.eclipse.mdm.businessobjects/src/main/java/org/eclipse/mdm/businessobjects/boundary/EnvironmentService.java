@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
@@ -25,23 +26,26 @@ import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
+import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
- * {@link Environment} Bean implementation with available {@link Environment} operations
+ * {@link Environment} Bean implementation with available {@link Environment}
+ * operations
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Stateless
 public class EnvironmentService {
-	
+
 	@EJB
-	private ConnectorService connectorService;	
+	private ConnectorService connectorService;
 	@EJB
 	private I18NActivity i18nActivity;
-	
-		
-	
+	@EJB
+	private SearchActivity searchActivity;
+
 	/**
 	 * returns all {@link Environment}s of the connected {@link EntityManager}s
 	 * 
@@ -49,76 +53,82 @@ public class EnvironmentService {
 	 */
 	public List<Environment> getEnvironments() {
 		try {
-			List<Environment> environments = new ArrayList<>();		
+			List<Environment> environments = new ArrayList<>();
 			List<EntityManager> emList = this.connectorService.getEntityManagers();
-			for(EntityManager em : emList) {
+			for (EntityManager em : emList) {
 				environments.add(em.loadEnvironment());
 			}
 			return environments;
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
-		
+
 	}
-	
-	
-	
+
 	/**
 	 * returns the {@link Environment} identified by the given name
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the {@link Environment} with the given name
 	 */
 	public Environment getEnvironment(String sourceName) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.loadEnvironment();
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * returns localized {@link Environment} attributes
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Environment} attributes
 	 */
-	public Map<Attribute, String> localizeAttributes(String sourceName) {		
+	public Map<Attribute, String> localizeAttributes(String sourceName) {
 		return this.i18nActivity.localizeAttributes(sourceName, Environment.class);
 	}
-	
-	
-	
+
 	/**
 	 * returns the localized {@link Environment} type name
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Environment} type name
 	 */
 	public Map<EntityType, String> localizeType(String sourceName) {
 		return this.i18nActivity.localizeType(sourceName, Environment.class);
 	}
-	
 
-	
 	/**
 	 * returns all localized attributes
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized attributes from the given source
 	 */
-	public Map<Attribute, String> localizeAllAttributes(String sourceName) {		
+	public Map<Attribute, String> localizeAllAttributes(String sourceName) {
 		return this.i18nActivity.localizeAllAttributes(sourceName);
 	}
-	
-	
-	
+
 	/**
 	 * returns all localized types
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized types from the given source
 	 */
 	public Map<EntityType, String> localizeAllTypes(String sourceName) {
 		return this.i18nActivity.localizeAllTypes(sourceName);
 	}
-	
+
+	public List<Entity> search(String sourceName, String query) {
+		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+
+		return this.searchActivity.search(em, query);
+	}
+
 }

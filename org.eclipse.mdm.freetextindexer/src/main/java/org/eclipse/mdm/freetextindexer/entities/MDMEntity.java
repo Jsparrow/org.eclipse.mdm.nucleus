@@ -41,9 +41,9 @@ public class MDMEntity {
 	public final long id;
 
 	/** list of attribute to transfer */
-	public final Map<String, String> attributes = new HashMap<>();
+	public final Map<String, String> attributes;
 
-	public final List<MDMEntity> children = new ArrayList<>();
+	public final List<MDMEntity> components = new ArrayList<>();
 
 	/**
 	 * Constructor
@@ -61,7 +61,7 @@ public class MDMEntity {
 		this.name = name;
 		this.id = id;
 		
-		initAttributes(values);
+		this.attributes = initAttributes(values);
 	}
 
 	/**

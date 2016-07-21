@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;
@@ -117,4 +118,13 @@ public class EnvironmentResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{SOURCENAME}/search") 
+	public Response search(@PathParam("SOURCENAME") String sourceName, @QueryParam("q") String query) {
+		List<Entity> searchResults = environmentService.search(sourceName, query);
+		return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, searchResults), Status.OK);
+	}
+	
 }

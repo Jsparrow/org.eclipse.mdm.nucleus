@@ -1,14 +1,18 @@
 package org.eclipse.mdm.freetextindexer.control;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.eclipse.mdm.freetextindexer.boundary.ElasticsearchBoundary;
 import org.eclipse.mdm.freetextindexer.boundary.MdmApiBoundary;
 
+@TransactionAttribute(value=TransactionAttributeType.NOT_SUPPORTED)
 @Startup
-@Stateless
+@Singleton
 public class SetupIndex {
 
 	@EJB
@@ -17,11 +21,7 @@ public class SetupIndex {
 	@EJB
 	MdmApiBoundary apiBoundary;
 	
-	public SetupIndex()
-	{
-		System.out.println("Setup called");
-	}
-
+	@PostConstruct
 	public void createIndexIfNeccessary() {
 		String source = apiBoundary.getApiName();
 		
@@ -30,5 +30,4 @@ public class SetupIndex {
 			apiBoundary.doForAllEntities(e -> esBoundary.index(e));
 		}
 	}
-
 }

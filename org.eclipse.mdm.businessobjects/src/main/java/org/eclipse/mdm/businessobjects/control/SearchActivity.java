@@ -63,8 +63,11 @@ public class SearchActivity {
 
 	/**
 	 * lists the available search attributes for the given result type.
-	 * @param em The entity manager.
-	 * @param resultType The result type.
+	 * 
+	 * @param em
+	 *            The entity manager.
+	 * @param resultType
+	 *            The result type.
 	 * @return The available search attributes.
 	 */
 	public <T extends Entity> List<SearchAttribute> listAvailableAttributes(EntityManager em, Class<T> resultType) {
@@ -75,8 +78,8 @@ public class SearchActivity {
 
 		for (EntityType entityType : entityTypes) {
 			for (Attribute attr : entityType.getAttributes()) {
-				searchAttributes.add(new SearchAttribute(entityType.getName(), attr.getName(),
-						attr.getValueType().toString(), "*"));
+				searchAttributes.add(
+						new SearchAttribute(entityType.getName(), attr.getName(), attr.getValueType().toString(), "*"));
 			}
 		}
 
@@ -121,5 +124,32 @@ public class SearchActivity {
 		return attributeList;
 	}
 
+	/**
+	 * executes a free textsearch
+	 *
+	 * @param em
+	 *            {@link EntityManager}
+	 * @param query
+	 *            the query given to the search
+	 * @return the found business objects
+	 */
+	public List<Entity> search(EntityManager em, String query) {
+		try {
+			SearchService searchService = ServiceUtils.getSearchService(em);
+			List<Entity> allEntities = new ArrayList<>();
+			
+			if (searchService.isTextSearchAvailable()) {
+				Map<Class<? extends Entity>, List<Entity>> fetch = searchService.fetch(query);
+				for(List<Entity> entities : fetch.values())
+				{
+					allEntities.addAll(entities);
+				}
+			}
+			
+			return allEntities;
+		} catch (DataAccessException e) {
+			throw new MDMEntityAccessException(e.getMessage(), e);
+		}
+	}
 
 }

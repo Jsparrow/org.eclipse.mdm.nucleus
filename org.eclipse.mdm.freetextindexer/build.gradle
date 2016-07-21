@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-	compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+	compile 'commons-httpclient:commons-httpclient:3.1'
 
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.7.4'
 	compile 'com.fasterxml.jackson.core:jackson-core:2.7.4'
@@ -31,10 +31,13 @@ dependencies {
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.default:1.0.0'
 	compile 'org.eclipse.mdm:org.eclipse.mdm.connector:1.0.0'
+	compile 'org.eclipse.mdm:org.eclipse.mdm.property:1.0.0'
 	
 	providedCompile 'javax:javaee-api:7.0'
+
 	testCompile 'junit:junit:4.12'
 	testCompile 'org.mockito:mockito-core:1.+'
-	
-	compile 'org.slf4j:slf4j-simple:1.7.19'
+	testCompile 'org.apache.lucene:lucene-test-framework:5.3.1'
+  	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4')
+	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4', classifier: 'tests')
 }

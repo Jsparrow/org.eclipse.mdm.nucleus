@@ -87,7 +87,7 @@ public class PropertyService {
 	@Produces
 	@BeanProperty
 	public String getBeanPropertyValue(InjectionPoint ip) throws PropertyException {
-		String className = ip.getBean().getBeanClass().getName();
+		String className = ip.getMember().getDeclaringClass().getName();
 		String fieldName = ip.getMember().getName();
 		String propertyKey = className + "." + fieldName;
 		if (!beanProperties.containsKey(propertyKey)) {

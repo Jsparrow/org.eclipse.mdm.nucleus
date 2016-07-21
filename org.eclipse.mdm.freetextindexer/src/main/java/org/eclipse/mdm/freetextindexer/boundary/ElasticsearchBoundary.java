@@ -2,9 +2,12 @@ package org.eclipse.mdm.freetextindexer.boundary;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.function.Consumer;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -13,6 +16,7 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
+import org.eclipse.mdm.property.GlobalProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author CWE
  *
  */
+@TransactionAttribute(value=TransactionAttributeType.NOT_SUPPORTED)
 @Stateless
 public class ElasticsearchBoundary {
 
@@ -33,7 +38,9 @@ public class ElasticsearchBoundary {
 	private ObjectMapper jsonMapper;
 	private HttpClient client;
 
-	private String esAddress = "http://localhost:9301/";
+	@Inject
+	@GlobalProperty(value="elasticsearch.url")
+	String esAddress;
 
 	/**
 	 * Connects to the ElasticSearch Server
@@ -68,19 +75,15 @@ public class ElasticsearchBoundary {
 	}
 
 	private void execute(HttpMethod put) {
-		execute(put, null);
-	}
-
-	private void execute(HttpMethod put, Consumer<Void> onSuccess) {
 		try {
 			int status = client.executeMethod(put);
-			checkError(status, onSuccess);
+			checkError(status);
 		} catch (IOException e) {
 			throw new IllegalStateException("Problems querying ElasticSearch.", e);
 		}
 	}
 
-	private void checkError(int status, Consumer<Void> onSuccess) {
+	private void checkError(int status) {
 		String text = String.format("ElasticSearch answered %d. ", status);
 
 		int httpCategory = status / 100;
@@ -93,11 +96,7 @@ public class ElasticsearchBoundary {
 			break;
 		}
 
-		if (httpCategory == 2) {
-			if (onSuccess != null) {
-				onSuccess.accept(null);
-			}
-		} else {
+		if (httpCategory != 2) {
 			throw new IllegalStateException(text);
 		}
 	}
@@ -118,7 +117,7 @@ public class ElasticsearchBoundary {
 			
 			return status / 100 == 2;
 		} catch (IOException e) {
-			LOGGER.info("Querying ElasticSearch for the Index failed... Assuming no index is there!", e);
+			LOGGER.warn("Querying ElasticSearch for the Index failed... Assuming no index is there!", e);
 			return false;
 		}
 	}

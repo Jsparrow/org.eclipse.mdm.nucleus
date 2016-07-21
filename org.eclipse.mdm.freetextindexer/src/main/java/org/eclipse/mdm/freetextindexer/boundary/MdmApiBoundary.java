@@ -8,9 +8,14 @@ import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.Stateful;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.eclipse.mdm.api.base.BaseEntityManager;
 import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Measurement;
@@ -29,6 +34,7 @@ import org.eclipse.mdm.api.odsadapter.ODSNotificationManagerFactory;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.freetextindexer.control.UpdateIndex;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
+import org.eclipse.mdm.property.BeanProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +45,9 @@ import org.slf4j.LoggerFactory;
  * @author CWE
  *
  */
-@Singleton
+@TransactionAttribute(value=TransactionAttributeType.NOT_SUPPORTED)
 @Startup
+@Stateful
 public class MdmApiBoundary {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MdmApiBoundary.class);
@@ -58,15 +65,18 @@ public class MdmApiBoundary {
 
 		@Override
 		public void instanceModified(List<? extends Entity> entities, User arg1) {
+			LOGGER.debug(entities.size() + " entities found: " + entities);
 			entities.forEach(e -> update.change(MDMEntityResponse.build(e.getClass(), e, entityManager)));
 		}
 
 		@Override
 		public void modelModified(EntityType arg0, User arg1) {
+			// not needed
 		}
 
 		@Override
 		public void securityModified(List<? extends Entity> arg0, User arg1) {
+			// not needed
 		}
 	}
 
@@ -79,24 +89,48 @@ public class MdmApiBoundary {
 	@Inject
 	UpdateIndex update;
 
+	@Inject
+	@BeanProperty
+	String freetextUser;
+
+	@Inject
+	@BeanProperty
+	String freetextPw;
+
+	@Inject
+	@BeanProperty
+	String notificationType;
+
+	@Inject
+	@BeanProperty
+	String notificationUrl;
+
+	@Inject
+	@BeanProperty
+	String notificationMimeType;
+
+	@Inject
+	@BeanProperty
+	String notificationName;
+
 	private EntityManager entityManager;
 
 	@PostConstruct
 	public void initalize() {
 		try {
-			entityManager = service.connect("sa", "sa").get(0);
+			entityManager = service.connect(freetextUser, freetextPw).get(0);
 
 			Map<String, String> map = new HashMap<>();
-			map.put(ODSNotificationManagerFactory.PARAM_SERVER_TYPE, ODSNotificationManagerFactory.SERVER_TYPE_PEAK);
-			map.put(ODSNotificationManagerFactory.PARAM_URL, "http://localhost:8089/api");
-			map.put(ODSNotificationManagerFactory.PARAM_EVENT_MEDIATYPE, "application/json");
-			map.put(ODSEntityManagerFactory.PARAM_USER, "sa");
-			map.put(ODSEntityManagerFactory.PARAM_PASSWORD, "sa");
+			map.put("serverType", notificationType);
+			map.put("url", notificationUrl);
+			map.put("eventMimetype", notificationMimeType);
+			map.put(ODSEntityManagerFactory.PARAM_USER, freetextUser);
+			map.put(ODSEntityManagerFactory.PARAM_PASSWORD, freetextPw);
 
 			NotificationManager notificationManager = factory.create(entityManager, map);
-			notificationManager.register("eindeutigerName", new NotificationFilter(),
+			notificationManager.register("MDM5Notification", new NotificationFilter(),
 					new FreeTextNotificationListener());
-			
+
 			LOGGER.info("Successfully registered for new Notifications!");
 		} catch (ConnectionException | NotificationException e) {
 			throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed.", e);
@@ -115,7 +149,7 @@ public class MdmApiBoundary {
 
 	public String getApiName() {
 		try {
-			return entityManager.loadEnvironment().getName();
+			return entityManager.loadEnvironment().getSourceName();
 		} catch (DataAccessException e) {
 			throw new IllegalStateException(e);
 		}
