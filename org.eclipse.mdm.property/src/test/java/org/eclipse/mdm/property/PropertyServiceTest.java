@@ -61,6 +61,8 @@ public class PropertyServiceTest {
 		InjectionPoint injectionPointMock = Mockito.mock(InjectionPoint.class);
 		Member memberMock = Mockito.mock(Member.class);
 		when(memberMock.getName()).thenReturn(TEST_BEAN_PROPERTY_KEY);
+		Class class1 = PropertyServiceTest.class;
+		when(memberMock.getDeclaringClass()).thenReturn(class1);
 		when(injectionPointMock.getMember()).thenReturn(memberMock);
 		Bean beanMock = Mockito.mock(Bean.class);
 		when(beanMock.getBeanClass()).thenReturn(PropertyServiceTest.class);

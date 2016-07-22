@@ -59,7 +59,7 @@ public class ElasticsearchBoundaryTest {
 		client = elasticSearchNode.client();
 
 		es = new ElasticsearchBoundary();
-		es.esAddress = "http://localhost:9301";
+		es.esAddress = "http://localhost:9301/";
 	}
 
 	@AfterClass
