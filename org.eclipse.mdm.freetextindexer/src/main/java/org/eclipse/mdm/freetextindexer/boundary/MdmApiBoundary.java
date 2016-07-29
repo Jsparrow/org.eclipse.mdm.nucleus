@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author CWE
  *
  */
-@TransactionAttribute(value=TransactionAttributeType.NOT_SUPPORTED)
+@TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
 @Startup
 @Stateful
 public class MdmApiBoundary {
@@ -118,7 +118,15 @@ public class MdmApiBoundary {
 	@PostConstruct
 	public void initalize() {
 		try {
-			entityManager = service.connect(freetextUser, freetextPw).get(0);
+			List<EntityManager> connectionList = service.connect(freetextUser, freetextPw);
+			if (connectionList.isEmpty()) {
+				String error = String.format(
+						"Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct (%s/%s)",
+						freetextUser, freetextPw);
+				throw new IllegalArgumentException(error);
+			}
+
+			entityManager = connectionList.get(0);
 
 			Map<String, String> map = new HashMap<>();
 			map.put("serverType", notificationType);

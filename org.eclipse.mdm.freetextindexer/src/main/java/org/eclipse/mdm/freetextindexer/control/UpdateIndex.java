@@ -1,9 +1,10 @@
 package org.eclipse.mdm.freetextindexer.control;
 
 import javax.ejb.EJB;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.context.ApplicationScoped;
 
 import org.eclipse.mdm.freetextindexer.boundary.ElasticsearchBoundary;
 import org.eclipse.mdm.freetextindexer.boundary.MdmApiBoundary;
@@ -12,7 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @TransactionAttribute(value=TransactionAttributeType.NOT_SUPPORTED)
-@ApplicationScoped
+@Startup
+@Singleton
 public class UpdateIndex {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MdmApiBoundary.class);
 	
