@@ -16,10 +16,35 @@ import {PropertyService} from '../properties';
 
 @Injectable()
 export class FilereleaseService {
-  constructor(private http: Http,
-              private prop: PropertyService){}
-
   url = "http://" + this.prop.api_host + ":" + this.prop.api_port + this.prop.api_prefix + "/mdm/filereleases"
+  stateMap = new Array();
+  formatMap = new Array();
+  month = new Array();
+
+  constructor(private http: Http,
+              private prop: PropertyService){
+                  this.formatMap["PAK2RAW"] = "original Daten"
+                  this.formatMap["PAK2ATFX"] = "ATFX"
+                  this.stateMap["RELEASE_ORDERED"] = "beauftragt"
+                  this.stateMap["RELEASE_APPROVED"] = "genehmigt"
+                  this.stateMap["RELEASE_RELEASED"] = "freigegeben"
+                  this.stateMap["RELEASE_EXPIRED"] = "abgelaufen"
+                  this.stateMap["RELEASE_PROGRESSING_ERROR"] = "Systemfehler"
+                  this.stateMap["RELEASE_PROGRESSING"] = "In Bearbeitung"
+                  this.stateMap["RELEASE_REJECTED"] = "abgelehnt"
+                  this.month[0]="1"
+                  this.month[1]="2"
+                  this.month[2]="3"
+                  this.month[3]="4"
+                  this.month[4]="5"
+                  this.month[5]="6"
+                  this.month[6]="7"
+                  this.month[7]="8"
+                  this.month[8]="9"
+                  this.month[9]="10"
+                  this.month[10]="11"
+                  this.month[11]="12"
+              }
 
   readAll(){
     return this.read("")
@@ -37,7 +62,7 @@ export class FilereleaseService {
   }
 
   create(release: Release){
-    let body = JSON.stringify({ release });
+    let body = JSON.stringify(release);
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     return this.http.post(this.url, body, options)
@@ -45,19 +70,19 @@ export class FilereleaseService {
                     .catch(this.handleError);
   }
   delete(release: Release){
-    return this.http.delete(this.url + "/" + release.id).subscribe(data => {}, err => console.log(err))
+    return this.http.delete(this.url + "/" + release.identifier)
   }
 
   approve(release: Release){
-    release.state = "RELEASE_ACTION_APPROVE"
+    release.state = "RELEASE_APPROVED"
     return this.update(release)
   }
   reject(release: Release){
-    release.state = "RELEASE_ACTION_REJECT"
+    release.state = "RELEASE_REJECTED"
     return this.update(release)
   }
   private update(release: Release){
-    let body = JSON.stringify({ release });
+    let body = JSON.stringify(release);
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     return this.http.post(this.url + "/" + release.identifier, body, options)
@@ -70,9 +95,20 @@ export class FilereleaseService {
     return Observable.throw(error.json().error || 'Server error');
   }
   private extractData(res: Response) {
-  let body = res.json();
-  return body.data || { };
-}
+    let body = res.json();
+    return body.data || { };
+  }
+
+  formatDate(date){
+    var d = new Date(date);
+    var day = d.getDate()
+    var month = this.month[d.getMonth()]
+    var year = d.getFullYear()
+    var hours = (d.getHours()<10?'0':'') + d.getHours()
+    var min = (d.getMinutes()<10?'0':'') + d.getMinutes()
+    var sec = (d.getSeconds()<10?'0':'') + d.getSeconds()
+    return day + "." + month + "." + year + " " + hours + ":" + min + ":" + sec
+  }
 
 }
 

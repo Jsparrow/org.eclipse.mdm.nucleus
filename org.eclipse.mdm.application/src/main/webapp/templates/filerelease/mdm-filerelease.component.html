@@ -8,6 +8,7 @@
   * Contributors:
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
+
 <div class="container-fluid">
   <div class="box1">
     <div class="well">
@@ -16,16 +17,24 @@
     <table class="table table-hover">
       <thead>
         <tr>
+          <th>Versuchsname</th>
           <th>Antragsteller</th>
           <th>Freigabedauer</th>
+          <th>freigegeben bis</th>
+          <th>Status</th>
           <th>Format</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let data of incoming" [ngClass]="getState(data)" (click)=setData(data) (click)='setEvent("approve")' (click)=lgModal.show()>
+          <td>{{data.name}}</td>
           <td>{{data.sender}}</td>
           <td>{{data.validity}} Tage</td>
+          <td>{{getDate(data.expire)}}</td>
+          <td>{{getTransState(data.state)}}</td>
           <td>{{getFormat(data.format)}}</td>
+          <td></td>
         </tr>
       </tbody>
     </table>
@@ -39,22 +48,26 @@
     <table class="table table-hover">
       <thead>
         <tr>
+          <th>Versuchsname</th>
           <th>Messungsverantwortlicher</th>
           <th>Freigabedauer</th>
           <th>freigegeben bis</th>
-          <th>Fromat</th>
+          <th>Status</th>
+          <th>Format</th>
           <th>Download</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let data of outgoing" [ngClass]="getState(data)" (click)=setData(data) (click)='setEvent("edit")'>
+          <td (click)=lgModal.show()>{{data.name}}</td>
           <td (click)=lgModal.show()>{{data.receiver}}</td>
           <td (click)=lgModal.show()>{{data.validity}} Tage</td>
           <td (click)=lgModal.show()>{{getDate(data.expire)}}</td>
+          <td (click)=lgModal.show()>{{getTransState(data.state)}}</td>
           <td (click)=lgModal.show()>{{getFormat(data.format)}}</td>
           <td>
-            <a *ngIf="data.state == 'RELEASE_APPROVED'" href="{{data.fileLink}}" download><span class="glyphicon glyphicon-download"></span></a>
-            <span *ngIf="data.state != 'RELEASE_APPROVED'" class="glyphicon glyphicon-ban-circle"></span>
+            <a *ngIf="data.state == 'RELEASE_RELEASED'" href="{{dataHost}}{{data.fileLink}}" download><span class="glyphicon glyphicon-download"></span></a>
+            <span *ngIf="data.state != 'RELEASE_RELEASED'" class="glyphicon glyphicon-ban-circle"></span>
           </td>
         </tr>
       </tbody>
@@ -74,11 +87,11 @@
       <div class="modal-body">
         <mdm-filerelease-display [release]=release ></mdm-filerelease-display>
         <div class="btn-group" *ngIf='event=="approve"'>
-          <button type="button" class="btn btn-success" (click)="approveRelease()" (click)="lgModal.hide()">Genemigen</button>
-          <button type="button" class="btn btn-danger" (click)="smModal.show()" (click)="lgModal.hide()">Ablehnen</button>
+          <button type="button" class="btn btn-success" (click)="approveRelease()" (click)="lgModal.hide()" [disabled]="isReleaseable()">Genemigen</button>
+          <button type="button" class="btn btn-danger" (click)="smModal.show()" (click)="lgModal.hide()" [disabled]="isReleaseable()">Ablehnen</button>
         </div>
         <div class="btn-group" *ngIf='event=="edit"'>
-          <button type="button" class="btn btn-default" (click)="deleteRelease()" (click)="lgModal.hide()" [disabled]=isDeletable()>Anfrage zurückziehen</button>
+          <button type="button" class="btn btn-default" (click)="deleteRelease()" (click)="lgModal.hide()" [disabled]=isDeletable()>Anfrage zurückziehen/entfernen</button>
         </div>
       </div>
     </div>

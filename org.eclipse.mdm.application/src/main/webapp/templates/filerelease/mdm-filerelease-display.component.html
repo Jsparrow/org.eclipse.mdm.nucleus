@@ -11,6 +11,9 @@
 <table class="table table-bordered">
   <tbody>
     <tr>
+      <td>Versuchsname:</td><td>{{release.name}}</td>
+    </tr>
+    <tr>
       <td>Fehlerbericht:</td><td>{{release.errorMessage}}</td>
     </tr>
     <tr>
@@ -32,7 +35,7 @@
       <td>Messungsverantwortlicher:</td><td>{{release.receiver}}</td>
     </tr>
     <tr>
-      <td>Status:</td><td>{{release.state}}</td>
+      <td>Status:</td><td>{{getState(release.state)}}</td>
     </tr>
     <tr>
       <td>Freigabedauer:</td><td>{{release.validity}} Tage</td>

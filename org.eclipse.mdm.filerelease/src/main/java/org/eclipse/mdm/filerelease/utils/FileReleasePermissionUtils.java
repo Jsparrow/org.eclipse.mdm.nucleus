@@ -41,14 +41,16 @@ public final class FileReleasePermissionUtils {
 	 */
 	public static void canCreate(FileRelease newFileRelease, String userName, List<FileRelease> list) {
 		for(FileRelease fileRelease : list) {
+			
 			boolean sourceNameEqual = fileRelease.sourceName.equals(newFileRelease.sourceName);
 			boolean typeNameEqual = fileRelease.typeName.equals(newFileRelease.typeName);
 			boolean idEqual = fileRelease.id == newFileRelease.id;
+			boolean formatEqual = fileRelease.format.equals(newFileRelease.format);
 			
-			if(sourceNameEqual && typeNameEqual && idEqual) {
+			if(sourceNameEqual && typeNameEqual && idEqual && formatEqual) {
 				throw new FileReleaseException("FileRelease for user '" + userName + "' and path'" 
 						+ fileRelease.sourceName + "/" + fileRelease.typeName + "/" 
-						+ fileRelease.id + "' already exists!");				
+						+ fileRelease.id + "' (Format: '" + fileRelease.format + "') already exists!");				
 			}
 		}
 		

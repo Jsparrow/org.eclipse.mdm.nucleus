@@ -9,7 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input} from '@angular/core';
-import {Release} from './filerelease.service';
+import {Release, FilereleaseService} from './filerelease.service';
 
 @Component({
   selector: 'mdm-filerelease-display',
@@ -21,13 +21,16 @@ import {Release} from './filerelease.service';
 export class MDMFilereleaseDisplayComponent {
   @Input() release: Release
 
+  constructor(private service: FilereleaseService){}
+
   getFormat(format){
-    if (format == 'PAK2RAW') {return 'PAK'}
-    if (format == 'PAK2ATFX') {return 'ATFX'}
-    return format
+    return this.service.formatMap[format]
+  }
+  getState(state){
+    return this.service.stateMap[state]
   }
   getDate(date){
-    var d = new Date(date*1000);
-    return d.getDate() + "." + d.getMonth() + "." + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
+    if (date == 0) {return}
+    return this.service.formatDate(date)
   }
 }

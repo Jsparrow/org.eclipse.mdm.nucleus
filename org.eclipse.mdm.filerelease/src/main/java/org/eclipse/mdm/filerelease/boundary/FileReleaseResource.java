@@ -51,8 +51,7 @@ public class FileReleaseResource {
 	 * 
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param identifier
-	 *            The identifier of the {@link FileRelease}
+	 * @param identifier The identifier of the {@link FileRelease}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
@@ -68,11 +67,12 @@ public class FileReleaseResource {
 		}
 	}
 
+	
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param state
-	 *            The state of the {@link FileRelease}s to return
+	 * @param state The state of the {@link FileRelease}s to return
+	 * @param direction The file release direction (incoming or outgoing)
 	 * @return @return the result of the delegated request as {@link Response}
 	 */
 	@GET
@@ -102,16 +102,15 @@ public class FileReleaseResource {
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param request
-	 *            The {@link FileReleaseRequest} to create.
+	 * @param newFileRelease The {@link FileReleaseRequest} to create.
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(FileRelease newFileRelease) {
 		try {
-			this.fileReleaseService.create(newFileRelease);
-			return Response.ok().build();
+			FileRelease fileRelease = this.fileReleaseService.create(newFileRelease);
+			return FileReleaseUtils.toResponse(new FileReleaseResponse(fileRelease), Status.OK);
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -121,8 +120,8 @@ public class FileReleaseResource {
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param identifier
-	 *            The identifier of the {@link FileRelease} to approve.
+	 * @param identifier The identifier of the {@link FileRelease} to update.
+	 * @param The {@link FileRelease} with updated state
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@POST
@@ -131,7 +130,7 @@ public class FileReleaseResource {
 	public Response update(@PathParam("IDENTIFIER") String identifier, FileRelease updatedFileRelease) {
 		try {
 						
-			if(identifier != updatedFileRelease.identifier) {
+			if(!identifier.equals(updatedFileRelease.identifier)) {
 				throw new WebApplicationException("illegal update post request (identifier is not matching)", Status.FORBIDDEN);
 			}
 			
@@ -156,39 +155,14 @@ public class FileReleaseResource {
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param identifier
-	 *            The identifier of the {@link FileRelease} to delete.
-	 * @return the result of the delegated request as {@link Response}
+	 * @param identifier The identifier of the {@link FileRelease} to delete.
+	 * @return the result of the delegated request as {@link Response} (only OK if {@link FileRelease} has been deleted)
 	 */
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{IDENTIFIER}")
 	public Response delete(@PathParam("IDENTIFIER") String identifier) {
 		try {
 			this.fileReleaseService.delete(identifier);
-			return Response.ok().build();
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	//Remove this: Only for Test
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/makedata") 
-	public Response getMakeData() {
-		try {
-			for(int i=0; i<10; i++) {
-				FileRelease request = new FileRelease();
-				request.sourceName = "MDMTEST01";
-				request.typeName = "TestStep";
-				request.id = (long)30516;
-				request.validity = 5;
-				request.orderMessage = "test release " + (i+1);
-				request.format = "PAK2RAW";				
-				this.fileReleaseService.create(request);
-			}
 			return Response.ok().build();
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);

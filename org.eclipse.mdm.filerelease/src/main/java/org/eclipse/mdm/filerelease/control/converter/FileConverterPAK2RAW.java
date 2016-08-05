@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
-import org.eclipse.mdm.property.BeanProperty;
+import org.eclipse.mdm.property.GlobalProperty;
 
 /**
  * 
@@ -30,34 +30,39 @@ import org.eclipse.mdm.property.BeanProperty;
  */
 @RequestScoped
 public class FileConverterPAK2RAW extends AbstractFileConverter {
-	
-	private static final String OUTPUT_SUB_DIRECTORY = "raw";
+		
 	private static final String ATFX_OUTPUT_FILE_NAME_PREFIX = "_RAW.zip";
 	
 	@Inject
-	@BeanProperty
+	@GlobalProperty("filerelease.converter.raw.pakInputEntity")
 	private String pakInputEntity = "";
 	@Inject
-	@BeanProperty
+	@GlobalProperty("filerelease.converter.raw.pakInputAttribute")
 	private String pakInputAttribute = "";
 	
-	@Override
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em) throws FileConverterException {
+	@Override	
+	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em,
+		File targetDirectory) throws FileConverterException {
+				
+		String pakInputEntityValue = super.readPropertyValue(this.pakInputEntity, true, 
+				null, "pakInputEntity");
+			String pakInputAttributeValue = super.readPropertyValue(this.pakInputAttribute, true, 
+				null, "pakInputAttribute");
 		
 		String inputPath = locateStringAttributeValue(em, testStep, 
-				this.pakInputEntity, this.pakInputAttribute);	
+				pakInputEntityValue, pakInputAttributeValue);	
 		File inputDirectory = locateInputDirectory(inputPath);
 		
-		File outputDirectory = createDirectory(inputDirectory.getAbsolutePath()+ File.separator + OUTPUT_SUB_DIRECTORY);
-		File outputZIPFile = new File(outputDirectory, testStep.getName() + ATFX_OUTPUT_FILE_NAME_PREFIX);
+		File outputDirectory = createDirectory(targetDirectory.getAbsolutePath() + File.separator + fileRelease.name);
+		File outputZIPFile = new File(outputDirectory, fileRelease.name + ATFX_OUTPUT_FILE_NAME_PREFIX);
 		
-		if(outputZIPFile.exists()) {
+		if(!outputZIPFile.exists()) {
 			LOG.debug("executing zip process for pak raw data ...");		
 			zipFolder(outputZIPFile.getAbsolutePath(), inputDirectory.getAbsolutePath(), true);		
 			LOG.debug("executing zip process for pak raw data ... done");
 		}
 		
-		fileRelease.fileLink = outputZIPFile.getAbsolutePath();
+		fileRelease.fileLink = fileRelease.name + File.separator + outputZIPFile.getName();
 	}
 
 	@Override

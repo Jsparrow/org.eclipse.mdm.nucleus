@@ -175,6 +175,10 @@ public class FileReleaseServiceTest {
 		converterField.set(fileReleaseService, FileReleaseServiceMockHelper.createFileConvertJobManagerMock());
 		converterField.setAccessible(false);
 
+		Field targetDirectoryPathField = fileReleaseService.getClass().getDeclaredField("targetDirectoryPath");
+		targetDirectoryPathField.setAccessible(true);
+		targetDirectoryPathField.set(fileReleaseService, System.getProperty("java.io.tmpdir"));
+		targetDirectoryPathField.setAccessible(false);
 
 		return fileReleaseService;
 	}

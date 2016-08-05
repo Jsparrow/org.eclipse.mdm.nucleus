@@ -11,6 +11,8 @@
 
 package org.eclipse.mdm.filerelease.control.converter;
 
+import java.io.File;
+
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
@@ -37,7 +39,8 @@ public interface IFileConverter {
 	 * @throws FileConverterException
 	 *             Thrown if the file conversion fails.
 	 */
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em) throws FileConverterException;
+	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em,
+		File targetDirectory) throws FileConverterException;
 
 	/**
 	 * Returns the name of the file converter

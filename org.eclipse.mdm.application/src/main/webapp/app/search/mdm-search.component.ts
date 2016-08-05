@@ -62,6 +62,7 @@ export class MDMSearchComponent {
       let e = this.envs.map(function(e){return e.sourceName}).indexOf(env)
       this.selectedEnv.push(this.envs[e])
     }
+    this.selectDef(this.type)
   }
 
   selectItem(item){

@@ -132,16 +132,16 @@ public final class FileReleaseUtils {
 	 * Deletes a filelink
 	 * @param fileLink The filelink to delete
 	 */
-	public static void deleteFileLink(String fileLink) {
+	public static void deleteFileLink(File file) {
 
-		File file = new File(fileLink);
 		if(!file.exists() || file.isDirectory()) {
-			throw new FileReleaseException("unable to locate file at '" + file.getAbsolutePath() + "'");
+			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "' (file does not exist)!");
+			return;
 		}
 
 		boolean deleted = file.delete();
 		if(!deleted) {
-			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "'");
+			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "' (unkown error)!");
 		}
 	}
 
@@ -178,6 +178,19 @@ public final class FileReleaseUtils {
 		}
 		return filteredList;
 				
+	}
+	
+	
+	public static File locateTargetDirectory(String targetDirectoryPath) {
+		if(targetDirectoryPath == null || targetDirectoryPath.trim().length() <= 0) {
+			throw new FileReleaseException("mandatory targetDirectoryPath property is missing");
+		}
+		File targetDirectory = new File(targetDirectoryPath);
+		if(!targetDirectory.exists()) {
+			throw new FileReleaseException("configured target directory at '" + targetDirectory.getAbsolutePath() 
+				+ "' does not exist!");
+		}
+		return targetDirectory;
 	}
 	
 	

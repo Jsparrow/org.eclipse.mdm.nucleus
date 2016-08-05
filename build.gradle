@@ -35,14 +35,15 @@ subprojects {
         jcenter()
     }
 
-    dependencies {    	
+    dependencies {   
+    	compileOnly 'javax:javaee-api:7.0' 	
         testCompile 'junit:junit:4.12'
         testCompile 'org.mockito:mockito-core:1.+'
     }
 }
                  
 dependencies { 	
- 
+  
   compile project(':org.eclipse.mdm.application')
 }
 

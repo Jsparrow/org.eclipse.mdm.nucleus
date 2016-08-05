@@ -26,7 +26,6 @@ export class MDMFullTextSearchComponent {
   envs : Node[] = []
   errorMessage : string = ""
   selectedEnv : Node[] = []
-  results : Node[] = []
 
   constructor(private service: NodeService){
     let node: Node;
@@ -51,7 +50,7 @@ export class MDMFullTextSearchComponent {
   }
 
   onSubmit(query: string){
-    this.results = []
+    this.nodes = []
     for (let i in this.selectedEnv) {
       this.search(query, this.selectedEnv[i].sourceName)
     }

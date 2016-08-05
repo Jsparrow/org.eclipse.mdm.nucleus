@@ -23,7 +23,7 @@ import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
-import org.eclipse.mdm.property.BeanProperty;
+import org.eclipse.mdm.property.GlobalProperty;
 
 /**
  * 
@@ -38,44 +38,55 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 	private static final String CONVERTER_NAME = "PAK2ATFX";
 	private final static String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.filerelease";
 	
-	private static final String MODEL_FILE_NAME = "model.atfx.technical";
-	private static final String OUTPUT_SUB_DIRECTORY = "atfx";
+	private static final String MODEL_FILE_NAME = "model.atfx.technical";	
 	private static final String OUTPUT_SUB_TEMP_DIRECTORY = "tmp";
 	private static final String ATFX_OUTPUT_FILE_NAME_PREFIX = "_ATFX.zip";
 	
 	@Inject
-	@BeanProperty
+	@GlobalProperty("filerelease.converter.pak.pakApplicationPath")
 	private String pakApplicationPath = "";
 	@Inject
-	@BeanProperty
+	@GlobalProperty("filerelease.converter.pak.modelTypeEntity")
 	private String modelTypeEntity = "";
 	@Inject
-	@BeanProperty
+	@GlobalProperty("filerelease.converter.pak.modelTypeAttribute")
 	private String modelTypeAttribute = "";
 	@Inject
-	@BeanProperty
+	@GlobalProperty("filerelease.converter.pak.pakInputEntity")
 	private String pakInputEntity = "";
 	@Inject
-	@BeanProperty
+	@GlobalProperty("filerelease.converter.pak.pakInputAttribute")
 	private String pakInputAttribute = "";
 		
 	
 	@Override
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em) throws FileConverterException {
+	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em,
+		File targetDirectory) throws FileConverterException {
 			
 			int returnValue = -1;
 
+			String pakApplicationPathValue = super.readPropertyValue(this.pakApplicationPath, true, 
+				null, "pakApplicationPath");
+			String modelTypeEntityValue = super.readPropertyValue(this.modelTypeEntity, true, 
+				null, "modelTypeEntity");
+			String modelTypeAttributeValue = super.readPropertyValue(this.modelTypeAttribute, true, 
+				null, "modelTypeAttribute");
+			String pakInputEntityValue = super.readPropertyValue(this.pakInputEntity, true, 
+				null, "pakInputEntity");
+			String pakInputAttributeValue = super.readPropertyValue(this.pakInputAttribute, true, 
+				null, "pakInputAttribute");
+			
 			String modelType = locateStringAttributeValue(em, testStep, 
-				this.modelTypeEntity, this.modelTypeAttribute);
+					modelTypeEntityValue, modelTypeAttributeValue);
 			String inputPath = locateStringAttributeValue(em, testStep, 
-				this.pakInputEntity, this.pakInputAttribute);			
+					pakInputEntityValue, pakInputAttributeValue);			
 					
-			File pakApplicationFile = locatePakApplicationFile(this.pakApplicationPath);
+			File pakApplicationFile = locatePakApplicationFile(pakApplicationPathValue);
 			File modelFile = locateModelFileForModelType(modelType);
 			File inputDirectory = locateInputDirectory(inputPath);
-			File outputDirectory = createDirectory(inputDirectory.getAbsolutePath()+ File.separator + OUTPUT_SUB_DIRECTORY);
-			File outputTempDirectory = createDirectory(outputDirectory + File.separator + OUTPUT_SUB_TEMP_DIRECTORY);
-			File outputZIPFile = new File(outputDirectory, testStep.getName() + ATFX_OUTPUT_FILE_NAME_PREFIX);
+			File outputDirectory = createDirectory(targetDirectory.getAbsolutePath() + File.separator + fileRelease.name);
+			File outputTempDirectory = createDirectory(outputDirectory.getAbsolutePath() + File.separator + OUTPUT_SUB_TEMP_DIRECTORY);
+			File outputZIPFile = new File(outputDirectory, fileRelease.name + ATFX_OUTPUT_FILE_NAME_PREFIX);
 			
 			try {				
 				if(!outputZIPFile.exists()) {
@@ -93,7 +104,7 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 					LOG.debug("executing zip process for pak application result ... done");
 				}
 				
-				fileRelease.fileLink = outputZIPFile.getAbsolutePath();
+				fileRelease.fileLink = fileRelease.name + File.separator + outputZIPFile.getName();
 				
 		} catch(IOException |InterruptedException e) {
 			throw new FileConverterException(e.getMessage(), e);
@@ -170,5 +181,8 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 		}
 		return modelFile;
 	}
+	
+	
+	
 	
 }

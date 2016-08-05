@@ -40,8 +40,12 @@ public class ContextSensorResponse {
 	public ContextSensorResponse(Map<String, List<ContextSensor>> sensorMap) { 
 		this.data = new ArrayList<>();
 		ContextSensorCollection contextSensorData = new ContextSensorCollection();
-		contextSensorData.setOrderedSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_ORDERED));
-		contextSensorData.setMeasuredSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED));			
+		if(sensorMap.containsKey(ContextActivity.CONTEXT_SENSOR_GROUP_ORDERED)) {
+			contextSensorData.setOrderedSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_ORDERED));
+		}
+		if(sensorMap.containsKey(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED)) {
+			contextSensorData.setMeasuredSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED));	
+		}
 		this.data.add(contextSensorData);
 	}
 	
