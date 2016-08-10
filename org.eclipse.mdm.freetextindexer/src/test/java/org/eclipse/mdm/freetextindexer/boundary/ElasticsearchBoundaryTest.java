@@ -88,7 +88,7 @@ public class ElasticsearchBoundaryTest {
 		MDMEntityResponse document = MDMEntityResponse.build(TestStep.class, ts, manager);
 		es.index(document);
 
-		es.delete(document);
+		es.delete("mdmdiff", "TestStep", 0);
 
 		assertEquals(0, searchForASDF("mdmdiff").totalHits());
 	}

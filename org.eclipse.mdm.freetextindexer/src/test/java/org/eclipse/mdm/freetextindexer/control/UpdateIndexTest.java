@@ -38,17 +38,9 @@ public class UpdateIndexTest {
 	}
 
 	@Test
-	public void nullGiven_notDeleted() {
-		update.delete(null);
-
-		verify(update.esBoundary, never()).delete(any(MDMEntityResponse.class));
-	}
-
-	@Test
 	public void validDoc_deleted() {
-		MDMEntityResponse response = mock(MDMEntityResponse.class);
-		update.delete(response);
+		update.delete("api", "TestStep", 123l);
 
-		verify(update.esBoundary, times(1)).delete(eq(response));
+		verify(update.esBoundary, times(1)).delete(eq("api"), eq("TestStep"), eq(123l));
 	}
 }

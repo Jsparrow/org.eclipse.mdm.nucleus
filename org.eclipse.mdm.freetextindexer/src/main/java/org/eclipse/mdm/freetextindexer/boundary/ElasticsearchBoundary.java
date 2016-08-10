@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -29,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author CWE
  *
  */
-@TransactionAttribute(value=TransactionAttributeType.NOT_SUPPORTED)
+@TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
 @Stateless
 public class ElasticsearchBoundary {
 
@@ -39,7 +38,7 @@ public class ElasticsearchBoundary {
 	private HttpClient client;
 
 	@Inject
-	@GlobalProperty(value="elasticsearch.url")
+	@GlobalProperty(value = "elasticsearch.url")
 	String esAddress;
 
 	/**
@@ -101,12 +100,12 @@ public class ElasticsearchBoundary {
 		}
 	}
 
-	public void delete(MDMEntityResponse document) {
-		DeleteMethod put = new DeleteMethod(esAddress + getPath(document));
-	
+	public void delete(String api, String type, long id) {
+		DeleteMethod put = new DeleteMethod(esAddress + api.toLowerCase() + "/" + type + "/" + id);
+
 		execute(put);
-	
-		LOGGER.info("Document with Id " + getPath(document) + " has been deleted!");
+
+		LOGGER.info("Document with Id " + id + " has been deleted!");
 	}
 
 	public boolean hasIndex(String source) {
@@ -114,7 +113,7 @@ public class ElasticsearchBoundary {
 			GetMethod get = new GetMethod(esAddress + source.toLowerCase());
 			int status = client.executeMethod(get);
 			LOGGER.info("Checking index {}: {}", source, status);
-			
+
 			return status / 100 == 2;
 		} catch (IOException e) {
 			LOGGER.warn("Querying ElasticSearch for the Index failed... Assuming no index is there!", e);
@@ -124,7 +123,7 @@ public class ElasticsearchBoundary {
 
 	public void createIndex(String source) {
 		execute(new PutMethod(esAddress + source.toLowerCase()));
-	
+
 		LOGGER.info("New Index created!");
 	}
 }

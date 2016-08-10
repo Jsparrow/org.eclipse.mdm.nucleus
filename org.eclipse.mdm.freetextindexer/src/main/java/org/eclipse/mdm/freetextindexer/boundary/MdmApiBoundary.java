@@ -6,14 +6,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
+import javax.annotation.PreDestroy;
 import javax.ejb.Startup;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.ConnectionException;
@@ -59,8 +56,8 @@ public class MdmApiBoundary {
 		}
 
 		@Override
-		public void instanceDeleted(List<? extends Entity> entities, User arg1) {
-			entities.forEach(e -> update.delete(MDMEntityResponse.build(e.getClass(), e, entityManager)));
+		public void instanceDeleted(EntityType entityType, List<Long> ids, User user) {
+			ids.forEach(id -> update.delete(getApiName(), entityType.getName(), id));
 		}
 
 		@Override
@@ -75,7 +72,7 @@ public class MdmApiBoundary {
 		}
 
 		@Override
-		public void securityModified(List<? extends Entity> arg0, User arg1) {
+		public void securityModified(EntityType entityType, List<Long> ids, User user) {
 			// not needed
 		}
 	}
@@ -99,6 +96,14 @@ public class MdmApiBoundary {
 
 	@Inject
 	@BeanProperty
+	String nameservice;
+
+	@Inject
+	@BeanProperty
+	String servicename;
+
+	@Inject
+	@BeanProperty
 	String notificationType;
 
 	@Inject
@@ -113,7 +118,13 @@ public class MdmApiBoundary {
 	@BeanProperty
 	String notificationName;
 
+	@Inject
+	@BeanProperty
+	String pollingInterval;
+
 	private EntityManager entityManager;
+
+	private NotificationManager manager;
 
 	@PostConstruct
 	public void initalize() {
@@ -132,16 +143,28 @@ public class MdmApiBoundary {
 			map.put("serverType", notificationType);
 			map.put("url", notificationUrl);
 			map.put("eventMimetype", notificationMimeType);
+			map.put("nameservice", nameservice);
+			map.put("servicename", servicename);
+			map.put("pollingInterval", pollingInterval);
 			map.put(ODSEntityManagerFactory.PARAM_USER, freetextUser);
 			map.put(ODSEntityManagerFactory.PARAM_PASSWORD, freetextPw);
 
-			NotificationManager notificationManager = factory.create(entityManager, map);
-			notificationManager.register("MDM5Notification", new NotificationFilter(),
-					new FreeTextNotificationListener());
+			manager = factory.create(entityManager, map);
+			manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener());
 
 			LOGGER.info("Successfully registered for new Notifications!");
 		} catch (ConnectionException | NotificationException e) {
 			throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed.", e);
+		}
+	}
+
+	@PreDestroy
+	public void deregister() {
+		try {
+			manager.close(false);
+		} catch (NotificationException e) {
+			throw new IllegalStateException(
+					"The NotificationManager could not be deregistered. In rare cases, this leads to a missed notification. This means the index might not be up-to-date.");
 		}
 	}
 
