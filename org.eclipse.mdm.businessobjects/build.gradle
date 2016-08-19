@@ -13,7 +13,5 @@ description = 'business object service'
 version = '1.0.0'
 
 dependencies {
-
-	compile project(':org.eclipse.mdm.connector')
-	
+	compile project(':org.eclipse.mdm.connector')	
 }

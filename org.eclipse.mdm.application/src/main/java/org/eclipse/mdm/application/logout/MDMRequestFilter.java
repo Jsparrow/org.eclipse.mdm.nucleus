@@ -45,7 +45,9 @@ public class MDMRequestFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {	
 		
-		sessionExpiredListener.update();
+		if(this.sessionExpiredListener != null) {
+			this.sessionExpiredListener.update();
+		}
 		
 		if (request instanceof HttpServletRequest) {
 			HttpServletRequest httpRequest = (HttpServletRequest)request;

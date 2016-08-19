@@ -36,8 +36,8 @@ export class MDMDescriptiveDataComponent implements OnChanges{
   status: string = "loading...";
 
   uut:string = "Prüfling";
-  te:string = "Messgerät";
-  ts:string = "Testablauf";
+  ts:string = "Messgerät";
+  te:string = "Testablauf";
   s:string = "Sensoren";
 
   ngOnChanges(changes: {[propName: string]: SimpleChange}){

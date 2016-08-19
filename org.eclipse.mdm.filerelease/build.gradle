@@ -20,18 +20,14 @@ targetCompatibility = 1.8
 
 
 repositories {
-
 	mavenLocal()
 	mavenCentral()
 }
 
 
-
 dependencies {
-
 	compile project (':org.eclipse.mdm.connector')
 	compile project (':org.eclipse.mdm.property')
-
 }
 
 

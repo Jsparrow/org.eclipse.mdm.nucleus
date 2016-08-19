@@ -17,8 +17,10 @@ apply plugin: 'com.moowork.node'
 System.setProperty('file.encoding', 'UTF-8')
 
 dependencies {
-	compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
-	compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.8.1'
+
+	runtime 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
+	runtime 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.8.1'
+
 	compile project(':org.eclipse.mdm.businessobjects')
 	compile project(':org.eclipse.mdm.filerelease')
 	compile project(':org.eclipse.mdm.property')	

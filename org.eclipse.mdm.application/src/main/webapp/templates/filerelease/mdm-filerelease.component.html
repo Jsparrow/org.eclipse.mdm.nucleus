@@ -87,7 +87,7 @@
       <div class="modal-body">
         <mdm-filerelease-display [release]=release ></mdm-filerelease-display>
         <div class="btn-group" *ngIf='event=="approve"'>
-          <button type="button" class="btn btn-success" (click)="approveRelease()" (click)="lgModal.hide()" [disabled]="isReleaseable()">Genemigen</button>
+          <button type="button" class="btn btn-success" (click)="approveRelease()" (click)="lgModal.hide()" [disabled]="isReleaseable()">Genehmigen</button>
           <button type="button" class="btn btn-danger" (click)="smModal.show()" (click)="lgModal.hide()" [disabled]="isReleaseable()">Ablehnen</button>
         </div>
         <div class="btn-group" *ngIf='event=="edit"'>
