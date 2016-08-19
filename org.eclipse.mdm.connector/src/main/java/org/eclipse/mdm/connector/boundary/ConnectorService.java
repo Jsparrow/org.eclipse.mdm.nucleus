@@ -22,6 +22,7 @@ import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.inject.Inject;
 import javax.security.auth.spi.LoginModule;
 
 import org.eclipse.mdm.api.base.ConnectionException;
@@ -32,11 +33,13 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory;
 import org.eclipse.mdm.connector.control.ServiceConfigurationActivity;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
+import org.eclipse.mdm.property.GlobalProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * ConnectorServcie Bean implementation to create and close connections
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -48,20 +51,22 @@ public class ConnectorService {
 
 	private final static String ARG_ODS_NAMESERVICE = "nameservice";
 	private final static String ARG_ODS_SERVICENAME = "servicename";
-	private final static String ARG_ODS_USER 		= "user";
-	private final static String ARG_ODS_PASSWORD    = "password";
-
+	private final static String ARG_ODS_USER = "user";
+	private final static String ARG_ODS_PASSWORD = "password";
 
 	@Resource
 	private SessionContext sessionContext;
 	@EJB
 	private ServiceConfigurationActivity serviceConfigurationActivity;
 
+	@Inject
+	@GlobalProperty("elasticsearch.url")
+	String host;
 
 	private Map<Principal, List<EntityManager>> connectionMap = new HashMap<Principal, List<EntityManager>>();
 
-	private EntityManagerFactory<EntityManager> emf = new ODSEntityManagerFactory();
-	
+	private EntityManagerFactory<EntityManager> emf;
+
 	/**
 	 * returns all available {@link EntityManager}s
 	 *
@@ -72,28 +77,27 @@ public class ConnectorService {
 
 		List<EntityManager> emList = connectionMap.get(principal);
 
-		if(emList == null || emList.size() <= 0) {
+		if (emList == null || emList.size() <= 0) {
 			String errorMessage = "no connections available for user with name '" + principal.getName() + "'";
 			throw new ConnectorServiceException(errorMessage);
 		}
 		return emList;
 	}
 
-
-
 	/**
 	 * returns an {@link EntityManager} identified by the given name
 	 *
-	 * @param name source name (e.g. MDM {@link Environment} name)
+	 * @param name
+	 *            source name (e.g. MDM {@link Environment} name)
 	 * @return the matching {@link EntityManager}
 	 */
 	public EntityManager getEntityManagerByName(String name) {
 		try {
 
 			List<EntityManager> emList = getEntityManagers();
-			for(EntityManager em : emList) {
+			for (EntityManager em : emList) {
 				String sourceName = em.loadEnvironment().getSourceName();
-				if(sourceName.equals(name)) {
+				if (sourceName.equals(name)) {
 					return em;
 				}
 			}
@@ -101,21 +105,23 @@ public class ConnectorService {
 			String errorMessage = "no data source with environment name '" + name + "' connected!";
 			throw new ConnectorServiceException(errorMessage);
 
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new ConnectorServiceException(e.getMessage(), e);
 		}
 
 	}
 
-
 	/**
-	 * tries to connect a user with the given password to the registered {@link ServiceConfiguration}s
-	 * This method is call from a {@link LoginModule} at login phase 1.
+	 * tries to connect a user with the given password to the registered
+	 * {@link ServiceConfiguration}s This method is call from a
+	 * {@link LoginModule} at login phase 1.
 	 *
-	 * @param user user login credential
-	 * @param password password login credential
+	 * @param user
+	 *            user login credential
+	 * @param password
+	 *            password login credential
 	 * @return a list connected {@link EntityManager}s
-
+	 * 
 	 */
 	public List<EntityManager> connect(String user, String password) {
 
@@ -123,47 +129,48 @@ public class ConnectorService {
 
 		List<ServiceConfiguration> serviceConfigurations = serviceConfigurationActivity.readServiceConfigurations();
 
-		for(ServiceConfiguration serviceConfiguration : serviceConfigurations) {
+		for (ServiceConfiguration serviceConfiguration : serviceConfigurations) {
 			connectEntityManagers(user, password, serviceConfiguration, emList);
 		}
 
 		return emList;
 	}
 
-
-
 	/**
-	 * registers all connections for a {@link Principal} at the {@link ConnectorBean}
-	 * This method is call from a {@link LoginModule} at login phase 2.
+	 * registers all connections for a {@link Principal} at the
+	 * {@link ConnectorBean} This method is call from a {@link LoginModule} at
+	 * login phase 2.
 	 *
-	 * @param principal owner of the given connection list (EntityManager list)
-	 * @param emList connection list
+	 * @param principal
+	 *            owner of the given connection list (EntityManager list)
+	 * @param emList
+	 *            connection list
 	 */
 	public void registerConnections(Principal principal, List<EntityManager> emList) {
 
-		if(emList == null || emList.size() <= 0) {
+		if (emList == null || emList.size() <= 0) {
 			String errorMessage = "no connections for user with name '" + principal.getName() + "' available!";
 			throw new ConnectorServiceException(errorMessage);
 		}
 
-		if(!connectionMap.containsKey(principal)) {
+		if (!connectionMap.containsKey(principal)) {
 			connectionMap.put(principal, emList);
 		} else {
 			disconnectEntityManagers(emList);
 		}
 	}
 
-
-
 	/**
 	 * disconnect the given {@link Principal} from all connected data sources
 	 * This method is call from a {@link LoginModule} at logout
 	 *
 	 * This method is call from a {@link LoginModule}
-	 * @param principal the principal to disconnect
+	 * 
+	 * @param principal
+	 *            the principal to disconnect
 	 */
 	public void disconnect(Principal principal) {
-		if(connectionMap.containsKey(principal)) {
+		if (connectionMap.containsKey(principal)) {
 			List<EntityManager> emList = connectionMap.remove(principal);
 			disconnectEntityManagers(emList);
 			LOG.info("user with name '" + principal.getName() + "' has been disconnected!");
@@ -171,8 +178,6 @@ public class ConnectorService {
 		}
 
 	}
-
-
 
 	private void connectEntityManagers(String user, String password, ServiceConfiguration source,
 			List<EntityManager> emList) {
@@ -185,34 +190,33 @@ public class ConnectorService {
 			connectionParameters.put(ARG_ODS_USER, user);
 			connectionParameters.put(ARG_ODS_PASSWORD, password);
 
+			if (emf == null) {
+				emf = new ODSEntityManagerFactory(host);
+			}
+
 			emList.add(emf.connect(connectionParameters));
 
-		} catch(ConnectionException e) {
-			LOG.warn("unable to logon user with name '" + user + "' at data source '"
-					+ source.toString() + "' (reason: " + e.getMessage() + "'");
+		} catch (ConnectionException e) {
+			LOG.warn("unable to logon user with name '" + user + "' at data source '" + source.toString()
+					+ "' (reason: " + e.getMessage() + "'");
 		}
 	}
 
-
-
 	private void disconnectEntityManagers(List<EntityManager> emList) {
-		for(EntityManager em : emList) {
+		for (EntityManager em : emList) {
 			disconnectEntityManager(em);
 		}
 	}
 
-
-
 	private void disconnectEntityManager(EntityManager em) {
 		try {
-			if(em != null) {
+			if (em != null) {
 				em.close();
 			}
-		} catch(ConnectionException e) {
+		} catch (ConnectionException e) {
 			LOG.error("unable to logout user from MDM datasource (reason: " + e.getMessage() + ")");
 			throw new ConnectorServiceException(e.getMessage(), e);
 		}
 	}
-
 
 }
