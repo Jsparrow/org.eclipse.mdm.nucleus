@@ -12,7 +12,6 @@
 description = 'MDM Connector'
 version = '1.0.0'
 
-dependencies {
-	compile 'ch.qos.logback:logback-classic:1.1.7'
+dependencies {	
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
 }

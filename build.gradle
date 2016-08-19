@@ -36,7 +36,10 @@ subprojects {
     }
 
     dependencies {   
+    	compileOnly 'org.slf4j:slf4j-api:1.7.19'    		
     	compileOnly 'javax:javaee-api:7.0' 	
+    	runtime 'ch.qos.logback:logback-classic:1.1.7'
+    	
         testCompile 'junit:junit:4.12'
         testCompile 'org.mockito:mockito-core:1.+'
     }
