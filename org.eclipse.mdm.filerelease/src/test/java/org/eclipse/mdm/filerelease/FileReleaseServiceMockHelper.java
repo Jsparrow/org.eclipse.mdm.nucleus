@@ -108,7 +108,7 @@ public class FileReleaseServiceMockHelper {
 		for (int i = 0; i < NUM_FILE_REL_IN; i++) {
 			FileRelease fileRelease = new FileRelease();
 			fileRelease.receiver = TEST_USERNAME_SELF;
-			fileRelease.sourceName = "MDMTEST01";
+			fileRelease.sourceName = "MDMENV";
 			fileRelease.typeName = "TestStep";
 			fileRelease.id = i;
 			fileRelease.sender = TEST_USERNAME_OTHER;
@@ -119,7 +119,7 @@ public class FileReleaseServiceMockHelper {
 
 		for (int i = 0; i < NUM_FILE_REL_OUT; i++) {
 			FileRelease fileRelease = new FileRelease();
-			fileRelease.sourceName = "MDMTEST01";
+			fileRelease.sourceName = "MDMENV";
 			fileRelease.typeName = "TestStep";
 			fileRelease.id = i + NUM_FILE_REL_IN;
 			fileRelease.receiver = TEST_USERNAME_OTHER;

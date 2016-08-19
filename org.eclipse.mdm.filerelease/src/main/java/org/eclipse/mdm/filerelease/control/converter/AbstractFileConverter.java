@@ -193,6 +193,18 @@ public abstract class AbstractFileConverter implements IFileConverter {
 
 		return pakInputDirectory;
 	}
+	
+	
+	protected String readPropertyValue(String propertyValue, boolean mandatory, String defaultValue, String propertyName) 
+		throws FileConverterException {
+		if(propertyValue == null || propertyValue.trim().length() <= 0) {
+			if(mandatory) {
+				throw new FileConverterException("mandatory property with name '" + propertyName + "' is not defined!");
+			}
+			return defaultValue;			
+		}
+		return propertyValue;
+	}
 
 	private void zipFiles(List<File> list, File target, String sourcePath) throws FileConverterException {
 

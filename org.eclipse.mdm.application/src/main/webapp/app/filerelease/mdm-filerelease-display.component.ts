@@ -9,16 +9,28 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input} from '@angular/core';
-import {Release} from './filerelease.service';
+import {Release, FilereleaseService} from './filerelease.service';
 
 @Component({
-  selector: 'mdm-filerelease-details',
-  template: require('../../templates/filerelease/mdm-filerelease-details.component.html'),
+  selector: 'mdm-filerelease-display',
+  template: require('../../templates/filerelease/mdm-filerelease-display.component.html'),
   styles: [],
   directives: [],
   providers: []
 })
-export class MDMFilereleaseDetailsComponent {
+export class MDMFilereleaseDisplayComponent {
   @Input() release: Release
 
+  constructor(private service: FilereleaseService){}
+
+  getFormat(format){
+    return this.service.formatMap[format]
+  }
+  getState(state){
+    return this.service.stateMap[state]
+  }
+  getDate(date){
+    if (date == 0) {return}
+    return this.service.formatDate(date)
+  }
 }

@@ -31,7 +31,7 @@ import org.eclipse.mdm.api.odsadapter.ODSNotificationManagerFactory;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.freetextindexer.control.UpdateIndex;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
-import org.eclipse.mdm.property.BeanProperty;
+import org.eclipse.mdm.property.GlobalProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,39 +87,39 @@ public class MdmApiBoundary {
 	UpdateIndex update;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.user")
 	String freetextUser;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.pw")
 	String freetextPw;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.nameservice")
 	String nameservice;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.servicename")
 	String servicename;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.notificationType")
 	String notificationType;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.notificationUrl")
 	String notificationUrl;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.notificationMimeType")
 	String notificationMimeType;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.notificationName")
 	String notificationName;
 
 	@Inject
-	@BeanProperty
+	@GlobalProperty(value="freetext.pollingInterval")
 	String pollingInterval;
 
 	private EntityManager entityManager;

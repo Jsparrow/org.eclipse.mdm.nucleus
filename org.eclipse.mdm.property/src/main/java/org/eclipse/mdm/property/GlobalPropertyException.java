@@ -16,7 +16,7 @@ package org.eclipse.mdm.property;
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
-public class PropertyException extends Exception{
+public class GlobalPropertyException extends RuntimeException {
 
 	/**
 	 * 
@@ -25,10 +25,19 @@ public class PropertyException extends Exception{
 
 	/**
 	 * Constructor.
-	 * @param error The error message.
+	 * @param error  error message.
 	 */
-	public PropertyException(String error) {
+	public GlobalPropertyException(String error) {
 		super(error);
+	}
+	
+	/**
+	 * Constructor
+	 * @param error error message
+	 * @param e throwable
+	 */
+	public GlobalPropertyException(String error, Exception e) {
+		super(error, e);
 	}
 	
 }

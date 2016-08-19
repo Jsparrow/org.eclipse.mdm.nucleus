@@ -11,6 +11,7 @@
 
 package org.eclipse.mdm.businessobjects.control;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +21,10 @@ import java.util.Optional;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextDescribable;
 import org.eclipse.mdm.api.base.model.ContextRoot;
+import org.eclipse.mdm.api.base.model.ContextSensor;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
@@ -38,10 +41,12 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
  */
 @Stateless
 public class ContextActivity  {
-	
-	
+		
 	public static final String CONTEXT_GROUP_ORDERED = "ordered";
 	public static final String CONTEXT_GROUP_MEASURED = "measured";
+	
+	public static final String CONTEXT_SENSOR_GROUP_ORDERED = "sensor_ordered";
+	public static final String CONTEXT_SENSOR_GROUP_MEASURED = "sensor_measured";
 	
 	@EJB
 	private ConnectorService connectorService;
@@ -123,6 +128,58 @@ public class ContextActivity  {
 	}
 	
 	
+	/**
+	 * returns the sensor context of the given {@link TestStep}. The sensor informations will extracted from the TestEquipment
+	 * part of the context data.
+	 * 
+	 * @param sourceName the MDM system name
+	 * @param testStepID instance id if the {@link TestStep}
+	 * @return a map with the TestEquipment sensor context data (ordered and measured)
+	 */
+	public Map<String, List<ContextSensor>> getTestStepSensorContext(String sourceName, Long testStepID) {
+		
+		try {
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			TestStep testStep = em.load(TestStep.class, testStepID);		
+			
+			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, ContextType.TESTEQUIPMENT);
+			Map<ContextType, ContextRoot> measuredContext = lookupMeasuredContextByTestStep(em, 
+				testStep, ContextType.TESTEQUIPMENT);
+			
+			return createSensorMap(orderedContext, measuredContext);
+			
+		} catch(DataAccessException e) {
+			throw new MDMEntityAccessException(e.getMessage(), e);
+		}
+	}
+	
+	
+	
+	/**
+	 * returns the sensor context of the given {@link Measurement}. The sensor informations will extracted from the TestEquipment
+	 * part of the context data.
+	 * 
+	 * @param sourceName the MDM system name
+	 * @param measurementID instance id if the {@link Measurement}
+	 * @return a map with the TestEquipment sensor context data (ordered and measured)
+	 */
+	public Map<String, List<ContextSensor>> getMeasurementSensorContext(String sourceName, Long measurementID) {
+		try {
+			
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			Measurement measurement =  em.load(Measurement.class, measurementID);
+			
+			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, ContextType.TESTEQUIPMENT);
+			Map<ContextType, ContextRoot> orderedContext = lookupOrderedContextByMeasurement(em, 
+				measurement, ContextType.TESTEQUIPMENT);
+			
+			return createSensorMap(orderedContext, measuredContext);
+			
+		} catch(DataAccessException e) {
+			throw new MDMEntityAccessException(e.getMessage(), e);
+		}
+	}
+	
 	
 	private Map<ContextType, ContextRoot> lookupOrderedContextByMeasurement(EntityManager em, Measurement measurement,
 		ContextType... contextTypes) throws DataAccessException {
@@ -149,5 +206,35 @@ public class ContextActivity  {
 		}
 		return Collections.emptyMap();
 	}
-
+	
+	
+	private Map<String, List<ContextSensor>> createSensorMap(Map<ContextType, ContextRoot> orderedContext, 
+		Map<ContextType, ContextRoot> measuredContext) {
+		
+		Map<String, List<ContextSensor>> sensorMap = new HashMap<String, List<ContextSensor>>();
+		
+		ContextRoot orderedContextRoot = orderedContext.get(ContextType.TESTEQUIPMENT);
+		if(orderedContextRoot != null) {
+			List<ContextSensor> orderedSensors = extractContextSensors(orderedContextRoot);
+			sensorMap.put(CONTEXT_SENSOR_GROUP_ORDERED, orderedSensors);
+		}
+		
+		ContextRoot measuredContextRoot = measuredContext.get(ContextType.TESTEQUIPMENT);
+		if(measuredContextRoot != null) {
+			List<ContextSensor> measuredSensors = extractContextSensors(measuredContextRoot);
+			sensorMap.put(CONTEXT_SENSOR_GROUP_MEASURED, measuredSensors);
+		}
+		 
+		return sensorMap;
+	}
+	
+	private List<ContextSensor> extractContextSensors(ContextRoot contextRoot) {
+		List<ContextSensor> contextSensors = new ArrayList<ContextSensor>();
+		List<ContextComponent> contextComponents = contextRoot.getContextComponents();
+		for(ContextComponent contextComponent : contextComponents) {
+			contextSensors.addAll(contextComponent.getContextSensors());
+		}
+		return contextSensors;
+	}
+ 
 }

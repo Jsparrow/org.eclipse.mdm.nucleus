@@ -29,6 +29,7 @@ import org.eclipse.mdm.api.base.EntityManagerFactory;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory;
 import org.eclipse.mdm.connector.control.ServiceConfigurationActivity;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
 import org.slf4j.Logger;
@@ -53,17 +54,14 @@ public class ConnectorService {
 
 	@Resource
 	private SessionContext sessionContext;
-
-	@EJB(beanName="ODSEntityManagerFactory")
-	private EntityManagerFactory<EntityManager> emf;
 	@EJB
 	private ServiceConfigurationActivity serviceConfigurationActivity;
 
 
 	private Map<Principal, List<EntityManager>> connectionMap = new HashMap<Principal, List<EntityManager>>();
 
-
-
+	private EntityManagerFactory<EntityManager> emf = new ODSEntityManagerFactory();
+	
 	/**
 	 * returns all available {@link EntityManager}s
 	 *

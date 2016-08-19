@@ -20,6 +20,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * MDMRequestFilter
@@ -29,6 +31,8 @@ import javax.servlet.ServletResponse;
  */
 public class MDMRequestFilter implements Filter {
 
+	private static String SERVLET_NAME_MDMNENUE = "mdmmenu";
+	
 	@Inject
 	private MDMSessionExpiredListener sessionExpiredListener;
 
@@ -39,11 +43,25 @@ public class MDMRequestFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
-		if (sessionExpiredListener != null) {
-			sessionExpiredListener.setUserPrincipal();
+			throws IOException, ServletException {	
+		
+		sessionExpiredListener.update();
+		
+		if (request instanceof HttpServletRequest) {
+			HttpServletRequest httpRequest = (HttpServletRequest)request;
+			String requestedURL = httpRequest.getRequestURI().toLowerCase();
+			
+			if(requestedURL.trim().endsWith(SERVLET_NAME_MDMNENUE)) {
+				if(response instanceof HttpServletResponse) {
+					String location = httpRequest.getContextPath();
+					((HttpServletResponse) response).sendRedirect(location);
+				}
+			} else {
+				chain.doFilter(request, response);
+			}
 		}
-		chain.doFilter(request, response);
+		
+			
 	}
 
 	@Override

@@ -25,7 +25,7 @@
 
 				<p>
 					Please enter a user name or password that is authorized to access
-					this application. Click here to <a href="${pageContext.request.contextPath}/index.jsp">Try Again</a>.
+					this application. Click here to <a href="${pageContext.request.contextPath}/index.html">Try Again</a>.
 				</p>
 
 			</div>

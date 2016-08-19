@@ -25,15 +25,6 @@
 		</web-resource-collection>
 	</security-constraint>
 
-	<servlet>
-		<servlet-name>org.eclipse.mdm.application.ApplicationConfig
-		</servlet-name>
-		<init-param>
-			<param-name>jersey.config.server.provider.packages</param-name>
-			<param-value>org.codehaus.jackson.jaxrs</param-value>
-		</init-param>
-	</servlet>
-
 	<filter>
 		<filter-name>MDMRequestFilter</filter-name>
 		<filter-class>org.eclipse.mdm.application.logout.MDMRequestFilter

@@ -13,7 +13,7 @@ import {TAB_DIRECTIVES, ACCORDION_DIRECTIVES} from 'ng2-bootstrap/ng2-bootstrap'
 
 import {NodeService} from '../navigator/node.service';
 import {ContextService} from './context.service';
-import {Context} from './context';
+import {Context, Sensor} from './context';
 import {Node} from '../navigator/node';
 
 @Component({
@@ -31,12 +31,14 @@ export class MDMDescriptiveDataComponent implements OnChanges{
 
   _diff: boolean = false;
   contexts: Context[];
+  sensors: Sensor[];
   errorMessage: string;
   status: string = "loading...";
 
-  uut:string = "UnitUnderTest";
-  te:string = "TestEquipment";
-  ts:string = "TestSequence";
+  uut:string = "Prüfling";
+  te:string = "Messgerät";
+  ts:string = "Testablauf";
+  s:string = "Sensoren";
 
   ngOnChanges(changes: {[propName: string]: SimpleChange}){
     this.getContext(changes['selectedNode'].currentValue);
@@ -44,23 +46,19 @@ export class MDMDescriptiveDataComponent implements OnChanges{
 
   getContext(node: Node){
     this.contexts = undefined;
-    if (node && (node.type.toLowerCase() == "measurement" || node.type.toLowerCase() == "teststep")) {
+    if (node.name != undefined && (node.type.toLowerCase() == "measurement" || node.type.toLowerCase() == "teststep")) {
       this.status = "loading...";
       this._contextService.getContext(node).subscribe(
         contexts => this.contexts = contexts,
         error => this.errorMessage = <any>error);
+      this._contextService.getSensors(node).subscribe(
+          sensors => this.sensors = sensors,
+          error => this.errorMessage = <any>error);
     } else {
-      this.status = "keine Beschreibende Daten vorhanden"
+      this.status = "keine Beschreibende Daten verfügbar"
     }
   }
 
-  // getTrans(attr: string){
-  //   let pos = this._nodeService.locals.map(function(e) { return e.name; }).indexOf(attr);
-  //   if (pos !== -1) {
-  //     return this._nodeService.locals[pos].localizedName
-  //   }
-  //   return attr;
-  // }
 
   diffToggle(){
     this._diff = !this._diff

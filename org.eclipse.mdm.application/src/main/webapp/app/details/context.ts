@@ -20,3 +20,8 @@ export class Components {
   TESTSEQUENCE: Node[];
   TESTEQUIPMENT: Node[];
 }
+
+export class Sensor {
+  sensorContextMeasured: Node[];
+  sensorContextOrdered: Node[];
+}

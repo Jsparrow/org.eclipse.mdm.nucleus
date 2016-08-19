@@ -12,6 +12,7 @@
 package org.eclipse.mdm.filerelease.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
 import org.eclipse.mdm.filerelease.control.FileReleaseManager;
+import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,16 +132,16 @@ public final class FileReleaseUtils {
 	 * Deletes a filelink
 	 * @param fileLink The filelink to delete
 	 */
-	public static void deleteFileLink(String fileLink) {
+	public static void deleteFileLink(File file) {
 
-		File file = new File(fileLink);
 		if(!file.exists() || file.isDirectory()) {
-			throw new FileReleaseException("unable to locate file at '" + file.getAbsolutePath() + "'");
+			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "' (file does not exist)!");
+			return;
 		}
 
 		boolean deleted = file.delete();
 		if(!deleted) {
-			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "'");
+			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "' (unkown error)!");
 		}
 	}
 
@@ -161,6 +163,58 @@ public final class FileReleaseUtils {
 		}
 
 		return valid;
+	}
+	
+	
+	public static List<FileRelease> filterByConnectedSources(List<FileRelease> fileReleases, ConnectorService connectorService)	{
+
+		List<FileRelease> filteredList = new ArrayList<FileRelease>();
+		
+		List<String> sourceNameList = listConnectedSourceNames(connectorService);
+		for(FileRelease fileRelease : fileReleases) {
+			if(isFileReleaseSourceConnected(fileRelease, sourceNameList)) {
+				filteredList.add(fileRelease);
+			}
+		}
+		return filteredList;
+				
+	}
+	
+	
+	public static File locateTargetDirectory(String targetDirectoryPath) {
+		if(targetDirectoryPath == null || targetDirectoryPath.trim().length() <= 0) {
+			throw new FileReleaseException("mandatory targetDirectoryPath property is missing");
+		}
+		File targetDirectory = new File(targetDirectoryPath);
+		if(!targetDirectory.exists()) {
+			throw new FileReleaseException("configured target directory at '" + targetDirectory.getAbsolutePath() 
+				+ "' does not exist!");
+		}
+		return targetDirectory;
+	}
+	
+	
+	private static boolean isFileReleaseSourceConnected(FileRelease fileRelease, List<String> sourceNameList) {
+		for(String sourceName : sourceNameList) {
+			if(fileRelease.sourceName != null && fileRelease.sourceName.equals(sourceName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	private static List<String> listConnectedSourceNames(ConnectorService connectorService) {
+		try {
+			List<String> sourceNameList = new ArrayList<String>();
+			List<EntityManager> emList = connectorService.getEntityManagers();
+			for(EntityManager em : emList) {
+				sourceNameList.add(em.loadEnvironment().getSourceName());
+			}
+			return sourceNameList;
+		} catch(DataAccessException e) {
+			throw new FileReleaseException(e.getMessage(), e);
+		}
 	}
 
 	

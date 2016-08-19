@@ -38,7 +38,7 @@ import {MDMSearchComponent} from '../search/mdm-search.component';
   {path: '/search', component: MDMSearchComponent}
 ])
 export class MDMMenuComponent{
-  selectedNode: Node;
+  selectedNode: Node = new Node;
   activeNode: Node;
   closeOther:boolean = false;
   navigator:string = "Navigation";

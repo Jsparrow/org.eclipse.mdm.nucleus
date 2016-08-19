@@ -11,7 +11,7 @@
 import {Injectable} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {Context} from './context';
+import {Context, Sensor} from './context';
 import {PropertyService} from '../properties';
 
 import {Node} from '../navigator/node';
@@ -36,6 +36,12 @@ export class ContextService {
     url = url + "/" + node.type.toLowerCase() + "s/" + node.id + '/contexts';
     return this.get(url)
   }
+  getSensors(node: Node){
+    let url = this._contextUrl + "/" + node.sourceName + "/" + node.type.toLowerCase() + "s/" + node.id + "/contexts/testequipment/sensors"
+    return this.http.get(url)
+        .map((res) => {return <{}> this.merge(res.json().data)})
+        .catch(this.handleError);
+  }
 
   private get(url: string){
     return this.http.get(url)
@@ -47,13 +53,59 @@ export class ContextService {
     .catch(this.handleError);
   }
 
-  private specialMerger(contexts) {
-		// if (arguments.length < 1) return null;
+  private merge(sensor: Sensor) {
+    let sensorm = sensor[0].sensorContextMeasured
+    let sensoro = sensor[0].sensorContextOrdered
+    let merge = []
+    sensoro.forEach((node) => {
+      let pos = sensorm.map(function(e) { return e.name; }).indexOf(node.name);
+      if (pos == -1) {
+        merge.push(this.empty_m(node))
+      } else {
+        merge.push(this.mergeNode(node, sensorm[pos]))
+        sensorm.splice(pos, 1);
+      }
+    });
+    sensorm.forEach((node) => {
+      merge.push(this.empty_o(node))
+    })
+    return merge
+  }
 
+  private mergeNode(oNode, mNode){
+    oNode.attributes.forEach((attr, i) => {
+      attr.dataType = [attr.dataType, mNode.attributes[i].dataType]
+      attr.name = [attr.name, mNode.attributes[i].name]
+      attr.unit = [attr.unit, mNode.attributes[i].unit]
+      attr.value = [attr.value, mNode.attributes[i].value]
+    })
+    return oNode
+  }
+
+  private empty_o(node){
+    node.attributes.forEach((attr) => {
+      attr.dataType = ["", attr.dataType]
+      attr.name = ["", attr.name]
+      attr.unit = ["", attr.unit]
+      attr.value = ["", attr.unit]
+    })
+    return node
+  }
+
+  private empty_m(node){
+    node.attributes.forEach((attr) => {
+      attr.dataType = [attr.dataType, ""]
+      attr.name = [attr.name, ""]
+      attr.unit = [attr.unit, ""]
+      attr.value = [attr.unit, ""]
+    })
+    return node
+  }
+
+  private specialMerger(contexts) {
 		var result = new Object();
 		var resultattributegroup, resultattributes, resultattribute;
 
-		// Iterate through UNITUNDERTESTs
 		for (var i = 0; i < contexts.length; ++i) {
 			for (var testname in contexts[i]) {
 				var test = contexts[i][testname];
@@ -62,7 +114,6 @@ export class ContextService {
 				if (!result[testname]) result[testname] = new Array();
 				var subresult = result[testname];
 
-				// Iterate through UNITUNDERTEST attribute groups
 				for (var j = 0; j < test.length; ++j) {
 					var attributegroup = test[j];
 					if (!(attributegroup instanceof Object)) continue;
@@ -79,7 +130,6 @@ export class ContextService {
 					else resultattributegroup = subresult[index];
 					resultattributes = resultattributegroup["attributes"];
 
-					// Iterate through attributes
 					var attributes = attributegroup["attributes"];
 					if (!Array.isArray(attributes)) continue;
 

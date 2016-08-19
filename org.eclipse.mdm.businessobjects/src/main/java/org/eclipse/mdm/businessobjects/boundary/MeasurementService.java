@@ -17,6 +17,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import org.eclipse.mdm.api.base.model.ContextRoot;
+import org.eclipse.mdm.api.base.model.ContextSensor;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
@@ -161,6 +162,15 @@ public class MeasurementService {
 	}
 	
 	
+	/**
+	 * returns all sensor context data of TestEquipment sensor configuration
+	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @param measurementId id of the {@link Measurement}
+	 * @return a map with the TestEquipment sensor context data (ordered and measured)
+	 */
+	public Map<String, List<ContextSensor>> getSensors(String sourceName, long measurementId) {
+		return this.contextActivity.getMeasurementSensorContext(sourceName, measurementId);
+	}
 	
 	/**
 	 * returns localized {@link Measurement} attributes

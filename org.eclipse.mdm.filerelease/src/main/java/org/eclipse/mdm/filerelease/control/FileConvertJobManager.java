@@ -11,6 +11,7 @@
 
 package org.eclipse.mdm.filerelease.control;
 
+import java.io.File;
 import java.util.concurrent.Executor;
 
 import javax.ejb.EJB;
@@ -51,14 +52,14 @@ public class FileConvertJobManager {
 	@Inject
 	private FileConverterPAK2ATFX fileConverterPAK2ATFX;
 
+	
 	/**
-	 * Releases the given {@link FileRelease}. Starts a new
-	 * {@link FileConvertJob}.
+	 * releases the given {@link FileRelease} (generates the file in the specified format)
 	 * 
-	 * @param fileRelease
-	 *            The {@link FileRelease} to release.
+	 * @param fileRelease {@link FileRelease} to release
+	 * @param targetDirectory target output directory of the generated file
 	 */
-	public void release(FileRelease fileRelease) {
+	public void release(FileRelease fileRelease, File targetDirectory) {
 
 		
 		try {
@@ -71,7 +72,7 @@ public class FileConvertJobManager {
 			LOG.info("starting file release process for FileRelease with identifier '" + identifier 
 				+ "' (with '" + converter.getConverterName() + "') ...");
 					
-			Runnable runnable = new FileConvertJob(fileRelease, converter, testStep, em);
+			Runnable runnable = new FileConvertJob(fileRelease, converter, testStep, em, targetDirectory);
 			this.executor.execute(runnable);
 		} catch(DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);

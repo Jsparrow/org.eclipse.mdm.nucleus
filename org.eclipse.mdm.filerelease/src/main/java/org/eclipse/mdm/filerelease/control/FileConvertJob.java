@@ -11,6 +11,7 @@
 
 package org.eclipse.mdm.filerelease.control;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -39,6 +40,7 @@ public class FileConvertJob implements Runnable {
 	private final FileRelease fileRelease;
 	private final TestStep testStep;
 	private final EntityManager em;
+	private final File targetDirectory;
 	
 	/**
 	 * Constructor
@@ -47,14 +49,16 @@ public class FileConvertJob implements Runnable {
 	 * @param fileConverter The {@link IFileConverter} to use for the conversion
 	 * @param testStep The {@link TestStep} 
 	 * @param em The {@link EntityManager}
+	 * @param targetDirectory target output directory for the generated files
 	 */
 	public FileConvertJob(FileRelease fileRelease, IFileConverter fileConverter, 
-		TestStep testStep, EntityManager em) {
+		TestStep testStep, EntityManager em, File targetDirectory) {
 		
 		this.fileRelease = fileRelease;
 		this.fileConverter = fileConverter;
 		this.testStep = testStep;
 		this.em = em;
+		this.targetDirectory = targetDirectory;
 	}
 
 	/**
@@ -65,7 +69,7 @@ public class FileConvertJob implements Runnable {
 		try {						
 			this.fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_PROGRESSING;
 			
-			this.fileConverter.execute(this.fileRelease, this.testStep, this.em);
+			this.fileConverter.execute(this.fileRelease, this.testStep, this.em, this.targetDirectory);
 			
 			this.fileRelease.expire = calculateExpireDate(this.fileRelease.validity);
 			this.fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_RELEASED;

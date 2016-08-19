@@ -25,12 +25,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.ContextRoot;
+import org.eclipse.mdm.api.base.model.ContextSensor;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.businessobjects.entity.ContextResponse;
+import org.eclipse.mdm.businessobjects.entity.ContextSensorResponse;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
@@ -220,6 +222,27 @@ public class TestStepResource {
 		}
 	}
 	
+	
+	/**
+	 * delegates the request to the {@link TestStepService}
+	 * 
+	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @param testStepId id of the {@link TestStep}
+	 * @return the result of the delegated request as {@link Response}
+	 */
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{TESTSTEP_ID}/contexts/testequipment/sensors")
+	public Response getContextTEQSensors(@PathParam("SOURCENAME") String sourceName, 
+		@PathParam("TESTSTEP_ID") long testStepId) {
+		try {			
+			Map<String, List<ContextSensor>> sensorMap = this.testStepService.getSensors(sourceName, testStepId);
+			return ServiceUtils.toResponse(new ContextSensorResponse(sensorMap), Status.OK);			
+		} catch(RuntimeException e) {
+			LOG.error(e.getMessage(), e);
+			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
 	
 	/**

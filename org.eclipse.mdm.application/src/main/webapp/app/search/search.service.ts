@@ -76,7 +76,8 @@ export class SearchService{
         label: def.boType + "." + def.attrName,
         value: '',
         required: false,
-        order: i
+        order: i,
+        type: def.valueType=="INTEGER"?"number":"text"
       }))
     })
     return searchesForm

@@ -9,6 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 var webpack = require('webpack');
+var encodingPlugin = require('webpack-encoding-plugin');
 var webpackMerge = require('webpack-merge');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var commonConfig = require('./webpack.common.js');
@@ -32,6 +33,7 @@ module.exports = webpackMerge(commonConfig, {
 
   plugins: [
     new webpack.NoErrorsPlugin(),
+    new encodingPlugin('utf8'),
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin(),
     new ExtractTextPlugin('[name].[hash].css'),

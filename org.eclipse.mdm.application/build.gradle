@@ -14,9 +14,11 @@ description = 'MDM Web Application'
 version = '1.0.0'
 apply plugin: 'com.moowork.node'
 
+System.setProperty('file.encoding', 'UTF-8')
+
 dependencies {
 	compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
-	compile 'com.sun.jersey:jersey-json:1.19.1'
+	compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.8.1'
 	compile project(':org.eclipse.mdm.businessobjects')
 	compile project(':org.eclipse.mdm.filerelease')
 	compile project(':org.eclipse.mdm.property')	
