@@ -33,6 +33,7 @@ The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war** and the con
 http://SERVER:PORT/APPLICATIONROOT
 _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
+
 ## available rest URLs
    
 **Business Object: Environment** 
@@ -93,4 +94,15 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/CHANNELID
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channels/123456_
+
+
+
+## FreeTextSearch
+### Configuration
+1. **start** ElasticSearch. ElasticSearch can be downloaded at https://www.elastic.co/products/elasticsearch. For testing purpose, it can be simply started by executing bin/run.bat
+2. **edit** the configuration (global.properties) to fit your environment. You need an ODS Server which supports Notifications. All fields have to be there, but can be empty. However certain ODS Servers ignore some parameters (e.g. PeakODS ignores pollingIntervall since it pushes notifications).
+3. **start up** the application. At the first run it will index the database. This might take a while. After that MDM registers itself as NotificationListener and adapts all changes one-by-one.
+
+### Run on dedicated server
+The Indexing is completely independent from the searching. So the Indexer can be freely deployed at any other machine. In the simplest case, the same steps as in Configuration have to be done. The application can then be deployed on any other machine. All components besides the FreeTextIndexer and its dependencies are not user. Those can be left out, if desired.
 
