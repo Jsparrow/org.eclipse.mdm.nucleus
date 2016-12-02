@@ -67,7 +67,7 @@ export class MDMNavigatorComponent implements OnInit {
       return
     }
     if (this.openNode) {
-      this.openNode.active = false;
+      this.openNode.active = true;
     }
     this.openNode = node;
     this.openNode.active = true;
