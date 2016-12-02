@@ -26,6 +26,7 @@ import {MDMSearchComponent} from '../search/mdm-search.component';
   styles: [
     '.panel-body {padding: 0px;}',
     '.list-group {margin-bottom: 0px;}',
+    '.list-group-item { white-space: nowrap; }',
     '.list-group-item:first-child {border-top-left-radius: 0px; border-top-right-radius: 0px;}',
     '.list-group-item:last-child {border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; border-bottom-style: none;}'
   ],

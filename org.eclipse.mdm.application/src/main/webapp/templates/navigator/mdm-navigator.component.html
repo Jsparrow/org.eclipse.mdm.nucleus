@@ -9,11 +9,13 @@
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
 <ul class="list-group" style="max-height:70vh;overflow-y:auto;">
-  <div *ngFor="let node of nodes">
-    <li class="list-group-item" [ngClass]="isActive(node)">
-      <span style="cursor: pointer;" [style.margin-left.px]="getMargin()" [ngClass]="isOpen(node)" (click)="onOpenNode(node)"></span>
-      <a style="color:black; cursor: pointer;" (click)="onSelectNode(node)">{{node.name}}</a>
-    </li>
-    <mdm-node-provider *ngIf="node.active" [rootNode]="openNode" [indent]="getMargin()" [activeNode]="activeNode" (selectingNode)="updateSelectedNode($event)" (onActive)="updateActiveNode($event)">Loading...</mdm-node-provider>
+  <div style="display: table; width: 100%">
+    <div *ngFor="let node of nodes">
+      <li class="list-group-item" [ngClass]="isActive(node)" >
+        <span style="cursor: pointer;" [style.margin-left.px]="getMargin()" [ngClass]="isOpen(node)" (click)="onOpenNode(node)"></span>
+        <a style="color:black; cursor: pointer;" (click)="onSelectNode(node)" title="{{node.name}}">{{node.name}}</a>
+      </li>
+      <mdm-node-provider *ngIf="node.active" [rootNode]="openNode" [indent]="getMargin()" [activeNode]="activeNode" (selectingNode)="updateSelectedNode($event)" (onActive)="updateActiveNode($event)">Loading...</mdm-node-provider>
+    </div>
   </div>
 </ul>
