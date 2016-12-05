@@ -12,6 +12,7 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 import {Node} from './node';
 import {NodeService} from './node.service';
+import '../../templates/navigator/navigator.css';
 
 @Component({
   selector: 'mdm-node-provider',
@@ -83,5 +84,21 @@ export class MDMNodeProviderComponent implements OnInit {
   }
   getMargin(){
     return this.indent + 10;
+  }
+  
+  getNodeClass(node: Node){
+    switch(node.type)
+    {
+      case 'Test':
+        return "icon test";
+      case 'TestStep':
+        return "icon teststep";
+      case 'Measurement':
+        return "icon measurement";
+      case 'ChannelGroup':
+        return "icon channelgroup";
+      case 'Channel':
+        return "icon channel";
+    }
   }
 }

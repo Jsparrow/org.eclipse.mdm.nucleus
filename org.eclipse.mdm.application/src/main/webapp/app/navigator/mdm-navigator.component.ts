@@ -16,6 +16,8 @@ import {NodeService} from './node.service';
 
 import {MDMNodeProviderComponent} from './mdm-node-provider.component';
 
+import '../../templates/navigator/navigator.css';
+
 @Component({
   selector: 'mdm-navigator',
   template: require('../../templates/navigator/mdm-navigator.component.html'),
@@ -84,5 +86,9 @@ export class MDMNavigatorComponent implements OnInit {
   }
   getMargin(){
     return 10;
+  }
+  
+  getNodeClass(){
+    return "icon environment";
   }
 }
