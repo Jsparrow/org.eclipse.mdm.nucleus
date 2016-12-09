@@ -19,6 +19,7 @@ import {MDMNavigatorComponent} from './mdm-navigator.component';
 import {MDMBasketComponent} from '../basket/mdm-basket.component';
 import {MDMDetailComponent} from '../details/mdm-detail.component';
 import {MDMSearchComponent} from '../search/mdm-search.component';
+import {ModulesComponent} from '../modules/modules.component';
 
 @Component({
   selector: 'mdm-menu',
@@ -30,7 +31,7 @@ import {MDMSearchComponent} from '../search/mdm-search.component';
     '.list-group-item:first-child {border-top-left-radius: 0px; border-top-right-radius: 0px;}',
     '.list-group-item:last-child {border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; border-bottom-style: none;}'
   ],
-  directives: [MDMNavigatorComponent, MDMBasketComponent, MDMDetailComponent, ACCORDION_DIRECTIVES],
+  directives: [ModulesComponent, MDMNavigatorComponent, MDMBasketComponent, MDMDetailComponent, ACCORDION_DIRECTIVES],
   providers: [],
   encapsulation: ViewEncapsulation.None
 })

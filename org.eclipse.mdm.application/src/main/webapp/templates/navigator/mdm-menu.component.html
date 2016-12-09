@@ -13,16 +13,19 @@
     <div class="col-sm-3">
       <accordion [closeOthers]="closeOther">
         <accordion-group heading={{navigator}} [isOpen]="true">
-            <mdm-navigator (selectingNode)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-navigator>
-        </accordion-group>
-        <accordion-group heading={{basket}} [isOpen]="true">
-          <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
+          <mdm-navigator (selectingNode)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-navigator>
         </accordion-group>
       </accordion>
     </div>
     <div class="col-sm-9">
-      <mdm-detail [selectedNode]=selectedNode></mdm-detail>
+      <modules [selectedNode]=selectedNode></modules>
       <router-outlet></router-outlet>
+      
+      <accordion [closeOthers]="closeOther">
+        <accordion-group heading={{basket}} [isOpen]="true">
+          <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
+        </accordion-group>
+      </accordion>
     </div>
   </div>
 </div>
