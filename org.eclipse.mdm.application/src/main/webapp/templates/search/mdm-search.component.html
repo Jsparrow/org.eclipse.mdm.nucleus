@@ -12,38 +12,47 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="form-group">
-          <form>
-            <label *ngFor="let env of envs" class="radio-inline"><input type="checkbox" name="env" (click)="selectEnv(env.sourceName)" checked>{{env.name}}</label>
+          <form class="from-inline">
+	          <label for="search-source" class="control-label">Filter</label>
+	          <div class="btn-group" dropdown>
+	            <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+	              {{selectedFilter.name}} <span class="caret"></span>
+	            </button>
+	            <ul class="dropdown-menu" dropdownMenu>
+                <li *ngFor="let filter of filters">
+                  <a class="dropdown-item" (click)="selectFilter(filter.name)">{{filter.name}}</a>
+                </li>
+	            </ul>
+	          </div>
+	          <label for="search-source" class="control-label">Quelle</label>
+	          <div class="btn-group" dropdown>
+	            <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+	            Quelle wählen <span class="caret"></span>
+	            </button>
+	            <ul class="dropdown-menu" dropdownMenu>
+                <li *ngFor="let env of envs">
+                  <a class="dropdown-item" (click)="selectEnv(env.sourceName)">{{env.name}}</a>
+                </li>
+	            </ul>
+	          </div>
+	          <label for="search-resulttype" class="control-label">Ergebnistyp</label>
+	          <div class="btn-group" dropdown>           
+	            <button id="search-resulttype" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+	            Ergebnistyp wählen <span class="caret"></span>
+	            </button>
+	            <ul class="dropdown-menu" dropdownMenu>
+                <li *ngFor="let opt of definitions.options" role="menuitem">
+                  <a class="dropdown-item" (click)="selectDef(opt)">{{opt.label}}</a>
+                </li>
+	            </ul>
+	          </div>
+	          <div class="btn-group">
+	            <input type="text" class="form-control" placeholder="Suchtext eingeben" aria-describedby="basic-addon1">
+	          </div>
+	          <button type="submit" class="btn btn-default">Suchen</button>          
           </form>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="container-fluid">
-    <div class="input-group">
-      <input [(ngModel)]="selected"
-             [typeahead]="ungrouped"
-             (typeaheadOnSelect)="typeaheadOnSelect($event)"
-             [typeaheadOptionField]="'labelt'"
-             class="form-control">
-      <span class="input-group-btn">
-        <div class="btn-group" style="z-index:4;" dropdown>
-          <button id="single-button" type="button" class="btn btn-default" dropdownToggle [disabled]="disabled">
-            Suchen nach {{type.label}} <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="single-button">
-            <li *ngFor="let opt of definitions.options" role="menuitem"><a class="dropdown-item" (click)="selectDef(opt)">{{opt.label}}</a></li>
-          </ul>
-        </div>
-        <button type="button" class="btn btn-default btn" (click)="lgModal.show()">alle Anzeigen</button>
-      </span>
-    </div>
-  </div>
-
-  <div class="container-fluid">
-    <div class="form-group">
-      <dynamic-form [groups]="groups" [env]="selectedEnv" [type]="type.value"></dynamic-form>
     </div>
   </div>
 

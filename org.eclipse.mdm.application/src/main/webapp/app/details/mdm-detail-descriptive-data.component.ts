@@ -25,7 +25,8 @@ import {Node} from '../navigator/node';
 
 export class MDMDescriptiveDataComponent implements OnChanges{
   @Input() selectedNode: Node;
-
+  @Input() context: String;
+  
   constructor(private _nodeService: NodeService,
               private _contextService: ContextService){}
 

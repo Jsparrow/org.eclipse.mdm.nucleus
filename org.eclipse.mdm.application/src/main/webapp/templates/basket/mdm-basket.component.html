@@ -9,6 +9,7 @@
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
 <div>
+  <mdm-tableview [nodes]="_basketService.Nodes"></mdm-tableview>
   <ul class="list-group">
     <li *ngFor="let node of _basketService.Nodes" class="list-group-item" (click)="selectNode(node)" [ngClass]="isActive(node)">
       {{node.name}}

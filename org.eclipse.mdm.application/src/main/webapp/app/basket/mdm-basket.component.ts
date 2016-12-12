@@ -11,12 +11,13 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Node} from '../navigator/node';
 import {BasketService} from './basket.service';
+import {TableviewComponent} from '../tableview/tableview.component';
 
 @Component({
   selector: 'mdm-basket',
   template: require('../../templates/basket/mdm-basket.component.html'),
   styles: ['.remove {color:black; cursor: pointer; float: right}'],
-  directives: [],
+  directives: [TableviewComponent],
   providers: []
 })
 export class MDMBasketComponent {
