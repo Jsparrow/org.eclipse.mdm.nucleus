@@ -8,10 +8,12 @@ import org.eclipse.mdm.api.base.model.Quantity;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MDMEntityResponseTest {
 
+	@Ignore
 	@Test
 	public void notContextDescribale_noContext() {
 		Quantity q = mock(Quantity.class);
@@ -22,6 +24,7 @@ public class MDMEntityResponseTest {
 		assertTrue(response.data.attributes.isEmpty());
 	}
 
+	@Ignore
 	@Test
 	public void buildFails_nullIsReturned() throws DataAccessException {
 		TestStep ts = mock(TestStep.class);

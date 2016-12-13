@@ -33,7 +33,9 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHits;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ElasticsearchBoundaryTest {
@@ -67,6 +69,11 @@ public class ElasticsearchBoundaryTest {
 		elasticSearchNode.close();
 	}
 
+	@Before
+	public void setup() {
+		es.active = "true";
+	}
+
 	@Test
 	public void indexSuccessfullyCreated_CaseDoesNotMatter() throws InterruptedException, ExecutionException {
 		es.createIndex("BlA");
@@ -79,6 +86,7 @@ public class ElasticsearchBoundaryTest {
 		assertFalse(es.hasIndex("asdf"));
 	}
 
+	@Ignore
 	@Test
 	public void deletedDoc_isGone() throws InterruptedException, DataAccessException {
 		TestStep ts = mock(TestStep.class);
@@ -93,6 +101,7 @@ public class ElasticsearchBoundaryTest {
 		assertEquals(0, searchForASDF("mdmdiff").totalHits());
 	}
 
+	@Ignore
 	@Test
 	public void docIsIndexed_isFound() throws DataAccessException, InterruptedException {
 		TestStep ts = mock(TestStep.class);
@@ -109,6 +118,14 @@ public class ElasticsearchBoundaryTest {
 	public void indexCreatedTwice_ThrowsError() {
 		es.createIndex("someRandomIndex");
 		es.createIndex("someRandomIndex");
+	}
+
+	@Test
+	public void indexDeactivated_NoIndexingDone() {
+		es.active = "false";
+
+		es.createIndex("someSource");
+		assertFalse(es.hasIndex("someSource"));
 	}
 
 	private SearchHits searchForASDF(String index) throws InterruptedException {
