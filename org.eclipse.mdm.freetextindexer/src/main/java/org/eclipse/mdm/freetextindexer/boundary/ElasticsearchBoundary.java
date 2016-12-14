@@ -41,6 +41,10 @@ public class ElasticsearchBoundary {
 	@GlobalProperty(value = "elasticsearch.url")
 	String esAddress;
 
+	@Inject
+	@GlobalProperty(value = "freetext.active")
+	String active;
+
 	/**
 	 * Connects to the ElasticSearch Server
 	 * 
@@ -50,8 +54,6 @@ public class ElasticsearchBoundary {
 		jsonMapper = new ObjectMapper();
 		jsonMapper.setDateFormat(new SimpleDateFormat("yyyyMMdd'T'HHmmssZ"));
 		client = new HttpClient();
-
-		LOGGER.debug("Connected to ElasticSearch");
 	}
 
 	public void index(MDMEntityResponse document) {
@@ -109,21 +111,28 @@ public class ElasticsearchBoundary {
 	}
 
 	public boolean hasIndex(String source) {
-		try {
-			GetMethod get = new GetMethod(esAddress + source.toLowerCase());
-			int status = client.executeMethod(get);
-			LOGGER.info("Checking index {}: {}", source, status);
+		boolean hasIndex = false;
+		
+		if (Boolean.valueOf(active)) {
+			try {
+				GetMethod get = new GetMethod(esAddress + source.toLowerCase());
+				int status = client.executeMethod(get);
+				LOGGER.info("Checking index {}: {}", source, status);
 
-			return status / 100 == 2;
-		} catch (IOException e) {
-			LOGGER.warn("Querying ElasticSearch for the Index failed... Assuming no index is there!", e);
-			return false;
+				hasIndex = status / 100 == 2;
+			} catch (IOException e) {
+				LOGGER.warn("Querying ElasticSearch for the Index failed... Assuming no index is there!", e);
+				hasIndex = false;
+			}
 		}
+		
+		return hasIndex;
 	}
 
 	public void createIndex(String source) {
-		execute(new PutMethod(esAddress + source.toLowerCase()));
-
-		LOGGER.info("New Index created!");
+		if (Boolean.valueOf(active)) {
+			execute(new PutMethod(esAddress + source.toLowerCase()));
+			LOGGER.info("New Index created!");
+		}
 	}
 }

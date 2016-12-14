@@ -87,40 +87,44 @@ public class MdmApiBoundary {
 	UpdateIndex update;
 
 	@Inject
-	@GlobalProperty(value="freetext.user")
+	@GlobalProperty(value = "freetext.user")
 	String freetextUser;
 
 	@Inject
-	@GlobalProperty(value="freetext.pw")
+	@GlobalProperty(value = "freetext.pw")
 	String freetextPw;
 
 	@Inject
-	@GlobalProperty(value="freetext.nameservice")
+	@GlobalProperty(value = "freetext.nameservice")
 	String nameservice;
 
 	@Inject
-	@GlobalProperty(value="freetext.servicename")
+	@GlobalProperty(value = "freetext.servicename")
 	String servicename;
 
 	@Inject
-	@GlobalProperty(value="freetext.notificationType")
+	@GlobalProperty(value = "freetext.notificationType")
 	String notificationType;
 
 	@Inject
-	@GlobalProperty(value="freetext.notificationUrl")
+	@GlobalProperty(value = "freetext.notificationUrl")
 	String notificationUrl;
 
 	@Inject
-	@GlobalProperty(value="freetext.notificationMimeType")
+	@GlobalProperty(value = "freetext.notificationMimeType")
 	String notificationMimeType;
 
 	@Inject
-	@GlobalProperty(value="freetext.notificationName")
+	@GlobalProperty(value = "freetext.notificationName")
 	String notificationName;
 
 	@Inject
-	@GlobalProperty(value="freetext.pollingInterval")
+	@GlobalProperty(value = "freetext.pollingInterval")
 	String pollingInterval;
+
+	@Inject
+	@GlobalProperty(value = "freetext.active")
+	String active = "false";
 
 	private EntityManager entityManager;
 
@@ -128,33 +132,38 @@ public class MdmApiBoundary {
 
 	@PostConstruct
 	public void initalize() {
-		try {
-			List<EntityManager> connectionList = service.connect(freetextUser, freetextPw);
-			if (connectionList.isEmpty()) {
-				String error = String.format(
-						"Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct (%s/%s)",
-						freetextUser, freetextPw);
-				throw new IllegalArgumentException(error);
+		if (Boolean.valueOf(active)) {
+			try {
+				List<EntityManager> connectionList = service.connect(freetextUser, freetextPw);
+				if (connectionList.isEmpty()) {
+					String error = String.format(
+							"Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct (%s/%s)",
+							freetextUser, freetextPw);
+					throw new IllegalArgumentException(error);
+				}
+
+				entityManager = connectionList.get(0);
+
+				Map<String, String> map = new HashMap<>();
+				map.put("serverType", notificationType);
+				map.put("url", notificationUrl);
+				map.put("eventMimetype", notificationMimeType);
+				map.put("nameservice", nameservice);
+				map.put("servicename", servicename);
+				map.put("pollingInterval", pollingInterval);
+				map.put(ODSEntityManagerFactory.PARAM_USER, freetextUser);
+				map.put(ODSEntityManagerFactory.PARAM_PASSWORD, freetextPw);
+
+				manager = factory.create(entityManager, map);
+				manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener());
+
+				LOGGER.info("Successfully registered for new Notifications!");
+			} catch (ConnectionException | NotificationException e) {
+				throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed.",
+						e);
 			}
-
-			entityManager = connectionList.get(0);
-
-			Map<String, String> map = new HashMap<>();
-			map.put("serverType", notificationType);
-			map.put("url", notificationUrl);
-			map.put("eventMimetype", notificationMimeType);
-			map.put("nameservice", nameservice);
-			map.put("servicename", servicename);
-			map.put("pollingInterval", pollingInterval);
-			map.put(ODSEntityManagerFactory.PARAM_USER, freetextUser);
-			map.put(ODSEntityManagerFactory.PARAM_PASSWORD, freetextPw);
-
-			manager = factory.create(entityManager, map);
-			manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener());
-
-			LOGGER.info("Successfully registered for new Notifications!");
-		} catch (ConnectionException | NotificationException e) {
-			throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed.", e);
+		} else {
+			LOGGER.warn("Freetextsearch is not active!");
 		}
 	}
 
@@ -169,21 +178,28 @@ public class MdmApiBoundary {
 	}
 
 	public void doForAllEntities(Consumer<? super MDMEntityResponse> executor) {
-		try {
-			entityManager.loadAll(Test.class).stream().map(this::buildEntity).forEach(executor);
-			entityManager.loadAll(TestStep.class).stream().map(this::buildEntity).forEach(executor);
-			entityManager.loadAll(Measurement.class).stream().map(this::buildEntity).forEach(executor);
-		} catch (DataAccessException e) {
-			throw new IllegalStateException("MDM cannot be querried for new elements. Please check the MDM runtime", e);
+		if (Boolean.valueOf(active)) {
+			try {
+				entityManager.loadAll(Test.class).stream().map(this::buildEntity).forEach(executor);
+				entityManager.loadAll(TestStep.class).stream().map(this::buildEntity).forEach(executor);
+				entityManager.loadAll(Measurement.class).stream().map(this::buildEntity).forEach(executor);
+			} catch (DataAccessException e) {
+				throw new IllegalStateException("MDM cannot be querried for new elements. Please check the MDM runtime",
+						e);
+			}
 		}
 	}
 
 	public String getApiName() {
-		try {
-			return entityManager.loadEnvironment().getSourceName();
-		} catch (DataAccessException e) {
-			throw new IllegalStateException(e);
+		String apiName = "";
+		if (Boolean.valueOf(active)) {
+			try {
+				apiName = entityManager.loadEnvironment().getSourceName();
+			} catch (DataAccessException e) {
+				throw new IllegalStateException(e);
+			}
 		}
+		return apiName;
 	}
 
 	private MDMEntityResponse buildEntity(Entity e) {
