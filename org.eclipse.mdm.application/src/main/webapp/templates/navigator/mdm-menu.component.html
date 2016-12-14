@@ -12,7 +12,11 @@
   <div class="row">
     <div class="col-sm-3">
       <accordion [closeOthers]="closeOther">
-        <accordion-group heading={{navigator}} [isOpen]="true">
+        <accordion-group #navigatorGroup [isOpen]="true">
+          <div accordion-heading>
+            {{navigator}}
+            <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': navigatorGroup?.isOpen, 'glyphicon-chevron-right': !navigatorGroup?.isOpen}"></i>
+          </div>
           <mdm-navigator (selectingNode)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-navigator>
         </accordion-group>
       </accordion>
@@ -20,9 +24,13 @@
     <div class="col-sm-9">
       <modules [selectedNode]=selectedNode></modules>
       <router-outlet></router-outlet>
-      
+
       <accordion [closeOthers]="closeOther">
-        <accordion-group heading={{basket}} [isOpen]="true">
+        <accordion-group #basketGroup [isOpen]="false">
+          <div accordion-heading>
+            {{basket}}
+            <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': basketGroup?.isOpen, 'glyphicon-chevron-right': !basketGroup?.isOpen}"></i>
+          </div>
           <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
         </accordion-group>
       </accordion>

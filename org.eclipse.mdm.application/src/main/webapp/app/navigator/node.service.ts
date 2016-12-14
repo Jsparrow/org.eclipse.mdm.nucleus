@@ -17,8 +17,6 @@ import {PropertyService} from '../properties'
 
 @Injectable()
 export class NodeService {
-  constructor(private http: Http,
-              private _prop: PropertyService){}
 
   private _host = this._prop.api_host
   private _port = this._prop.api_port
@@ -27,6 +25,62 @@ export class NodeService {
 
   public locals
 
+  private defaultNodeProvider = JSON.parse(`
+  {
+  	"name" : "Default",
+  	"type" : "Environment",
+  	"children" : {
+  		"type" : "Test",
+  		"attribute" : "Name",
+  		"query" : "/tests",
+  		"children" : {
+  			"type" : "TestStep",
+  			"attribute" : "Name",
+  			"query" : "/teststeps?filter=Test.Id eq {Test.Id}",
+  			"children" : {
+  				"type" : "Measurement",
+  				"attribute" : "Name",
+  				"query" : "/measurements?filter=TestStep.Id eq {TestStep.Id}",
+  				"children" : {
+  					"type" : "ChannelGroup",
+  					"attribute" : "Name",
+  					"query" : "/channelgroups?filter=Measurement.Id eq {Measurement.Id}",
+  					"caption" : "ChannelGroup.Name",
+  					"children" : {
+  						"type" : "Channel",
+  						"attribute" : "Name",
+  						"query" : "/channels?filter=ChannelGroup.Id eq {ChannelGroup.Id}"
+  					}
+  				}
+  			}
+  		}
+  	}
+  }`)
+  
+  private nodeprovider2 = JSON.parse(`
+  {
+  	"name" : "Default",
+  	"type" : "Environment",
+  	"children" : {
+  		"type" : "Test",
+  		"attribute" : "Name",
+  		"query" : "/tests",
+  		"children" : {
+  			"type" : "Channel",
+  			"attribute" : "Name",
+  			"query" : "/channels?filter=Test.Id eq {Test.Id}"
+  		}
+  	}
+  }`)
+  
+  private nodeprovider = this.defaultNodeProvider;
+  
+  private nodeproviders = [this.defaultNodeProvider, this.nodeprovider2];
+  
+  constructor(private http: Http,
+              private _prop: PropertyService){
+  }
+  
   private getRootNodes(){
     return this.http.get(this._nodeUrl)
     .map(res => <Node[]> res.json().data)
@@ -76,22 +130,36 @@ export class NodeService {
 
   private getUrl(node: Node) {
     let url = this._nodeUrl + "/" + node.sourceName
-    switch(node.type)
-    {
-      case 'Environment':
-        return url + "/tests"
-      case 'Test':
-        return url + "/teststeps?filter=Test.Id eq " + node.id
-      case 'TestStep':
-        return url + "/measurements?filter=TestStep.Id eq " + node.id
-      case 'Measurement':
-        return url + "/channelgroups?filter=Measurement.Id eq " + node.id
-      case 'ChannelGroup':
-        return url + "/channels?filter=ChannelGroup.Id eq " + node.id
-      case 'Channel':
-        return
-    }
+    let current = this.nodeprovider;
+
+    do {
+      if (current.type == node.type) {
+        return url + current.children.query.replace(/{(\w+)\.(\w+)}/g, function(match, type, attr) {
+
+          if (type !== current.type) {
+            console.warn("Type " + type + " not supported! Use type " + current.type);
+          }
+
+          if (attr == "Id") {
+            return "" + node.id;
+          }
+          else if (attr == "Name") {
+            return node.name;
+          }
+          else {
+            return node.attributes.filter(a => a.name == attr)[0].name;
+          }
+        });
+      }
+      else {
+        current = current.children;
+      }
+	}
+    while (current);
+
+    return;
   }
+
   compareNode(node1, node2){
     if (node1 == undefined || node2 == undefined) { return }
     let n1 = node1.name + node1.id + node1.type + node1.sourceName

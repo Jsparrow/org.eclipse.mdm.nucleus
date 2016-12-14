@@ -101,4 +101,8 @@ export class MDMNodeProviderComponent implements OnInit {
         return "icon channel";
     }
   }
+  
+  getNodeLabel(node: Node) {
+    return node.name;
+  }
 }
