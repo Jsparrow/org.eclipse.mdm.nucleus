@@ -21,7 +21,9 @@ export class TableviewComponent {
   views: View[]
   selectedView: View
   @Input() nodes: Node[]
-
+  @Input() isShopable: boolean = false
+  @Input() isRemovable: boolean = false
+  
   constructor(private viewService: ViewService, private basketService : BasketService) {
     this.views = viewService.getViews();
     this.selectedView = this.views[0];
@@ -31,12 +33,11 @@ export class TableviewComponent {
     this.selectedView = view;
   }
 
-  basketDataProvider(node: Node, col: Col) {
+  nodeDataProvider(node: Node, col: Col) {
     if (node.type != col.type) {
       return "-"
     } else {
       for (let index in node.attributes) {
-        console.log(index)
         if (node.attributes[index].name == col.name) {
           return node.attributes[index].value
         }
@@ -44,7 +45,20 @@ export class TableviewComponent {
     }
     return "-"
   }
-
+  
+  functionalityProvider(isShopable: boolean,node: Node){
+    if (isShopable){
+        this.add2Basket(node)}
+    else{
+        this.removeNode(node)}
+    }
+    
+  
+  add2Basket(node: Node){
+    if (node){
+      this.basketService.addNode(node);
+    }
+  }
   removeNode(node){
     this.basketService.removeNode(node);
   }

@@ -22,11 +22,12 @@ import {LocalizationService} from '../localization/localization.service';
 
 import {Node} from '../navigator/node';
 
+import {TableviewComponent} from '../tableview/tableview.component';
 
 @Component({
   selector: 'mdm-search',
   template: require('../../templates/search/mdm-search.component.html'),
-  directives: [DynamicForm, DROPDOWN_DIRECTIVES, MODAL_DIRECTVES, ACCORDION_DIRECTIVES, TYPEAHEAD_DIRECTIVES],
+  directives: [DynamicForm, DROPDOWN_DIRECTIVES, MODAL_DIRECTVES, ACCORDION_DIRECTIVES, TYPEAHEAD_DIRECTIVES, TableviewComponent],
   providers:  [SearchService, FilterService],
   viewProviders: [BS_VIEW_PROVIDERS],
   inputs: []

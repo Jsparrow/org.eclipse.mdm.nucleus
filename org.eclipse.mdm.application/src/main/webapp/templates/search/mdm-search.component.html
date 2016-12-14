@@ -12,7 +12,7 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="form-group">
-          <form class="from-inline">
+          <form class="form-inline">
 	          <label for="search-source" class="control-label">Filter</label>
 	          <div class="btn-group" dropdown>
 	            <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
@@ -59,15 +59,9 @@
   <div class="row">
     <div class="col-lg-12">
       <h4>Ergebnisse:</h4>
-      <div *ngIf="nodes">
-        <ul class="list-group">
-          <li *ngFor="let node of nodes" class="list-group-item">
-          <span (click)="add2Basket(node)" class="glyphicon glyphicon-shopping-cart" style="cursor: pointer;"></span>
-          <!--TODO: disabled = isShopable()  -->
-          {{node.name}} 
-          </li>
-        </ul>
-      </div> 
+       <mdm-tableview [nodes]="nodes" isShopable="true"></mdm-tableview>
+       
+     
     </div>
   </div>
 </div>

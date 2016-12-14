@@ -30,8 +30,10 @@
 	    </thead>
 	    <tbody>
 	      <tr *ngFor="let node of nodes">
-	      <td width="30px"> <span class="glyphicon glyphicon-remove remove" (click)="removeNode(node)"></span></td>
-	        <td *ngFor="let col of selectedView.cols">{{basketDataProvider(node, col)}}</td>
+	        <td width="30px"><span class="glyphicon" [ngClass]="{'glyphicon-shopping-cart': isShopable,
+	      						'glyphicon-remove remove': isRemovable}" style="cursor: pointer;"
+	       						(click)="functionalityProvider(isShopable,node)"></span> </td>
+	        <td *ngFor="let col of selectedView.cols">{{nodeDataProvider(node, col)}}</td>
 	      </tr>
 	    </tbody>
 	  </table>
