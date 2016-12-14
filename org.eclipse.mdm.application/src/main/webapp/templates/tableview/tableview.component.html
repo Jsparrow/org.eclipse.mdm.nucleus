@@ -24,12 +24,14 @@
 	 <table class="table table-bordered">
 	    <thead>
 	      <tr>
-	        <th *ngFor="let col of selectedView.cols">{{col.name}}</th>
+	      	<th width="30px"> </th>
+	        <th *ngFor="let col of selectedView.cols">{{col.type}} {{col.name}} </th>
 	      </tr>
 	    </thead>
 	    <tbody>
 	      <tr *ngFor="let node of nodes">
-	        <td *ngFor="let col of selectedView.cols">{{node.name}}</td>
+	      <td width="30px"> <span class="glyphicon glyphicon-remove remove" (click)="removeNode(node)"></span></td>
+	        <td *ngFor="let col of selectedView.cols">{{basketDataProvider(node, col)}}</td>
 	      </tr>
 	    </tbody>
 	  </table>

@@ -15,7 +15,7 @@ import {TableviewComponent} from '../tableview/tableview.component';
 
 @Component({
   selector: 'mdm-basket',
-  template: require('../../templates/basket/mdm-basket.component.html'),
+  template: '<mdm-tableview [nodes]="_basketService.Nodes"></mdm-tableview>',
   styles: ['.remove {color:black; cursor: pointer; float: right}'],
   directives: [TableviewComponent],
   providers: []

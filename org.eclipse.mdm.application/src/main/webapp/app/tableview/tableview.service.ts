@@ -14,12 +14,18 @@ export class View {
   }
 }
 
-class Col {
+export class Col {
+  
+  type: string;
   name: string;
-  constructor(name: string) {
+  
+  constructor(type: string, name: string) { 
+    this.type = type;
     this.name = name;
   }
+
 }
+
 @Injectable()
 export class ViewService {
 
@@ -27,7 +33,7 @@ export class ViewService {
   
   constructor(private http: Http,
               private _prop: PropertyService) {
-    this.views = [new View("Standard", [new Col("Col1"), new Col("Col2")]), new View("Test", [new Col("Test1"), new Col("Test2"), new Col("Test3")])];
+    this.views = [new View("Standard", [new Col("TestStep","Name"), new Col("Test","MimeType")]), new View("Test", [new Col("Test1",""), new Col("Test2",""), new Col("Test3","")])];
   }
               
   getViews() {

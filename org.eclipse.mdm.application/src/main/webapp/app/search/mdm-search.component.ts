@@ -17,36 +17,46 @@ import {MODAL_DIRECTVES, BS_VIEW_PROVIDERS} from 'ng2-bootstrap/ng2-bootstrap';
 import {SearchService} from './search.service';
 import {FilterService} from './filter.service';
 import {NodeService} from '../navigator/node.service';
-import {Node} from '../navigator/node';
+import {BasketService} from '../basket/basket.service';
 import {LocalizationService} from '../localization/localization.service';
+
+import {Node} from '../navigator/node';
+
 
 @Component({
   selector: 'mdm-search',
   template: require('../../templates/search/mdm-search.component.html'),
   directives: [DynamicForm, DROPDOWN_DIRECTIVES, MODAL_DIRECTVES, ACCORDION_DIRECTIVES, TYPEAHEAD_DIRECTIVES],
   providers:  [SearchService, FilterService],
-  viewProviders: [BS_VIEW_PROVIDERS]
+  viewProviders: [BS_VIEW_PROVIDERS],
+  inputs: []
 })
 export class MDMSearchComponent {
+  
+
+  
+  nodes : Node[] = []
   definitions:any
   ungrouped:any[] = []
   groups:any[] = []
   selectedGroups:any[] = []
   envs:Node[] = []
   selectedEnv: Node[] = []
-  type: any = {label: "Versuchen"}
+  type: any = {label: "Ergebnistyp wählen"}
   errorMessage: string
   filters: any
   selectedFilter: any = {name: "Filter wählen"}
   
-  constructor(private service: SearchService,
+  
+  constructor(private searchService: SearchService,
               private filterService: FilterService,
-              private nodeservice: NodeService,
-              private localservice: LocalizationService) {
-    this.definitions = service.getDefinitions();
+              private nodeService: NodeService,
+              private localService: LocalizationService,
+              private basketService: BasketService) {
+    this.definitions = searchService.getDefinitions();
     this.filters = filterService.getFilters();
     let node: Node;
-    this.nodeservice.getNodes(node).subscribe(
+    this.nodeService.getNodes(node).subscribe(
       nodes => this.setEvns(nodes),
       error => this.errorMessage = <any>error);
   }
@@ -68,6 +78,20 @@ export class MDMSearchComponent {
       this.selectedEnv.push(this.envs[e])
     }
     this.selectDef(this.type)
+  }
+  
+  onSubmit(query: string){
+    this.nodes = []
+    for (let i in this.selectedEnv) {
+      this.search(query, this.selectedEnv[i].sourceName)
+    }
+  }
+
+  search(query: string, env: string){
+    this.nodeService.searchFT(query, env).subscribe(
+      nodes => this.nodes = this.nodes.concat(nodes),
+      error => this.errorMessage = <any>error
+    );
   }
   
   selectFilter(filter: string) {
@@ -93,7 +117,7 @@ export class MDMSearchComponent {
     this.groups = []
     this.ungrouped = []
     for (let i = 0; i < this.selectedEnv.length; i++){
-      this.service.getSearches(type.value, this.selectedEnv[i].sourceName).then(defs => this.groupBy(defs))
+      this.searchService.getSearches(type.value, this.selectedEnv[i].sourceName).then(defs => this.groupBy(defs))
     }
   }
 
@@ -152,6 +176,12 @@ export class MDMSearchComponent {
     } else {
       type = label
     }
-    return this.localservice.getTranslation(type, comp)
+    return this.localService.getTranslation(type, comp)
+  }
+  
+  add2Basket(node: Node){
+    if (node){
+      this.basketService.addNode(node);
+    }
   }
 }
