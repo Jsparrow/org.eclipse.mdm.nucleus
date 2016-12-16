@@ -59,4 +59,7 @@ export class MDMDetailViewComponent{
   getTrans(type: string, attr: string){
     return this._loaclService.getTranslation(type, attr)
   }
+  getAttributesForDisplay() {
+    return this.selectedNode.attributes;
+  }
 }

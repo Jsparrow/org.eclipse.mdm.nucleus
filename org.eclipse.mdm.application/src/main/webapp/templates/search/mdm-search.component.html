@@ -65,27 +65,3 @@
     </div>
   </div>
 </div>
-
-<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" (click)="lgModal.hide()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title">Suchbare Komponenten</h4>
-      </div>
-      <div class="modal-body">
-        <accordion>
-           <accordion-group *ngFor="let group of groups" heading="{{getTrans(group.name)}}">
-             <ul class="list-group">
-               <li class="list-group-item" *ngFor="let item of group.items" (click)="selectItem(item)" [ngClass]="isActive(item)">
-                 {{getTrans(item.label)}}
-               </li>
-             </ul>
-           </accordion-group>
-        </accordion>
-      </div>
-    </div>
-  </div>
-</div>

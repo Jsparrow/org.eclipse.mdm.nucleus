@@ -1,0 +1,48 @@
+<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="lgModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">View editeren</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6" style="max-height:50vh; overflow-y:auto; border: 1px solid #ddd;">
+              <accordion>
+                <accordion-group *ngFor="let group of groups" heading="{{getTrans(group.name)}}">
+                  <ul class="list-group">
+                    <li class="list-group-item" *ngFor="let item of group.items" (click)="selectItem(item)" [ngClass]="isActive(item)">
+                    {{getTrans(item.label)}}
+                    </li>
+                  </ul>
+                </accordion-group>
+              </accordion>
+            </div>
+            <div class="col-md-6" style="max-height:50vh;overflow-y:auto;">
+            <ul  class="list-group">
+              <li class="list-group-item" style="border-bottom: 1px solid #ddd;" *ngFor="let col of currentView.cols">
+                <span class="pull-right glyphicon glyphicon-remove" [ngClass]="" style="cursor: pointer; margin: 0px 5px;" (click)="remove(col)"></span>
+                <span class="pull-right glyphicon" [ngClass]="{'glyphicon-sort': isNone(col), 'glyphicon-sort-by-alphabet-alt': isDesc(col), 'glyphicon-sort-by-alphabet': isAsc(col)}" style="cursor: pointer; margin: 0px 5px;" (click)="toggleSort(col)"></span>
+                <span class="pull-right glyphicon glyphicon-menu-down" [ngStyle]="{'visibility': isLast(col)? 'hidden': 'visible'}" style="cursor: pointer; margin: 0px 5px;" (click)="moveDown(col)"></span>
+                <span class="pull-right glyphicon glyphicon-menu-up" [ngStyle]="{'visibility': isFirst(col) ? 'hidden': 'visible'}" style="cursor: pointer; margin: 0px 5px;" (click)="moveUp(col)"></span>
+                {{col.type}}.{{col.name}}
+              </li>
+            </ul>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-12">
+              <form class="form-inline">
+                <input type="text" class="form-control" placeholder="View-Name" [value]="currentView.name" (input) = "currentView.name = $event.target.value" (keyup.enter)="save()">
+                <button type="button" class="btn btn-default pull-right" (click)="save()">Speichern</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

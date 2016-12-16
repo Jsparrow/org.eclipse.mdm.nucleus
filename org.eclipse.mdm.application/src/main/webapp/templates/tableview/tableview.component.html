@@ -14,7 +14,7 @@
                </li>
             </ul>
           </div>
-          <button type="submit" class="btn btn-default">New View</button>   
+          <button type="submit" class="btn btn-default" (click)="newView()">New View</button>
           <button type="submit" class="btn btn-default">Save...</button>
          </form>
        </div>
@@ -25,7 +25,7 @@
 	    <thead>
 	      <tr>
 	      	<th width="30px"> </th>
-	        <th *ngFor="let col of selectedView.cols">{{col.type}} {{col.name}} </th>
+	        <th *ngFor="let col of selectedView.cols">{{col.type}}.{{col.name}} </th>
 	      </tr>
 	    </thead>
 	    <tbody>
@@ -39,3 +39,5 @@
 	  </table>
    </div>
  </div>
+
+<edit-view [selectedView]="selectedView" ></edit-view>
