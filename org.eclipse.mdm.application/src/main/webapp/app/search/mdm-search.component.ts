@@ -15,7 +15,7 @@ import {DROPDOWN_DIRECTIVES, ACCORDION_DIRECTIVES, TYPEAHEAD_DIRECTIVES} from 'n
 import {MODAL_DIRECTVES, BS_VIEW_PROVIDERS} from 'ng2-bootstrap/ng2-bootstrap';
 
 import {SearchService} from './search.service';
-import {FilterService} from './filter.service';
+import {FilterService, SearchFilter} from './filter.service';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
 import {LocalizationService} from '../localization/localization.service';
@@ -45,10 +45,10 @@ export class MDMSearchComponent {
   selectedEnv: Node[] = []
   type: any = {label: "Ergebnistyp wählen"}
   errorMessage: string
-  filters: any
-  selectedFilter: any = {name: "Filter wählen"}
-  
-  
+  filters: SearchFilter[];
+  selectedFilter: SearchFilter;
+
+
   constructor(private searchService: SearchService,
               private filterService: FilterService,
               private nodeService: NodeService,
@@ -60,6 +60,17 @@ export class MDMSearchComponent {
     this.nodeService.getNodes(node).subscribe(
       nodes => this.setEvns(nodes),
       error => this.errorMessage = <any>error);
+  }
+
+  ngOnInit() {
+    this.filters = this.filterService.getFilters();
+    this.selectedFilter = this.filters[0];
+    this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
+  }
+
+  onFilterChanged(filter: SearchFilter) {
+    this.filters = this.filterService.getFilters();
+    this.selectedFilter = filter;
   }
 
   setEvns(envs){
@@ -94,12 +105,9 @@ export class MDMSearchComponent {
       error => this.errorMessage = <any>error
     );
   }
-  
-  selectFilter(filter: string) {
-    let f = this.filters.map(function(e){return e.name}).indexOf(filter);
-    this.selectedFilter = this.filters[f];
-    console.log("selected");
-    console.log(this.selectedFilter);
+
+  selectFilter(filter: SearchFilter) {
+    this.filterService.setSelectedFilter(filter);
   }
   
   selectItem(item){

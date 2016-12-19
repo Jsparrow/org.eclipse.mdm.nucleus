@@ -60,6 +60,10 @@ export class MDMDetailViewComponent{
     return this._loaclService.getTranslation(type, attr)
   }
   getAttributesForDisplay() {
+    if (this.selectedNode.attributes != undefined) {
+      return this.selectedNode.attributes.filter(a => a.name != 'MimeType').filter(a => a.name != 'Sortindex');
+    }
+
     return this.selectedNode.attributes;
   }
 }

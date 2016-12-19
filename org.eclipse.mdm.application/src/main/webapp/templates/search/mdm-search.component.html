@@ -20,7 +20,7 @@
 	            </button>
 	            <ul class="dropdown-menu" dropdownMenu>
                 <li *ngFor="let filter of filters">
-                  <a class="dropdown-item" (click)="selectFilter(filter.name)">{{filter.name}}</a>
+                  <a class="dropdown-item" (click)="selectFilter(filter)">{{filter.name}}</a>
                 </li>
 	            </ul>
 	          </div>
@@ -56,12 +56,50 @@
         </div>
       </div>
     </div>
-  <div class="row">
-    <div class="col-lg-12">
-      <h4>Ergebnisse:</h4>
-       <mdm-tableview [nodes]="nodes" isShopable="true"></mdm-tableview>
-       
-     
+    <div class="row">
+      <div class="col-lg-12">
+        <accordion>
+           <accordion-group heading="Advanced search" [isOpen]=false>
+             <div>
+               <form class="form-inline">
+                 <button id="filter-new" type="button" class="btn btn-default">New Filter ...</button>
+                 <button id="filter-add" type="button" class="btn btn-default">Add ...</button>
+               </form>
+               <div *ngFor="let env of selectedFilter.envs">
+                 <h3>{{env.name}}</h3>
+                 <table class="table table-bordered">
+                   <tr *ngFor="let condition of env.conditions">
+                     <td>{{condition.type}}</td>
+                     <td>{{condition.attribute}}</td>
+                     <td>
+                       <div class="btn-group" dropdown>
+                         <button id="operator" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+                           {{condition.operator}} <span class="caret"></span>
+                         </button>
+                         <ul class="dropdown-menu" dropdownMenu>
+                           <li>=</li>
+                           <li>&gt;</li>
+                           <li>&gt;=</li>
+                           <li>&lt;</li>
+                           <li>&lt;=</li>
+                         </ul>
+                       </div>
+                     </td>
+                     <td><input type="text" class="form-control" placeholder="Wert" value="{{condition.value}}"></td>
+                     <td><button id="add" type="button" class="btn btn-default">+</button></td>
+                     <td><button id="remove" type="button" class="btn btn-default">-</button></td>
+                   </tr>
+                 </table>
+               </div>
+             </div>
+           </accordion-group>
+        </accordion>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <h4>Ergebnisse:</h4>
+         <mdm-tableview [nodes]="nodes" isShopable="true"></mdm-tableview>
+      </div>
     </div>
   </div>
-</div>

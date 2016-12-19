@@ -14,7 +14,7 @@ export class Node {
   type: string;
   sourceType: string;
   sourceName: string;
-  attributes: attribute[];
+  attributes: Array<attribute>;
   active: boolean;
 }
 
