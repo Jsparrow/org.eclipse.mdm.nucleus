@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Injectable} from '@angular/core';
+import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
@@ -17,6 +17,8 @@ import {PropertyService} from '../properties'
 
 @Injectable()
 export class NodeService {
+
+  nodeProviderChanged: EventEmitter<any> = new EventEmitter<any>();
 
   private _host = this._prop.api_host
   private _port = this._prop.api_port
@@ -59,7 +61,7 @@ export class NodeService {
   
   private nodeprovider2 = JSON.parse(`
   {
-  	"name" : "Default",
+  	"name" : "Channels",
   	"type" : "Environment",
   	"children" : {
   		"type" : "Test",
@@ -73,14 +75,27 @@ export class NodeService {
   	}
   }`)
   
-  private nodeprovider = this.defaultNodeProvider;
-  
   private nodeproviders = [this.defaultNodeProvider, this.nodeprovider2];
+  
+  activeNodeprovider = this.nodeproviders[0];
   
   constructor(private http: Http,
               private _prop: PropertyService){
+  }  
+  
+  setActiveNodeprovider(nodeprovider: any){
+  	this.activeNodeprovider = nodeprovider;
+  	this.nodeProviderChanged.emit(this.activeNodeprovider);
+  }   
+  
+  getActiveNodeprovider(){
+    return this.activeNodeprovider;
   }
   
+  getNodeproviders(){
+    return this.nodeproviders;
+  }
+    
   private getRootNodes(){
     return this.http.get(this._nodeUrl)
     .map(res => <Node[]> res.json().data)
@@ -130,7 +145,7 @@ export class NodeService {
 
   private getUrl(node: Node) {
     let url = this._nodeUrl + "/" + node.sourceName
-    let current = this.nodeprovider;
+    let current = this.activeNodeprovider;
 
     do {
       if (current.type == node.type) {

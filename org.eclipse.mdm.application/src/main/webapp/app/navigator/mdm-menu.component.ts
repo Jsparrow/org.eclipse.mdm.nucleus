@@ -8,10 +8,11 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, ViewEncapsulation, OnInit} from '@angular/core';
 import {OnActivate, RouteSegment, Router, Routes} from '@angular/router';
-import { ACCORDION_DIRECTIVES } from 'ng2-bootstrap/ng2-bootstrap';
+import { ACCORDION_DIRECTIVES, DROPDOWN_DIRECTIVES } from 'ng2-bootstrap/ng2-bootstrap';
 
+import {NodeService} from './node.service';
 import {Node} from './node';
 import {MDMNodeProviderComponent} from './mdm-node-provider.component';
 
@@ -31,7 +32,7 @@ import {ModulesComponent} from '../modules/modules.component';
     '.list-group-item:first-child {border-top-left-radius: 0px; border-top-right-radius: 0px;}',
     '.list-group-item:last-child {border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; border-bottom-style: none;}'
   ],
-  directives: [ModulesComponent, MDMNavigatorComponent, MDMBasketComponent, MDMDetailComponent, ACCORDION_DIRECTIVES],
+  directives: [ModulesComponent, MDMNavigatorComponent, MDMBasketComponent, MDMDetailComponent, ACCORDION_DIRECTIVES, DROPDOWN_DIRECTIVES],
   providers: [],
   encapsulation: ViewEncapsulation.None
 })
@@ -45,13 +46,50 @@ export class MDMMenuComponent{
   closeOther:boolean = false;
   navigator:string = "Navigation";
   basket:string = "Warenkorb";
-
-  constructor(private router: Router){}
+  activeNodeprovider: any;
+  _comp: string = 'Navigation';
+  subscription: any; 
+  
+  constructor(private router: Router,
+  			  private nodeService: NodeService){}
 
   updateSelectedNode(node: Node) {
     this.selectedNode = node
   }
   updateActiveNode(node: Node) {
     this.activeNode = node
+  }     
+  activateNodeProvider(nodeprovider: any){  
+  	this.nodeService.setActiveNodeprovider(nodeprovider);
+  }  
+  
+  getNodeproviders() {
+    return this.nodeService.getNodeproviders();
+  }
+  
+  ngOnInit(){
+    this.activeNodeprovider = this.nodeService.getActiveNodeprovider();
+    this.subscription = this.nodeService.nodeProviderChanged
+      	.subscribe(np => this.activeNodeprovider = np);    	
+  }
+  
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+  
+  activate(comp: string){
+    this._comp = comp;
+  }
+  
+  isActive(comp: string){
+    if (comp === this._comp) {
+      return 'active';
+    }
+  }
+  
+  isDropActive(comp: string){
+    if (comp === this._comp) {
+      return 'open ';
+    }
   }
 }

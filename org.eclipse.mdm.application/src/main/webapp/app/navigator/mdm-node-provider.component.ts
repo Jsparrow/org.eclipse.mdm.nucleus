@@ -49,6 +49,7 @@ export class MDMNodeProviderComponent implements OnInit {
     }
   }
   onOpenNode(node:Node){
+  	this.openNode = node;
     if (this.openNode === node && this.openNode.active) {
       this.openNode.active = false;
       return

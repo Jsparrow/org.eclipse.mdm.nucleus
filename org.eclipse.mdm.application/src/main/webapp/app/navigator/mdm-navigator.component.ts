@@ -32,7 +32,8 @@ export class MDMNavigatorComponent implements OnInit {
   openNode: Node;
   selectedNode: Node;
   nodes: Node[];
-  errorMessage: string;
+  errorMessage: string; 
+  subscription: any; 
 
   constructor(
     private _nodeService: NodeService) {}
@@ -45,7 +46,21 @@ export class MDMNavigatorComponent implements OnInit {
   }
   ngOnInit(){
     this.getNodes();
+    this.subscription = this._nodeService.nodeProviderChanged
+      	.subscribe(item => this.onNodeproviderChanged(item));
   }
+  
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+  
+  onNodeproviderChanged(nodeprovider: any){
+    this.getNodes(); 
+    if (this.openNode) {
+      this.openNode.active = false;
+    }
+  }
+  
   onOpenNode(node: Node) {
     this.activateNode(node);
   }

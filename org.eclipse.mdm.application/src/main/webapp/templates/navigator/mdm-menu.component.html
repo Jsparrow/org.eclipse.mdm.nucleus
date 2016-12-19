@@ -11,15 +11,31 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-3">
-      <accordion [closeOthers]="closeOther">
-        <accordion-group #navigatorGroup [isOpen]="true">
-          <div accordion-heading>
-            {{navigator}}
-            <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': navigatorGroup?.isOpen, 'glyphicon-chevron-right': !navigatorGroup?.isOpen}"></i>
+      <nav class="navbar navbar-default" >
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-mainview-navbar" aria-expaned="false">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" (click)="activate('Navigation')" style="cursor:pointer;">Navigation</a>
           </div>
-          <mdm-navigator (selectingNode)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-navigator>
-        </accordion-group>
-      </accordion>
+          <div class="collapse navbar-collapse" id="bs-mainview-navbar">
+            <ul class="nav navbar-nav navbar-right">
+              <li [ngClass]="isDropActive('Dropdown')" dropdown>
+                <a (click)="activate('Dropdown')"  class="dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false" style="cursor:pointer;">{{activeNodeprovider.name}} <b class="caret" ></b></a>
+                <ul class="dropdown-menu" dropdownMenu>
+                  <li *ngFor="let np of getNodeproviders()"><a class="dropdown-item" (click)="activateNodeProvider(np)" style="cursor:pointer;">{{np.name}}</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav> 
+      <div class="container-fluid" *ngIf="_comp==='Navigation'||'Dropdown'">
+        <mdm-navigator (selectingNode)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-navigator>
+      </div>
     </div>
     <div class="col-sm-9">
       <modules [selectedNode]=selectedNode></modules>
