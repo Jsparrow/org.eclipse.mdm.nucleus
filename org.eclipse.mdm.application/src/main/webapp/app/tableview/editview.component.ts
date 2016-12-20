@@ -207,7 +207,7 @@ export class EditViewComponent {
         groups[g].items.push(obj)
       }
     })
-    console.log(groups);
+
     this.groups = groups.sort((g1, g2) => {
       if (g1.name.toLowerCase() > g2.name.toLowerCase()) {
           return 1;

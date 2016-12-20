@@ -10,7 +10,7 @@ import {DropdownSearch} from './search-dropdown';
 import {PropertyService} from '../properties'
 import {Node} from '../navigator/node';
 
-class Condition {
+export class Condition {
   type: string;
   attribute: string;
   operator: string;
@@ -23,7 +23,7 @@ class Condition {
   }
 }
 
-class EnvFilter {
+export class EnvFilter {
   name: string;
   conditions: Array<Condition>;
   constructor(name: string, conditions: Array<Condition>) {

@@ -27,16 +27,16 @@
 	          <label for="search-source" class="control-label">Quelle</label>
 	          <div class="btn-group" dropdown>
 	            <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
-	            Quelle wählen <span class="caret"></span>
+	            {{selectedEnv[0]?.name}} <span class="caret"></span>
 	            </button>
 	            <ul class="dropdown-menu" dropdownMenu>
                 <li *ngFor="let env of envs">
-                  <a class="dropdown-item" (click)="selectEnv(env.sourceName)">{{env.name}}</a>
+                  <a class="dropdown-item" (click)="selectEnv(env)">{{env.name}}</a>
                 </li>
 	            </ul>
 	          </div>
 	          <label for="search-resulttype" class="control-label">Ergebnistyp</label>
-	          <div class="btn-group" dropdown>           
+	          <div class="btn-group" dropdown>
 	            <button id="search-resulttype" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
 	            {{type.label}} <span class="caret"></span>
 	            </button>
@@ -59,7 +59,11 @@
     <div class="row">
       <div class="col-lg-12">
         <accordion>
-           <accordion-group heading="Advanced search" [isOpen]=false>
+           <accordion-group [isOpen]="isAdvancedSearchOpen" #advancedSearch>
+             <div accordion-heading>
+               Advanced search
+               <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></i>
+             </div>
              <div>
                <form class="form-inline">
                  <button id="filter-new" type="button" class="btn btn-default">New Filter ...</button>
@@ -67,7 +71,15 @@
                </form>
                <div *ngFor="let env of selectedFilter.envs">
                  <h3>{{env.name}}</h3>
-                 <table class="table table-bordered">
+                 <table class="table table-bordered searchdefinition">
+                  <colgroup>
+                    <col style="width:15%">
+                    <col style="width:15%">
+                    <col style="width:10%">
+                    <col style="width:50%">
+                    <col style="width:5%">
+                    <col style="width:5%">
+                  </colgroup>
                    <tr *ngFor="let condition of env.conditions">
                      <td>{{condition.type}}</td>
                      <td>{{condition.attribute}}</td>
@@ -77,11 +89,11 @@
                            {{condition.operator}} <span class="caret"></span>
                          </button>
                          <ul class="dropdown-menu" dropdownMenu>
-                           <li>=</li>
-                           <li>&gt;</li>
-                           <li>&gt;=</li>
-                           <li>&lt;</li>
-                           <li>&lt;=</li>
+                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '=')">=</a></li>
+                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '>')">&gt;</a></li>
+                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '>=')">&gt;=</a></li>
+                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '<')">&lt;</a></li>
+                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '<=')">&lt;=</a></li>
                          </ul>
                        </div>
                      </td>
@@ -93,13 +105,14 @@
                </div>
              </div>
            </accordion-group>
+           <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
+             <div accordion-heading>
+               Ergebnisse
+               <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></i>
+             </div>
+             <mdm-tableview [nodes]="nodes" isShopable="true"></mdm-tableview>
+           </accordion-group>
         </accordion>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-12">
-        <h4>Ergebnisse:</h4>
-         <mdm-tableview [nodes]="nodes" isShopable="true"></mdm-tableview>
       </div>
     </div>
   </div>

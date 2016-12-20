@@ -15,7 +15,7 @@ import {DROPDOWN_DIRECTIVES, ACCORDION_DIRECTIVES, TYPEAHEAD_DIRECTIVES} from 'n
 import {MODAL_DIRECTVES, BS_VIEW_PROVIDERS} from 'ng2-bootstrap/ng2-bootstrap';
 
 import {SearchService} from './search.service';
-import {FilterService, SearchFilter} from './filter.service';
+import {FilterService, SearchFilter, Condition} from './filter.service';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
 import {LocalizationService} from '../localization/localization.service';
@@ -27,15 +27,14 @@ import {TableviewComponent} from '../tableview/tableview.component';
 @Component({
   selector: 'mdm-search',
   template: require('../../templates/search/mdm-search.component.html'),
+  styles: [ 'table.searchdefinition td { vertical-align: middle; padding: 4px 8px; } '],
   directives: [DynamicForm, DROPDOWN_DIRECTIVES, MODAL_DIRECTVES, ACCORDION_DIRECTIVES, TYPEAHEAD_DIRECTIVES, TableviewComponent],
   providers:  [SearchService, FilterService],
   viewProviders: [BS_VIEW_PROVIDERS],
   inputs: []
 })
 export class MDMSearchComponent {
-  
 
-  
   nodes : Node[] = []
   definitions:any
   ungrouped:any[] = []
@@ -48,6 +47,8 @@ export class MDMSearchComponent {
   filters: SearchFilter[];
   selectedFilter: SearchFilter;
 
+  isAdvancedSearchOpen: boolean = false;
+  isSearchResultsOpen: boolean = false;
 
   constructor(private searchService: SearchService,
               private filterService: FilterService,
@@ -81,14 +82,8 @@ export class MDMSearchComponent {
     this.selectDef(this.definitions.options[0])
   }
 
-  selectEnv(env: string){
-    let i = this.selectedEnv.map(function(e){return e.sourceName}).indexOf(env)
-    if (i > -1) {
-        this.selectedEnv.splice(i, 1)
-    } else {
-      let e = this.envs.map(function(e){return e.sourceName}).indexOf(env)
-      this.selectedEnv.push(this.envs[e])
-    }
+  selectEnv(env: Node){
+    this.selectedEnv.push(env);
     this.selectDef(this.type)
   }
   
@@ -101,7 +96,7 @@ export class MDMSearchComponent {
 
   search(query: string, env: string){
     this.nodeService.searchFT(query, env).subscribe(
-      nodes => this.nodes = this.nodes.concat(nodes),
+      nodes => { this.nodes = this.nodes.concat(nodes); this.isSearchResultsOpen = true; },
       error => this.errorMessage = <any>error
     );
   }
@@ -192,5 +187,9 @@ export class MDMSearchComponent {
     if (node){
       this.basketService.addNode(node);
     }
+  }
+
+  selectConditionOperator(condition: Condition, operator: string){
+    condition.operator = operator;
   }
 }
