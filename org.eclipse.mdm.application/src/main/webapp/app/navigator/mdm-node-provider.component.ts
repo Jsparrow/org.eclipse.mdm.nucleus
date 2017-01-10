@@ -12,13 +12,11 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 import {Node} from './node';
 import {NodeService} from './node.service';
-import '../../templates/navigator/navigator.css';
 
 @Component({
   selector: 'mdm-node-provider',
-  template: require('../../templates/navigator/mdm-node-provider.component.html'),
-  directives: [MDMNodeProviderComponent],
-  providers: [],
+  templateUrl: 'mdm-node-provider.component.html',
+  styleUrls: [ './navigator.css' ],
   inputs: ['rootNode', 'indent']
 })
 export class MDMNodeProviderComponent implements OnInit {
@@ -37,22 +35,22 @@ export class MDMNodeProviderComponent implements OnInit {
   constructor(
     private _nodeService: NodeService) {}
 
-  ngOnInit(){
+  ngOnInit() {
     this.getNodes();
   }
 
-  getNodes(){
-    if (this.rootNode.type !== "Channel") {
+  getNodes() {
+    if (this.rootNode.type !== 'Channel') {
       this._nodeService.getNodes(this.rootNode).subscribe(
         nodes => this.nodes = nodes,
         error => this.errorMessage = <any>error);
     }
   }
-  onOpenNode(node:Node){
-  	this.openNode = node;
+  onOpenNode(node: Node) {
+    this.openNode = node;
     if (this.openNode === node && this.openNode.active) {
       this.openNode.active = false;
-      return
+      return;
     }
     if (this.openNode) {
       this.openNode.active = true;
@@ -60,49 +58,48 @@ export class MDMNodeProviderComponent implements OnInit {
     this.openNode = node;
     this.openNode.active = true;
   }
-  updateActiveNode(node){
-    this.activeNode = node
-    this.onActive.emit(node)
+  updateActiveNode(node) {
+    this.activeNode = node;
+    this.onActive.emit(node);
   }
-  onSelectNode(node){
+  onSelectNode(node) {
     this.selectingNode.emit(node);
   }
   updateSelectedNode(node) {
-    this.selectedNode = node
-    this.activeNode = node
-    this.onActive.emit(node)
-    this.selectingNode.emit(node)
+    this.selectedNode = node;
+    this.activeNode = node;
+    this.onActive.emit(node);
+    this.selectingNode.emit(node);
   }
-  isActive(node){
-    if (this._nodeService.compareNode(this.activeNode, node)) {return "active"}
+  isActive(node) {
+    if (this._nodeService.compareNode(this.activeNode, node)) { return 'active'; }
   }
-  isOpen(node: Node){
+  isOpen(node: Node) {
     if (node.active) {
-      return "glyphicon glyphicon-chevron-down"
+      return 'glyphicon glyphicon-chevron-down';
     } else {
-      return "glyphicon glyphicon-chevron-right"
+      return 'glyphicon glyphicon-chevron-right';
     }
   }
-  getMargin(){
+  getMargin() {
     return this.indent + 10;
   }
-  
-  getNodeClass(node: Node){
-    switch(node.type)
-    {
+
+  getNodeClass(node: Node) {
+    switch (node.type) {
       case 'Test':
-        return "icon test";
+        return 'icon test';
       case 'TestStep':
-        return "icon teststep";
+        return 'icon teststep';
       case 'Measurement':
-        return "icon measurement";
+        return 'icon measurement';
       case 'ChannelGroup':
-        return "icon channelgroup";
+        return 'icon channelgroup';
       case 'Channel':
-        return "icon channel";
+        return 'icon channel';
     }
   }
-  
+
   getNodeLabel(node: Node) {
     return node.name;
   }

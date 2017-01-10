@@ -10,8 +10,7 @@ import {DummyModuleComponent} from '../dummy/dummy-module.component';
 
 @Component({
   selector: 'modules',
-  template: require('../../templates/modules/modules.component.html'),
-  directives: [MDMDetailComponent, MDMSearchComponent, MDMFilereleaseComponent, DummyModuleComponent],
+  templateUrl: 'modules.component.html',
   providers: []
 })
 export class ModulesComponent {
@@ -20,10 +19,10 @@ export class ModulesComponent {
   brand: string = 'Modules';
   _comp: string = 'Details';
 
-  activate(comp: string){
+  activate(comp: string) {
     this._comp = comp;
   }
-  isActive(comp: string){
+  isActive(comp: string) {
     if (comp === this._comp) {
       return 'active';
     }

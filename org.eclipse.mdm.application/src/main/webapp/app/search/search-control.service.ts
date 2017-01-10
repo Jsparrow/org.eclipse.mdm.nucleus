@@ -9,7 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Injectable} from '@angular/core';
-import {ControlGroup, FormBuilder, Validators} from '@angular/common';
+import {FormGroup, FormBuilder, Validators} from '@angular/forms';
 import {SearchBase} from './search-base';
 
 @Injectable()

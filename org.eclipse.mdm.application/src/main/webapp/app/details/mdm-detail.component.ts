@@ -9,8 +9,6 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input} from '@angular/core';
-import {HTTP_PROVIDERS} from '@angular/http';
-import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 
 import {Node} from '../navigator/node';
 
@@ -19,8 +17,7 @@ import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.compone
 
 @Component({
   selector: 'mdm-detail',
-  template: require('../../templates/details/mdm-detail.component.html'),
-  directives: [ROUTER_DIRECTIVES, MDMDetailViewComponent, MDMDescriptiveDataComponent],
+  templateUrl: 'mdm-detail.component.html',
   providers: []
 })
 export class MDMDetailComponent {
@@ -29,10 +26,10 @@ export class MDMDetailComponent {
   brand: string = 'Details';
   _comp: string = 'DetailView';
 
-  activate(comp: string){
+  activate(comp: string) {
     this._comp = comp;
   }
-  isActive(comp: string){
+  isActive(comp: string) {
     if (comp === this._comp) {
       return 'active';
     }

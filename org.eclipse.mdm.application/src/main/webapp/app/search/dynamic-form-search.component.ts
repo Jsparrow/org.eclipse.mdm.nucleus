@@ -9,17 +9,17 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input} from '@angular/core';
-import {ControlGroup} from '@angular/common';
+import {FormGroup} from '@angular/forms';
 import {SearchBase} from './search-base';
 import {LocalizationService} from '../localization/localization.service';
 
 @Component({
   selector:'df-search',
-  template: require('../../templates/search/dynamic-form-search.component.html')
+  templateUrl: 'dynamic-form-search.component.html'
 })
 export class DynamicFormSearchComponent {
   @Input() search:SearchBase<any>;
-  @Input() form:ControlGroup;
+  @Input() form:FormGroup;
 
   constructor(private localservice : LocalizationService) {}
   get isValid() {

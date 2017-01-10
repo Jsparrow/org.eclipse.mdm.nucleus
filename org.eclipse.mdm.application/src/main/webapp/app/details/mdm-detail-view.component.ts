@@ -9,7 +9,8 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input} from '@angular/core';
-import {ControlGroup, Control, Validators} from '@angular/common';
+
+import { ModalDirective } from 'ng2-bootstrap';
 
 import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';
@@ -20,48 +21,44 @@ import {Release, FilereleaseService} from '../filerelease/filerelease.service';
 import {Localization} from '../localization/localization';
 import {LocalizationService} from '../localization/localization.service';
 
-import {MODAL_DIRECTVES, BS_VIEW_PROVIDERS} from 'ng2-bootstrap/ng2-bootstrap';
 import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
 
 @Component({
   selector: 'mdm-detail-view',
-  template: require('../../templates/details/mdm-detail-view.component.html'),
-  directives: [MODAL_DIRECTVES, MDMFilereleaseCreateComponent],
+  templateUrl: 'mdm-detail-view.component.html',
   providers: [],
-  viewProviders: [BS_VIEW_PROVIDERS],
   inputs: []
 })
-
-export class MDMDetailViewComponent{
+export class MDMDetailViewComponent {
   @Input() selectedNode: Node;
   locals: Localization[] = [];
 
   constructor(private _nodeService: NodeService,
               private _loaclService: LocalizationService,
               private _basketService: BasketService,
-              private _releaseService: FilereleaseService){}
+              private _releaseService: FilereleaseService) {}
 
-  add2Basket(){
-    if (this.selectedNode){
+  add2Basket() {
+    if (this.selectedNode) {
       this._basketService.addNode(this.selectedNode);
     }
   }
 
-  isShopable(){
-    if (this.selectedNode.name != undefined){return false}
-    return true
+  isShopable() {
+    if (this.selectedNode.name !== undefined) { return false; }
+    return true;
   }
-  isReleasable(){
-    if (this.selectedNode.sourceType == 'TestStep'){return false}
-    return true
+  isReleasable() {
+    if (this.selectedNode.sourceType === 'TestStep') { return false; }
+    return true;
   }
 
-  getTrans(type: string, attr: string){
-    return this._loaclService.getTranslation(type, attr)
+  getTrans(type: string, attr: string) {
+    return this._loaclService.getTranslation(type, attr);
   }
   getAttributesForDisplay() {
-    if (this.selectedNode.attributes != undefined) {
-      return this.selectedNode.attributes.filter(a => a.name != 'MimeType').filter(a => a.name != 'Sortindex');
+    if (this.selectedNode.attributes !== undefined) {
+      return this.selectedNode.attributes.filter(a => a.name !== 'MimeType').filter(a => a.name !== 'Sortindex');
     }
 
     return this.selectedNode.attributes;

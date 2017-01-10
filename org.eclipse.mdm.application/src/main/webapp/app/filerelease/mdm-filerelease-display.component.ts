@@ -13,24 +13,25 @@ import {Release, FilereleaseService} from './filerelease.service';
 
 @Component({
   selector: 'mdm-filerelease-display',
-  template: require('../../templates/filerelease/mdm-filerelease-display.component.html'),
+  templateUrl: 'mdm-filerelease-display.component.html',
   styles: [],
-  directives: [],
   providers: []
 })
 export class MDMFilereleaseDisplayComponent {
-  @Input() release: Release
+  @Input() release: Release;
 
-  constructor(private service: FilereleaseService){}
+  constructor(private service: FilereleaseService) {}
 
-  getFormat(format){
-    return this.service.formatMap[format]
+  getFormat(format) {
+    return this.service.formatMap[format];
   }
-  getState(state){
-    return this.service.stateMap[state]
+
+  getState(state) {
+    return this.service.stateMap[state];
   }
-  getDate(date){
-    if (date == 0) {return}
-    return this.service.formatDate(date)
+
+  getDate(date) {
+    if (date === 0) { return; }
+    return this.service.formatDate(date);
   }
 }

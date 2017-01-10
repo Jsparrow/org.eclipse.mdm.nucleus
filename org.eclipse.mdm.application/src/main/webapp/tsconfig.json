@@ -14,5 +14,9 @@
     "node_modules",
     "typings/main",
     "typings/main.d.ts"
-  ]
+  ],
+  "awesomeTypescriptLoaderOptions": {
+    "forkChecker": true,
+    "useWebpackText": true
+  }
 }

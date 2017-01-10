@@ -9,22 +9,22 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 export class SearchBase<T>{
-  value:T;
-  key:string;
-  label:string;
-  required:boolean;
-  order:number;
-  controlType:string;
-  active:boolean;
-  constructor(options:{
-      value?:T,
-      key?:string,
-      label?:string,
-      required?:boolean,
-      order?:number,
-      controlType?:string,
-      active?:boolean
-    } = {}){
+  value: T;
+  key: string;
+  label: string;
+  required: boolean;
+  order: number;
+  controlType: string;
+  active: boolean;
+  constructor(options: {
+      value?: T,
+      key?: string,
+      label?: string,
+      required?: boolean,
+      order?: number,
+      controlType?: string,
+      active?: boolean
+    } = {}) {
     this.value = options.value;
     this.key = options.key || '';
     this.label = options.label || '';

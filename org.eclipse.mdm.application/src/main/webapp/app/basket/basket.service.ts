@@ -16,19 +16,19 @@ import {Node} from '../navigator/node';
 export class BasketService {
   Nodes: Node[] = [];
 
-  addNode(node){
-    var index = this.Nodes.indexOf(node);
-    if (index == -1) {
-      this.Nodes.push(node)
+  addNode(node) {
+    let index = this.Nodes.indexOf(node);
+    if (index === -1) {
+      this.Nodes.push(node);
     }
   }
-  removeNode(node){
-    var index = this.Nodes.indexOf(node);
+  removeNode(node) {
+    let index = this.Nodes.indexOf(node);
     if (index > -1) {
       this.Nodes.splice(index, 1);
     }
   }
-  removeAll(){
+  removeAll() {
     this.Nodes = [];
   }
 }

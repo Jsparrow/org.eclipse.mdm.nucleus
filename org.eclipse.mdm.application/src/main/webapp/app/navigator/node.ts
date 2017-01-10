@@ -14,11 +14,11 @@ export class Node {
   type: string;
   sourceType: string;
   sourceName: string;
-  attributes: Array<attribute>;
+  attributes: Array<Attribute>;
   active: boolean;
 }
 
-export class attribute {
+export class Attribute {
   name: string;
   value: string;
   unit: string;

@@ -17,8 +17,7 @@ import {Node} from '../navigator/node';
 
 @Component({
   selector: 'mdm-full-text-search',
-  template: require('../../templates/search/mdm-full-text-search.component.html'),
-  directives: [],
+  templateUrl: 'mdm-full-text-search.component.html',
   providers:  [SearchService]
 })
 export class MDMFullTextSearchComponent {

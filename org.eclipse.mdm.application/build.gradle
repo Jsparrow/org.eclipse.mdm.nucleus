@@ -34,33 +34,40 @@ buildscript {
 		} 
 	}
 	dependencies { 
-		classpath "com.moowork.gradle:gradle-node-plugin:0.12" 
+		classpath "com.moowork.gradle:gradle-node-plugin:1.0.1" 
 	}
 }
 
 
 task copy_websources(type: Copy) {
 
-	from './src/main/webapp'	
+	from('./src/main/webapp') {
+		exclude 'dist'
+		exclude 'node_modules'
+	}
+	
 	into "${project.buildDir}/node"
 }
 
 
 node {
-	version = '4.3.2'
-	npmVersion = '3.9.2'
+	version = '6.9.4'
+	npmVersion = '3.10.10'
 	distBaseUrl = 'https://nodejs.org/dist'
 	download = true
 	workDir = file("${project.buildDir}/node/nodejs")
+	npmWorkDir = file("${project.buildDir}/node")
 	nodeModulesDir = file("${project.buildDir}/node")
 	if (!nodeModulesDir.isDirectory()) {
 		nodeModulesDir.mkdirs()
 	}
 }
+npm_install {
+	args = ["${project.buildDir}"]
+}
 
-task webpack(type: NodeTask) {
-  	script = file("${project.buildDir}/node/node_modules/webpack/bin/webpack.js")
-  	 args = ['--config', "${project.buildDir}/node/webpack.config.js"]
+task runBuild(type: NpmTask) {
+    args = ['run', 'build']
 }
 
 task copy_loginsites(type: Copy) {
@@ -72,8 +79,8 @@ task copy_loginsites(type: Copy) {
 }
 
 compileJava.dependsOn(copy_loginsites)
-copy_loginsites.dependsOn(webpack)
-webpack.dependsOn(npmInstall)
+copy_loginsites.dependsOn(runBuild)
+runBuild.dependsOn(npmInstall)
 npmInstall.dependsOn(copy_websources)
 copy_websources.dependsOn(npmSetup)
 npmSetup.dependsOn(nodeSetup)

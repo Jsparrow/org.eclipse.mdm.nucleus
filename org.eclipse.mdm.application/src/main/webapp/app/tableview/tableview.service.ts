@@ -1,13 +1,12 @@
 import {Injectable, EventEmitter} from '@angular/core';
-import {Http, Response, Headers, RequestOptions} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import {Http} from '@angular/http';
 
-import {PropertyService} from '../properties'
+import {PropertyService} from '../properties';
 
 export class View {
   name: string;
   cols: Col[];
-  
+
   constructor(name: string, cols: Col[]) {
     this.name = name;
     this.cols = cols;
@@ -29,31 +28,31 @@ export class Col {
     this.sort = sort;
   }
   isNone() {
-    return this.sort == SortOrder.None;
+    return this.sort === SortOrder.None;
   }
   isAsc() {
-    return this.sort == SortOrder.Asc;
+    return this.sort === SortOrder.Asc;
   }
   isDesc() {
-    return this.sort == SortOrder.Desc;
+    return this.sort === SortOrder.Desc;
   }
 }
 
 @Injectable()
 export class ViewService {
   public viewsChanged$ = new EventEmitter<View>();
-  private views : View[]
+  private views: View[];
 
   constructor(private http: Http,
               private _prop: PropertyService) {
     this.views = [
-      new View("Standard", [
-        new Col("Test","Name", SortOrder.Asc),
-        new Col("TestStep","Name", SortOrder.None)]),
-      new View("Test", [
-        new Col("Test","Name", SortOrder.None),
-        new Col("Test", "Beschreibung", SortOrder.None),
-        new Col("Test","MimeType", SortOrder.None)])
+      new View('Standard', [
+        new Col('Test', 'Name', SortOrder.Asc),
+        new Col('TestStep', 'Name', SortOrder.None)]),
+      new View('Test', [
+        new Col('Test', 'Name', SortOrder.None),
+        new Col('Test', 'Beschreibung', SortOrder.None),
+        new Col('Test', 'MimeType', SortOrder.None)])
       ];
   }
 

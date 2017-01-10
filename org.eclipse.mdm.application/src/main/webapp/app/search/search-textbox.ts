@@ -10,11 +10,11 @@
 //   *******************************************************************************
 import {SearchBase} from './search-base';
 
-export class TextboxSearch extends SearchBase<string>{
+export class TextboxSearch extends SearchBase<string> {
   controlType = 'textbox';
-  type:string;
+  type: string;
 
-  constructor(options:{} = {}){
+  constructor(options: {} = {}) {
     super(options);
     this.type = options['type'] || '';
   }

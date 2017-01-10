@@ -4,6 +4,6 @@ import {Component} from '@angular/core';
   selector: 'dummy-module',
   template: '<h1>Dummy Module</h1>'
 })
-export class DummyModuleComponent{
+export class DummyModuleComponent {
 
 }

@@ -68,40 +68,42 @@
                <form class="form-inline">
                  <button id="filter-new" type="button" class="btn btn-default">New Filter ...</button>
                  <button id="filter-add" type="button" class="btn btn-default">Add ...</button>
+                 <button id="filter-save" type="button" class="btn btn-default pull-right" >Save ...</button>
+                 <button id="filter-reset" type="button" class="btn btn-default pull-right" (onClick)="resetFilter()">Reset</button>
                </form>
                <div *ngFor="let env of selectedFilter.envs">
-                 <h3>{{env.name}}</h3>
-                 <table class="table table-bordered searchdefinition">
-                  <colgroup>
-                    <col style="width:15%">
-                    <col style="width:15%">
-                    <col style="width:10%">
-                    <col style="width:50%">
-                    <col style="width:5%">
-                    <col style="width:5%">
-                  </colgroup>
-                   <tr *ngFor="let condition of env.conditions">
-                     <td>{{condition.type}}</td>
-                     <td>{{condition.attribute}}</td>
-                     <td>
-                       <div class="btn-group" dropdown>
-                         <button id="operator" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
-                           {{condition.operator}} <span class="caret"></span>
-                         </button>
-                         <ul class="dropdown-menu" dropdownMenu>
-                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '=')">=</a></li>
-                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '>')">&gt;</a></li>
-                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '>=')">&gt;=</a></li>
-                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '<')">&lt;</a></li>
-                           <li><a class="dropdown-item" (click)="selectConditionOperator(condition, '<=')">&lt;=</a></li>
-                         </ul>
-                       </div>
-                     </td>
-                     <td><input type="text" class="form-control" placeholder="Wert" value="{{condition.value}}"></td>
-                     <td><button id="add" type="button" class="btn btn-default">+</button></td>
-                     <td><button id="remove" type="button" class="btn btn-default">-</button></td>
-                   </tr>
-                 </table>
+                 <div *ngIf="env.conditions.length > 0">
+                   <h3>{{env.name}}</h3>
+                   <table class="table table-bordered searchdefinition">
+                    <colgroup>
+                      <col style="width:15%">
+                      <col style="width:15%">
+                      <col style="width:10%">
+                      <col style="width:50%">
+                      <col style="width:5%">
+                      <col style="width:5%">
+                    </colgroup>
+                     <tr *ngFor="let condition of env.conditions">
+                       <td>{{condition.type}}</td>
+                       <td>{{condition.attribute}}</td>
+                       <td>
+                         <div class="btn-group" dropdown>
+                           <button id="operator" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+                             {{getOperatorName(condition.operator)}} <span class="caret"></span>
+                           </button>
+                           <ul class="dropdown-menu" dropdownMenu>
+                             <li *ngFor="let op of getOperators()">
+                               <a class="dropdown-item" (click)="selectConditionOperator(condition, op)">{{getOperatorName(op)}}</a>
+                             </li>
+                           </ul>
+                         </div>
+                       </td>
+                       <td><input type="text" class="form-control" placeholder="Wert" value="{{condition.value}}"></td>
+                       <td><button id="add" type="button" class="btn btn-default">+</button></td>
+                       <td><button id="remove" type="button" class="btn btn-default" (click)="removeCondition(env, condition)">-</button></td>
+                     </tr>
+                   </table>
+                 </div>
                </div>
              </div>
            </accordion-group>

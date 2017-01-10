@@ -17,7 +17,6 @@ import {TableviewComponent} from '../tableview/tableview.component';
   selector: 'mdm-basket',
   template: '<mdm-tableview [nodes]="_basketService.Nodes" isRemovable="true"></mdm-tableview>',
   styles: ['.remove {color:black; cursor: pointer; float: right}'],
-  directives: [TableviewComponent],
   providers: []
 })
 export class MDMBasketComponent {
@@ -25,19 +24,19 @@ export class MDMBasketComponent {
   @Output() onActive = new EventEmitter<Node>();
   @Input() activeNode: Node;
 
-  constructor(private _basketService : BasketService){}
+  constructor(private _basketService: BasketService) {}
 
-  isActive(node){
-    if (this.activeNode == node) {
-      return "active"
+  isActive(node) {
+    if (this.activeNode === node) {
+      return 'active';
     }
   }
 
-  removeNode(node){
+  removeNode(node) {
     this._basketService.removeNode(node);
   }
 
-  selectNode(node){
+  selectNode(node) {
     this.activeNode = node;
     this.onActive.emit(node);
     this.onSelect.emit(node);

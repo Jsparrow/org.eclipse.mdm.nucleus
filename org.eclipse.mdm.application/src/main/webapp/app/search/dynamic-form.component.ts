@@ -9,9 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input, OnInit, OnChanges, SimpleChange} from '@angular/core';
-import {ControlGroup} from '@angular/common';
-
-import {ACCORDION_DIRECTIVES} from 'ng2-bootstrap/ng2-bootstrap';
+import {FormGroup} from '@angular/forms';
 
 import {SearchBase} from './search-base';
 import {SearchService} from './search.service';
@@ -25,15 +23,14 @@ import {LocalizationService} from '../localization/localization.service';
 
 @Component({
   selector:'dynamic-form',
-  template: require('../../templates/search/dynamic-form.component.html'),
-  directives: [DynamicFormSearchComponent, ACCORDION_DIRECTIVES],
+  templateUrl: 'dynamic-form.component.html',
   providers:  [SearchControlService]
 })
 export class DynamicForm implements OnChanges, OnInit{
   @Input() groups = [];
   @Input() env: Node[];
   @Input() type: string;
-  form: ControlGroup;
+  form: FormGroup;
   nodes: Node[] = [];
   errorMessage: string;
 

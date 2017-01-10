@@ -9,19 +9,16 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {ACCORDION_DIRECTIVES} from 'ng2-bootstrap/ng2-bootstrap';
 
 import {Node} from './node';
 import {NodeService} from './node.service';
 
 import {MDMNodeProviderComponent} from './mdm-node-provider.component';
 
-import '../../templates/navigator/navigator.css';
-
 @Component({
   selector: 'mdm-navigator',
-  template: require('../../templates/navigator/mdm-navigator.component.html'),
-  directives: [MDMNodeProviderComponent, ACCORDION_DIRECTIVES],
+  templateUrl: './mdm-navigator.component.html',
+  styleUrls: [ './navigator.css' ],
   providers: []
 })
 export class MDMNavigatorComponent implements OnInit {
@@ -32,78 +29,86 @@ export class MDMNavigatorComponent implements OnInit {
   openNode: Node;
   selectedNode: Node;
   nodes: Node[];
-  errorMessage: string; 
-  subscription: any; 
+  errorMessage: string;
+  subscription: any;
 
   constructor(
     private _nodeService: NodeService) {}
 
-  getNodes(){
+  getNodes() {
     let node: Node;
     this._nodeService.getNodes(node).subscribe(
       nodes => this.nodes = nodes,
       error => this.errorMessage = <any>error);
   }
-  ngOnInit(){
+
+  ngOnInit() {
     this.getNodes();
     this.subscription = this._nodeService.nodeProviderChanged
-      	.subscribe(item => this.onNodeproviderChanged(item));
+        .subscribe(item => this.onNodeproviderChanged(item));
   }
-  
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-  
-  onNodeproviderChanged(nodeprovider: any){
-    this.getNodes(); 
+
+  onNodeproviderChanged(nodeprovider: any) {
+    this.getNodes();
     if (this.openNode) {
       this.openNode.active = false;
     }
   }
-  
+
   onOpenNode(node: Node) {
     this.activateNode(node);
   }
+
   updateSelectedNode(node) {
-    this.selectedNode = node
-    this.activeNode = node
-    this.onActive.emit(node)
-    this.selectingNode.emit(node)
+    this.selectedNode = node;
+    this.activeNode = node;
+    this.onActive.emit(node);
+    this.selectingNode.emit(node);
   }
-  updateActiveNode(node){
-    this.activeNode = node
-    this.onActive.emit(node)
+
+  updateActiveNode(node) {
+    this.activeNode = node;
+    this.onActive.emit(node);
   }
-  onSelectNode(node){
+
+  onSelectNode(node) {
     this.selectingNode.emit(node);
     this.onActive.emit(node);
   }
-  private activateNode(node: Node){
+
+  isActive(node) {
+    if (this._nodeService.compareNode(this.activeNode, node)) { return 'active'; }
+  }
+
+  isOpen(node: Node) {
+    if (node.active) {
+      return 'glyphicon glyphicon-chevron-down';
+    } else {
+      return 'glyphicon glyphicon-chevron-right';
+    }
+  }
+
+  getMargin() {
+    return 10;
+  }
+
+  getNodeClass() {
+    return 'icon environment';
+  }
+
+  private activateNode(node: Node) {
     if (this.openNode === node && this.openNode.active) {
       this.openNode.active = false;
-      return
+      return;
     }
     if (this.openNode) {
       this.openNode.active = true;
     }
     this.openNode = node;
     this.openNode.active = true;
-  }
-  isActive(node){
-    if (this._nodeService.compareNode(this.activeNode, node)) {return "active"}
-  }
-  isOpen(node: Node){
-    if (node.active) {
-      return "glyphicon glyphicon-chevron-down"
-    } else {
-      return "glyphicon glyphicon-chevron-right"
-    }
-  }
-  getMargin(){
-    return 10;
-  }
-  
-  getNodeClass(){
-    return "icon environment";
   }
 }

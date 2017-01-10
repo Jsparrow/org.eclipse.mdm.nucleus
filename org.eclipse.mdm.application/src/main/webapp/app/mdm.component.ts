@@ -9,8 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import {HTTP_PROVIDERS} from '@angular/http';
-import {Routes, Router, ROUTER_DIRECTIVES} from '@angular/router';
+import {Routes, Router} from '@angular/router';
 
 import {MDMMenuComponent} from './navigator/mdm-menu.component';
 
@@ -22,31 +21,27 @@ import {FilereleaseService} from './filerelease/filerelease.service';
 
 @Component({
   selector: 'mdm-web',
-  template: require('../templates/mdm.component.html'),
-  directives: [ROUTER_DIRECTIVES],
-  providers: [HTTP_PROVIDERS, NodeService, LocalizationService, FilereleaseService, PropertyService, BasketService]
+  templateUrl: 'mdm.component.html',
+  providers: [NodeService, LocalizationService, FilereleaseService, PropertyService, BasketService]
 })
-@Routes([
-  {path: '/mdmmenu', component: MDMMenuComponent},
-])
-export class MDMComponent implements OnInit{
+export class MDMComponent implements OnInit {
   brand = 'openMDM5 Web';
-  _comp: string = "MDMMenu";
+  _comp: string = 'MDMMenu';
   viewContainerRef;
 
   constructor(private router: Router,
-              viewContainerRef:ViewContainerRef){
+              viewContainerRef: ViewContainerRef) {
                 this.viewContainerRef = viewContainerRef;
               }
 
-  ngOnInit(){
-    this.router.navigate(['/mdmmenu'])
+  ngOnInit() {
+    this.router.navigate(['/mdmmenu']);
   }
 
-  activate(comp: string){
+  activate(comp: string) {
     this._comp = comp;
   }
-  isActive(comp: string){
+  isActive(comp: string) {
     if (comp === this._comp) {
       return 'active';
     }

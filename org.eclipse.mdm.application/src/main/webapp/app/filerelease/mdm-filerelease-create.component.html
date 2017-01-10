@@ -1,10 +1,9 @@
 <form (ngSubmit)="createRelease()" #request="ngForm">
   <div class="form-group">
-
     <div [ngClass]="validity.valid ? 'has-success' : 'has-error'">
       <label class="control-label col-sm-2" for="validity">Gültigkeit(Tage):</label>
       <div class="col-sm-10">
-        <select id="validity" [(ngModel)]="release.validity" ngControl="validity" #validity="ngForm" class="form-control" required>
+        <select name="validity" [(ngModel)]="release.validity" ngControl="validity" #validity="ngModel" class="form-control" required>
           <option *ngFor="let opt of expire" [ngValue]="opt">{{opt}}</option>
         </select>
       </div>
@@ -13,7 +12,7 @@
     <div [ngClass]="format.valid ? 'has-success' : 'has-error'">
       <label class="control-label col-sm-2" for="format">Format:</label>
       <div class="col-sm-10">
-        <select id="format" [(ngModel)]="release.format" ngControl="format" #format="ngForm" class="form-control" required>
+        <select name="format" [(ngModel)]="release.format" ngControl="format" #format="ngModel" class="form-control" required>
           <option *ngFor="let opt of options" [ngValue]="opt">{{getFormat(opt)}}</option>
         </select>
       </div>
@@ -22,7 +21,7 @@
     <div [ngClass]="orderMessage.valid ? 'has-success' : 'has-error'">
       <label class="control-label col-sm-2" for="orderMessage">Begründung:</label>
       <div class="col-sm-10">
-        <textarea id="orderMessage" [(ngModel)]="release.orderMessage" ngControl="orderMessage" #orderMessage="ngForm" cols="35" rows="4" class="form-control" required></textarea>
+        <textarea name="orderMessage" [(ngModel)]="release.orderMessage" ngControl="orderMessage" #orderMessage="ngModel" cols="35" rows="4" class="form-control" required></textarea>
       </div>
     </div>
 

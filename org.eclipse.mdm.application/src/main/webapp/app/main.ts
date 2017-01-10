@@ -8,14 +8,21 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {bootstrap} from '@angular/platform-browser-dynamic';
-import {ROUTER_PROVIDERS} from '@angular/router';
 import {enableProdMode} from '@angular/core';
-import {MDMComponent} from './mdm.component';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import {AppModule} from './app.module';
 import 'rxjs/Rx';
 
 if (process.env.ENV === 'production') {
   enableProdMode();
 }
 
-bootstrap(MDMComponent, [ROUTER_PROVIDERS]);
+export function main() {
+  return platformBrowserDynamic().bootstrapModule(AppModule);
+}
+
+if (document.readyState === 'complete') {
+  main();
+} else {
+  document.addEventListener('DOMContentLoaded', main);
+}

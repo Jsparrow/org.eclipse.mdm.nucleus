@@ -9,7 +9,8 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input, OnChanges, SimpleChange} from '@angular/core';
-import {TAB_DIRECTIVES, ACCORDION_DIRECTIVES} from 'ng2-bootstrap/ng2-bootstrap';
+
+import { AccordionComponent, AccordionModule } from 'ng2-bootstrap';
 
 import {NodeService} from '../navigator/node.service';
 import {ContextService} from './context.service';
@@ -18,37 +19,35 @@ import {Node} from '../navigator/node';
 
 @Component({
   selector: 'mdm-detail-context',
-  template: require('../../templates/details/mdm-detail-descriptive-data.component.html'),
-  providers: [ContextService],
-  directives: [TAB_DIRECTIVES, ACCORDION_DIRECTIVES]
+  templateUrl: 'mdm-detail-descriptive-data.component.html',
+  providers: [ContextService]
 })
-
-export class MDMDescriptiveDataComponent implements OnChanges{
+export class MDMDescriptiveDataComponent implements OnChanges {
   @Input() selectedNode: Node;
   @Input() context: String;
-  
-  constructor(private _nodeService: NodeService,
-              private _contextService: ContextService){}
 
   _diff: boolean = false;
   contexts: Context[];
   sensors: Sensor[];
   errorMessage: string;
-  status: string = "loading...";
+  status: string = 'loading...';
 
-  uut:string = "Prüfling";
-  ts:string = "Messgerät";
-  te:string = "Testablauf";
-  s:string = "Sensoren";
+  uut: string = 'Prüfling';
+  ts: string = 'Messgerät';
+  te: string = 'Testablauf';
+  s: string = 'Sensoren';
 
-  ngOnChanges(changes: {[propName: string]: SimpleChange}){
+  constructor(private _nodeService: NodeService,
+              private _contextService: ContextService) {}
+
+  ngOnChanges(changes: {[propName: string]: SimpleChange}) {
     this.getContext(changes['selectedNode'].currentValue);
   }
 
-  getContext(node: Node){
+  getContext(node: Node) {
     this.contexts = undefined;
-    if (node.name != undefined && (node.type.toLowerCase() == "measurement" || node.type.toLowerCase() == "teststep")) {
-      this.status = "loading...";
+    if (node.name !== undefined && (node.type.toLowerCase() === 'measurement' || node.type.toLowerCase() === 'teststep')) {
+      this.status = 'loading...';
       this._contextService.getContext(node).subscribe(
         contexts => this.contexts = contexts,
         error => this.errorMessage = <any>error);
@@ -56,15 +55,15 @@ export class MDMDescriptiveDataComponent implements OnChanges{
           sensors => this.sensors = sensors,
           error => this.errorMessage = <any>error);
     } else {
-      this.status = "keine Beschreibende Daten verfügbar"
+      this.status = 'keine Beschreibende Daten verfügbar';
     }
   }
 
-
-  diffToggle(){
-    this._diff = !this._diff
+  diffToggle() {
+    this._diff = !this._diff;
   }
-  diff(attr1: string, attr2: string){
+
+  diff(attr1: string, attr2: string) {
     if (attr1 !== attr2 && this._diff) {
       return 'danger';
     }
