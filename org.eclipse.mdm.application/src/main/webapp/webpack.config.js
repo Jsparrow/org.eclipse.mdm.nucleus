@@ -88,7 +88,7 @@ module.exports = function makeWebpackConfig() {
       // Support for .ts files.
       {
         test: /\.ts$/,
-        loaders: ['awesome-typescript-loader?' + atlOptions, 'angular2-template-loader', '@angularclass/hmr-loader'],
+        loaders: ['awesome-typescript-loader?' + atlOptions, 'angular2-template-loader', 'angular2-router-loader', '@angularclass/hmr-loader'],
         exclude: [isTest ? /\.(e2e)\.ts$/ : /\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/]
       },
 
@@ -100,8 +100,8 @@ module.exports = function makeWebpackConfig() {
 
       // Support for *.json files.
       {
-    	test: /\.json$/,
-    	loader: 'json-loader'
+    	  test: /\.json$/,
+    	  loader: 'json-loader'
       },
 
       // Support for CSS as raw text

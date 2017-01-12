@@ -8,9 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, Input} from '@angular/core';
-
-import {Node} from '../navigator/node';
+import {Component} from '@angular/core';
 
 import {MDMDetailViewComponent} from './mdm-detail-view.component';
 import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.component';
@@ -21,17 +19,6 @@ import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.compone
   providers: []
 })
 export class MDMDetailComponent {
-  @Input() selectedNode: Node;
 
   brand: string = 'Details';
-  _comp: string = 'DetailView';
-
-  activate(comp: string) {
-    this._comp = comp;
-  }
-  isActive(comp: string) {
-    if (comp === this._comp) {
-      return 'active';
-    }
-  }
 }

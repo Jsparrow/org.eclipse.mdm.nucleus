@@ -8,7 +8,8 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, Input, OnChanges, SimpleChange} from '@angular/core';
+import {Component, OnInit, Input, OnChanges, SimpleChange} from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { AccordionComponent, AccordionModule } from 'ng2-bootstrap';
 
@@ -16,15 +17,16 @@ import {NodeService} from '../navigator/node.service';
 import {ContextService} from './context.service';
 import {Context, Sensor} from './context';
 import {Node} from '../navigator/node';
+import {NavigatorService} from '../navigator/navigator.service';
 
 @Component({
   selector: 'mdm-detail-context',
   templateUrl: 'mdm-detail-descriptive-data.component.html',
   providers: [ContextService]
 })
-export class MDMDescriptiveDataComponent implements OnChanges {
-  @Input() selectedNode: Node;
-  @Input() context: String;
+export class MDMDescriptiveDataComponent implements OnInit {
+  selectedNode: Node;
+  context: String;
 
   _diff: boolean = false;
   contexts: Context[];
@@ -37,14 +39,20 @@ export class MDMDescriptiveDataComponent implements OnChanges {
   te: string = 'Testablauf';
   s: string = 'Sensoren';
 
-  constructor(private _nodeService: NodeService,
-              private _contextService: ContextService) {}
+  constructor(private route: ActivatedRoute,
+              private _contextService: ContextService,
+              private navigatorService: NavigatorService) {}
 
-  ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-    this.getContext(changes['selectedNode'].currentValue);
+  ngOnInit() {
+    this.route.params.map(params => params['context'])
+      .subscribe(context => this.context = context);
+
+    this.navigatorService.selectedNodeChanged
+        .subscribe(node => this.loadContext(node));
   }
 
-  getContext(node: Node) {
+  loadContext(node: Node) {
+    this.selectedNode = node;
     this.contexts = undefined;
     if (node.name !== undefined && (node.type.toLowerCase() === 'measurement' || node.type.toLowerCase() === 'teststep')) {
       this.status = 'loading...';

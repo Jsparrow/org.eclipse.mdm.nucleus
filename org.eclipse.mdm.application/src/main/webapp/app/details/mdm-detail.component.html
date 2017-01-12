@@ -20,23 +20,13 @@
   </div>
   <div class="collapse navbar-collapse" id="bs-mdm-detail-navbar">
     <ul class="nav navbar-nav">
-      <li [ngClass]="isActive('DetailView')"><a (click)="activate('DetailView')" style="cursor:pointer;"> General</a></li>
-      <li [ngClass]="isActive('DescriptiveDataTE')"><a (click)="activate('DescriptiveDataTE')" style="cursor:pointer;"> Test Equipment</a></li>
-      <li [ngClass]="isActive('DescriptiveDataUUT')"><a (click)="activate('DescriptiveDataUUT')" style="cursor:pointer;"> Unit Under Test</a></li>
-      <li [ngClass]="isActive('DescriptiveDataTS')"><a (click)="activate('DescriptiveDataTS')" style="cursor:pointer;"> Test Sequence</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="general" style="cursor:pointer;"> General</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="te" style="cursor:pointer;"> Test Equipment</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="uut" style="cursor:pointer;"> Unit Under Test</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="ts" style="cursor:pointer;"> Test Sequence</a></li>
     </ul>
   </div>
 </div>
 </nav>
-<div class="container-fluid" *ngIf="_comp==='DetailView'">
-  <mdm-detail-view [selectedNode]=selectedNode></mdm-detail-view>
-</div>
-<div class="container-fluid" *ngIf="_comp==='DescriptiveDataTE'">
-  <mdm-detail-context [selectedNode]=selectedNode context="TE"></mdm-detail-context>
-</div>
-<div class="container-fluid" *ngIf="_comp==='DescriptiveDataUUT'">
-  <mdm-detail-context [selectedNode]=selectedNode context="UUT"></mdm-detail-context>
-</div>
-<div class="container-fluid" *ngIf="_comp==='DescriptiveDataTS'">
-  <mdm-detail-context [selectedNode]=selectedNode context="TS"></mdm-detail-context>
-</div>
+
+<router-outlet></router-outlet>

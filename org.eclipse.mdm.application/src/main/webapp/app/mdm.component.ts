@@ -8,42 +8,13 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import {Routes, Router} from '@angular/router';
-
-import {MDMMenuComponent} from './navigator/mdm-menu.component';
-
-import {NodeService} from './navigator/node.service';
-import {BasketService} from './basket/basket.service';
-import {LocalizationService} from './localization/localization.service';
-import {PropertyService} from './properties';
-import {FilereleaseService} from './filerelease/filerelease.service';
+import {Component} from '@angular/core';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'mdm-web',
   templateUrl: 'mdm.component.html',
-  providers: [NodeService, LocalizationService, FilereleaseService, PropertyService, BasketService]
 })
-export class MDMComponent implements OnInit {
+export class MDMComponent {
   brand = 'openMDM5 Web';
-  _comp: string = 'MDMMenu';
-  viewContainerRef;
-
-  constructor(private router: Router,
-              viewContainerRef: ViewContainerRef) {
-                this.viewContainerRef = viewContainerRef;
-              }
-
-  ngOnInit() {
-    this.router.navigate(['/mdmmenu']);
-  }
-
-  activate(comp: string) {
-    this._comp = comp;
-  }
-  isActive(comp: string) {
-    if (comp === this._comp) {
-      return 'active';
-    }
-  }
 }

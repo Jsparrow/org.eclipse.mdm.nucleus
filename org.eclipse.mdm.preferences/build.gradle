@@ -1,0 +1,28 @@
+description = 'MDM preference service'
+version = '1.0.0'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+  
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+dependencies {
+  runtime  'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
+  runtime  'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.8.1'
+  runtime  'javax:javaee-api:7.0'
+  
+  compile 'org.eclipse.mdm:org.eclipse.mdm.connector:1.0.0'
+  compile 'org.eclipse.mdm:org.eclipse.mdm.property:1.0.0' 
+
+  testCompile  'org.eclipse.persistence:eclipselink:2.6.4'
+  testCompile 'junit:junit:4.12'
+  testCompile 'org.assertj:assertj-core:3.6.1'
+  testRuntime 'org.apache.derby:derby:10.13.1.1'
+}

@@ -8,12 +8,11 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, Input} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 import { ModalDirective } from 'ng2-bootstrap';
 
 import {Node} from '../navigator/node';
-import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
 
 import {Release, FilereleaseService} from '../filerelease/filerelease.service';
@@ -22,39 +21,43 @@ import {Localization} from '../localization/localization';
 import {LocalizationService} from '../localization/localization.service';
 
 import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
+import {NavigatorService} from '../navigator/navigator.service';
 
 @Component({
   selector: 'mdm-detail-view',
-  templateUrl: 'mdm-detail-view.component.html',
-  providers: [],
-  inputs: []
+  templateUrl: 'mdm-detail-view.component.html'
 })
-export class MDMDetailViewComponent {
-  @Input() selectedNode: Node;
+export class MDMDetailViewComponent implements OnInit {
+  selectedNode: Node;
+
   locals: Localization[] = [];
 
-  constructor(private _nodeService: NodeService,
-              private _loaclService: LocalizationService,
-              private _basketService: BasketService,
-              private _releaseService: FilereleaseService) {}
+  constructor(private localService: LocalizationService,
+              private basketService: BasketService,
+              private navigatorService: NavigatorService) {}
+
+  ngOnInit() {
+    this.navigatorService.selectedNodeChanged
+        .subscribe(node => this.selectedNode = node);
+  }
 
   add2Basket() {
     if (this.selectedNode) {
-      this._basketService.addNode(this.selectedNode);
+      this.basketService.addNode(this.selectedNode);
     }
   }
 
   isShopable() {
-    if (this.selectedNode.name !== undefined) { return false; }
+    if (this.selectedNode && this.selectedNode.name !== undefined) { return false; }
     return true;
   }
   isReleasable() {
-    if (this.selectedNode.sourceType === 'TestStep') { return false; }
+    if (this.selectedNode && this.selectedNode.sourceType === 'TestStep') { return false; }
     return true;
   }
 
   getTrans(type: string, attr: string) {
-    return this._loaclService.getTranslation(type, attr);
+    return this.localService.getTranslation(type, attr);
   }
   getAttributesForDisplay() {
     if (this.selectedNode.attributes !== undefined) {

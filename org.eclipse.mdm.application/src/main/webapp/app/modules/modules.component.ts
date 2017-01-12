@@ -1,5 +1,6 @@
 
 import {Component, Input} from '@angular/core';
+import {Router} from '@angular/router';
 
 import {Node} from '../navigator/node';
 
@@ -14,17 +15,10 @@ import {DummyModuleComponent} from '../dummy/dummy-module.component';
   providers: []
 })
 export class ModulesComponent {
-  @Input() selectedNode: Node;
 
   brand: string = 'Modules';
-  _comp: string = 'Details';
 
-  activate(comp: string) {
-    this._comp = comp;
-  }
-  isActive(comp: string) {
-    if (comp === this._comp) {
-      return 'active';
-    }
+  constructor(private router: Router) {
+
   }
 }

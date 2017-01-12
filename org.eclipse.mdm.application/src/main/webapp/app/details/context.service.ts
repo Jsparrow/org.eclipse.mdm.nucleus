@@ -12,7 +12,7 @@ import {Injectable} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Context, Sensor} from './context';
-import {PropertyService} from '../properties';
+import {PropertyService} from '../core/properties';
 
 import {Node} from '../navigator/node';
 
@@ -21,16 +21,15 @@ import {Components} from './context';
 @Injectable()
 export class ContextService {
 
-  private _host = this._prop.api_host;
-  private _port = this._prop.api_port;
-  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix;
-  private _contextUrl = this._url + '/mdm/environments';
+  private _contextUrl: string;
 
   private test: {};
   private errorMessage: string;
 
   constructor(private http: Http,
-              private _prop: PropertyService) {}
+              private _prop: PropertyService) {
+    this._contextUrl = _prop.getUrl() + '/mdm/environments';
+  }
 
   getContext(node: Node) {
     let url = this._contextUrl + '/' + node.sourceName;
@@ -109,53 +108,54 @@ export class ContextService {
     let resultattributegroup, resultattributes, resultattribute;
 
     for (let i = 0; i < contexts.length; ++i) {
-      for (let k = 0; k < contexts[i].length; ++k) {
-        let testname = contexts[i][k];
-        let test = contexts[i][testname];
-        if (!Array.isArray(test)) { continue; }
+      for (let testname in contexts[i]) {
+        if (contexts[i].hasOwnProperty(testname)) {
+          let test = contexts[i][testname];
+          if (!Array.isArray(test)) { continue; }
 
-        if (!result[testname]) {
-          result[testname] = new Array();
-        }
-
-        let subresult = result[testname];
-
-        for (let j = 0; j < test.length; ++j) {
-          let attributegroup = test[j];
-          if (!(attributegroup instanceof Object)) { continue; }
-
-          let index = -1;
-          subresult.forEach(function (_resultattributegroup, idx) {
-            if (_resultattributegroup['name'] === attributegroup['name']) { index = idx; return true; }
-          });
-          if (index < 0) {
-            index = subresult.length;
-            subresult.push(resultattributegroup = JSON.parse(JSON.stringify(attributegroup)));
-            resultattributegroup['attributes'] = new Array();
-          } else {
-            resultattributegroup = subresult[index];
+          if (!result[testname]) {
+            result[testname] = new Array();
           }
-          resultattributes = resultattributegroup['attributes'];
 
-          let attributes = attributegroup['attributes'];
-          if (!Array.isArray(attributes)) { continue; };
+          let subresult = result[testname];
 
-          for (let k = 0; k < attributes.length; ++k) {
-            let attribute = attributes[k];
-            if (!(attribute instanceof Object)) { continue; }
+          for (let j = 0; j < test.length; ++j) {
+            let attributegroup = test[j];
+            if (!(attributegroup instanceof Object)) { continue; }
 
             let index = -1;
-            resultattributes.forEach(function (_resultattribute, idx) {
-              if (_resultattribute['name'] === attribute['name']) { index = idx; return true; }
+            subresult.forEach(function (_resultattributegroup, idx) {
+              if (_resultattributegroup['name'] === attributegroup['name']) { index = idx; return true; }
             });
             if (index < 0) {
-              index = resultattributes.length;
-              resultattributes.push(resultattribute = JSON.parse(JSON.stringify(attribute)));
-              resultattribute['value'] = new Array(contexts.length);
+              index = subresult.length;
+              subresult.push(resultattributegroup = JSON.parse(JSON.stringify(attributegroup)));
+              resultattributegroup['attributes'] = new Array();
             } else {
-              resultattribute = resultattributes[index];
+              resultattributegroup = subresult[index];
             }
-            resultattribute['value'][i] = attribute['value'];
+            resultattributes = resultattributegroup['attributes'];
+
+            let attributes = attributegroup['attributes'];
+            if (!Array.isArray(attributes)) { continue; };
+
+            for (let k = 0; k < attributes.length; ++k) {
+              let attribute = attributes[k];
+              if (!(attribute instanceof Object)) { continue; }
+
+              let index = -1;
+              resultattributes.forEach(function (_resultattribute, idx) {
+                if (_resultattribute['name'] === attribute['name']) { index = idx; return true; }
+              });
+              if (index < 0) {
+                index = resultattributes.length;
+                resultattributes.push(resultattribute = JSON.parse(JSON.stringify(attribute)));
+                resultattribute['value'] = new Array(contexts.length);
+              } else {
+                resultattribute = resultattributes[index];
+              }
+              resultattribute['value'][i] = attribute['value'];
+            }
           }
         }
       }

@@ -14,14 +14,12 @@ import {Observable} from 'rxjs/Observable';
 import {Localization} from './localization';
 import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';
-import {PropertyService} from '../properties';
+import {PropertyService} from '../core/properties';
 
 @Injectable()
 export class LocalizationService implements OnInit {
-  private _host = this._prop.api_host;
-  private _port = this._prop.api_port;
-  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix;
-  private _nodeUrl = this._url + '/mdm/environments';
+
+  private _nodeUrl: string;
 
   private _cache: Localization[] = [];
   private errorMessage: string;
@@ -29,8 +27,9 @@ export class LocalizationService implements OnInit {
   constructor(private http: Http,
               private _prop: PropertyService,
               private _node: NodeService) {
-                this.ngOnInit();
-              }
+
+    this._nodeUrl = _prop.getUrl() + '/mdm/environments';
+  }
 
   ngOnInit() {
     let node: Node;

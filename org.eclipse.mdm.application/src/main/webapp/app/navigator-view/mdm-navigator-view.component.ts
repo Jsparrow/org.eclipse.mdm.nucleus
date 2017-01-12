@@ -12,19 +12,19 @@ import {Component, ViewEncapsulation} from '@angular/core';
 
 import { DropdownModule, AccordionConfig, DropdownConfig } from 'ng2-bootstrap';
 
-import {NodeService} from './node.service';
-import {Node} from './node';
-import {MDMNodeProviderComponent} from './mdm-node-provider.component';
+import {NodeService} from '../navigator/node.service';
+import {Node} from '../navigator/node';
+import {MDMNodeProviderComponent} from '../navigator/mdm-node-provider.component';
 
-import {MDMNavigatorComponent} from './mdm-navigator.component';
+import {MDMNavigatorComponent} from '../navigator/mdm-navigator.component';
 import {MDMBasketComponent} from '../basket/mdm-basket.component';
 import {MDMDetailComponent} from '../details/mdm-detail.component';
 import {MDMSearchComponent} from '../search/mdm-search.component';
 import {ModulesComponent} from '../modules/modules.component';
 
 @Component({
-  selector: 'mdm-menu',
-  templateUrl: 'mdm-menu.component.html',
+  selector: 'mdm-navigator-view',
+  templateUrl: 'mdm-navigator-view.component.html',
   styles: [
     '.panel-body {padding: 0px;}',
     '.list-group {margin-bottom: 0px;}',
@@ -35,7 +35,7 @@ import {ModulesComponent} from '../modules/modules.component';
   providers: [DropdownConfig, AccordionConfig],
   encapsulation: ViewEncapsulation.None
 })
-export class MDMMenuComponent {
+export class MDMNavigatorViewComponent {
   selectedNode: Node = new Node;
   activeNode: Node;
   closeOther: boolean = false;

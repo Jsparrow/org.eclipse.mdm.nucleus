@@ -17,7 +17,7 @@ import {DynamicForm} from './dynamic-form.component';
 import {TextboxSearch} from './search-textbox';
 import {DropdownSearch} from './search-dropdown';
 
-import {PropertyService} from '../properties';
+import {PropertyService} from '../core/properties';
 import {Node} from '../navigator/node';
 
 class Definition {
@@ -30,16 +30,15 @@ class Definition {
 @Injectable()
 export class SearchService {
 
-  private _host = this._prop.api_host;
-  private _port = this._prop.api_port;
-  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix;
-  private _searchUrl = this._url + '/mdm/environments';
+  private _searchUrl: string;
   private errorMessage: string;
 
   private defs: Definition[];
 
   constructor(private http: Http,
-              private _prop: PropertyService) {}
+              private _prop: PropertyService) {
+    this._searchUrl = _prop.getUrl() + '/mdm/environments';
+  }
 
   loadDefinitions(type: string, env: string) {
     return this.http.get(this._searchUrl + '/' + env + '/' + type + '/searchattributes')

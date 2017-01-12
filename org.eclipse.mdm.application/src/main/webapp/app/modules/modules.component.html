@@ -10,24 +10,13 @@
   </div>
   <div class="collapse navbar-collapse" id="bs-mainview-navbar">
     <ul class="nav navbar-nav">
-      <li [ngClass]="isActive('Details')"><a (click)="activate('Details')" style="cursor:pointer;"> Details</a></li>
-      <li [ngClass]="isActive('Search')"><a (click)="activate('Search')" style="cursor:pointer;"> MDM Suche</a></li>
-      <li [ngClass]="isActive('Release')"><a (click)="activate('Release')" style="cursor:pointer;"> Freigabeübersicht</a></li>
-      <li [ngClass]="isActive('Dummy')"><a (click)="activate('Dummy')" style="cursor:pointer;"> Dummy</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="details" style="cursor:pointer;"> Details</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="search" style="cursor:pointer;"> MDM Suche</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="filerelease" style="cursor:pointer;"> Freigabeübersicht</a></li>
+      <li [routerLinkActive]="['active']"><a routerLink="dummy" style="cursor:pointer;"> Dummy</a></li>
     </ul>
   </div>
 </div>
 </nav>
-<div class="container-fluid" *ngIf="_comp==='Details'">
-  <mdm-detail [selectedNode]=selectedNode></mdm-detail>
-</div>
-<div class="container-fluid" *ngIf="_comp==='Search'">
-  <mdm-search></mdm-search>
-</div>
-<div class="container-fluid" *ngIf="_comp==='Release'">
-  <mdm-filerelease></mdm-filerelease>
-</div>
-<div class="container-fluid" *ngIf="_comp==='Dummy'">
-  <dummy-module></dummy-module>
-</div>
-      
+
+<router-outlet></router-outlet>

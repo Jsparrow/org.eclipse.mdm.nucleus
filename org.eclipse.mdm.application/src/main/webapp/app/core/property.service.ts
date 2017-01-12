@@ -8,21 +8,24 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Injectable, Inject} from '@angular/core';
-
-import {DOCUMENT} from '@angular/platform-browser';
+import {Injectable} from '@angular/core';
 
 @Injectable()
 export class PropertyService {
-  api_host: string;
-  api_port: string;
-  api_prefix: string;
-  data_host: string;
+  private api_host: string;
+  private api_port: string;
+  private api_prefix: string;
 
-  constructor(@Inject(DOCUMENT) private document) {
+  constructor() {
     this.api_host = 'localhost';
     this.api_port = '8080';
     this.api_prefix = '/org.eclipse.mdm.nucleus';
-    this.data_host = 'http://'+ this.api_host + ':' + this.api_port + '/';
+  }
+
+  getDataHost(): string {
+      return 'http://' + this.api_host + ':' + this.api_port;
+  }
+  getUrl(): string {
+    return this.getDataHost() + this.api_prefix;
   }
 }

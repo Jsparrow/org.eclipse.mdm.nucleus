@@ -13,73 +13,26 @@ import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
 import {Node} from './node';
-import {PropertyService} from '../properties';
+import {PropertyService} from '../core/properties';
+
+declare function require(path: string): any;
+const defaultNodeProvider = require('./defaultnodeprovider.json');
+const nodeprovider2  = require('./nodeprovider2.json');
 
 @Injectable()
 export class NodeService {
 
-  nodeProviderChanged: EventEmitter<any> = new EventEmitter<any>();
-  public locals;
+  public nodeProviderChanged: EventEmitter<any> = new EventEmitter<any>();
 
-  private _host = this._prop.api_host;
-  private _port = this._prop.api_port;
-  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix;
-  private _nodeUrl = this._url + '/mdm/environments';
+  private _nodeUrl: string;
 
-  private defaultNodeProvider = JSON.parse(`
-  {
-    "name" : "Default",
-    "type" : "Environment",
-    "children" : {
-      "type" : "Test",
-      "attribute" : "Name",
-      "query" : "/tests",
-      "children" : {
-        "type" : "TestStep",
-        "attribute" : "Name",
-        "query" : "/teststeps?filter=Test.Id eq {Test.Id}",
-        "children" : {
-          "type" : "Measurement",
-          "attribute" : "Name",
-          "query" : "/measurements?filter=TestStep.Id eq {TestStep.Id}",
-          "children" : {
-            "type" : "ChannelGroup",
-            "attribute" : "Name",
-            "query" : "/channelgroups?filter=Measurement.Id eq {Measurement.Id}",
-            "caption" : "ChannelGroup.Name",
-            "children" : {
-              "type" : "Channel",
-              "attribute" : "Name",
-              "query" : "/channels?filter=ChannelGroup.Id eq {ChannelGroup.Id}"
-            }
-          }
-        }
-      }
-    }
-  }`);
+  private nodeproviders = [defaultNodeProvider, nodeprovider2];
 
-  private nodeprovider2 = JSON.parse(`
-  {
-    "name" : "Channels",
-    "type" : "Environment",
-    "children" : {
-      "type" : "Test",
-      "attribute" : "Name",
-      "query" : "/tests",
-      "children" : {
-        "type" : "Channel",
-        "attribute" : "Name",
-        "query" : "/channels?filter=Test.Id eq {Test.Id}"
-      }
-    }
-  }`);
-
-  private nodeproviders = [this.defaultNodeProvider, this.nodeprovider2];
-
-  activeNodeprovider = this.nodeproviders[0];
+  private activeNodeprovider: any = this.nodeproviders[0];
 
   constructor(private http: Http,
               private _prop: PropertyService) {
+    this._nodeUrl = _prop.getUrl() + '/mdm/environments';
   }
 
   setActiveNodeprovider(nodeprovider: any) {

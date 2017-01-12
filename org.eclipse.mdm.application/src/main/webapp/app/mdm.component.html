@@ -20,7 +20,7 @@
     </div>
     <div class="collapse navbar-collapse" id="bs-mdm-navbar">
       <ul class="nav navbar-nav">
-        <li [ngClass]="isActive('MDMMenu')"><a [routerLink]="['/mdmmenu']" (click)="activate('MDMMenu')"> Navigator</a></li>
+        <li [routerLinkActive]="['active']"><a routerLink="navigator" style="cursor:pointer;"> Navigator</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="mdm/logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>

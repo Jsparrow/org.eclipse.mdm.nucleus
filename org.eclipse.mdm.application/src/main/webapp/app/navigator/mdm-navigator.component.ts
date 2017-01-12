@@ -12,6 +12,7 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 import {Node} from './node';
 import {NodeService} from './node.service';
+import {NavigatorService} from './navigator.service';
 
 import {MDMNodeProviderComponent} from './mdm-node-provider.component';
 
@@ -33,7 +34,8 @@ export class MDMNavigatorComponent implements OnInit {
   subscription: any;
 
   constructor(
-    private _nodeService: NodeService) {}
+    private _nodeService: NodeService,
+    private navigatorService: NavigatorService) {}
 
   getNodes() {
     let node: Node;
@@ -68,6 +70,7 @@ export class MDMNavigatorComponent implements OnInit {
     this.activeNode = node;
     this.onActive.emit(node);
     this.selectingNode.emit(node);
+    this.navigatorService.setSelectedNode(node);
   }
 
   updateActiveNode(node) {

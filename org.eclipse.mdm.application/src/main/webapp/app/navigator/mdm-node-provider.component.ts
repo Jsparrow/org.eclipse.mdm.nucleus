@@ -12,6 +12,7 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 import {Node} from './node';
 import {NodeService} from './node.service';
+import {NavigatorService} from './navigator.service';
 
 @Component({
   selector: 'mdm-node-provider',
@@ -33,7 +34,8 @@ export class MDMNodeProviderComponent implements OnInit {
   selectedNode: Node;
 
   constructor(
-    private _nodeService: NodeService) {}
+    private _nodeService: NodeService,
+    private navigatorService: NavigatorService) {}
 
   ngOnInit() {
     this.getNodes();
@@ -70,6 +72,7 @@ export class MDMNodeProviderComponent implements OnInit {
     this.activeNode = node;
     this.onActive.emit(node);
     this.selectingNode.emit(node);
+    this.navigatorService.setSelectedNode(node);
   }
   isActive(node) {
     if (this._nodeService.compareNode(this.activeNode, node)) { return 'active'; }

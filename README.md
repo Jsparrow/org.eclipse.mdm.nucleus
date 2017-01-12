@@ -24,7 +24,7 @@ Before you can install and build the application, you have to checkout and insta
 The command **gradlew install** at **org.eclipse.mdm.nucleus** creates a ZIP archive named **mdm_web.zip** at
 **/org.eclipse.mdm.nucleus/build/distributions**
 The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war** and the configurations **/configuration**
-3. **deploy** the backend ( **org.eclipse.mdm.nuclues.war** file) at your application server
+3. **deploy** the backend ( **org.eclipse.mdm.nuclues.war** file) at your application server, check that database for preference service is running (**asadmin start-database**)
 4. **copy the content** of the extracted **/configuration** folder to **GLASSFISH_ROOT/glassfish/domains/domain1/config**
 5. **edit** the **org.eclipse.mdm.connector/service.xml** file to configure the data sources
 6. **install** and **configure** the **LoginModule** (see org.eclipse.mdm.realms - README.md)
@@ -95,7 +95,11 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/CHANNELID
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channels/123456_
 
+## Preference Service
+Preference service stores its data to a relational database. The database connection is looked up be JNDI and the JNDI name is specified in src/main/resources/META-INF/persistence.xml. The default is set to jdbc/__default which is available in glassfish per default and uses a derby database. The derby database is not started automatically with glassfish, but has to be started with following command: GLASSFISH_HOME/bin/asadmin start-database
 
+* http://SERVER:POART/APPLICATIONROOT/mdm/preferences
+* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences
 
 ## FreeTextSearch
 ### Configuration
@@ -106,3 +110,6 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 ### Run on dedicated server
 The Indexing is completely independent from the searching. So the Indexer can be freely deployed at any other machine. In the simplest case, the same steps as in Configuration have to be done. The application can then be deployed on any other machine. All components besides the FreeTextIndexer and its dependencies are not user. Those can be left out, if desired.
 
+
+If you run into "java.lang.ClassNotFoundException: javax.xml.parsers.ParserConfigurationException not found by org.eclipse.persistence.moxy" this is a bug described in https://bugs.eclipse.org/bugs/show_bug.cgi?id=463169.
+This solution is to replace GLASSFISH_HOME/glassfish/modules/org.eclipse.persistence.moxy.jar with this: http://central.maven.org/maven2/org/eclipse/persistence/org.eclipse.persistence.moxy/2.6.1/org.eclipse.persistence.moxy-2.6.1.jar

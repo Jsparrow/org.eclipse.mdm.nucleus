@@ -25,6 +25,7 @@ dependencies {
 	compile project(':org.eclipse.mdm.filerelease')
 	compile project(':org.eclipse.mdm.property')	
 	compile project(':org.eclipse.mdm.freetextindexer')	
+	compile project(':org.eclipse.mdm.preferences')	
 }
 
 buildscript {

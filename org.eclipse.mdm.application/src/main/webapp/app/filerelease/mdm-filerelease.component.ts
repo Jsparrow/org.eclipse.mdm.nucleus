@@ -11,7 +11,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FilereleaseService, Release} from './filerelease.service';
 import {MDMFilereleaseDisplayComponent} from './mdm-filerelease-display.component';
-import {PropertyService} from '../properties';
+import {PropertyService} from '../core/properties';
 
 @Component({
   selector: 'mdm-filerelease',
@@ -26,10 +26,12 @@ export class MDMFilereleaseComponent implements OnInit {
   errorMessage: string;
   release: Release = new Release;
   event: string = 'display';
-  dataHost: string = this.prop.data_host;
+  dataHost: string;
 
   constructor(private service: FilereleaseService,
-              private prop: PropertyService) {}
+              private prop: PropertyService) {
+    this.dataHost = prop.getDataHost();
+  }
 
   ngOnInit() {
     this.getReleases();

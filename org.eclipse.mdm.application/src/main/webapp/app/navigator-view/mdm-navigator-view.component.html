@@ -32,13 +32,12 @@
             </ul>
           </div>
         </div>
-      </nav> 
+      </nav>
       <div class="container-fluid" *ngIf="_comp==='Navigation'||'Dropdown'">
         <mdm-navigator (selectingNode)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-navigator>
       </div>
     </div>
     <div class="col-sm-9">
-      <modules [selectedNode]=selectedNode></modules>
       <router-outlet></router-outlet>
 
       <accordion [closeOthers]="closeOther">

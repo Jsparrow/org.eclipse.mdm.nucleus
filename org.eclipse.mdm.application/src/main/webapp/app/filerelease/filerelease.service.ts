@@ -12,39 +12,44 @@ import {Injectable} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
-import {PropertyService} from '../properties';
+import {PropertyService} from '../core/properties';
 
 @Injectable()
 export class FilereleaseService {
-  url = 'http://' + this.prop.api_host + ':' + this.prop.api_port + this.prop.api_prefix + '/mdm/filereleases';
+  url: string;
   stateMap = new Array();
   formatMap = new Array();
   month = new Array();
 
   constructor(private http: Http,
               private prop: PropertyService) {
-                  this.formatMap['PAK2RAW'] = 'original Daten';
-                  this.formatMap['PAK2ATFX'] = 'ATFX';
-                  this.stateMap['RELEASE_ORDERED'] = 'beauftragt';
-                  this.stateMap['RELEASE_APPROVED'] = 'genehmigt';
-                  this.stateMap['RELEASE_RELEASED'] = 'freigegeben';
-                  this.stateMap['RELEASE_EXPIRED'] = 'abgelaufen';
-                  this.stateMap['RELEASE_PROGRESSING_ERROR'] = 'Systemfehler';
-                  this.stateMap['RELEASE_PROGRESSING'] = 'In Bearbeitung';
-                  this.stateMap['RELEASE_REJECTED'] = 'abgelehnt';
-                  this.month[0] = '1';
-                  this.month[1] = '2';
-                  this.month[2] = '3';
-                  this.month[3] = '4';
-                  this.month[4] = '5';
-                  this.month[5] = '6';
-                  this.month[6] = '7';
-                  this.month[7] = '8';
-                  this.month[8] = '9';
-                  this.month[9] = '10';
-                  this.month[10] = '11';
-                  this.month[11] = '12';
-              }
+
+    this.url = prop.getUrl() + '/mdm/filereleases';
+
+    this.formatMap['PAK2RAW'] = 'original Daten';
+    this.formatMap['PAK2ATFX'] = 'ATFX';
+
+    this.stateMap['RELEASE_ORDERED'] = 'beauftragt';
+    this.stateMap['RELEASE_APPROVED'] = 'genehmigt';
+    this.stateMap['RELEASE_RELEASED'] = 'freigegeben';
+    this.stateMap['RELEASE_EXPIRED'] = 'abgelaufen';
+    this.stateMap['RELEASE_PROGRESSING_ERROR'] = 'Systemfehler';
+    this.stateMap['RELEASE_PROGRESSING'] = 'In Bearbeitung';
+    this.stateMap['RELEASE_REJECTED'] = 'abgelehnt';
+
+    this.month[0] = '1';
+    this.month[1] = '2';
+    this.month[2] = '3';
+    this.month[3] = '4';
+    this.month[4] = '5';
+    this.month[5] = '6';
+    this.month[6] = '7';
+    this.month[7] = '8';
+    this.month[8] = '9';
+    this.month[9] = '10';
+    this.month[10] = '11';
+    this.month[11] = '12';
+  }
 
   readAll() {
     return this.read('');
