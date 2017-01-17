@@ -18,7 +18,7 @@ Before you can install and build the application, you have to checkout and insta
 
 ## build, deploy and configure the application
 
-1. **edit** the **org.eclipse.mdm.nucleus/org.eclipse.mdm.application/src/main/webapp/app** and set the variables host, port and prefix for your deployment
+1. **edit** the **org.eclipse.mdm.nucleus/org.eclipse.mdm.application/src/main/webapp/app/core/property.service.ts** and set the variables host, port and prefix for your deployment
 (This properties are used to create the rest URLs to communicate with the backend)
 2. **build** the application (gradlew install)
 The command **gradlew install** at **org.eclipse.mdm.nucleus** creates a ZIP archive named **mdm_web.zip** at
