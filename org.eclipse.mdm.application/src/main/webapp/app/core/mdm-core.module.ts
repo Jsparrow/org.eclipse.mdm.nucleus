@@ -8,7 +8,7 @@ import { TabsModule } from 'ng2-bootstrap/tabs';
 import { PositioningService } from 'ng2-bootstrap/positioning';
 import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
 
-import { PropertyService } from './properties';
+import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
 
 @NgModule({

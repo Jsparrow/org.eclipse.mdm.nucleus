@@ -14,7 +14,7 @@ import {Observable} from 'rxjs/Observable';
 import {Localization} from './localization';
 import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';
-import {PropertyService} from '../core/properties';
+import {PropertyService} from '../core/property.service';
 
 @Injectable()
 export class LocalizationService implements OnInit {

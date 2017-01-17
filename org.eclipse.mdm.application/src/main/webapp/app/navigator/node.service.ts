@@ -13,7 +13,7 @@ import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
 import {Node} from './node';
-import {PropertyService} from '../core/properties';
+import {PropertyService} from '../core/property.service';
 
 declare function require(path: string): any;
 const defaultNodeProvider = require('./defaultnodeprovider.json');

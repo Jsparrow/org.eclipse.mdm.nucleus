@@ -11,7 +11,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FilereleaseService, Release} from './filerelease.service';
 import {MDMFilereleaseDisplayComponent} from './mdm-filerelease-display.component';
-import {PropertyService} from '../core/properties';
+import {PropertyService} from '../core/property.service';
 
 @Component({
   selector: 'mdm-filerelease',

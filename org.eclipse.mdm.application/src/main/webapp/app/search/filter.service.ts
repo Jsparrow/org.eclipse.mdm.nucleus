@@ -7,7 +7,7 @@ import {DynamicForm} from './dynamic-form.component';
 import {TextboxSearch} from './search-textbox';
 import {DropdownSearch} from './search-dropdown';
 
-import {PropertyService} from '../core/properties';
+import {PropertyService} from '../core/property.service';
 import {Node} from '../navigator/node';
 
 

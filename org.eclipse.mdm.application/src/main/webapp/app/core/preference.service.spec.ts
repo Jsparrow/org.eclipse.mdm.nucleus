@@ -11,7 +11,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import {PreferenceService} from './preference.service';
-import {PropertyService} from './properties';
+import {PropertyService} from './property.service';
 
 describe('PreferenceService', () => {
   beforeEach(() => {

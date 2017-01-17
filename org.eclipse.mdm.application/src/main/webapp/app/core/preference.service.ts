@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Http, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
-import {PropertyService} from './properties';
+import {PropertyService} from './property.service';
 
 export class Preference {
 

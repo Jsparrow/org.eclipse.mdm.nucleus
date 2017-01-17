@@ -3,7 +3,7 @@ import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
 import {Node} from './node';
-import {PropertyService} from '../core/properties';
+import {PropertyService} from '../core/property.service';
 
 @Injectable()
 export class NavigatorService {

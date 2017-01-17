@@ -1,7 +1,7 @@
 import {Injectable, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 
-import {PropertyService} from '../core/properties';
+import {PropertyService} from '../core/property.service';
 
 export class View {
   name: string;
