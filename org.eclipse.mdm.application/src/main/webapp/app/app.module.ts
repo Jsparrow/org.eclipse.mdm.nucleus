@@ -25,7 +25,6 @@ import {LocalizationService} from './localization/localization.service';
 import {FilereleaseService} from './filerelease/filerelease.service';
 
 import {MDMCoreModule} from './core/mdm-core.module';
-import {ModulesModule} from './modules/modules.module';
 import { MDMBasketModule } from './basket/mdm-basket.module';
 
 import {NavigatorService} from './navigator/navigator.service';
@@ -39,7 +38,6 @@ import {NavigatorService} from './navigator/navigator.service';
     Ng2BootstrapModule,
     TabsModule.forRoot(),
     MDMCoreModule,
-    ModulesModule,
     MDMBasketModule
   ],
   declarations: [

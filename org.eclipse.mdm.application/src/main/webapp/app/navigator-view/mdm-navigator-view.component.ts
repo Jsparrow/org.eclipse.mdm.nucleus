@@ -16,11 +16,6 @@ import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
 import {MDMNodeProviderComponent} from '../navigator/mdm-node-provider.component';
 
-import {MDMNavigatorComponent} from '../navigator/mdm-navigator.component';
-import {MDMBasketComponent} from '../basket/mdm-basket.component';
-import {MDMDetailComponent} from '../details/mdm-detail.component';
-import {MDMSearchComponent} from '../search/mdm-search.component';
-import {ModulesComponent} from '../modules/modules.component';
 
 @Component({
   selector: 'mdm-navigator-view',

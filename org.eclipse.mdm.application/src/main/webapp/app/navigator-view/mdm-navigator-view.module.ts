@@ -7,16 +7,14 @@ import { MDMNavigatorViewRoutingModule } from './mdm-navigator-view-routing.modu
 import { MDMNavigatorViewComponent } from './mdm-navigator-view.component';
 
 import { MDMNavigatorModule } from '../navigator/mdm-navigator.module';
-import { MDMDetailModule } from '../details/mdm-detail.module';
-import { MDMFilereleaseModule } from '../filerelease/mdm-filerelease.module';
-import { ModulesModule } from '../modules/modules.module';
+import { MDMModulesModule } from '../modules/mdm-modules.module';
 
 @NgModule({
   imports: [
     MDMCoreModule,
     MDMNavigatorViewRoutingModule,
     MDMNavigatorModule,
-    ModulesModule
+    MDMModulesModule
   ],
   declarations: [
     MDMNavigatorViewComponent

@@ -5,7 +5,7 @@ import { MDMNavigatorViewComponent } from './navigator-view/mdm-navigator-view.c
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'navigator', pathMatch: 'full' },
-  { path: 'navigator', component: MDMNavigatorViewComponent, loadChildren: './modules/modules.module#ModulesModule' }
+  { path: 'navigator', component: MDMNavigatorViewComponent, loadChildren: './modules/mdm-modules.module#MDMModulesModule' }
 ];
 
 @NgModule({

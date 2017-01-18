@@ -4,21 +4,19 @@ import { RouterModule, Routes } from '@angular/router';
 import { MDMNavigatorViewComponent }    from './mdm-navigator-view.component';
 import { MDMDetailComponent }    from '../details/mdm-detail.component';
 import { MDMSearchComponent }    from '../search/mdm-search.component';
-import { ModulesComponent }    from '../modules/modules.component';
+import { MDMModulesComponent }    from '../modules/mdm-modules.component';
 
 const navigatorViewRoutes: Routes = [
   { path: 'navigator', component: MDMNavigatorViewComponent,
-    //loadChildren: '../modules/modules.module#ModulesModule'}
     children: [
-      { path: '**', component: ModulesComponent },
+      { path: '**', component: MDMModulesComponent },
       { path: 'details', component: MDMDetailComponent},
-      { path: 'modules', component: ModulesComponent, children: [
+      { path: 'modules', component: MDMModulesComponent, children: [
         { path: 'details', component: MDMDetailComponent},
         { path: 'filerelease', component: MDMDetailComponent},
         { path: 'search',  component: MDMSearchComponent }
       ]}
     ]}
-  // loadChildren: '../details/mdm-detail.module#MDMDetailModule'}
 ];
 
 @NgModule({

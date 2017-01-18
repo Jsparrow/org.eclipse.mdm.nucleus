@@ -1,30 +1,28 @@
 import { NgModule } from '@angular/core';
 
-
-import { ModulesComponent } from './modules.component';
-import { ModulesRoutingModule } from './modules-routing.module';
+import { MDMModulesComponent } from './mdm-modules.component';
+import { MDMModulesRoutingModule } from './mdm-modules-routing.module';
 
 import { MDMCoreModule } from '../core/mdm-core.module';
 import { MDMDetailModule } from '../details/mdm-detail.module';
 import { MDMSearchModule } from '../search/mdm-search.module';
 import { MDMFilereleaseModule } from '../filerelease/mdm-filerelease.module';
-import { DummyModuleComponent } from '../dummy/dummy-module.component';
+import { MDMExampleModule } from '../example-module/mdm-example.module';
 
 @NgModule({
   imports: [
     MDMCoreModule,
-    ModulesRoutingModule,
+    MDMModulesRoutingModule,
     MDMDetailModule,
     MDMSearchModule,
     MDMFilereleaseModule,
+    MDMExampleModule
   ],
   declarations: [
-    ModulesComponent,
-    DummyModuleComponent
+    MDMModulesComponent
   ],
   exports: [
-    ModulesComponent,
+    MDMModulesComponent,
   ]
 })
-export class ModulesModule {
-}
+export class MDMModulesModule {}
