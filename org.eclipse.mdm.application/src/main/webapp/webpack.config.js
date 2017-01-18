@@ -17,7 +17,12 @@ var ENV = process.env.npm_lifecycle_event;
 var isTestWatch = ENV === 'test-watch';
 var isTest = ENV === 'test' || isTestWatch;
 var isProd = ENV === 'build';
-console.log("isTestWatch=" + isTestWatch + " isTest=" + isTest + " isProd=" + isProd + " Env="+ ENV);
+
+/**
+ * Define the contextPath / base href for the angular application
+ */
+var contextPath = '/org.eclipse.mdm.nucleus/';
+
 module.exports = function makeWebpackConfig() {
   /**
    * Config
@@ -57,7 +62,7 @@ module.exports = function makeWebpackConfig() {
    */
   config.output = isTest ? {} : {
     path: root('dist'),
-    publicPath: isProd ? '/org.eclipse.mdm.nucleus/' : '/',
+    publicPath: isProd ? contextPath : '/',
     filename: isProd ? '[name].[hash].js' : '[name].js',
     chunkFilename: isProd ? '[id].[hash].chunk.js' : '[id].chunk.js'
   };
@@ -210,6 +215,7 @@ module.exports = function makeWebpackConfig() {
       // Reference: https://github.com/ampedandwired/html-webpack-plugin
       new HtmlWebpackPlugin({
         template: './public/index.html',
+        baseUrl: isProd ? contextPath : '/',
         chunksSortMode: 'dependency'
       }),
 
@@ -254,7 +260,7 @@ module.exports = function makeWebpackConfig() {
     quiet: true,
     stats: 'minimal', // none (or false), errors-only, minimal, normal (or true) and verbose
     proxy: {
-      '/org.eclipse.mdm.nucleus': {
+      contextPath: {
         target: 'http://sa:sa@localhost:8080/',
       }
     }
