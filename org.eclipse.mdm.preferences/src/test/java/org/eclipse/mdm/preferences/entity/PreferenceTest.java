@@ -47,12 +47,12 @@ public class PreferenceTest
 		EntityManager em = factory.createEntityManager();
 
 		em.getTransaction().begin();
-		Preference p = new Preference("MDMXYZ", "*", "key1", "value1");
+		Preference p = new Preference("MDMXYZ", "*", "key2", "value1");
 		em.persist(p);
 		em.getTransaction().commit();
 
 		assertThat(em.find(Preference.class, p.getId()))
-		.isEqualToIgnoringGivenFields(new Preference("MDMXYZ", "*", "key1", "value1"), "id");
+		.isEqualToIgnoringGivenFields(new Preference("MDMXYZ", "*", "key2", "value1"), "id");
 
 		em.close();
 	}
@@ -62,7 +62,7 @@ public class PreferenceTest
 		EntityManager em = factory.createEntityManager();
 
 		em.getTransaction().begin();
-		Preference p = new Preference("MDMXYZ", "*", "key1", "value1");
+		Preference p = new Preference("MDMXYZ", "*", "key3", "value1");
 		em.persist(p);
 		em.getTransaction().commit();
 
@@ -70,7 +70,7 @@ public class PreferenceTest
 		assertThat(q.getResultList())
 		.hasSize(1)
 		.usingElementComparatorIgnoringFields("id")
-		.contains(new Preference("MDMXYZ", "*", "key1", "value1"));
+		.contains(new Preference("MDMXYZ", "*", "key3", "value1"));
 
 		em.close();
 	}

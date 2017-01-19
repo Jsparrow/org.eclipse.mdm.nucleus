@@ -1,0 +1,29 @@
+@CHARSET "ISO-8859-1";
+/* 
+ .form-control{width: 48%;}  */
+ 
+ 
+.form-group {
+    margin-bottom: 0px;
+    padding-right: 0px;
+ 	padding-left: 0px;
+}
+
+.form-control {
+	border-radius: 0px;
+}
+
+.btn {
+	border-radius: 0px;	
+}
+
+ul {
+  list-style-type: none;
+}
+
+#truncateLongTexts {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

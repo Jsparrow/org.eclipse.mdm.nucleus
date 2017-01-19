@@ -4,9 +4,11 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -15,8 +17,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.preferences.controller.PreferenceService;
-import org.eclipse.mdm.preferences.entity.Preference;
 import org.eclipse.mdm.preferences.entity.PreferenceResponse;
+import org.eclipse.mdm.preferences.entity.PreferencesResponse;
 import org.eclipse.mdm.preferences.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +40,17 @@ public class PreferenceResource {
 	/**
 	 * delegates the request to the {@link PreferenceService}
 	 * 
-	 * @param filter TODO
+	 * @param scope filter by scope, empty loads all
+	 * @param key filter by key, empty loads all
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getPreference(@QueryParam("filter") String filter) {
+	public Response getPreference(@QueryParam("scope") String scope, @QueryParam("key") String key) {
 		
 		try {			
-			List<Preference> config = this.preferenceService.loadAll();
-			return ServiceUtils.toResponse(new PreferenceResponse(config), Status.OK);
+			List<PreferenceResponse> config = this.preferenceService.getPreferences(scope, key);
+			return ServiceUtils.toResponse(new PreferencesResponse(config), Status.OK);
 		
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
@@ -63,14 +66,28 @@ public class PreferenceResource {
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response setPreference(Preference preference) {
+	public Response setPreference(PreferenceResponse preference) {
 		
-		try {			
-			this.preferenceService.save(preference);
-			return Response.ok().build();
+		try {
+			return ServiceUtils.toResponse(this.preferenceService.save(preference), Status.CREATED);
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@DELETE
+	@Path("/{ID}")
+	public Response deletePreference(@PathParam("ID") Long id){
+		
+		try {
+//			this.preferenceService.deletePreference(id);
+//			return Response.ok().build();
+			return ServiceUtils.toResponse(this.preferenceService.deletePreference(id), Status.OK);
+		} catch(RuntimeException e) {
+			LOG.error(e.getMessage(), e);
+			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 }

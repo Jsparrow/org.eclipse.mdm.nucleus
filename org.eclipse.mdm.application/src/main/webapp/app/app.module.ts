@@ -24,7 +24,8 @@ import {BasketService} from './basket/basket.service';
 import {LocalizationService} from './localization/localization.service';
 import {FilereleaseService} from './filerelease/filerelease.service';
 
-import {MDMCoreModule} from './core/mdm-core.module';
+import { AdminModule } from './administration/admin.module';
+import { MDMCoreModule} from './core/mdm-core.module';
 import { MDMBasketModule } from './basket/mdm-basket.module';
 
 import {NavigatorService} from './navigator/navigator.service';
@@ -37,6 +38,7 @@ import {NavigatorService} from './navigator/navigator.service';
     AppRoutingModule,
     Ng2BootstrapModule,
     TabsModule.forRoot(),
+    AdminModule,
     MDMCoreModule,
     MDMBasketModule
   ],

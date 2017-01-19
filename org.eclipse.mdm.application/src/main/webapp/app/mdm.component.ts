@@ -8,13 +8,20 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component} from '@angular/core';
-import {Router} from '@angular/router';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
-@Component({
-  selector: 'mdm-web',
-  templateUrl: 'mdm.component.html',
+@Component( {
+    selector: 'mdm-web',
+    templateUrl: 'mdm.component.html',
 })
 export class MDMComponent {
-  brand = 'openMDM5 Web';
+    brand: string = 'openMDM5 Web';
+
+    getLinks() {
+        return [
+            { name: 'Navigator', path: '/navigator' },
+            { name: 'Administration', path: '/administration' },
+        ];
+    }
 }

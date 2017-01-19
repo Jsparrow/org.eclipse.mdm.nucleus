@@ -20,7 +20,7 @@
     </div>
     <div class="collapse navbar-collapse" id="bs-mdm-navbar">
       <ul class="nav navbar-nav">
-        <li [routerLinkActive]="['active']"><a routerLink="navigator" style="cursor:pointer;"> Navigator</a></li>
+        <li *ngFor="let m of getLinks()" [routerLinkActive]="['active']"><a routerLink="{{m.path}}" style="cursor:pointer;"> {{m.name}}</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="mdm/logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>

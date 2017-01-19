@@ -9,10 +9,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@XmlRootElement(name="preference")
+@Table(uniqueConstraints={@UniqueConstraint(columnNames={"source", "username", "keyCol"})})
 public class Preference {
 	
 	@Id
