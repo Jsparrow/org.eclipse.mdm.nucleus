@@ -2,8 +2,7 @@ import {Injectable, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 
 import {PropertyService} from '../core/property.service';
-import {PreferenceService} from '../core/preference.service';
-import {Preference} from '../core/preference.service';
+import {PreferenceService, Preference} from '../core/preference.service';
 
 export class View {
   name: string;

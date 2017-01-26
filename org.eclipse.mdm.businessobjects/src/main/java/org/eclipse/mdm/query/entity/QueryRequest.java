@@ -1,4 +1,4 @@
-package org.eclipse.mdm.search.entity;
+package org.eclipse.mdm.query.entity;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ public class QueryRequest {
 
 	private List<SourceFilter> filters;
 	private List<String> columns;
+	private String resultType;
 	
 	public QueryRequest() {
 		// TODO Auto-generated constructor stub
@@ -24,5 +25,12 @@ public class QueryRequest {
 	}
 	public void setColumns(List<String> columns) {
 		this.columns = columns;
+	}
+	public String getResultType() {
+		return resultType;
+	}
+	
+	public void setResultType(String resultType) {
+		this.resultType = resultType;
 	}
 }

@@ -1,8 +1,9 @@
-package org.eclipse.mdm.search.entity;
+package org.eclipse.mdm.query.entity;
 
 public class SourceFilter {
 	private String sourceName;
 	private String filter;
+	private String searchString;
 	
 	public SourceFilter() {
 		// TODO Auto-generated constructor stub
@@ -22,5 +23,13 @@ public class SourceFilter {
 
 	public void setFilter(String filter) {
 		this.filter = filter;
+	}
+	
+	public String getSearchString() {
+		return searchString;
+	}
+	
+	public void setSearchString(String searchString) {
+		this.searchString = searchString;
 	}
 }

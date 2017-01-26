@@ -10,6 +10,7 @@ import {FilterService} from '../search/filter.service';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
 import { Node } from '../navigator/node';
+import {MDMItem} from '../core/mdm-item';
 
 @Component({
   selector: 'edit-view',
@@ -200,7 +201,7 @@ export class EditViewComponent {
 
   add2Basket(node: Node) {
     if (node) {
-      this.basketService.addNode(node);
+      this.basketService.add(new MDMItem(node.sourceName, node.type, node.id));
     }
   }
 

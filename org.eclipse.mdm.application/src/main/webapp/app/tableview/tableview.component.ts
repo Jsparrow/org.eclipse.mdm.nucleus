@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnInit } from '@angular/core';
+import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 import { PreferenceView, View, Col, ViewService } from './tableview.service';
 
@@ -6,61 +6,71 @@ import {FilterService} from '../search/filter.service';
 
 import {BasketService} from '../basket/basket.service';
 import { Node } from '../navigator/node';
+import {MDMItem} from '../core/mdm-item';
+
 import { EditViewComponent } from './editview.component';
 
 import {PreferenceService} from '../core/preference.service';
 import {Preference} from '../core/preference.service';
+import {QueryService, Query, SearchResult, Row} from './query.service';
 
 @Component({
   selector: 'mdm-tableview',
   templateUrl: 'tableview.component.html',
   providers: [ViewService],
-  styles: ['.remove {color:black; cursor: pointer; float: right}']
+  styleUrls: [ './tableview.component.css']
 })
-export class TableviewComponent implements OnInit {
-  prefViews: PreferenceView[] = [];
-  selectedView: View;
-  emptyView: View = new View();
-  groupedViews: any[] = [];
+export class TableviewComponent implements OnInit, OnChanges {
+  @Input() view: View;
 
   @Input() nodes: Node[];
+  @Input() items: MDMItem[];
+  @Input() results: SearchResult;
   @Input() isShopable: boolean = false;
   @Input() isRemovable: boolean = false;
+
+  results1: SearchResult;
 
   @ViewChild(EditViewComponent)
   private editViewComponent: EditViewComponent;
 
   constructor(private viewService: ViewService,
     private basketService: BasketService,
-    private _pref: PreferenceService) {
+    private _pref: PreferenceService,
+    private queryService: QueryService) {
   }
 
   ngOnInit() {
-    this.viewService.getViews().then(prefViews => this.setView(prefViews));
-    this.viewService.viewsChanged$.subscribe(view => this.onViewChanged(view));
+    /*
+    if (this.items) {
+      this.loadData(this.items);
+    }
+    */
   }
 
-  setView(prefViews: PreferenceView[]) {
-    this.prefViews = prefViews;
-    this.selectedView = this.prefViews[0].view;
-    this.getGroupedView(prefViews);
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['view']) {
+      this.view = changes['view'].currentValue;
+    }
+    /*
+    if (changes['items']) {
+      this.loadData(this.items);
+    }
+    */
   }
+/*
+  loadData(items: MDMItem[]) {
+    if (this.view) {
+      this.queryService.queryItems(items, this.view.cols.map(c => c.type + '.' + c.name)).subscribe(r => this.results = r);
+    }
+  }*/
 
-  onViewChanged(view: View) {
-    this.viewService.getViews().then(prefViews => { this.prefViews = prefViews; this.getGroupedView(prefViews); });
-    this.selectedView = view;
-  }
+  getData(row: Row, col: Col) {
+    let resultColumn = row.columns.find(c => c.type === col.type && c.attribute === col.name);
 
-  editSelectedView() {
-    this.editViewComponent.showDialog(this.selectedView);
-  }
-
-  newView() {
-    this.editViewComponent.showDialog(this.emptyView);
-  }
-
-  selectView(view: View) {
-    this.selectedView = view;
+    if (resultColumn) {
+      return resultColumn.value;
+    }
   }
 
   nodeDataProvider(node: Node, col: Col) {
@@ -76,35 +86,29 @@ export class TableviewComponent implements OnInit {
     return '-';
   }
 
-  functionalityProvider(isShopable: boolean, node: Node) {
+  functionalityProvider(isShopable: boolean, row: Row) {
     if (isShopable) {
-        this.add2Basket(node);
+      this.basketService.add(new MDMItem(row.source, row.type, +row.id));
     } else {
-        this.removeNode(node);
+      this.basketService.remove(new MDMItem(row.source, row.type, +row.id));
     }
   }
 
-
-  add2Basket(node: Node) {
-    if (node) {
-      this.basketService.addNode(node);
-    }
-  }
-  removeNode(node) {
-    this.basketService.removeNode(node);
-  }
-
-  getGroupedView(prefViews: PreferenceView[]) {
-    this.groupedViews = [];
-    for (let i = 0; i < prefViews.length; i++) {
-      let pushed = false;
-      for (let j = 0; j < this.groupedViews.length; j++) {
-        if (prefViews[i].scope === this.groupedViews[j].scope) {
-          this.groupedViews[j].view.push(prefViews[i].view);
-          pushed = true;
-        }
-      }
-      if (pushed === false) { this.groupedViews.push({scope: prefViews[i].scope, view: [prefViews[i].view]}); }
+  getNodeClass(type: string) {
+    switch (type) {
+      case 'Test':
+        return 'test';
+      case 'TestStep':
+        return 'teststep';
+      case 'Measurement':
+      case 'MeaResult':
+        return 'measurement';
+      case 'ChannelGroup':
+      case 'SubMatrix':
+        return 'channelgroup';
+      case 'Channel':
+      case 'MeaQuantity':
+        return 'channel';
     }
   }
 }

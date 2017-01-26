@@ -4,8 +4,8 @@ import { MDMCoreModule } from '../core/mdm-core.module';
 
 import { TableviewComponent } from './tableview.component';
 import { EditViewComponent } from './editview.component';
+import { ViewComponent } from './view.component';
 import { ViewService } from './tableview.service';
-
 
 @NgModule({
   imports: [
@@ -14,10 +14,12 @@ import { ViewService } from './tableview.service';
   declarations: [
     TableviewComponent,
     EditViewComponent,
+    ViewComponent
   ],
   exports: [
     TableviewComponent,
-    EditViewComponent
+    EditViewComponent,
+    ViewComponent
   ],
   providers: [
     ViewService

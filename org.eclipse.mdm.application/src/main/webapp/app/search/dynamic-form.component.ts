@@ -10,7 +10,7 @@
 //   *******************************************************************************
 import {Component, Input, OnInit, OnChanges, SimpleChange} from '@angular/core';
 import {FormGroup} from '@angular/forms';
-
+import {MDMItem} from '../core/mdm-item';
 import {SearchBase} from './search-base';
 import {SearchService} from './search.service';
 import {SearchControlService} from './search-control.service';
@@ -80,7 +80,7 @@ export class DynamicForm implements OnChanges, OnInit{
     }
   }
   add2Basket(node: Node){
-    this.basket.addNode(node);
+    this.basket.add(new MDMItem(node.sourceName, node.type, node.id));
   }
 
   getTrans(label: string){

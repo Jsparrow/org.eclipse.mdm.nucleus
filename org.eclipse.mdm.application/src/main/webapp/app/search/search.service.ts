@@ -17,14 +17,33 @@ import {DynamicForm} from './dynamic-form.component';
 import {TextboxSearch} from './search-textbox';
 import {DropdownSearch} from './search-dropdown';
 
+import {Condition, Operator} from './filter.service';
+
 import {PropertyService} from '../core/property.service';
 import {Node} from '../navigator/node';
+import {LocalizationService} from '../localization/localization.service';
 
-class Definition {
-  attrName: string;
+export class SearchAttribute {
+  source: string;
   boType: string;
-  criteria: string;
+  attrName: string;
   valueType: string;
+  criteria: string;
+
+  constructor(source: string, boType: string, attrName: string, valueType?: string, criteria?: string) {
+    this.source = source;
+    this.boType = boType;
+    this.attrName = attrName;
+    this.valueType = valueType || 'string';
+    this.criteria = criteria || '';
+  }
+}
+
+export class SearchDefinition {
+  key: string;
+  value: string;
+  type: string;
+  label: string;
 }
 
 @Injectable()
@@ -33,18 +52,18 @@ export class SearchService {
   private _searchUrl: string;
   private errorMessage: string;
 
-  private defs: Definition[];
+  private defs: SearchAttribute[];
 
   constructor(private http: Http,
+              private localService: LocalizationService,
               private _prop: PropertyService) {
     this._searchUrl = _prop.getUrl() + '/mdm/environments';
   }
 
-  loadDefinitions(type: string, env: string) {
+  loadSearchAttributes(type: string, env: string) {
     return this.http.get(this._searchUrl + '/' + env + '/' + type + '/searchattributes')
-               .toPromise()
-               .then(response => response.json().data)
-               .catch(this.handleError);
+              .map(response => <SearchAttribute[]> response.json().data)
+              .map(sas => sas.map(sa => { sa.source = env; return sa; }));
   }
 
   getDefinitions() {
@@ -52,21 +71,27 @@ export class SearchService {
       new DropdownSearch({
         key: 'definitions',
         label: 'definitions',
-        options: [
-          {key: '1', value: 'tests', label: 'Versuche'},
-          {key: '2', value: 'teststeps', label: 'Versuchsschritte'},
-          {key: '3', value: 'measurements', label: 'Messungen'}
-        ],
+        options: this.getDefinitionsSimple(),
         order: 1
       });
     return definitions;
   }
 
-  buildSearchForm(defs) {
+  getDefinitionsSimple() {
+    return [
+      <SearchDefinition> {key: '1', value: 'tests', type: 'Test', label: 'Versuche'},
+      <SearchDefinition> {key: '2', value: 'teststeps', type: 'TestStep', label: 'Versuchsschritte'},
+      <SearchDefinition> {key: '3', value: 'measurements', type: 'Measurement', label: 'Messungen'}
+    ];
+  }
+
+  buildSearchForm(defs: SearchAttribute[]) {
     let searchesForm: SearchBase<any>[] = [];
-    defs.forEach(function(def, i) {
+    defs.forEach(function(def: SearchAttribute, i) {
       searchesForm.push(new TextboxSearch({
-        key: def.boType + '.' + def.attrName,
+        boType: def.boType,
+        attrName: def.attrName,
+        key: def.boType + '.' + def.attrName + '.' + def.valueType,
         label: def.boType + '.' + def.attrName,
         value: '',
         required: false,
@@ -77,15 +102,75 @@ export class SearchService {
     return searchesForm;
   }
 
-  getSearches(type: string, env: string) {
+  getSearches(type: string, env: string): Promise<SearchBase<any>[]> {
     if (!env) {
       return;
     }
-    return this.loadDefinitions(type, env)
-        .then((defs) => {
-          return this.buildSearchForm(defs);
-        })
+    return this.loadSearchAttributes(type, env)
+        .toPromise()
+        .then(defs => this.buildSearchForm(defs))
         .catch(error => this.errorMessage = error); // todo: Display error message
+  }
+
+
+
+  toConditions(defs: SearchAttribute[]) {
+    return defs.map(a => new Condition(a.boType, a.attrName, Operator.EQUALS, []));
+  }
+
+  getSearchables(envs: string[], type: string) {
+    let searchables: Condition[] = [];
+
+    envs.forEach(env => this.loadSearchAttributes(type, env)
+        .toPromise()
+        .then(defs => searchables = searchables.concat(this.toConditions(defs)))
+        .catch(error => this.errorMessage = error));
+
+    return searchables;
+  }
+
+  getSearchAttributesPerEnvs(envs: string[], type: string) {
+
+    return Observable.forkJoin(envs.map(env => this.loadSearchAttributes(type, env)
+        .map(sas => sas.map(sa => { sa.source = env; return sa; }))))
+        .map(x => x.reduce(function(explored, toExplore) {
+          return explored.concat(toExplore);
+        }, []));
+  }
+
+  flatten<T>(arr: T[][]): T[] {
+    return arr.reduce(function(explored, toExplore) {
+      return explored.concat(
+        Array.isArray(toExplore) ?
+        this.flatten(toExplore) : toExplore
+      );
+    }, []);
+  }
+
+  get(envs: string[], type: string) {
+    let searchables: [string, SearchAttribute[]][] = [];
+
+    envs.forEach(env => this.loadSearchAttributes(type, env)
+        .toPromise()
+        .then(defs => searchables.push([env, defs]))
+        .catch(error => this.errorMessage = error));
+
+    return searchables;
+  }
+
+
+  conditionMap(conditions: Condition[], sas: [String, SearchAttribute[]][]) {
+    let model: [string[], Condition[]][];
+
+    // conditions.forEach(c => model.push([this.findEnvironments(c, sas), ]);
+
+    console.log(model);
+  }
+
+  findEnvironments(condition: Condition, sas: [String, SearchAttribute[]][]): String[] {
+    return sas
+      .filter(entry => entry[1].find(sa => sa.boType === condition.type && sa.attrName === condition.attribute))
+      .map(entry => entry[0]);
   }
 
   private handleError(error: Response) {

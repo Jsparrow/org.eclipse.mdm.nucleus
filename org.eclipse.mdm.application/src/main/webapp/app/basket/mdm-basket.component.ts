@@ -10,10 +10,17 @@
 //   *******************************************************************************
 import {Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import {Node} from '../navigator/node';
-import {BasketNode, BasketService} from './basket.service';
+import {MDMItem} from '../core/mdm-item';
+
+import {BasketService, Basket} from './basket.service';
 import {TableviewComponent} from '../tableview/tableview.component';
+import {ViewComponent} from '../tableview/view.component';
+
+import { View } from '../tableview/tableview.service';
 
 import { ModalDirective } from 'ng2-bootstrap';
+
+import {QueryService, Query, SearchResult, Row, Filter} from '../tableview/query.service';
 
 @Component({
   selector: 'mdm-basket',
@@ -22,51 +29,83 @@ import { ModalDirective } from 'ng2-bootstrap';
   providers: []
 })
 export class MDMBasketComponent {
-  @ViewChild('lgLoadModal') public childLoadModal: ModalDirective;
-  @ViewChild('lgSaveModal') public childSaveModal: ModalDirective;
-  @Output() onSelect = new EventEmitter<Node>();
   @Output() onActive = new EventEmitter<Node>();
+  @Output() onSelect = new EventEmitter<Node>();
   @Input() activeNode: Node;
-  basketNodes: Node[];
-  baskets: BasketNode[];
-  selectedBasket: BasketNode;
-  basketName: string = '';
 
-  constructor(private _basketService: BasketService) {
+  basketName: string = '';
+  basketContent: SearchResult = new SearchResult();
+
+  baskets: Basket[] = [];
+  selectedBasket: Basket;
+
+  selectedView: View;
+
+  @ViewChild(ViewComponent)
+  private viewComponent: ViewComponent;
+  @ViewChild('lgLoadModal')
+  private childLoadModal: ModalDirective;
+  @ViewChild('lgSaveModal')
+  private childSaveModal: ModalDirective;
+
+  constructor(private _basketService: BasketService, private queryService: QueryService) {
   }
 
   ngOnInit() {
-    this._basketService.getBasketNodes().then(baskets => this.setNodes(baskets));
-    this._basketService.nodesChanged$.subscribe(nodes => this.basketName = '');
+    this.setItems(this._basketService.items);
+
+    this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
+    this._basketService.itemsAdded$.subscribe(items => this.addItems(items));
+    this._basketService.itemsRemoved$.subscribe(items => this.removeItems(items));
   }
 
-  setNodes(baskets: BasketNode[]) {
-    this.basketNodes = this._basketService.Nodes;
-    this.baskets = baskets;
-    this.selectedBasket = this.baskets[0];
+  setItems(items: MDMItem[]) {
+    if (this.selectedView) {
+      this.queryService.queryItems(items, this.selectedView.cols.map(c => c.type + '.' + c.name))
+        .forEach(q => q.subscribe(r => this.basketContent.rows = r.rows));
+    }
+  }
+
+  addItems(items: MDMItem[]) {
+    if (this.selectedView) {
+      this.queryService.queryItems(items, this.selectedView.cols.map(c => c.type + '.' + c.name))
+        .forEach(q => q.subscribe(r => this.addData(r.rows)));
+    }
+  }
+
+  removeItems(items: MDMItem[]) {
+    items.forEach(item =>
+      this.basketContent.rows = this.basketContent.rows.filter(row =>
+        !(row.source === item.source && row.type === item.type && +row.id === item.id)));
+  }
+
+
+  setView(view: View) {
+    console.log('setView', view);
   }
 
   saveBasket() {
-    let index = this.baskets.indexOf(this.selectedBasket);
-    this._basketService.saveNodes(this.basketNodes, this.basketName)
-             .then(saved => this._basketService.getBasketNodes())
-             .then(baskets => { this.baskets = baskets; this.selectedBasket = baskets[index]; });
+    this._basketService.saveBasketWithName(this.basketName);
     this.childSaveModal.hide();
   }
 
-  loadBasket() {
-    this.basketNodes.length = 0;
-    this.selectedBasket.nodes.forEach(nodes => this.basketNodes.push(nodes));
-    this.basketName = this.selectedBasket.name;
+  loadBasket(basket: Basket) {
+    this.selectedBasket = basket;
+    this.setItems(basket.items);
     this.childLoadModal.hide();
   }
 
+  loadBaskets() {
+    this._basketService.getBaskets().then(baskets => this.baskets = baskets);
+  }
+
   clearBasket() {
-    this.basketNodes.length = 0;
+    this.basketContent = new SearchResult();
     this.basketName = '';
   }
 
   showLoadModal() {
+    this.loadBaskets();
     this.childLoadModal.show();
   }
 
@@ -74,8 +113,7 @@ export class MDMBasketComponent {
     this.childSaveModal.show();
   }
 
-  selectBasket(basket) {
-    this.selectedBasket = basket;
+  private addData(rows: Row[]) {
+    rows.forEach(row => this.basketContent.rows.push(row));
   }
-
 }

@@ -17,7 +17,6 @@
     "build": "rimraf dist && webpack --profile --bail",
     "devBuild": "rimraf dist && webpack --progress --profile --bail"
   },
-
   "dependencies": {
     "@angular/common": "2.4.3",
     "@angular/compiler": "2.4.3",
@@ -34,7 +33,8 @@
 
     "bootstrap": "^3.3.7",
     "ng2-bootstrap": "1.3.1",
-    "ng2-dropdown-multiselect": "1.1.1"
+    "ng2-dropdown-multiselect": "1.1.1",
+    "angular2-tag-input": "^1.2.3"
   },
   "devDependencies": {
     "@angularclass/hmr": "^1.0.1",
@@ -60,6 +60,7 @@
     "karma": "1.3.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-firefox-launcher": "~0.1",
+    "karma-phantomjs-launcher": "1.0.2",
     "karma-coverage": "^1.0.0",
     "karma-jasmine": "^1.0.2",
     "karma-mocha-reporter": "^2.0.3",

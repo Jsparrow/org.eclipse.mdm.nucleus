@@ -60,7 +60,7 @@ export class NodeService {
               .catch(this.handleError);
   }
 
-  getNodes(node: Node) {
+  getNodes(node?: Node) {
     if (node === undefined) {
       return this.getRootNodes();
     }

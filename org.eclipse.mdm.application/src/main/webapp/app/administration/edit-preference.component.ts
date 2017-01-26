@@ -52,7 +52,7 @@ export class EditPreferenceComponent {
             });
     }
 
-    setOptions(preference: Preference){
+    setOptions(preference: Preference) {
         this.needSave = false;
         this.isKeyEmpty = preference.key === '';
         this.isScopeEmpty = preference.scope === '';

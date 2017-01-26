@@ -1,7 +1,9 @@
-package org.eclipse.mdm.search.entity;
+package org.eclipse.mdm.query.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import jersey.repackaged.com.google.common.base.MoreObjects;
 
 @JsonInclude(Include.NON_NULL)
 public class Column {
@@ -49,5 +51,13 @@ public class Column {
 		this.unit = unit;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(Column.class)
+				.add("type", type)
+				.add("attribute", attribute)
+				.add("value", value)
+				.add("unit", unit)
+				.toString();
+	}
 }

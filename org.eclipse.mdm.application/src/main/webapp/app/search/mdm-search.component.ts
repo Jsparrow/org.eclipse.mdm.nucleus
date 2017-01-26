@@ -8,61 +8,95 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {DynamicForm} from './dynamic-form.component';
 
-import {SearchService} from './search.service';
-import {FilterService, SearchFilter, EnvFilter, Condition, Operator} from './filter.service';
+import {SearchService, SearchDefinition, SearchAttribute} from './search.service';
+import {DropdownSearch} from './search-dropdown';
+import {SearchBase} from './search-base';
+
+import {FilterService, SearchFilter, Condition, Operator} from './filter.service';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
+import {QueryService, Query, SearchResult, Filter} from '../tableview/query.service';
+
 import {LocalizationService} from '../localization/localization.service';
 
 import {Node} from '../navigator/node';
+import {MDMItem} from '../core/mdm-item';
 
 import {TableviewComponent} from '../tableview/tableview.component';
+import {ViewComponent} from '../tableview/view.component';
+
+import {View} from '../tableview/tableview.service';
+import { IDropdownItem, IMultiselectConfig  } from 'ng2-dropdown-multiselect';
+import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 
 @Component({
   selector: 'mdm-search',
   templateUrl: 'mdm-search.component.html',
-  styles: [ 'table.searchdefinition td { vertical-align: middle; padding: 4px 8px; } '],
-  providers:  [SearchService, FilterService],
+  providers:  [SearchService, FilterService, QueryService],
   inputs: []
 })
 export class MDMSearchComponent {
 
-  nodes: Node[] = [];
-  definitions: any;
-  ungrouped: any[] = [];
-  groups: any[] = [];
-  selectedGroups: any[] = [];
-  envs: Node[] = [];
-  selectedEnv: Node[] = [];
-  type: any = { label: 'Ergebnistyp wählen'};
-  errorMessage: string;
   filters: SearchFilter[];
   selectedFilter: SearchFilter;
+  selectedView: View;
+
+  // environments: Node[] = [];
+  // type: SearchDefinition;
+  searchText: string = '';
+
+  searchableFields: SearchBase<any>[] = [];
+
+  definitions: SearchDefinition[];
+
+  errorMessage: string;
+
+  results: SearchResult;
 
   isAdvancedSearchOpen: boolean = false;
   isSearchResultsOpen: boolean = false;
 
+  currentSearch: any = {};
+  public dropdownModel: IDropdownItem[];
+  public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
+
+  @ViewChild(ViewComponent)
+  private viewComponent: ViewComponent;
+
+  @ViewChild(TableviewComponent)
+  private tableViewComponent: TableviewComponent;
+
   constructor(private searchService: SearchService,
+              private queryService: QueryService,
               private filterService: FilterService,
               private nodeService: NodeService,
               private localService: LocalizationService,
               private basketService: BasketService) {
-    this.definitions = searchService.getDefinitions();
-    this.filters = filterService.getFilters();
-    let node: Node;
 
-    this.nodeService.getNodes(node).subscribe(
-      nodes => this.setEvns(nodes),
-      error => this.errorMessage = <any>error);
-  }
-
+              }
   ngOnInit() {
+    this.definitions = this.searchService.getDefinitionsSimple();
+
     this.filters = this.filterService.getFilters();
     this.selectedFilter = this.filters[0];
+
+
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
+    this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
+
+    this.nodeService.getNodes().subscribe(
+      nodes => this.setEnvironments(nodes),
+      error => this.errorMessage = <any>error);
+
+    this.dropdownModel = [];
+  }
+
+  onConditionChanged(condition: Condition) {
+    console.log(condition);
+    this.calcCurrentSearch();
   }
 
   onFilterChanged(filter: SearchFilter) {
@@ -70,111 +104,102 @@ export class MDMSearchComponent {
     this.selectedFilter = filter;
   }
 
-  setEvns(envs) {
-    this.envs = envs;
-    for (let i = 0; i < envs.length; i++) {
-      this.selectedEnv.push(envs[i]);
-    }
-    this.selectDef(this.definitions.options[0]);
+  setEnvironments(environments: Node[]) {
+    this.selectedFilter.environments = environments.map(e => e.sourceName);
+    this.dropdownModel = environments.map(env => <IDropdownItem> { id: env.sourceName, label: env.name, selected: true });
+    this.selectResultType(this.definitions[0]);
+    this.calcCurrentSearch();
   }
 
-  selectEnv(env: Node) {
-    this.selectedEnv.push(env);
-    this.selectDef(this.type);
+  selectResultType(type: any) {
+    this.selectedFilter.resultType = type.type;
+    this.updateSearches();
   }
 
-  onSubmit(query: string) {
-    this.nodes = [];
-    for (let i in this.selectedEnv) {
-      if (this.selectedEnv.hasOwnProperty(i)) {
-        this.search(query, this.selectedEnv[i].sourceName);
-      }
-    }
+  getSearchDefinition(type: string) {
+    return this.definitions.find(def => def.type === type);
   }
 
-  search(query: string, env: string) {
-    this.nodeService.searchFT(query, env).subscribe(
-      nodes => { this.nodes = this.nodes.concat(nodes); this.isSearchResultsOpen = true; },
+  updateSearches() {
+    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
+
+    this.selectedFilter.environments.forEach(env =>
+      this.searchService.getSearches(type, env).then(defs => this.searchableFields = defs));
+
+    let map = this.searchService.get(this.selectedFilter.environments, type);
+  }
+
+  isEnvSelected(env) {
+    return this.dropdownModel.find(item => item.id === env.sourceName && item.selected);
+  }
+
+  onSearch() {
+    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
+    this.searchService.getSearchAttributesPerEnvs(this.selectedFilter.environments, type)
+      .subscribe(attrs => this.search(attrs));
+  }
+
+  search(attrs: SearchAttribute[]) {
+    let query = this.filterService.convertToQuery(this.selectedFilter, attrs, this.selectedView);
+    this.queryService.query(query).subscribe(
+      result => {
+        this.results = <SearchResult> result;
+        this.isSearchResultsOpen = true;
+      },
       error => this.errorMessage = <any>error
     );
+  }
+
+  calcCurrentSearch() {
+    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
+    let conditions = this.selectedFilter.conditions;
+
+    this.searchService.getSearchAttributesPerEnvs(this.selectedFilter.environments, type)
+      .subscribe(attrs => this.setCurrentSearch(this.selectedFilter.environments, conditions, attrs));
+  }
+
+  setCurrentSearch(envs: string[], conditions: Condition[], attrs: SearchAttribute[]) {
+    this.currentSearch = this.filterService.env2Conditions(envs, conditions, this.filterService.groupByEnv(attrs));
+    console.log(this.currentSearch);
+  }
+
+  getEnvs(currentSearch: any) {
+    return Object.keys(currentSearch) || [];
   }
 
   selectFilter(filter: SearchFilter) {
     this.filterService.setSelectedFilter(filter);
   }
 
-  selectItem(item) {
-    let a = item.key.split('.');
-    let g = this.groups.map(function(x) {return x.name; }).indexOf(a[0]);
-    let i = this.groups[g].items.indexOf(item);
-    if (this.groups[g].items[i].active) {
-      this.groups[g].items[i].active = false;
-    } else {
-      this.groups[g].items[i].active = true;
-    }
+  addToFilter(field: string) {
+    let splitted = field.split('.');
+
+    let type = splitted[0];
+    let attribute = splitted[1];
+
+    let condition = new Condition(type, attribute, Operator.EQUALS, []);
+
+    this.selectedFilter.conditions.push(condition);
+    this.calcCurrentSearch();
   }
 
-  selectDef(type: any) {
-    this.type = type;
-    this.groups = [];
-    this.ungrouped = [];
-    for (let i = 0; i < this.selectedEnv.length; i++) {
-      this.searchService.getSearches(type.value, this.selectedEnv[i].sourceName).then(defs => this.groupBy(defs));
-    }
+  public isAttributeAvailableInEnv(envName: string, type: string, attribute: string) {
+
+    return true;
   }
 
-  public typeaheadOnSelect(e: any): void {
-    this.selectItem(e.item);
-  }
-
-  groupBy(defs) {
-    this.ungrouped = this.arrayUnique(defs, this.ungrouped);
-    this.transTypeAHead();
-    let groups = this.groups.slice();
-    defs.forEach(function(obj) {
-      let str = obj.key;
-      let a = str.split('.');
-      let g = groups.map(function(x) { return x.name; }).indexOf(a[0]);
-      if (g === -1) {
-        groups.push({name: a[0], items: [obj]});
-      } else {
-        let i = groups[g].items.map(function(x) { return x.key; }).indexOf(obj.key);
-        if (i !== -1) { return; }
-        groups[g].items.push(obj);
-      }
-    });
-    this.groups = groups;
+  public typeaheadOnSelect(match: TypeaheadMatch) {
+    let item: SearchBase<any> = match.item;
+    this.addToFilter(item.key);
   }
 
   isActive(item) {
-    if (item.active) { return 'active'; }
-    return;
-  }
-
-  transTypeAHead() {
-    for (let i in this.ungrouped) {
-      if (this.ungrouped[i].labelt) { continue; }
-      let a = this.ungrouped[i].label.split('.');
-      this.ungrouped[i].labelt = this.getTrans(a[0]) + '.' + this.getTrans(this.ungrouped[i].label);
-    }
-  }
-
-  getTrans(label: string) {
-    let type = '',
-    comp = '';
-    if (label.includes('.')) {
-      let a = label.split('.');
-      type = a[0];
-      comp = a[1];
-    } else {
-      type = label;
-    }
-    return this.localService.getTranslation(type, comp);
+    return item.active ? 'active' : '';
   }
 
   add2Basket(node: Node) {
     if (node) {
-      this.basketService.addNode(node);
+      this.basketService.add(new MDMItem(node.sourceName, node.type, node.id));
     }
   }
 
@@ -190,21 +215,15 @@ export class MDMSearchComponent {
     return Operator.toString(op);
   }
 
-  removeCondition(envFilter: EnvFilter, condition: Condition) {
-    this.selectedFilter.envs.find(e => e === envFilter).conditions = envFilter.conditions.filter(c => c !== condition);
+  removeCondition(value: [string, Condition]) {
+    this.selectedFilter.conditions = this.selectedFilter.conditions
+        .filter(c => !(c.type === value[1].type && c.attribute === value[1].attribute));
+
+    this.calcCurrentSearch();
   }
 
   resetFilter() {
     this.filters = this.filterService.getFilters();
     this.selectedFilter = this.filters.find(f => f.name === this.selectedFilter.name);
-  }
-
-  private arrayUnique(source, target) {
-    source.forEach(function(item) {
-      let i = target.map(function(x) { return x.key; }).indexOf(item.key);
-      if (i !== -1) { return; }
-      target.push(item);
-    });
-    return target;
   }
 }

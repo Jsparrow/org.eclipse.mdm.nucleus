@@ -1,9 +1,20 @@
-
-<button type="submit" class="btn btn-default" style="float: right;" (click)="clearBasket()" title="Clear" ><span class="glyphicon glyphicon-erase"></span></button> 
-<button type="submit" class="btn btn-default" style="float: right;" (click)="showLoadModal()" title="Load" ><span class="glyphicon glyphicon-folder-open"></span></button>
-<button type="submit" class="btn btn-default" style="float: right;" (click)="showSaveModal()" title="Save" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
-
-<mdm-tableview [nodes]="basketNodes" isRemovable="true" ></mdm-tableview>
+<div class="container-fluid">
+  <div class="row"  style="margin-top: 5px; margin-bottom: 5px;">
+    <div class="col-md-6">
+      <mdm-view (viewSelected)="selectedView = $event"></mdm-view>
+    </div>
+    <div class="col-md-6" style="text-align: right;">
+      <button type="submit" class="btn btn-default" (click)="showSaveModal()" title="Save shopping basket" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
+      <button type="submit" class="btn btn-default" (click)="showLoadModal()" title="Load shopping basket" ><span class="glyphicon glyphicon-folder-open"></span></button>
+      <button type="submit" class="btn btn-default" (click)="clearBasket()" title="Clear shopping basket" ><span class="glyphicon glyphicon-erase"></span></button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <mdm-tableview [results]="basketContent" [view]="selectedView" isRemovable="true" ></mdm-tableview>
+    </div>
+  </div>
+</div>
 
 <div bsModal #lgLoadModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -22,7 +33,7 @@
               <ul class="list-group" style="max-height:50vh; padding: 0; list-style-type: none; overflow-y:auto;">
                 <div style="display: table; width: 100%; border: 1px solid #ddd;">
                   <li class="list-group-item" *ngFor="let basket of baskets" [ngClass]="{'active': selectedBasket == basket}">
-                    <a style="color:black; cursor: pointer;"  title="{{basket.name}}" (click)="selectBasket(basket)">{{basket.name}}</a>
+                    <a style="color:black; cursor: pointer;"  title="{{basket.name}}" (click)="loadBasket(basket)">{{basket.name}}</a>
                   </li>
                 </div>
               </ul>

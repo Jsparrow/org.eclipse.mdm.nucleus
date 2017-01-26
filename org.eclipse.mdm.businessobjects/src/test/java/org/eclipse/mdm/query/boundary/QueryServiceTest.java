@@ -1,27 +1,26 @@
-package org.eclipse.mdm.businessobjects.control;
+package org.eclipse.mdm.query.boundary;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_NAMESERVICE;
 import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_PASSWORD;
 import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_SERVICENAME;
 import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_USER;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.eclipse.mdm.api.base.ConnectionException;
-import org.eclipse.mdm.api.base.model.Value;
+import org.eclipse.mdm.api.base.model.Measurement;
+import org.eclipse.mdm.api.base.model.Test;
+import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.ModelManager;
-import org.eclipse.mdm.api.base.query.Record;
-import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.EntityFactory;
 import org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory;
-import org.eclipse.mdm.query.entity.Column;
+import org.eclipse.mdm.businessobjects.control.QueryTest;
 import org.eclipse.mdm.query.entity.Row;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,12 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.common.base.Strings;
 
-public class QueryTest {
-
+@Ignore
+public class QueryServiceTest {
 	/*
 	 * ATTENTION:
 	 * ==========
@@ -94,36 +90,51 @@ public class QueryTest {
 	}
 
 	@org.junit.Test
-	@Ignore
-	public void test() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
-		ModelManager mm = entityManager.getModelManager().get();
+	public void testTest() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
+		QueryService qa = new QueryService();
+		List<Row> rows = qa.queryRowsForSource(entityManager, 
+				"Test", 
+				Arrays.asList("Test.Id", "Test.Name", "TestStep.Id", "TestStep.Name"), 
+				"TestStep.Name lk PBN*", 
+				"");
 		
-		 List<Result> result = mm.createQuery()
-			.select(mm.getEntityType("Test").getAttribute("Id"))
-			.select(mm.getEntityType("Test").getAttribute("Name"))
-			.select(mm.getEntityType("TestStep").getAttribute("Id"))
-			.select(mm.getEntityType("TestStep").getAttribute("Name"))
-			.fetch();
-		 
-		 List<Row> rows = new ArrayList<>();
-		 
-		 for (Result r : result)
-		 {
-			 Row row = new Row();
-			 for (Record record : r) {
-				 for (Value value : record.getValues().values()) {
-					 row.addColumn(new Column(
-							 record.getEntityType().getName(),
-							 value.getName(), 
-							 Strings.emptyToNull(Objects.toString(value.extract())), 
-							 Strings.emptyToNull(value.getUnit())));
-				 }
-			 }
-			 rows.add(row);
-		 }
-		 
-		 ObjectMapper mapper = new ObjectMapper();
-		 mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		 mapper.writeValue(System.out, rows);
+		assertThat(rows).as("Expected 2 Tests").hasSize(2);
+	}
+	
+	@org.junit.Test
+	public void testTestStep() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
+		QueryService qa = new QueryService();
+		List<Row> rows = qa.queryRowsForSource(entityManager, 
+				"TestStep", 
+				Arrays.asList("Test.Id", "Test.Name", "TestStep.Id", "TestStep.Name"), 
+				"TestStep.Name lk PBN*", 
+				"");
+		
+		assertThat(rows).as("Expected 8 TestSteps").hasSize(8);
+	}
+	
+	@org.junit.Test
+	public void testMeasurement() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
+		QueryService qa = new QueryService();
+		List<Row> rows = qa.queryRowsForSource(entityManager, 
+				"Measurement", 
+				Arrays.asList("Test.Id", "Test.Name", "TestStep.Id", "TestStep.Name"), 
+				"TestStep.Name lk PBN*", 
+				"");
+		
+		assertThat(rows).as("Expected 3 Measurements").hasSize(3);
+	}
+	
+	@org.junit.Test
+	public void testVehicle() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
+		QueryService qa = new QueryService();
+		List<Row> rows = qa.queryRowsForSource(entityManager, 
+				"Measurement", 
+				Arrays.asList("Test.Id", "Test.Name", "TestStep.Id", "TestStep.Name", "vehicle.vehicle_type"), 
+				"TestStep.Name lk PBN*", 
+				"");
+		System.out.println(rows);
+//		assertThat(rows)
+//			.as("Expected 3 Measurements").hasSize(3)
 	}
 }

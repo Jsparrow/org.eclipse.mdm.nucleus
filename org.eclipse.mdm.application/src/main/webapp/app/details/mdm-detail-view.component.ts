@@ -12,6 +12,7 @@ import {Component, OnInit} from '@angular/core';
 
 import { ModalDirective } from 'ng2-bootstrap';
 
+import {MDMItem} from '../core/mdm-item';
 import {Node} from '../navigator/node';
 import {BasketService} from '../basket/basket.service';
 
@@ -43,7 +44,7 @@ export class MDMDetailViewComponent implements OnInit {
 
   add2Basket() {
     if (this.selectedNode) {
-      this.basketService.addNode(this.selectedNode);
+      this.basketService.add(new MDMItem(this.selectedNode.sourceName, this.selectedNode.type, this.selectedNode.id));
     }
   }
 

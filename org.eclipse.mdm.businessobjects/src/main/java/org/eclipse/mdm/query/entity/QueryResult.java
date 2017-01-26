@@ -1,15 +1,15 @@
-package org.eclipse.mdm.search.entity;
+package org.eclipse.mdm.query.entity;
 
 import java.util.List;
 
-public class ResultRows {
+public class QueryResult {
 	private List<Row> rows;
 	
-	public ResultRows() {
+	public QueryResult() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ResultRows(List<Row> rows) {
+	public QueryResult(List<Row> rows) {
 		this.rows = rows;
 	}
 

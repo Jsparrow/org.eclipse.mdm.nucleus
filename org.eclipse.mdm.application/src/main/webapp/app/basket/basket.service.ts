@@ -10,67 +10,78 @@
 //   *******************************************************************************
 import {Injectable, EventEmitter} from '@angular/core';
 
-import {Node} from '../navigator/node';
+import {MDMItem} from '../core/mdm-item';
+import {PreferenceService, Preference} from '../core/preference.service';
 
-import {PreferenceService} from '../core/preference.service';
-import {Preference} from '../core/preference.service';
-
-export class BasketNode {
+export class Basket {
   name: string;
-  nodes: Node[];
+  items: MDMItem[] = [];
 
-  constructor(name?: string, nodes?: Node[]) {
-    this.name = name || '';
-    this.nodes = nodes || [];
+  constructor(name: string, items: MDMItem[]) {
+    this.name = name;
+    this.items = items;
   }
 }
 
 @Injectable()
 export class BasketService {
-  Nodes: Node[] = [];
-  public nodesChanged$ = new EventEmitter<Node>();
+
+  public itemsAdded$ = new EventEmitter<MDMItem[]>();
+  public itemsRemoved$ = new EventEmitter<MDMItem[]>();
+
+  items: MDMItem[] = [];
 
   constructor(private _pref: PreferenceService) {
   }
 
-  addNode(node) {
-    let index = this.Nodes.indexOf(node);
-    if (index === -1) {
-      this.Nodes.push(node);
+  public add(item: MDMItem) {
+    let existingItem = this.items.find(i => i.equals(item));
+
+    if (!existingItem) {
+      this.items.push(item);
+      this.itemsAdded$.emit([item]);
     }
-    this.nodesChanged$.emit(node);
   }
-  removeNode(node) {
-    let index = this.Nodes.indexOf(node);
-    if (index > -1) {
-      this.Nodes.splice(index, 1);
+
+  public remove(item: MDMItem) {
+    let itemsToRemove = this.items.filter(i => i.equals(item));
+
+    if (itemsToRemove.length >= 0) {
+      itemsToRemove.forEach(i => this.items = this.items.filter(it => !it.equals(i)));
+      this.itemsRemoved$.emit(itemsToRemove);
     }
-    this.nodesChanged$.emit(node);
   }
+
   removeAll() {
-    this.Nodes = [];
+    this.items = [];
   }
 
-  saveNodes(nodes: Node[], basketName: string) {
+  saveBasketWithName(name: string) {
+    return this.saveBasket(new Basket(name, this.items));
+  }
+
+  saveBasket(basket: Basket) {
+    return this._pref.savePreference(this.basketToPreference(basket));
+  }
+
+  getBaskets() {
+    return this._pref.getPreference('', 'basket.nodes.')
+      .then(preferences => preferences.map(p => this.preferenceToBasket(p)));
+  }
+
+  getItems() {
+    return this.items;
+  }
+
+  private preferenceToBasket(pref: Preference) {
+    return <Basket> JSON.parse(pref.value);
+  }
+
+  private basketToPreference(basket: Basket) {
     let pref = new Preference();
-    let nodeTriple: any[] = [];
-    nodes.forEach(node => nodeTriple.push({sourceName: node.sourceName, type: node.type, id: node.id}));
-    pref.value = JSON.stringify(nodeTriple);
-    pref.key = 'basket.nodes.' + basketName;
+    pref.value = JSON.stringify(basket);
+    pref.key = 'basket.nodes.' + basket.name;
     pref.scope = 'User';
-    return this._pref.savePreference(pref);
-  }
-
-  getBasketNodes() {
-    return this._pref.getPreference('', 'basket.nodes.').then(preferences => this.preparePrefs(preferences));
-  }
-
-  preparePrefs(prefs: Preference[]) {
-    let prefix = 'basket.nodes.';
-    let basketNodes: BasketNode[] = [];
-    for (let i = 0; i < prefs.length; i++) {
-      basketNodes.push( new BasketNode(prefs[i].key.replace(prefix, ''), JSON.parse(prefs[i].value)) );
-    }
-    return basketNodes;
+    return pref;
   }
 }

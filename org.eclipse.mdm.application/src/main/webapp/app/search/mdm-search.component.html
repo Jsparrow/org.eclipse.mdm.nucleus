@@ -8,113 +8,130 @@
   * Contributors:
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="form-group">
-          <form class="form-inline">
-	          <label for="search-source" class="control-label">Filter</label>
-	          <div class="btn-group" dropdown>
-	            <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
-	              {{selectedFilter.name}} <span class="caret"></span>
-	            </button>
-	            <ul class="dropdown-menu" dropdownMenu>
-                <li *ngFor="let filter of filters">
-                  <a class="dropdown-item" (click)="selectFilter(filter)">{{filter.name}}</a>
-                </li>
-	            </ul>
-	          </div>
-	          <label for="search-source" class="control-label">Quelle</label>
-	          <div class="btn-group" dropdown>
-	            <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
-	            {{selectedEnv[0]?.name}} <span class="caret"></span>
-	            </button>
-	            <ul class="dropdown-menu" dropdownMenu>
-                <li *ngFor="let env of envs">
-                  <a class="dropdown-item" (click)="selectEnv(env)">{{env.name}}</a>
-                </li>
-	            </ul>
-	          </div>
-	          <label for="search-resulttype" class="control-label">Ergebnistyp</label>
-	          <div class="btn-group" dropdown>
-	            <button id="search-resulttype" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
-	            {{type.label}} <span class="caret"></span>
-	            </button>
-	            <ul class="dropdown-menu" dropdownMenu>
-                <li *ngFor="let opt of definitions.options" role="menuitem">
-                  <a class="dropdown-item" (click)="selectDef(opt)">{{opt.label}}</a>
-                </li>
-	            </ul>
-	          </div>
-	          <div class="input-group">
-    			<input type="text" class="form-control" placeholder="Suchtext eingeben" #query (keyup.enter)="onSubmit(query.value)" aria-describedby="basic-addon1">
-  			  	<div class="input-group-btn">
-	              <button type="button" class="btn btn-default" (click)="onSubmit(query.value)">Suchen</button>
-	            </div>
-	          </div>
-	       </form>
+<style>
+:host /deep/ .dropdown {
+  width: 200px;
+}
+:host /deep/ .dropdown-toggle {
+    overflow: hidden;
+    padding-right: 24px /* Optional for caret */;
+    text-align: left;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Optional for caret */
+:host /deep/ .dropdown-toggle .caret {
+    position: absolute;
+    right: 12px;
+    top: calc(50% - 2px);
+}
+</style>
+
+<form class="form-inline" style="margin-bottom: 10px;">
+  <div class="form-group">
+    <label for="search-source" class="control-label">Filter</label>
+    <div class="btn-group" dropdown>
+      <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+        {{selectedFilter.name}} <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" dropdownMenu>
+        <li *ngFor="let filter of filters">
+          <a class="dropdown-item" (click)="selectFilter(filter)">{{filter.name}}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="search-source" class="control-label">Quelle</label>
+    <dropdown-multiselect name="envs" [dropdownConfig]="dropdownConfig" [(ngModel)]="dropdownModel"></dropdown-multiselect>
+  </div>
+  <div class="form-group">
+    <label for="search-resulttype" class="control-label">Ergebnistyp</label>
+    <div class="btn-group" dropdown>
+      <button id="search-resulttype" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+      {{getSearchDefinition(selectedFilter.resultType)?.label}} <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" dropdownMenu>
+        <li *ngFor="let def of definitions" role="menuitem">
+          <a class="dropdown-item" (click)="selectResultType(def)">{{def.label}}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="searchText" (keyup.enter)="onSearch()" aria-describedby="basic-addon1">
+  </div>
+  <div class="form-group">
+    <button type="button" class="btn btn-default" (click)="onSearch()">Suchen</button>
+  </div>
+</form>
+
+<accordion>
+  <accordion-group [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch>
+    <div accordion-heading>Advanced search
+      <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></i>
+    </div>
+    <div class="container-fluid">
+      <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
+        <div class="col-md-6">
+          <button id="filter-new" type="button" class="btn btn-default">New Filter ...</button>
+          <button id="filter-add" type="button" class="btn btn-default">Add ...</button>
+          <input [(ngModel)]="selected"
+                [typeahead]="searchableFields"
+                (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                typeaheadOptionField="label"
+                typeaheadGroupField="boType"
+                class="form-control" style="display: inline; width: auto;">
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+          <button type="button" class="btn btn-default" title="Save search filter"><span class="glyphicon glyphicon-floppy-disk"></span></button>
+          <button type="button" class="btn btn-default" (click)="resetFilter()" title="Reset search filter"><span class="glyphicon glyphicon-erase"></span></button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div *ngFor="let env of getEnvs(currentSearch)">
+            <div *ngIf="currentSearch[env].length > 0">
+              <span  style="font-weight: bold;">{{env}}</span>
+              <table class="table table-bordered searchdefinition">
+                <colgroup>
+                  <col style="width:15%">
+                  <col style="width:15%">
+                  <col style="width:10%">
+                  <col style="width:50%">
+                  <col style="width:5%">
+                  <col style="width:5%">
+                </colgroup>
+                <tr search-condition class="condition"
+                  *ngFor="let condition of currentSearch[env]"
+                  [env]="env"
+                  [condition]="condition"
+                  [form]="form"
+                  (onRemove)="removeCondition($event)"></tr>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-lg-12">
-        <accordion>
-           <accordion-group [isOpen]="isAdvancedSearchOpen" #advancedSearch>
-             <div accordion-heading>
-               Advanced search
-               <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></i>
-             </div>
-             <div>
-               <form class="form-inline">
-                 <button id="filter-new" type="button" class="btn btn-default">New Filter ...</button>
-                 <button id="filter-add" type="button" class="btn btn-default">Add ...</button>
-                 <button id="filter-save" type="button" class="btn btn-default pull-right" >Save ...</button>
-                 <button id="filter-reset" type="button" class="btn btn-default pull-right" (onClick)="resetFilter()">Reset</button>
-               </form>
-               <div *ngFor="let env of selectedFilter.envs">
-                 <div *ngIf="env.conditions.length > 0">
-                   <h3>{{env.name}}</h3>
-                   <table class="table table-bordered searchdefinition">
-                    <colgroup>
-                      <col style="width:15%">
-                      <col style="width:15%">
-                      <col style="width:10%">
-                      <col style="width:50%">
-                      <col style="width:5%">
-                      <col style="width:5%">
-                    </colgroup>
-                     <tr *ngFor="let condition of env.conditions">
-                       <td>{{condition.type}}</td>
-                       <td>{{condition.attribute}}</td>
-                       <td>
-                         <div class="btn-group" dropdown>
-                           <button id="operator" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
-                             {{getOperatorName(condition.operator)}} <span class="caret"></span>
-                           </button>
-                           <ul class="dropdown-menu" dropdownMenu>
-                             <li *ngFor="let op of getOperators()">
-                               <a class="dropdown-item" (click)="selectConditionOperator(condition, op)">{{getOperatorName(op)}}</a>
-                             </li>
-                           </ul>
-                         </div>
-                       </td>
-                       <td><input type="text" class="form-control" placeholder="Wert" value="{{condition.value}}"></td>
-                       <td><button id="add" type="button" class="btn btn-default">+</button></td>
-                       <td><button id="remove" type="button" class="btn btn-default" (click)="removeCondition(env, condition)">-</button></td>
-                     </tr>
-                   </table>
-                 </div>
-               </div>
-             </div>
-           </accordion-group>
-           <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
-             <div accordion-heading>
-               Ergebnisse
-               <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></i>
-             </div>
-             <mdm-tableview [nodes]="nodes" isShopable="true"></mdm-tableview>
-           </accordion-group>
-        </accordion>
+  </accordion-group>
+  <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
+    <div accordion-heading>
+      Ergebnisse
+      <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></i>
+    </div>
+    <div class="container-fluid">
+      <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
+        <div class="col-md-12">
+          <mdm-view (viewSelected)="selectedView = $event"></mdm-view>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <mdm-tableview [results]="results" [view]="selectedView" isShopable="true" ></mdm-tableview>
+        </div>
       </div>
     </div>
-  </div>
+  </accordion-group>
+</accordion>

@@ -1,4 +1,4 @@
-package org.eclipse.mdm.search.entity;
+package org.eclipse.mdm.query.entity;
 
 public class EntityId {
 	private String source;

@@ -10,6 +10,8 @@
 //   *******************************************************************************
 export class SearchBase<T>{
   value: T;
+  t: string;
+  a: string;
   key: string;
   label: string;
   required: boolean;
@@ -18,6 +20,8 @@ export class SearchBase<T>{
   active: boolean;
   constructor(options: {
       value?: T,
+      t?: string,
+      a?: string,
       key?: string,
       label?: string,
       required?: boolean,
@@ -26,6 +30,8 @@ export class SearchBase<T>{
       active?: boolean
     } = {}) {
     this.value = options.value;
+    this.t = options.t;
+    this.a = options.a;
     this.key = options.key || '';
     this.label = options.label || '';
     this.required = !!options.required;

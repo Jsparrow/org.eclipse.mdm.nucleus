@@ -18,7 +18,7 @@ export class PreferenceComponent implements OnInit {
     scope: string;
     subscription: any;
     sub: any;
-    
+
     @ViewChild( EditPreferenceComponent )
     private editPreferenceComponent: EditPreferenceComponent;
 
@@ -29,8 +29,8 @@ export class PreferenceComponent implements OnInit {
     ngOnInit() {
         this.sub = this.route.params.subscribe( params => this.onScopeChange(params) );
     }
-    
-    onScopeChange(params: any){
+
+    onScopeChange(params: any) {
         this.scope = params['scope'];
         this.preferenceService.getPreference( this.scope )
         .then( pref => this.preferences = pref );
@@ -68,7 +68,7 @@ export class PreferenceComponent implements OnInit {
     preferenceEqualsWithoutId( pref1: Preference, pref2: Preference ) {
         return pref1.key === pref2.key && pref1.source === pref2.source && pref1.user === pref2.user;
     }
-    
+
     ngOnDestroy() {
         this.sub.unsubscribe();
       }

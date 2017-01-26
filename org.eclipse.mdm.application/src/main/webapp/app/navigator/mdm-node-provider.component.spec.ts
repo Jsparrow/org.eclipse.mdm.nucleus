@@ -13,9 +13,9 @@ import { MDMNodeProviderComponent } from './mdm-node-provider.component';
 describe ( 'Navigator Tree, node-provider component', () => {
 
     class NodeServiceMock {
-        getNodes(): Observable<Node[]> { return Observable.of(MockTestNodes.data); };
-
         nodeProviderChanged: Observable<any> = Observable.of(MockNodeProvider);
+
+        getNodes(): Observable<Node[]> { return Observable.of(MockTestNodes.data); };
 
         compareNode() { return true; };
     }
@@ -33,15 +33,22 @@ describe ( 'Navigator Tree, node-provider component', () => {
         TestBed.overrideComponent(MDMNodeProviderComponent, {
             set: {
                 providers: [{provide: NodeService, useClass: NodeServiceMock}],
-                template: ` <ul class="list-group">
-                              <div *ngFor="let node of nodes">
-                                <li class="list-group-item" [ngClass]="isActive(node)">
-                                  <span style="cursor: pointer;" [style.margin-left.px]="getMargin()" [ngClass]="isOpen(node)" (click)="onOpenNode(node)"> </span>
-                                  <a [ngClass]="getNodeClass(node)" style="color:black; cursor: pointer;" (click)="onSelectNode(node)" title="getNodeLabel(node)">{{getNodeLabel(node)}} </a>
-                                </li>
-                                <mdm-node-provider *ngIf="node.active" [rootNode]="openNode" [indent]="getMargin()" [activeNode]="activeNode" (selectingNode)="updateSelectedNode($event)" (onActive)="updateActiveNode($event)"> Loading... </mdm-node-provider>
-                              </div>
-                            </ul>`
+                template: `
+                  <ul class="list-group">
+                    <div *ngFor="let node of nodes">
+                      <li class="list-group-item" [ngClass]="isActive(node)">
+                        <span style="cursor: pointer;"
+                          [style.margin-left.px]="getMargin()"
+                          [ngClass]="isOpen(node)" (click)="onOpenNode(node)"> </span>
+                        <a [ngClass]="getNodeClass(node)" style="color:black; cursor: pointer;"
+                        (click)="onSelectNode(node)" title="getNodeLabel(node)">{{getNodeLabel(node)}} </a>
+                      </li>
+                      <mdm-node-provider *ngIf="node.active" [rootNode]="openNode"
+                        [indent]="getMargin()" [activeNode]="activeNode"
+                        (selectingNode)="updateSelectedNode($event)" (onActive)="updateActiveNode($event)">
+                        Loading... </mdm-node-provider>
+                    </div>
+                  </ul>`
             }
         });
 

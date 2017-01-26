@@ -1,0 +1,17 @@
+<div class="btn-group" dropdown>
+  <button id="view" title="Select View" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
+    {{selectedView?.name}} <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu scrollable-menu" style="height: auto; max-height: 200px; overflow-x: hidden;" dropdownMenu>
+  <div *ngFor="let groupedView of groupedViews" class="container-fluid">
+      <li class="dropdown-header" style="padding-left: 0pt;"> {{groupedView.scope}} </li>
+      <li *ngFor="let view of groupedView.view">
+        <a class="dropdown-item" style="color:black; cursor: pointer;" (click)="selectView(view)">{{view.name}}</a>
+      </li>
+    </div>
+  </ul>
+</div>
+<button type="button" class="btn btn-default" (click)="newView()" title="New View"><span class="glyphicon glyphicon-plus"></span></button>
+<button type="button" class="btn btn-default" (click)="editSelectedView()" title="Edit View"><span class="glyphicon glyphicon-edit"></span></button>
+
+<edit-view [prefViews]="prefViews" ></edit-view>

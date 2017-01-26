@@ -14,9 +14,9 @@ import { MDMNodeProviderComponent } from './mdm-node-provider.component';
 describe ( 'Navigator Tree, navigator component', () => {
 
     class NodeServiceMock {
-        getNodes(): Observable<Node[]> { return Observable.of(MockEnvNodes.data); };
-
         nodeProviderChanged: Observable<any> = Observable.of(MockNodeProvider);
+
+        getNodes(): Observable<Node[]> { return Observable.of(MockEnvNodes.data); };
 
         compareNode() { return true; };
     }

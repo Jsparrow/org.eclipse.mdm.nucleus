@@ -30,6 +30,7 @@ import { MDMCoreModule} from './core/mdm-core.module';
 import { MDMBasketModule } from './basket/mdm-basket.module';
 
 import {NavigatorService} from './navigator/navigator.service';
+import {QueryService} from './tableview/query.service';
 
 @NgModule({
   imports: [
@@ -51,7 +52,7 @@ import {NavigatorService} from './navigator/navigator.service';
     MDMNodeProviderComponent
   ],
   providers: [
-    NodeService, LocalizationService, FilereleaseService, BasketService, NavigatorService
+    NodeService, LocalizationService, FilereleaseService, BasketService, NavigatorService, QueryService
   ],
   bootstrap: [MDMComponent]
 })
