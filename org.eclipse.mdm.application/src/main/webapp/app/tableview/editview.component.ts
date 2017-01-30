@@ -18,8 +18,8 @@ import { Node } from '../navigator/node';
   styles: ['.remove {color:black; cursor: pointer; float: right}', '.icon { cursor: pointer; margin: 0px 5px; }']
 })
 export class EditViewComponent {
-  @Input() selectedView: View;
   @ViewChild('lgModal') public childModal: ModalDirective;
+  @Input() views;
   // @Output() onViewChanged = new EventEmitter<View>();
 
 
@@ -34,8 +34,9 @@ export class EditViewComponent {
   errorMessage: string;
   filters: any;
   selectedFilter: any = {name: 'Filter wählen'};
-
-  private currentView: View = new View('', []);
+  typeaheadQuery: string = '';
+  isReadOnly: boolean = false;
+  private currentView: View = new View();
 
   constructor(private searchService: SearchService,
               private filterService: FilterService,
@@ -51,8 +52,10 @@ export class EditViewComponent {
       error => this.errorMessage = <any>error);
   }
 
-  showDialog() {
-    this.currentView = <View> JSON.parse(JSON.stringify(this.selectedView));
+  showDialog(currentView: View) {
+    this.currentView = <View> JSON.parse(JSON.stringify(currentView));
+    this.isNameReadOnly(currentView);
+    this.typeaheadQuery = '';
     this.childModal.show();
   }
 
@@ -61,8 +64,14 @@ export class EditViewComponent {
   }
 
   save() {
-    this.viewService.saveView(this.currentView);
-    this.closeDialog();
+    if (this.currentView.name === '') {
+      alert('Name nicht gesetzt!');
+    } else if (this.checkViews(this.currentView) && this.isReadOnly === false) {
+        alert('Name schon vorhanden!');
+    } else {
+      this.viewService.saveView(this.currentView);
+      this.closeDialog();
+    }
   }
 
   remove(col: Col) {
@@ -179,6 +188,7 @@ export class EditViewComponent {
 
   groupBy(defs) {
     this.ungrouped = this.arrayUnique(defs, this.ungrouped);
+    this.ungrouped.sort(this.compare);
     this.transTypeAHead();
     let groups = this.groups.slice();
     defs.forEach(function(obj) {
@@ -241,6 +251,7 @@ export class EditViewComponent {
 
   public typeaheadOnSelect(e: any): void {
     this.selectItem(e.item);
+    this.typeaheadQuery = '';
   }
 
   private arrayUnique(source, target) {
@@ -252,4 +263,22 @@ export class EditViewComponent {
     return target;
   }
 
+  private compare(g1, g2) {
+      if (g1.label.toLowerCase() > g2.label.toLowerCase()) {
+        return 1;
+      }
+      if (g1.label.toLowerCase() < g2.label.toLowerCase()) {
+        return -1;
+      }
+  }
+
+  private isNameReadOnly(currentView: View) {
+    return this.isReadOnly = (currentView.name === '') ? false : true;
+  }
+
+  private checkViews(currentView: View) {
+    for (let i = 0; i < this.views.length; i++) {
+      if (currentView.name === this.views[i].name) { return true; }
+    }
+  }
 }

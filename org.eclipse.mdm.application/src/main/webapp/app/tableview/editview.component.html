@@ -2,13 +2,24 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" (click)="lgModal.hide()" aria-label="Close">
+        <button type="button" class="close" (click)="closeDialog()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
         <h4 class="modal-title">View editeren</h4>
       </div>
       <div class="modal-body">
         <div class="container-fluid">
+          <div class="row">
+          	<input [(ngModel)]="typeaheadQuery"
+               [typeahead]="ungrouped"
+               typeaheadOptionField="label"
+               (typeaheadOnSelect)="typeaheadOnSelect($event)"
+               typeaheadMinLength="1"
+               placeholder="Suchtext eingeben"
+               typeaheadOptionsLimit="7"
+               class="form-control"
+            >
+          </div>
           <div class="row">
             <div class="col-md-6" style="max-height:50vh; overflow-y:auto; border: 1px solid #ddd;">
               <accordion>
@@ -36,7 +47,7 @@
           <div class="row" style="margin-top: 20px;">
             <div class="col-md-12">
               <form class="form-inline">
-                <input type="text" class="form-control" placeholder="View-Name" [value]="currentView.name" (input) = "currentView.name = $event.target.value" (keyup.enter)="save()">
+                <input type="text" class="form-control" placeholder="View-Name" [value]="currentView.name" (input) = "currentView.name = $event.target.value" (keyup.enter)="save()" [readonly]="isReadOnly">
                 <button type="button" class="btn btn-default pull-right" (click)="save()">Speichern</button>
               </form>
             </div>

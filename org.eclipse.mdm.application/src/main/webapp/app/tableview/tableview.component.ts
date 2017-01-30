@@ -1,24 +1,28 @@
 import { Component, Input, ViewChild, OnInit } from '@angular/core';
 
 import { View, Col, ViewService } from './tableview.service';
-import { LocalizationService } from '../localization/localization.service';
 
-import {SearchService} from '../search/search.service';
 import {FilterService} from '../search/filter.service';
 
 import {BasketService} from '../basket/basket.service';
 import { Node } from '../navigator/node';
 import { EditViewComponent } from './editview.component';
 
+import {PreferenceService} from '../core/preference.service';
+import {Preference} from '../core/preference.service';
+
 @Component({
   selector: 'mdm-tableview',
   templateUrl: 'tableview.component.html',
-  providers: [ViewService, SearchService, FilterService],
+  providers: [ViewService],
   styles: ['.remove {color:black; cursor: pointer; float: right}']
 })
 export class TableviewComponent implements OnInit {
-  views: View[];
+  views: View[] = [];
   selectedView: View;
+  emptyView: View = new View();
+  groupedViews: any[] = [];
+
   @Input() nodes: Node[];
   @Input() isShopable: boolean = false;
   @Input() isRemovable: boolean = false;
@@ -27,24 +31,33 @@ export class TableviewComponent implements OnInit {
   private editViewComponent: EditViewComponent;
 
   constructor(private viewService: ViewService,
-    private searchService: SearchService,
     private basketService: BasketService,
-    private localService: LocalizationService) {
+    private _pref: PreferenceService) {
   }
 
   ngOnInit() {
-    this.views = this.viewService.getViews();
-    this.selectedView = this.views[0];
+    this.viewService.getViews().then(views => this.setView(views));
     this.viewService.viewsChanged$.subscribe(view => this.onViewChanged(view));
   }
 
+  setView(views: View[]) {
+    this.views = views;
+    this.selectedView = this.views[0];
+    this.getGroupedView(views);
+  }
+
   onViewChanged(view: View) {
-    this.views = this.viewService.getViews();
+    this.viewService.getViews().then(views => this.views = views);
+    this.getGroupedView(this.views);
     this.selectedView = view;
   }
 
+  editSelectedView() {
+    this.editViewComponent.showDialog(this.selectedView);
+  }
+
   newView() {
-    this.editViewComponent.showDialog();
+    this.editViewComponent.showDialog(this.emptyView);
   }
 
   selectView(view: View) {
@@ -80,5 +93,19 @@ export class TableviewComponent implements OnInit {
   }
   removeNode(node) {
     this.basketService.removeNode(node);
+  }
+
+  getGroupedView(views: View[]) {
+    this.groupedViews = [];
+    for (let i = 0; i < views.length; i++) {
+      let pushed = false;
+      for (let j = 0; j < this.groupedViews.length; j++) {
+        if (views[i].scope === this.groupedViews[j].scope) {
+          this.groupedViews[j].view.push(views[i]);
+          pushed = true;
+        }
+      }
+      if (pushed === false) { this.groupedViews.push({scope: views[i].scope, view: [views[i]]}); }
+    }
   }
 }

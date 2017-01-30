@@ -1,0 +1,79 @@
+
+<button type="submit" class="btn btn-default" style="float: right;" (click)="clearBasket()" >Clear</button> 
+<button type="submit" class="btn btn-default" style="float: right;" (click)="showLoadModal()" >Load</button>
+<button type="submit" class="btn btn-default" style="float: right;" (click)="showSaveModal()" >Save</button>
+
+<mdm-tableview [nodes]="basketNodes" isRemovable="true" ></mdm-tableview>
+
+<div bsModal #lgLoadModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="childLoadModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Warenkorb laden</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6" style="max-height:50vh; ">
+              <p class="secondary-heading" style="text-align:center;font-weight:bold;text-decoration:underline;">Warenkorb</p>
+              <ul class="list-group" style="max-height:50vh; padding: 0; list-style-type: none; overflow-y:auto;">
+                <div style="display: table; width: 100%; border: 1px solid #ddd;">
+                  <li class="list-group-item" *ngFor="let basket of baskets" [ngClass]="{'active': selectedBasket == basket}">
+                    <a style="color:black; cursor: pointer;"  title="{{basket.name}}" (click)="selectBasket(basket)">{{basket.name}}</a>
+                  </li>
+                </div>
+              </ul>
+            </div>
+            <div class="col-md-6" style="max-height:50vh; ">
+              <p class="secondary-heading" style="text-align:center;font-weight:bold;text-decoration:underline;">Inhalt</p>
+              <ul class="list-group" style="max-height:70vh; padding: 0; list-style-type: none; overflow-y:auto;">
+                <div style="display: table; width: 100%; border: 1px solid #ddd;">
+                  <li class="list-group-item" *ngFor="let node of selectedBasket?.nodes" >
+                    <a style="color:black;"  title="{{node.name}}" >{{node.name}}</a>
+                  </li>
+                </div>
+              </ul>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-12">
+              <form class="form-inline">
+                <button type="button" class="btn btn-default pull-right" (click)="loadBasket()">Laden</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #lgSaveModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="childSaveModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Warenkorb speichern als:</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <input type="text" class="form-control" placeholder="Warenkorb-Name" [value]="basketName" (input) = "basketName = $event.target.value" (keyup.enter)="saveBasket()">
+          </div>
+          <div class="row" style="margin-top: 10px;">
+            <div class="col-md-12">
+              <form class="form-inline">
+                <button type="button" class="btn btn-default pull-right" (click)="saveBasket()">Speichern</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

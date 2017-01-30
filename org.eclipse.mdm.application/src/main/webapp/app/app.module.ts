@@ -18,6 +18,7 @@ import { Ng2BootstrapModule } from 'ng2-bootstrap';
 import { TabsModule } from 'ng2-bootstrap/tabs';
 import { PositioningService } from 'ng2-bootstrap/positioning';
 import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
+import { TypeaheadModule } from 'ng2-bootstrap';
 
 import {NodeService} from './navigator/node.service';
 import {BasketService} from './basket/basket.service';
@@ -40,7 +41,8 @@ import {NavigatorService} from './navigator/navigator.service';
     TabsModule.forRoot(),
     AdminModule,
     MDMCoreModule,
-    MDMBasketModule
+    MDMBasketModule,
+    TypeaheadModule.forRoot()
   ],
   declarations: [
     MDMComponent,
