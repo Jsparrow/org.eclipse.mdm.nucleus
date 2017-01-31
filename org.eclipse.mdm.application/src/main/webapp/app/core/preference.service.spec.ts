@@ -1,6 +1,6 @@
 ///<reference path='../../node_modules/@types/jasmine/index.d.ts' />
 
-import { TestBed, async, inject } from '@angular/core/testing';
+import { TestBed, async, inject, getTestBed } from '@angular/core/testing';
 import {
   BaseRequestOptions,
   HttpModule,
@@ -18,7 +18,7 @@ describe('PreferenceService', () => {
     TestBed.configureTestingModule({
           imports: [HttpModule],
           providers: [
-            //{ provide: VIMEO_API_URL, useValue: 'http://example.com' },
+            PropertyService,
             PreferenceService,
             {
               provide: Http,
@@ -33,9 +33,11 @@ describe('PreferenceService', () => {
         });
   });
   describe('getPreference', () => {
-    it('should have name property set', () => {
-      expect(this.service.name).toBe('Injected Service');
-    });
+    it('should have name property set', inject([PreferenceService, MockBackend], (prefService, mockBackend) => {
+//      expect(this.service.name).toBe('Injected Service');
+      prefService = getTestBed().get(PreferenceService);
+      expect(prefService).toBeDefined();
+    }));
   });
 
 });

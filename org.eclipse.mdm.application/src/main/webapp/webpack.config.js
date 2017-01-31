@@ -260,7 +260,7 @@ module.exports = function makeWebpackConfig() {
     quiet: true,
     stats: 'minimal', // none (or false), errors-only, minimal, normal (or true) and verbose
     proxy: {
-      contextPath: {
+    	[contextPath]: {
         target: 'http://sa:sa@localhost:8080/',
       }
     }
