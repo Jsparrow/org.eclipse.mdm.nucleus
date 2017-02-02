@@ -15,7 +15,7 @@
     </div>
   </div>
   <tabset *ngIf="contexts">
-    <tab *ngIf="context == 'UUT'" heading={{uut}}>
+    <tab *ngIf="isUUT()" heading={{uut}}>
       <accordion>
         <accordion-group *ngFor="let template of contexts['UNITUNDERTEST']" [isOpen]="true" heading={{template.name}}>
           <table class="table table-hover">
@@ -37,7 +37,7 @@
         </accordion-group>
       </accordion>
     </tab>
-    <tab  *ngIf="context == 'TE'" heading={{te}}>
+    <tab *ngIf="isTE()" heading={{te}}>
       <accordion>
         <accordion-group *ngFor="let template of contexts['TESTSEQUENCE']" heading={{template.name}}>
           <table class="table table-hover">
@@ -59,7 +59,7 @@
         </accordion-group>
       </accordion>
     </tab>
-    <tab  *ngIf="context == 'TS'" heading={{ts}}>
+    <tab  *ngIf="isTS()" heading={{ts}}>
       <accordion>
         <accordion-group *ngFor="let template of contexts['TESTEQUIPMENT']" heading={{template.name}}>
           <table class="table table-hover">

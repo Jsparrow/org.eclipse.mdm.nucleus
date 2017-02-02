@@ -12,6 +12,7 @@ import {Component, OnInit, Input, OnChanges, SimpleChange} from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { AccordionComponent, AccordionModule } from 'ng2-bootstrap';
+import {LocalizationService} from '../localization/localization.service';
 
 import {NodeService} from '../navigator/node.service';
 import {ContextService} from './context.service';
@@ -40,30 +41,41 @@ export class MDMDescriptiveDataComponent implements OnInit {
   s: string = 'Sensoren';
 
   constructor(private route: ActivatedRoute,
+    private localService: LocalizationService,
               private _contextService: ContextService,
               private navigatorService: NavigatorService) {}
 
   ngOnInit() {
-    this.route.params.map(params => params['context'])
-      .subscribe(context => this.context = context);
+    this.route.params
+        .subscribe(params => this.setContext(params['context'])
+    );
 
     this.navigatorService.selectedNodeChanged
         .subscribe(node => this.loadContext(node));
   }
 
+  setContext(context: string) {
+    this.context = context;
+    this.loadContext(this.navigatorService.getSelectedNode());
+  }
+
   loadContext(node: Node) {
-    this.selectedNode = node;
-    this.contexts = undefined;
-    if (node.name !== undefined && (node.type.toLowerCase() === 'measurement' || node.type.toLowerCase() === 'teststep')) {
-      this.status = 'loading...';
-      this._contextService.getContext(node).subscribe(
-        contexts => this.contexts = contexts,
-        error => this.errorMessage = <any>error);
-      this._contextService.getSensors(node).subscribe(
-          sensors => this.sensors = sensors,
+    if (node) {
+      this.selectedNode = node;
+      this.contexts = undefined;
+      if (node.name !== undefined && (node.type.toLowerCase() === 'measurement' || node.type.toLowerCase() === 'teststep')) {
+        this.status = 'loading...';
+        this._contextService.getContext(node).subscribe(
+          contexts => this.contexts = contexts,
           error => this.errorMessage = <any>error);
+        this._contextService.getSensors(node).subscribe(
+            sensors => this.sensors = sensors,
+            error => this.errorMessage = <any>error);
+      } else {
+        this.status = 'keine Beschreibende Daten verfügbar';
+      }
     } else {
-      this.status = 'keine Beschreibende Daten verfügbar';
+      this.status = 'kein Knoten ausgewählt';
     }
   }
 
@@ -75,5 +87,21 @@ export class MDMDescriptiveDataComponent implements OnInit {
     if (attr1 !== attr2 && this._diff) {
       return 'danger';
     }
+  }
+
+  isUUT() {
+    return this.context.toLowerCase() === 'uut';
+  }
+
+  isTE() {
+    return this.context.toLowerCase() === 'te';
+  }
+
+  isTS() {
+    return this.context.toLowerCase() === 'ts';
+  }
+
+  getTrans(type: string, attr: string) {
+    return this.localService.getTranslation(type, attr);
   }
 }
