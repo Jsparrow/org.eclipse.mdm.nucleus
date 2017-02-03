@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, OnInit } from '@angular/core';
 
-import { View, Col, ViewService } from './tableview.service';
+import { PreferenceView, View, Col, ViewService } from './tableview.service';
 
 import {FilterService} from '../search/filter.service';
 
@@ -18,7 +18,7 @@ import {Preference} from '../core/preference.service';
   styles: ['.remove {color:black; cursor: pointer; float: right}']
 })
 export class TableviewComponent implements OnInit {
-  views: View[] = [];
+  prefViews: PreferenceView[] = [];
   selectedView: View;
   emptyView: View = new View();
   groupedViews: any[] = [];
@@ -36,19 +36,18 @@ export class TableviewComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.viewService.getViews().then(views => this.setView(views));
+    this.viewService.getViews().then(prefViews => this.setView(prefViews));
     this.viewService.viewsChanged$.subscribe(view => this.onViewChanged(view));
   }
 
-  setView(views: View[]) {
-    this.views = views;
-    this.selectedView = this.views[0];
-    this.getGroupedView(views);
+  setView(prefViews: PreferenceView[]) {
+    this.prefViews = prefViews;
+    this.selectedView = this.prefViews[0].view;
+    this.getGroupedView(prefViews);
   }
 
   onViewChanged(view: View) {
-    this.viewService.getViews().then(views => this.views = views);
-    this.getGroupedView(this.views);
+    this.viewService.getViews().then(prefViews => { this.prefViews = prefViews; this.getGroupedView(prefViews); });
     this.selectedView = view;
   }
 
@@ -95,17 +94,17 @@ export class TableviewComponent implements OnInit {
     this.basketService.removeNode(node);
   }
 
-  getGroupedView(views: View[]) {
+  getGroupedView(prefViews: PreferenceView[]) {
     this.groupedViews = [];
-    for (let i = 0; i < views.length; i++) {
+    for (let i = 0; i < prefViews.length; i++) {
       let pushed = false;
       for (let j = 0; j < this.groupedViews.length; j++) {
-        if (views[i].scope === this.groupedViews[j].scope) {
-          this.groupedViews[j].view.push(views[i]);
+        if (prefViews[i].scope === this.groupedViews[j].scope) {
+          this.groupedViews[j].view.push(prefViews[i].view);
           pushed = true;
         }
       }
-      if (pushed === false) { this.groupedViews.push({scope: views[i].scope, view: [views[i]]}); }
+      if (pushed === false) { this.groupedViews.push({scope: prefViews[i].scope, view: [prefViews[i].view]}); }
     }
   }
 }

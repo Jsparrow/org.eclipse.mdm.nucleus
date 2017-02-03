@@ -15,6 +15,16 @@ import {Node} from '../navigator/node';
 import {PreferenceService} from '../core/preference.service';
 import {Preference} from '../core/preference.service';
 
+export class BasketNode {
+  name: string;
+  nodes: Node[];
+
+  constructor(name?: string, nodes?: Node[]) {
+    this.name = name || '';
+    this.nodes = nodes || [];
+  }
+}
+
 @Injectable()
 export class BasketService {
   Nodes: Node[] = [];
@@ -43,7 +53,9 @@ export class BasketService {
 
   saveNodes(nodes: Node[], basketName: string) {
     let pref = new Preference();
-    pref.value = JSON.stringify(nodes);
+    let nodeTriple: any[] = [];
+    nodes.forEach(node => nodeTriple.push({sourceName: node.sourceName, type: node.type, id: node.id}));
+    pref.value = JSON.stringify(nodeTriple);
     pref.key = 'basket.nodes.' + basketName;
     pref.scope = 'User';
     return this._pref.savePreference(pref);
@@ -55,9 +67,9 @@ export class BasketService {
 
   preparePrefs(prefs: Preference[]) {
     let prefix = 'basket.nodes.';
-    let basketNodes: any[] = [];
+    let basketNodes: BasketNode[] = [];
     for (let i = 0; i < prefs.length; i++) {
-        basketNodes.push({ name: prefs[i].key.replace(prefix, ''), nodes: JSON.parse(prefs[i].value) });
+      basketNodes.push( new BasketNode(prefs[i].key.replace(prefix, ''), JSON.parse(prefs[i].value)) );
     }
     return basketNodes;
   }

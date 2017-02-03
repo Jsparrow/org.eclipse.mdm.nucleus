@@ -19,9 +19,7 @@ import { Node } from '../navigator/node';
 })
 export class EditViewComponent {
   @ViewChild('lgModal') public childModal: ModalDirective;
-  @Input() views;
-  // @Output() onViewChanged = new EventEmitter<View>();
-
+  @Input() prefViews;
 
   nodes: Node[] = [];
   definitions: any;
@@ -64,10 +62,8 @@ export class EditViewComponent {
   }
 
   save() {
-    if (this.currentView.name === '') {
-      alert('Name nicht gesetzt!');
-    } else if (this.checkViews(this.currentView) && this.isReadOnly === false) {
-        alert('Name schon vorhanden!');
+    if (this.checkViews(this.currentView) && this.isReadOnly === false) {
+      alert('Name schon vorhanden!');
     } else {
       this.viewService.saveView(this.currentView);
       this.closeDialog();
@@ -132,38 +128,6 @@ export class EditViewComponent {
     this.selectDef(this.definitions.options[0]);
   }
 
-  selectEnv(env: string) {
-    let i = this.selectedEnv.map(function(e){ return e.sourceName; }).indexOf(env);
-    if (i > -1) {
-        this.selectedEnv.splice(i, 1);
-    } else {
-      let e = this.envs.map(function(e){ return e.sourceName; }).indexOf(env);
-      this.selectedEnv.push(this.envs[e]);
-    }
-    this.selectDef(this.type);
-  }
-
-  onSubmit(query: string) {
-    this.nodes = [];
-    for (let i in this.selectedEnv) {
-      if (this.selectedEnv.hasOwnProperty(i)) {
-        this.search(query, this.selectedEnv[i].sourceName);
-      }
-    }
-  }
-
-  search(query: string, env: string) {
-    this.nodeService.searchFT(query, env).subscribe(
-      nodes => this.nodes = this.nodes.concat(nodes),
-      error => this.errorMessage = <any>error
-    );
-  }
-
-  selectFilter(filter: string) {
-    let f = this.filters.map(function(e){ return e.name; }).indexOf(filter);
-    this.selectedFilter = this.filters[f];
-  }
-
   selectItem(item) {
     let a = item.key.split('.');
     let g = this.groups.map(function(x) {return x.name; }).indexOf(a[0]);
@@ -189,7 +153,6 @@ export class EditViewComponent {
   groupBy(defs) {
     this.ungrouped = this.arrayUnique(defs, this.ungrouped);
     this.ungrouped.sort(this.compare);
-    this.transTypeAHead();
     let groups = this.groups.slice();
     defs.forEach(function(obj) {
       let str = obj.key;
@@ -220,14 +183,6 @@ export class EditViewComponent {
   isActive(item) {
     if (item.active) { return 'active'; }
     return;
-  }
-
-  transTypeAHead() {
-    for (let i in this.ungrouped) {
-      if (this.ungrouped[i].labelt) { continue; }
-      let a = this.ungrouped[i].label.split('.');
-      this.ungrouped[i].labelt = this.getTrans(a[0]) + '.' + this.getTrans(this.ungrouped[i].label);
-    }
   }
 
   getTrans(label: string) {
@@ -277,8 +232,6 @@ export class EditViewComponent {
   }
 
   private checkViews(currentView: View) {
-    for (let i = 0; i < this.views.length; i++) {
-      if (currentView.name === this.views[i].name) { return true; }
-    }
+    return this.prefViews.findIndex(pv => currentView.name === pv.view.name) >= 0;
   }
 }

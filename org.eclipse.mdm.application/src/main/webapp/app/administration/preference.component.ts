@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { PreferenceService, Preference } from '../core/preference.service';
 import { EditPreferenceComponent } from './edit-preference.component';
@@ -14,18 +15,25 @@ export class PreferenceComponent implements OnInit {
 
     brand: string = 'Scope';
     @Input() preferences: Preference[];
-    @Input() scope: string;
+    scope: string;
     subscription: any;
-
+    sub: any;
+    
     @ViewChild( EditPreferenceComponent )
     private editPreferenceComponent: EditPreferenceComponent;
 
     constructor( private formBuilder: FormBuilder,
-                 private preferenceService: PreferenceService) { }
+                 private preferenceService: PreferenceService,
+                 private route: ActivatedRoute) { }
 
     ngOnInit() {
+        this.sub = this.route.params.subscribe( params => this.onScopeChange(params) );
+    }
+    
+    onScopeChange(params: any){
+        this.scope = params['scope'];
         this.preferenceService.getPreference( this.scope )
-            .then( pref => this.preferences = pref );
+        .then( pref => this.preferences = pref );
     }
 
     editPreference( preference?: Preference ) {
@@ -60,4 +68,8 @@ export class PreferenceComponent implements OnInit {
     preferenceEqualsWithoutId( pref1: Preference, pref2: Preference ) {
         return pref1.key === pref2.key && pref1.source === pref2.source && pref1.user === pref2.user;
     }
+    
+    ngOnDestroy() {
+        this.sub.unsubscribe();
+      }
 }

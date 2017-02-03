@@ -10,7 +10,7 @@
     </div>
     <div class="collapse navbar-collapse" id="bs-admin-navbar">
       <ul class="nav navbar-nav">
-        <li *ngFor="let m of getLinks()" [routerLinkActive]="['active']"><a routerLink="{{m.path}}" style="cursor:pointer;"> {{m.name}}</a></li>
+        <li *ngFor="let m of getLinks()" [routerLinkActive]="['active']"><a [routerLink]="['/administration',m.path]" style="cursor:pointer;"> {{m.name}}</a></li>
       </ul>
     </div>
   </div>

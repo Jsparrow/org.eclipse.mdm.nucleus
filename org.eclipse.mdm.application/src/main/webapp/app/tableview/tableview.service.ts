@@ -6,20 +6,21 @@ import {PreferenceService} from '../core/preference.service';
 import {Preference} from '../core/preference.service';
 
 export class View {
-  id: number;
-  scope: string;
-  source: string;
-  user: string;
   name: string;
   cols: Col[];
 
-  constructor(id?: number, scope?: string, source?: string, user?: string, name?: string, cols?: Col[]) {
-    this.id = id || null;
-    this.scope = scope || null;
-    this.source = source || null;
-    this.user = user || null;
+  constructor(name?: string, cols?: Col[]) {
     this.name = name || '';
     this.cols = cols || [];
+  }
+}
+export class PreferenceView {
+  scope: string;
+  view: View;
+
+  constructor(scope?: string, view?: View) {
+    this.scope = scope || '';
+    this.view = view || new View();
   }
 }
 export enum SortOrder {
@@ -58,20 +59,12 @@ export class ViewService {
               private _pref: PreferenceService) {
   }
 
-  getViews(): Promise<View[]> {
+  getViews(): Promise<PreferenceView[]> {
     return this._pref.getPreference('', 'tableview.view.').then(preferences => this.preparePrefs(preferences));
   }
 
   preparePrefs(prefs: Preference[]) {
-    let views: View[] = [];
-    for (let i = 0; i < prefs.length; i++) {
-      views.push(JSON.parse(prefs[i].value));
-      views[i].id = prefs[i].id;
-      views[i].scope = prefs[i].scope;
-      views[i].source = prefs[i].source;
-      views[i].user = prefs[i].user;
-    }
-    return views;
+    return prefs.map(p => new PreferenceView(p.scope, JSON.parse(p.value)));
   }
 
   saveView(view: View) {

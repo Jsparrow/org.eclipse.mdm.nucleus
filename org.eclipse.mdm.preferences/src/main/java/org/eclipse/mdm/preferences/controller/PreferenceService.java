@@ -90,7 +90,7 @@ public class PreferenceService
 		
 		if (pe.getUser() == null && pe.getSource() == null) {
 			p.setSource(pe.getSource());
-			p.setScope(Scope.Source);
+			p.setScope(Scope.System);
 		} else if (pe.getUser() != null) {
 			p.setUser(pe.getUser());
 			p.setScope(Scope.User);

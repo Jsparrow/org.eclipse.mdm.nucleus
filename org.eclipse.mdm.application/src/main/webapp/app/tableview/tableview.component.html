@@ -18,7 +18,7 @@
             </ul>
           </div>
           <button type="submit" class="btn btn-default" (click)="newView()">New View</button>
-          <button type="submit" class="btn btn-default" (click)="editSelectedView()">Edit View</button>
+          <button type="submit" class="btn btn-default" (click)="editSelectedView()" title="Edit"><span class="glyphicon glyphicon-edit"></span></button>
          </form>
        </div>
      </div>
@@ -43,4 +43,4 @@
    </div>
  </div>
 
-<edit-view [views]="views" ></edit-view>
+<edit-view [prefViews]="prefViews" ></edit-view>

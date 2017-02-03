@@ -15,8 +15,8 @@ import { Node } from '../navigator/node';
 export class EditPreferenceComponent {
 
     @Input() scope: string;
-    showSource: boolean = true;
-    showUser: boolean = true;
+    showSource: boolean;
+    showUser: boolean;
     isKeyEmpty: boolean;
     isScopeEmpty: boolean;
     isUserEmpty: boolean;
@@ -28,7 +28,7 @@ export class EditPreferenceComponent {
     @ViewChild( 'lgModal' ) public childModal: ModalDirective;
 
     constructor( private formBuilder: FormBuilder,
-                 private nodeService: NodeService) { }
+                 private nodeService: NodeService ) { }
 
     ngOnInit() {
         let node: Node;
@@ -36,24 +36,11 @@ export class EditPreferenceComponent {
                 env => this.envs = env,
                 error => this.errorMessage = <any>error
                 );
-        switch ( this.scope.toLowerCase() ) {
-            case 'system':
-                this.showSource = false;
-                this.showUser = false;
-                break;
-            case 'source':
-                this.showUser = false;
-                break;
-            case 'user':
-                this.showSource = false;
-                break;
-        }
         this.setupForm( new Preference() );
     }
 
     setupForm( preference: Preference ) {
-        this.isKeyEmpty = preference.key === '';
-        this.isScopeEmpty = preference.scope === '';
+        this.setOptions(preference);
         this.preferenceForm = this.formBuilder
             .group( {
                 scope: [preference.scope],
@@ -65,12 +52,31 @@ export class EditPreferenceComponent {
             });
     }
 
-    showDialog( preference?: Preference) {
+    setOptions(preference: Preference){
         this.needSave = false;
+        this.isKeyEmpty = preference.key === '';
+        this.isScopeEmpty = preference.scope === '';
+        switch ( this.scope.toLowerCase() ) {
+        case 'system':
+            this.showSource = false;
+            this.showUser = false;
+            break;
+        case 'source':
+            this.showSource = true;
+            this.showUser = false;
+            break;
+        case 'user':
+            this.showSource = false;
+            this.showUser = true;
+            break;
+        }
+    }
+
+    showDialog( preference?: Preference) {
         if (preference == null) {
             preference = new Preference();
-            preference.scope = this.scope;
-            if (this.scope === 'Source') {
+            preference.scope = this.scope.charAt(0).toUpperCase() + this.scope.slice(1);
+            if (this.scope.toLowerCase() === 'source') {
                 preference.source = this.envs[0].name;
             }
         }

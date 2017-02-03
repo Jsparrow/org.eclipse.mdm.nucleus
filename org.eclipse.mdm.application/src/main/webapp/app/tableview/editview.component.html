@@ -48,7 +48,9 @@
             <div class="col-md-12">
               <form class="form-inline">
                 <input type="text" class="form-control" placeholder="View-Name" [value]="currentView.name" (input) = "currentView.name = $event.target.value" (keyup.enter)="save()" [readonly]="isReadOnly">
-                <button type="button" class="btn btn-default pull-right" (click)="save()">Speichern</button>
+                <button type="button" class="btn btn-default pull-right" (click)="save()" [disabled]="!currentView.name" title="{{currentView.name? '' : 'Name nicht gesetzt!'}}" >
+                  <span class="glyphicon glyphicon-floppy-disk"></span> Speichern
+                </button>
               </form>
             </div>
           </div>

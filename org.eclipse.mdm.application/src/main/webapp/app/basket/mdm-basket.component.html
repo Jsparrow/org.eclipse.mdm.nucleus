@@ -1,7 +1,7 @@
 
-<button type="submit" class="btn btn-default" style="float: right;" (click)="clearBasket()" >Clear</button> 
-<button type="submit" class="btn btn-default" style="float: right;" (click)="showLoadModal()" >Load</button>
-<button type="submit" class="btn btn-default" style="float: right;" (click)="showSaveModal()" >Save</button>
+<button type="submit" class="btn btn-default" style="float: right;" (click)="clearBasket()" title="Clear" ><span class="glyphicon glyphicon-erase"></span></button> 
+<button type="submit" class="btn btn-default" style="float: right;" (click)="showLoadModal()" title="Load" ><span class="glyphicon glyphicon-folder-open"></span></button>
+<button type="submit" class="btn btn-default" style="float: right;" (click)="showSaveModal()" title="Save" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
 
 <mdm-tableview [nodes]="basketNodes" isRemovable="true" ></mdm-tableview>
 
@@ -32,7 +32,7 @@
               <ul class="list-group" style="max-height:70vh; padding: 0; list-style-type: none; overflow-y:auto;">
                 <div style="display: table; width: 100%; border: 1px solid #ddd;">
                   <li class="list-group-item" *ngFor="let node of selectedBasket?.nodes" >
-                    <a style="color:black;"  title="{{node.name}}" >{{node.name}}</a>
+                    <a style="color:black;"  title="{{node.id}}" >Id: {{node.id}}, Type: {{node.type}}</a>
                   </li>
                 </div>
               </ul>
@@ -68,7 +68,9 @@
           <div class="row" style="margin-top: 10px;">
             <div class="col-md-12">
               <form class="form-inline">
-                <button type="button" class="btn btn-default pull-right" (click)="saveBasket()">Speichern</button>
+                <button type="button" class="btn btn-default pull-right" (click)="saveBasket()" [disabled]="!basketName" title="{{basketName? '' : 'Name nicht gesetzt!'}}">
+                  <span class="glyphicon glyphicon-floppy-disk"></span> Speichern
+                </button>
               </form>
             </div>
           </div>

@@ -10,7 +10,7 @@
 //   *******************************************************************************
 import {Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import {Node} from '../navigator/node';
-import {BasketService} from './basket.service';
+import {BasketNode, BasketService} from './basket.service';
 import {TableviewComponent} from '../tableview/tableview.component';
 
 import { ModalDirective } from 'ng2-bootstrap';
@@ -28,8 +28,8 @@ export class MDMBasketComponent {
   @Output() onActive = new EventEmitter<Node>();
   @Input() activeNode: Node;
   basketNodes: Node[];
-  baskets: any[];
-  selectedBasket: any;
+  baskets: BasketNode[];
+  selectedBasket: BasketNode;
   basketName: string = '';
 
   constructor(private _basketService: BasketService) {
@@ -40,23 +40,7 @@ export class MDMBasketComponent {
     this._basketService.nodesChanged$.subscribe(nodes => this.basketName = '');
   }
 
-  isActive(node) {
-    if (this.activeNode === node) {
-      return 'active';
-    }
-  }
-
-  removeNode(node) {
-    this._basketService.removeNode(node);
-  }
-
-  selectNode(node) {
-    this.activeNode = node;
-    this.onActive.emit(node);
-    this.onSelect.emit(node);
-  }
-
-  setNodes(baskets: any) {
+  setNodes(baskets: BasketNode[]) {
     this.basketNodes = this._basketService.Nodes;
     this.baskets = baskets;
     this.selectedBasket = this.baskets[0];
@@ -64,14 +48,10 @@ export class MDMBasketComponent {
 
   saveBasket() {
     let index = this.baskets.indexOf(this.selectedBasket);
-    if (this.basketName === '') {
-      alert('Name nicht gesetzt!');
-    } else {
-      this._basketService.saveNodes(this.basketNodes, this.basketName)
-               .then(saved => this._basketService.getBasketNodes())
-               .then(baskets => { this.baskets = baskets; this.selectedBasket = baskets[index]; });
-      this.childSaveModal.hide();
-    }
+    this._basketService.saveNodes(this.basketNodes, this.basketName)
+             .then(saved => this._basketService.getBasketNodes())
+             .then(baskets => { this.baskets = baskets; this.selectedBasket = baskets[index]; });
+    this.childSaveModal.hide();
   }
 
   loadBasket() {
