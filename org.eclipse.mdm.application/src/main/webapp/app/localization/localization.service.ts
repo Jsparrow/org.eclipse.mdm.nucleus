@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Localization} from './localization';
@@ -17,22 +17,20 @@ import {NodeService} from '../navigator/node.service';
 import {PropertyService} from '../properties';
 
 @Injectable()
-export class LocalizationService implements OnInit{
+export class LocalizationService{
   constructor(private http: Http,
               private _prop: PropertyService,
               private _node: NodeService){
-                this.ngOnInit()
+                if (this._prop.api_host){this._nodeUrl = this._prop.api_host + this._nodeUrl}
+                this.init()
               }
 
-  private _host = this._prop.api_host
-  private _port = this._prop.api_port
-  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix
-  private _nodeUrl = this._url + '/mdm/environments'
+  private _nodeUrl = 'mdm/environments'
 
   private _cache : Localization[] = [];
   private errorMessage: string;
 
-  ngOnInit(){
+  private init(){
     let node: Node;
     this._node.getNodes(node).subscribe(
       envs => this.initLocalization(envs),

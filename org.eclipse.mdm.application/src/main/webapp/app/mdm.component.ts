@@ -24,7 +24,7 @@ import {FilereleaseService} from './filerelease/filerelease.service';
   selector: 'mdm-web',
   template: require('../templates/mdm.component.html'),
   directives: [ROUTER_DIRECTIVES],
-  providers: [HTTP_PROVIDERS, NodeService, LocalizationService, FilereleaseService, PropertyService, BasketService]
+  providers: [HTTP_PROVIDERS, NodeService, PropertyService, LocalizationService, FilereleaseService, BasketService]
 })
 @Routes([
   {path: '/mdmmenu', component: MDMMenuComponent},

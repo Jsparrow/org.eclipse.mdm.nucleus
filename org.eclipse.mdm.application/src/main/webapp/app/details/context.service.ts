@@ -21,12 +21,11 @@ import {Components} from './context';
 @Injectable()
 export class ContextService {
   constructor(private http: Http,
-              private _prop: PropertyService){}
+              private _prop: PropertyService){
+                if (this._prop.api_host){this._contextUrl = this._prop.api_host + this._contextUrl}
+              }
 
-  private _host = this._prop.api_host
-  private _port = this._prop.api_port
-  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix
-  private _contextUrl = this._url + '/mdm/environments'
+  private _contextUrl = 'mdm/environments'
 
   private test : {}
   private errorMessage: string;

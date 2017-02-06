@@ -16,13 +16,14 @@ import {PropertyService} from '../properties';
 
 @Injectable()
 export class FilereleaseService {
-  url = "http://" + this.prop.api_host + ":" + this.prop.api_port + this.prop.api_prefix + "/mdm/filereleases"
+  private _fileUrl = "mdm/filereleases"
   stateMap = new Array();
   formatMap = new Array();
   month = new Array();
 
   constructor(private http: Http,
-              private prop: PropertyService){
+              private _prop: PropertyService){
+                  if (this._prop.api_host){this._fileUrl = this._prop.api_host + this._fileUrl}
                   this.formatMap["PAK2RAW"] = "original Daten"
                   this.formatMap["PAK2ATFX"] = "ATFX"
                   this.stateMap["RELEASE_ORDERED"] = "beauftragt"
@@ -56,7 +57,7 @@ export class FilereleaseService {
     return this.read("?direction=outgoing")
   }
   private read(query: string){
-    return this.http.get(this.url + query)
+    return this.http.get(this._fileUrl + query)
     .map(res => <Release[]> res.json().data)
     .catch(this.handleError);
   }
@@ -65,12 +66,12 @@ export class FilereleaseService {
     let body = JSON.stringify(release);
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
-    return this.http.post(this.url, body, options)
+    return this.http.post(this._fileUrl, body, options)
                     .map(this.extractData)
                     .catch(this.handleError);
   }
   delete(release: Release){
-    return this.http.delete(this.url + "/" + release.identifier)
+    return this.http.delete(this._fileUrl + "/" + release.identifier)
   }
 
   approve(release: Release){
@@ -85,7 +86,7 @@ export class FilereleaseService {
     let body = JSON.stringify(release);
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
-    return this.http.post(this.url + "/" + release.identifier, body, options)
+    return this.http.post(this._fileUrl + "/" + release.identifier, body, options)
                     .map(this.extractData)
                     .catch(this.handleError);
   }

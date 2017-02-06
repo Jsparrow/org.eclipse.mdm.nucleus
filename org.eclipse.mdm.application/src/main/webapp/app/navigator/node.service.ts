@@ -18,12 +18,11 @@ import {PropertyService} from '../properties'
 @Injectable()
 export class NodeService {
   constructor(private http: Http,
-              private _prop: PropertyService){}
+              private _prop: PropertyService){
+                if (this._prop.api_host){this._nodeUrl = this._prop.api_host + this._nodeUrl}
+              }
 
-  private _host = this._prop.api_host
-  private _port = this._prop.api_port
-  private _url = 'http://' + this._host + ':' + this._port + this._prop.api_prefix
-  private _nodeUrl = this._url + '/mdm/environments'
+  private _nodeUrl = 'mdm/environments'
 
   public locals
 
