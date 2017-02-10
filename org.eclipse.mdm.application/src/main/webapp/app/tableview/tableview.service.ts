@@ -1,16 +1,15 @@
 import {Injectable, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 
-import {PropertyService} from '../core/property.service';
 import {PreferenceService, Preference} from '../core/preference.service';
 
 export class View {
   name: string;
-  cols: Col[];
+  columns: ViewColumn[];
 
-  constructor(name?: string, cols?: Col[]) {
+  constructor(name?: string, cols?: ViewColumn[]) {
     this.name = name || '';
-    this.cols = cols || [];
+    this.columns = cols || [];
   }
 }
 export class PreferenceView {
@@ -27,7 +26,7 @@ export enum SortOrder {
   Asc,
   Desc
 }
-export class Col {
+export class ViewColumn {
   type: string;
   name: string;
   sort: SortOrder = SortOrder.None;
@@ -54,12 +53,11 @@ export class ViewService {
   private views: View[] = [];
 
   constructor(private http: Http,
-              private _prop: PropertyService,
-              private _pref: PreferenceService) {
+              private prefService: PreferenceService) {
   }
 
   getViews(): Promise<PreferenceView[]> {
-    return this._pref.getPreference('', 'tableview.view.').then(preferences => this.preparePrefs(preferences));
+    return this.prefService.getPreference('', 'tableview.view.').then(preferences => this.preparePrefs(preferences));
   }
 
   preparePrefs(prefs: Preference[]) {
@@ -71,6 +69,6 @@ export class ViewService {
     pref.value = JSON.stringify(view);
     pref.key = 'tableview.view.' + view.name;
     pref.scope = 'User';
-    this._pref.savePreference(pref).then(saved => this.viewsChanged$.emit(view));
+    this.prefService.savePreference(pref).then(saved => this.viewsChanged$.emit(view));
     }
 }

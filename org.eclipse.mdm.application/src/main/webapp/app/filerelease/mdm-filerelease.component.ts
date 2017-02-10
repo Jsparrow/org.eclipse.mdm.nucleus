@@ -25,7 +25,7 @@ export class MDMFilereleaseComponent implements OnInit {
   outgoing: Release[] = [];
   errorMessage: string;
   release: Release = new Release;
-  event: string = 'display';
+  event = 'display';
   dataHost: string;
 
   constructor(private service: FilereleaseService,

@@ -7,6 +7,7 @@ import {FilterService, SearchFilter, Condition, Operator} from './filter.service
 @Component({
   selector: '[search-condition]',
   templateUrl: 'search-condition.component.html',
+  styleUrls: ['search-condition.component.css'],
 })
 export class SearchConditionComponent {
   @Input() env: string;
@@ -14,6 +15,7 @@ export class SearchConditionComponent {
   @Input() form: FormGroup;
   @Output() onRemove = new EventEmitter<Condition>();
 
+  values = ['Car', 'Train', 'Bus'];
   constructor(private localservice: LocalizationService) {}
 
   getTrans(label: string) {

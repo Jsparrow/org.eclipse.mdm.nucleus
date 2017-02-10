@@ -91,6 +91,11 @@ export class NodeService {
     return false;
   }
 
+  getRootNodes() {
+    return this.http.get(this._nodeUrl)
+      .map(res => <Node[]> res.json().data);
+  }
+
   private getUrl(node: Node) {
     let url = this._nodeUrl + '/' + node.sourceName;
     let current = this.activeNodeprovider;
@@ -118,12 +123,6 @@ export class NodeService {
     while (current);
 
     return;
-  }
-
-  private getRootNodes() {
-    return this.http.get(this._nodeUrl)
-    .map(res => <Node[]> res.json().data)
-    .catch(this.handleError);
   }
 
   private getNode(url: string) {

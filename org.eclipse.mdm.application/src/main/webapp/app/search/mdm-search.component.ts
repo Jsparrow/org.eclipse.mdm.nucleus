@@ -11,7 +11,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {DynamicForm} from './dynamic-form.component';
 
-import {SearchService, SearchDefinition, SearchAttribute} from './search.service';
+import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
 import {DropdownSearch} from './search-dropdown';
 import {SearchBase} from './search-base';
 
@@ -35,8 +35,6 @@ import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 @Component({
   selector: 'mdm-search',
   templateUrl: 'mdm-search.component.html',
-  providers:  [SearchService, FilterService, QueryService],
-  inputs: []
 })
 export class MDMSearchComponent {
 
@@ -44,11 +42,7 @@ export class MDMSearchComponent {
   selectedFilter: SearchFilter;
   selectedView: View;
 
-  // environments: Node[] = [];
-  // type: SearchDefinition;
-  searchText: string = '';
-
-  searchableFields: SearchBase<any>[] = [];
+  searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
   definitions: SearchDefinition[];
 
@@ -56,10 +50,10 @@ export class MDMSearchComponent {
 
   results: SearchResult;
 
-  isAdvancedSearchOpen: boolean = false;
-  isSearchResultsOpen: boolean = false;
+  isAdvancedSearchOpen = false;
+  isSearchResultsOpen = false;
 
-  currentSearch: any = {};
+  layout: SearchLayout = new SearchLayout;
   public dropdownModel: IDropdownItem[];
   public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
 
@@ -82,7 +76,6 @@ export class MDMSearchComponent {
 
     this.filters = this.filterService.getFilters();
     this.selectedFilter = this.filters[0];
-
 
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
@@ -123,14 +116,14 @@ export class MDMSearchComponent {
   updateSearches() {
     let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
 
+    this.searchableFields = [];
+
     this.selectedFilter.environments.forEach(env =>
-      this.searchService.getSearches(type, env).then(defs => this.searchableFields = defs));
-
-    let map = this.searchService.get(this.selectedFilter.environments, type);
-  }
-
-  isEnvSelected(env) {
-    return this.dropdownModel.find(item => item.id === env.sourceName && item.selected);
+      this.searchService.loadSearchAttributes(type, env)
+        .map(attrs => attrs.map(sa => {
+          return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa };
+      }))
+      .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs)));
   }
 
   onSearch() {
@@ -140,7 +133,7 @@ export class MDMSearchComponent {
   }
 
   search(attrs: SearchAttribute[]) {
-    let query = this.filterService.convertToQuery(this.selectedFilter, attrs, this.selectedView);
+    let query = this.searchService.convertToQuery(this.selectedFilter, attrs, this.selectedView);
     this.queryService.query(query).subscribe(
       result => {
         this.results = <SearchResult> result;
@@ -151,16 +144,12 @@ export class MDMSearchComponent {
   }
 
   calcCurrentSearch() {
-    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
+    let environments = this.selectedFilter.environments;
     let conditions = this.selectedFilter.conditions;
+    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
 
-    this.searchService.getSearchAttributesPerEnvs(this.selectedFilter.environments, type)
-      .subscribe(attrs => this.setCurrentSearch(this.selectedFilter.environments, conditions, attrs));
-  }
-
-  setCurrentSearch(envs: string[], conditions: Condition[], attrs: SearchAttribute[]) {
-    this.currentSearch = this.filterService.env2Conditions(envs, conditions, this.filterService.groupByEnv(attrs));
-    console.log(this.currentSearch);
+    this.searchService.getSearchLayout(environments, conditions, type)
+        .subscribe(l => this.layout = l);
   }
 
   getEnvs(currentSearch: any) {
@@ -171,59 +160,32 @@ export class MDMSearchComponent {
     this.filterService.setSelectedFilter(filter);
   }
 
-  addToFilter(field: string) {
-    let splitted = field.split('.');
+  resetFilter() {
+    this.filters = this.filterService.getFilters();
+    this.selectedFilter = this.filters.find(f => f.name === this.selectedFilter.name);
+  }
 
-    let type = splitted[0];
-    let attribute = splitted[1];
-
-    let condition = new Condition(type, attribute, Operator.EQUALS, []);
+  addCondition(field: SearchAttribute) {
+    let condition = new Condition(field.boType, field.attrName, Operator.EQUALS, []);
 
     this.selectedFilter.conditions.push(condition);
     this.calcCurrentSearch();
   }
 
-  public isAttributeAvailableInEnv(envName: string, type: string, attribute: string) {
+  removeCondition(condition: Condition) {
+    this.selectedFilter.conditions = this.selectedFilter.conditions
+        .filter(c => !(c.type === condition.type && c.attribute === condition.attribute));
 
-    return true;
+    this.calcCurrentSearch();
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {
-    let item: SearchBase<any> = match.item;
-    this.addToFilter(item.key);
-  }
-
-  isActive(item) {
-    return item.active ? 'active' : '';
+    this.addCondition(match.item.attribute);
   }
 
   add2Basket(node: Node) {
     if (node) {
       this.basketService.add(new MDMItem(node.sourceName, node.type, node.id));
     }
-  }
-
-  selectConditionOperator(condition: Condition, operator: Operator) {
-    condition.operator = operator;
-  }
-
-  getOperators() {
-    return Operator.values();
-  }
-
-  getOperatorName(op: Operator) {
-    return Operator.toString(op);
-  }
-
-  removeCondition(value: [string, Condition]) {
-    this.selectedFilter.conditions = this.selectedFilter.conditions
-        .filter(c => !(c.type === value[1].type && c.attribute === value[1].attribute));
-
-    this.calcCurrentSearch();
-  }
-
-  resetFilter() {
-    this.filters = this.filterService.getFilters();
-    this.selectedFilter = this.filters.find(f => f.name === this.selectedFilter.name);
   }
 }

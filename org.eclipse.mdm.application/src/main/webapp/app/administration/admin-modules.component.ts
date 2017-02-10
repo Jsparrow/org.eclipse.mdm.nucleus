@@ -8,7 +8,7 @@ import {Router} from '@angular/router';
 })
 export class AdminModulesComponent {
 
-  brand: string = 'Scope';
+  brand = 'Scope';
 
   constructor(private router: Router) {}
 

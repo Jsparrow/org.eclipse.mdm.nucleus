@@ -13,7 +13,7 @@ import { EditPreferenceComponent } from './edit-preference.component';
 })
 export class PreferenceComponent implements OnInit {
 
-    brand: string = 'Scope';
+    brand = 'Scope';
     @Input() preferences: Preference[];
     scope: string;
     subscription: any;

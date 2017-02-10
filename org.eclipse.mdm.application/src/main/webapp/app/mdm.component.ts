@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
     templateUrl: 'mdm.component.html',
 })
 export class MDMComponent {
-    brand: string = 'openMDM5 Web';
+    brand = 'openMDM5 Web';
 
     getLinks() {
         return [

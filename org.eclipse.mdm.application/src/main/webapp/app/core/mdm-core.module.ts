@@ -8,6 +8,7 @@ import { TabsModule } from 'ng2-bootstrap/tabs';
 import { PositioningService } from 'ng2-bootstrap/positioning';
 import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
 import { DropdownMultiselectModule } from 'ng2-dropdown-multiselect';
+import { RlTagInputModule } from 'angular2-tag-input';
 
 import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
@@ -19,14 +20,16 @@ import { PreferenceService } from './preference.service';
     CommonModule,
     Ng2BootstrapModule,
     TabsModule.forRoot(),
-    DropdownMultiselectModule
+    DropdownMultiselectModule,
+    RlTagInputModule
   ],
   declarations: [  ],
   exports: [
     CommonModule,
     FormsModule,
     Ng2BootstrapModule,
-    DropdownMultiselectModule
+    DropdownMultiselectModule,
+    RlTagInputModule
   ],
   providers: [
       PositioningService,

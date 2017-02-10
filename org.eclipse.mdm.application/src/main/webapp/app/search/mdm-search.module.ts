@@ -4,10 +4,12 @@ import { MDMCoreModule } from '../core/mdm-core.module';
 
 import { MDMSearchComponent } from './mdm-search.component';
 import { SearchConditionComponent } from './search-condition.component';
-import { MDMFullTextSearchComponent } from './mdm-full-text-search.component';
 import { DynamicForm } from './dynamic-form.component';
 
 import { TableViewModule } from '../tableview/tableview.module';
+import {SearchService} from './search.service';
+import {SearchDeprecatedService} from './search-deprecated.service';
+import {FilterService} from './filter.service';
 
 @NgModule({
   imports: [
@@ -20,7 +22,12 @@ import { TableViewModule } from '../tableview/tableview.module';
   ],
   exports: [
     MDMSearchComponent
-  ]
+  ],
+  providers: [
+    SearchService,
+    FilterService,
+    SearchDeprecatedService
+  ],
 })
 export class MDMSearchModule {
 }

@@ -33,7 +33,7 @@ export class MDMBasketComponent {
   @Output() onSelect = new EventEmitter<Node>();
   @Input() activeNode: Node;
 
-  basketName: string = '';
+  basketName = '';
   basketContent: SearchResult = new SearchResult();
 
   baskets: Basket[] = [];
@@ -61,14 +61,14 @@ export class MDMBasketComponent {
 
   setItems(items: MDMItem[]) {
     if (this.selectedView) {
-      this.queryService.queryItems(items, this.selectedView.cols.map(c => c.type + '.' + c.name))
+      this.queryService.queryItems(items, this.selectedView.columns.map(c => c.type + '.' + c.name))
         .forEach(q => q.subscribe(r => this.basketContent.rows = r.rows));
     }
   }
 
   addItems(items: MDMItem[]) {
     if (this.selectedView) {
-      this.queryService.queryItems(items, this.selectedView.cols.map(c => c.type + '.' + c.name))
+      this.queryService.queryItems(items, this.selectedView.columns.map(c => c.type + '.' + c.name))
         .forEach(q => q.subscribe(r => this.addData(r.rows)));
     }
   }

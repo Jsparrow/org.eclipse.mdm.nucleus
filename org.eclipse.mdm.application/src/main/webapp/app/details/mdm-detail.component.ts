@@ -20,5 +20,5 @@ import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.compone
 })
 export class MDMDetailComponent {
 
-  brand: string = 'Details';
+  brand = 'Details';
 }

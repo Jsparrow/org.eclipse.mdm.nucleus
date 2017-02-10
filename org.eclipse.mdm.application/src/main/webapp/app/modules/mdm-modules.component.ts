@@ -9,7 +9,7 @@ import {Router} from '@angular/router';
 })
 export class MDMModulesComponent {
 
-  brand: string = 'Modules';
+  brand = 'Modules';
 
   constructor(private router: Router) {}
 

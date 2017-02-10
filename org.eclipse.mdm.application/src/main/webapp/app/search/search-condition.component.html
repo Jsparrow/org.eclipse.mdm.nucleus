@@ -12,6 +12,19 @@
     </ul>
   </div>
 </td>
-<td><input type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)"></td>
-<td><button id="add" type="button" class="btn btn-default btn-sm">+</button></td>
+<td [ngSwitch]="condition.valueType">
+  <rl-tag-input *ngSwitchCase="'text'"
+    [addOnBlur]="false"
+    [addOnSpace]="false"
+    [addOnPaste]="false"
+    [addOnComma]="false"
+    [autocomplete]="true"
+    [autocompleteMustMatch]="false"
+    [autocompleteItems]="values"
+    [(ngModel)]="condition.value"
+    placeholder="Add search value">
+  </rl-tag-input>
+
+  <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)">
+</td>
 <td><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()"></button></td>

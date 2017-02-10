@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
-import { PreferenceView, View, Col, ViewService } from './tableview.service';
+import { PreferenceView, View, ViewColumn, ViewService } from './tableview.service';
 
 import {FilterService} from '../search/filter.service';
 
@@ -26,8 +26,8 @@ export class TableviewComponent implements OnInit, OnChanges {
   @Input() nodes: Node[];
   @Input() items: MDMItem[];
   @Input() results: SearchResult;
-  @Input() isShopable: boolean = false;
-  @Input() isRemovable: boolean = false;
+  @Input() isShopable = false;
+  @Input() isRemovable = false;
 
   results1: SearchResult;
 
@@ -65,7 +65,7 @@ export class TableviewComponent implements OnInit, OnChanges {
     }
   }*/
 
-  getData(row: Row, col: Col) {
+  getData(row: Row, col: ViewColumn) {
     let resultColumn = row.columns.find(c => c.type === col.type && c.attribute === col.name);
 
     if (resultColumn) {
@@ -73,7 +73,7 @@ export class TableviewComponent implements OnInit, OnChanges {
     }
   }
 
-  nodeDataProvider(node: Node, col: Col) {
+  nodeDataProvider(node: Node, col: ViewColumn) {
     if (node.type !== col.type) {
       return '-';
     } else {

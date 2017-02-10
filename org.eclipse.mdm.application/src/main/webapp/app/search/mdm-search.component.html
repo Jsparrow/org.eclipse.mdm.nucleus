@@ -60,7 +60,7 @@
     </div>
   </div>
   <div class="form-group">
-    <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="searchText" (keyup.enter)="onSearch()" aria-describedby="basic-addon1">
+    <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="selectedFilter.fulltextQuery" (keyup.enter)="onSearch()" aria-describedby="basic-addon1">
   </div>
   <div class="form-group">
     <button type="button" class="btn btn-default" (click)="onSearch()">Suchen</button>
@@ -81,7 +81,7 @@
                 [typeahead]="searchableFields"
                 (typeaheadOnSelect)="typeaheadOnSelect($event)"
                 typeaheadOptionField="label"
-                typeaheadGroupField="boType"
+                typeaheadGroupField="group"
                 class="form-control" style="display: inline; width: auto;">
         </div>
         <div class="col-md-6" style="text-align: right;">
@@ -91,20 +91,19 @@
       </div>
       <div class="row">
         <div class="col-md-12">
-          <div *ngFor="let env of getEnvs(currentSearch)">
-            <div *ngIf="currentSearch[env].length > 0">
+          <div *ngFor="let env of layout.getEnvironments()">
+            <div *ngIf="layout.getConditions(env).length > 0">
               <span  style="font-weight: bold;">{{env}}</span>
               <table class="table table-bordered searchdefinition">
                 <colgroup>
-                  <col style="width:15%">
-                  <col style="width:15%">
-                  <col style="width:10%">
-                  <col style="width:50%">
-                  <col style="width:5%">
-                  <col style="width:5%">
+                  <col style="width: 15%">
+                  <col style="width: 15%">
+                  <col style="width: 15%">
+                  <col style="width: 50%">
+                  <col style="width: 5%">
                 </colgroup>
                 <tr search-condition class="condition"
-                  *ngFor="let condition of currentSearch[env]"
+                  *ngFor="let condition of layout.getConditions(env)"
                   [env]="env"
                   [condition]="condition"
                   [form]="form"

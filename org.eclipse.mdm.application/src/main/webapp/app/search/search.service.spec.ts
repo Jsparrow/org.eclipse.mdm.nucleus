@@ -4,13 +4,13 @@ import { Observable } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {FilterService, Condition, Operator} from './filter.service';
-import {SearchAttribute} from './search.service';
+import {SearchService, SearchAttribute} from './search.service';
+import {Condition, Operator} from './filter.service';
 
-describe ( 'Filter service', () => {
+describe ( 'Search service', () => {
 
-  let service: FilterService;
-  beforeEach(() => { service = new FilterService(null, null); });
+  let service: SearchService;
+  beforeEach(() => { service = new SearchService(null, null, null); });
 
   describe('group()', () => {
     it('group conditions', () => {
@@ -44,8 +44,8 @@ describe ( 'Filter service', () => {
     });
   });
 
-  describe('env2Conditions()', () => {
-    it('group conditions', () => {
+  describe('createSearchLayout()', () => {
+    it('check', () => {
       let cond1 = new Condition('Test', 'Name', Operator.EQUALS, []);
       let cond2 = new Condition('Vehicle', 'Name', Operator.EQUALS, []);
 
@@ -60,15 +60,15 @@ describe ( 'Filter service', () => {
         ]
       };
 
-      let env2Conditions = service.env2Conditions(['env1', 'env2'], [cond1, cond2], attributes);
+      let searchLayout = service.createSearchLayout(['env1', 'env2'], [cond1, cond2], attributes);
 
-      expect(Object.keys(env2Conditions).length)
-        .toBe(2);
+      expect(searchLayout.getEnvironments())
+        .toEqual(['Global', 'env1']);
 
-      expect(env2Conditions['Global'])
+      expect(searchLayout.getConditions('Global'))
         .toEqual([cond1]);
 
-      expect(env2Conditions['env1'])
+      expect(searchLayout.getConditions('env1'))
         .toEqual([cond2]);
 
     });

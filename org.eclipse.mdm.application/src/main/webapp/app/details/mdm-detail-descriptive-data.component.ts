@@ -29,16 +29,16 @@ export class MDMDescriptiveDataComponent implements OnInit {
   selectedNode: Node;
   context: String;
 
-  _diff: boolean = false;
+  _diff = false;
   contexts: Context[];
   sensors: Sensor[];
   errorMessage: string;
-  status: string = 'loading...';
+  status = 'loading...';
 
-  uut: string = 'Prüfling';
-  ts: string = 'Messgerät';
-  te: string = 'Testablauf';
-  s: string = 'Sensoren';
+  uut = 'Prüfling';
+  ts = 'Messgerät';
+  te = 'Testablauf';
+  s = 'Sensoren';
 
   constructor(private route: ActivatedRoute,
     private localService: LocalizationService,

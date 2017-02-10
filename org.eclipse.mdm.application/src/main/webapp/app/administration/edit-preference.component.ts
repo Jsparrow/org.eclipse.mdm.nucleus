@@ -21,9 +21,9 @@ export class EditPreferenceComponent {
     isScopeEmpty: boolean;
     isUserEmpty: boolean;
     preferenceForm: FormGroup;
-    needSave: boolean = false;
+    needSave = false;
     envs: Node[];
-    errorMessage: string = 'Could not load environments.';
+    errorMessage = 'Could not load environments.';
 
     @ViewChild( 'lgModal' ) public childModal: ModalDirective;
 

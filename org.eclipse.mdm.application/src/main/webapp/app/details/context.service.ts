@@ -143,16 +143,16 @@ export class ContextService {
               let attribute = attributes[k];
               if (!(attribute instanceof Object)) { continue; }
 
-              let index = -1;
+              let index2 = -1;
               resultattributes.forEach(function (_resultattribute, idx) {
-                if (_resultattribute['name'] === attribute['name']) { index = idx; return true; }
+                if (_resultattribute['name'] === attribute['name']) { index2 = idx; return true; }
               });
-              if (index < 0) {
-                index = resultattributes.length;
+              if (index2 < 0) {
+                index2 = resultattributes.length;
                 resultattributes.push(resultattribute = JSON.parse(JSON.stringify(attribute)));
                 resultattribute['value'] = new Array(contexts.length);
               } else {
-                resultattribute = resultattributes[index];
+                resultattribute = resultattributes[index2];
               }
               resultattribute['value'][i] = attribute['value'];
             }

@@ -7,6 +7,7 @@ import {DynamicForm} from './dynamic-form.component';
 import {TextboxSearch} from './search-textbox';
 import {DropdownSearch} from './search-dropdown';
 
+import {SearchService} from './search.service';
 import {PropertyService} from '../core/property.service';
 import {Node} from '../navigator/node';
 import {SearchAttribute} from './search.service';
@@ -59,12 +60,14 @@ export class Condition {
   attribute: string;
   operator: Operator;
   value: string[];
+  valueType: string;
 
-  constructor(type: string, attribute: string, operator: Operator, value: string[]) {
+  constructor(type: string, attribute: string, operator: Operator, value: string[], valueType?: string) {
     this.type = type;
     this.attribute = attribute;
     this.operator = operator;
     this.value = value;
+    this.valueType = valueType || 'text';
   }
 }
 
@@ -90,13 +93,14 @@ export class FilterService {
   private filters: SearchFilter[];
   private selectedFilter: SearchFilter;
 
+  // private searchService: SearchService;
   constructor(private http: Http,
               private _prop: PropertyService) {
     this.filters = [new SearchFilter('Standard', [], 'Test', '', [
-        new Condition('Test', 'Name', Operator.EQUALS, ['PBN*']),
-        new Condition('TestStep', 'Name', Operator.EQUALS, ['*'])
+        new Condition('Test', 'Name', Operator.EQUALS, ['PBN*'], 'text'),
+        new Condition('TestStep', 'Name', Operator.EQUALS, [], 'number')
       ]), new SearchFilter('Test', [], 'tests', '', [
-        new Condition('Channel', 'Name', Operator.EQUALS, ['Standard_*'])
+        new Condition('Channel', 'Name', Operator.EQUALS, ['Standard_*'], 'text')
       ])
     ];
   }
@@ -115,76 +119,5 @@ export class FilterService {
 
   saveFilter(filter: SearchFilter) {
     this.filters.push(filter);
-  }
-
-  groupByEnv(attrs: SearchAttribute[]) {
-    let attributesPerEnv: { [environment: string]: SearchAttribute[]} = {};
-
-    attrs.forEach(attr => {
-      attributesPerEnv[attr.source] = attributesPerEnv[attr.source] || [];
-      attributesPerEnv[attr.source].push(attr);
-    });
-    return attributesPerEnv;
-  }
-
-  group(conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[]}) {
-    let attribute2Envs: { [attribute: string]: string[] } = {};
-
-    Object.keys(attributesPerEnv).forEach(env =>
-      attributesPerEnv[env].forEach(sa => {
-        let attr = sa.boType + '.' + sa.attrName;
-
-        attribute2Envs[attr] = attribute2Envs[attr] || [];
-        attribute2Envs[attr].push(env);
-    }));
-
-    return attribute2Envs;
-  }
-
-  env2Conditions(envs: string[], conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[]}) {
-    let result: { [environments: string]: Condition[] } = {};
-    let attribute2Envs = this.group(conditions, attributesPerEnv);
-    let globalEnv = 'Global';
-    Object.keys(attribute2Envs).forEach(attr => {
-      let c = conditions.find(cond => cond.type + '.' + cond.attribute === attr);
-      if (c) {
-        if (attribute2Envs[attr].length === envs.length) {
-          result[globalEnv] = result[globalEnv] || [];
-          result[globalEnv].push(c);
-        } else {
-          attribute2Envs[attr].forEach(e => {
-            result[e] = result[e] || [];
-            result[e].push(c);
-          });
-        }
-      }
-    });
-
-    return result;
-  }
-
-  convertToQuery(searchFilter: SearchFilter, attr: SearchAttribute[], view: View) {
-    let q = new Query();
-    q.resultType = searchFilter.resultType;
-    q.filters = this.convert(searchFilter.environments, searchFilter.conditions, attr, searchFilter.fulltextQuery); // TODO
-    q.columns = view.cols.map(c => c.type + '.' + c.name);
-    console.log('Query', q);
-
-    return q;
-  }
-
-  convert(envs: string[], conditions: Condition[], attr: SearchAttribute[], fullTextQuery: string): Filter[] {
-    return envs
-      .map(e => this.convertEnv(e, conditions, attr, fullTextQuery));
-  }
-
-  convertEnv(env: string, conditions: Condition[], attrs: SearchAttribute[], fullTextQuery: string): Filter {
-
-    let filterString = conditions
-      .map(c => c.value.map(value => c.type + '.' + c.attribute + ' ' + Operator.toFilterString(c.operator) + ' ' + value).join(' or '))
-      .filter(c => c.length > 0)
-      .join(' and ');
-
-    return new Filter(env, filterString, fullTextQuery);
   }
 }

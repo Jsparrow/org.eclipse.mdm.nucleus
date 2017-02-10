@@ -31,13 +31,13 @@ import {MDMNodeProviderComponent} from '../navigator/mdm-node-provider.component
   encapsulation: ViewEncapsulation.None
 })
 export class MDMNavigatorViewComponent {
-  selectedNode: Node = new Node;
+  selectedNode = new Node;
   activeNode: Node;
-  closeOther: boolean = false;
-  navigator: string = 'Navigation';
-  basket: string = 'Warenkorb';
+  closeOther = false;
+  navigator = 'Navigation';
+  basket = 'Warenkorb';
   activeNodeprovider: any;
-  _comp: string = 'Navigation';
+  _comp = 'Navigation';
   subscription: any;
 
   constructor(private nodeService: NodeService) {}
