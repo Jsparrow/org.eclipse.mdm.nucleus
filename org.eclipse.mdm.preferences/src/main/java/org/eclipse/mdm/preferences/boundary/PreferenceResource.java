@@ -57,6 +57,21 @@ public class PreferenceResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	@GET
+	@Path("/source")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPreferenceBySource(@QueryParam("source") String source, @QueryParam("key") String key) {
+		
+		try {			
+			List<PreferenceResponse> config = this.preferenceService.getPreferencesBySource(source, key);
+			return ServiceUtils.toResponse(new PreferencesResponse(config), Status.OK);
+		
+		} catch(RuntimeException e) {
+			LOG.error(e.getMessage(), e);
+			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
 	/**
 	 * delegates the request to the {@link PreferenceService}

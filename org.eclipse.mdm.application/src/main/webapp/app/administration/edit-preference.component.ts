@@ -77,7 +77,7 @@ export class EditPreferenceComponent {
             preference = new Preference();
             preference.scope = this.scope.charAt(0).toUpperCase() + this.scope.slice(1);
             if (this.scope.toLowerCase() === 'source') {
-                preference.source = this.envs[0].name;
+                preference.source = this.envs[0].sourceName;
             }
         }
         this.setupForm( preference);

@@ -30,6 +30,25 @@ public class PreferenceService
 		return loadQuery(query, key);	
 	}
 	
+	public List<PreferenceResponse> getPreferencesBySource(String source, String key) {
+		if (key != null && key.trim().length() > 0) {
+			return em.createQuery("select p from Preference p where p.source = :source", Preference.class)
+				.setParameter("source", Strings.emptyToNull(source))
+				.getResultList()
+				.stream()
+				.map(p -> convert(p))
+				.collect(Collectors.toList());
+		} else {
+			return em.createQuery("select p from Preference p where p.source = :source and p.key = :key", Preference.class)
+				.setParameter("source", Strings.emptyToNull(source))
+				.setParameter("key", Strings.emptyToNull(key))
+				.getResultList()
+				.stream()
+				.map(p -> convert(p))
+				.collect(Collectors.toList());
+		}
+	}
+	
 	public String queryBuilder(String scope, String key){
 		String query = "select p from Preference p";
 		String whereOrAnd = " where";

@@ -189,7 +189,7 @@ public class SearchParamParser {
 			throws IllegalArgumentException {
 
 		String[] attrDefinition = attributeIdentifier.split("\\.");
-		String entityName = attrDefinition[0];
+		String entityName = workaroundForTypeMapping(attrDefinition[0]);
 		String attrName = attrDefinition[1];
 
 		return validateAttribute(entityName, attrName, possibleSearchAttrs);
@@ -281,4 +281,24 @@ public class SearchParamParser {
 		return operation;
 	}
 
+	
+	/**
+	 * Simple workaround for naming mismatch between Adapter and Business object names.
+	 * @param type
+	 * @return
+	 */
+	public static String workaroundForTypeMapping(String type) {
+		switch (type) {
+		case "Pool":
+			return "StructureLevel";
+		case "Measurement":
+			return "MeaResult";
+		case "ChannelGroup":
+			return "SubMatrix";
+		case "Channel":
+			return "MeaQuantity";
+		default: 
+			return type;
+		}
+	}
 }

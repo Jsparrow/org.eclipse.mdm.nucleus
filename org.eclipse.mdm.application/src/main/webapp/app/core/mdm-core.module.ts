@@ -12,6 +12,7 @@ import { RlTagInputModule } from 'angular2-tag-input';
 
 import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
+import { FilterService } from './filter.service';
 
 @NgModule({
   imports: [
@@ -35,7 +36,8 @@ import { PreferenceService } from './preference.service';
       PositioningService,
       ComponentLoaderFactory,
       PropertyService,
-      PreferenceService
+      PreferenceService,
+      FilterService
     ],
 })
 export class MDMCoreModule { }

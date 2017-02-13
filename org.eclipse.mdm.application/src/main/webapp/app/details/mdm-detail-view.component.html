@@ -21,7 +21,7 @@
     </tr>
   </thead>
   <tbody *ngIf="selectedNode">
-    <tr *ngFor="let attr of getAttributesForDisplay()">
+    <tr *ngFor="let attr of displayAttributes">
       <td>{{getTrans(selectedNode.type, attr.name)}}</td>
       <td>{{attr.value}}</td>
       <td>{{attr.unit}}</td>

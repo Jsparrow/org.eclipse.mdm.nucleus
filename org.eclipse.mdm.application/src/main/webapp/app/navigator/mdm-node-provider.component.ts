@@ -48,6 +48,7 @@ export class MDMNodeProviderComponent implements OnInit {
         error => this.errorMessage = <any>error);
     }
   }
+
   onOpenNode(node: Node) {
     this.openNode = node;
     if (this.openNode === node && this.openNode.active) {
@@ -60,47 +61,37 @@ export class MDMNodeProviderComponent implements OnInit {
     this.openNode = node;
     this.openNode.active = true;
   }
+
   updateActiveNode(node) {
     this.activeNode = node;
     this.onActive.emit(node);
   }
+
   onSelectNode(node) {
     this.selectingNode.emit(node);
   }
+
   updateSelectedNode(node) {
     this.selectedNode = node;
     this.activeNode = node;
     this.onActive.emit(node);
     this.selectingNode.emit(node);
-    this.navigatorService.setSelectedNode(node);
   }
+
   isActive(node) {
     if (this._nodeService.compareNode(this.activeNode, node)) { return 'active'; }
   }
+
   isOpen(node: Node) {
-    if (node.active) {
-      return 'glyphicon glyphicon-chevron-down';
-    } else {
-      return 'glyphicon glyphicon-chevron-right';
+      return node.active ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-right';
     }
-  }
+
   getMargin() {
     return this.indent + 10;
   }
 
   getNodeClass(node: Node) {
-    switch (node.type) {
-      case 'Test':
-        return 'icon test';
-      case 'TestStep':
-        return 'icon teststep';
-      case 'Measurement':
-        return 'icon measurement';
-      case 'ChannelGroup':
-        return 'icon channelgroup';
-      case 'Channel':
-        return 'icon channel';
-    }
+      return 'icon ' + node.type.toLowerCase();
   }
 
   getNodeLabel(node: Node) {

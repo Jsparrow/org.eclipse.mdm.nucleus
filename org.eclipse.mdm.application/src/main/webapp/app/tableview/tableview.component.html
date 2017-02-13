@@ -7,8 +7,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngIf="results?.rows.length <= 0">
-      <td [colSpan]="view?.columns.length + 2" style="text-align: center;">Keine Daten vorhanden</td>
+    <tr *ngIf="results?.rows?.length <= 0">
+      <td [colSpan]="view?.columns?.length + 2" style="text-align: center;">Keine Daten vorhanden</td>
     </tr>
     <tr *ngFor="let row of results?.rows">
       <td width="30px">

@@ -79,13 +79,18 @@ public class QueryService {
 	private Attribute getAttribute(List<EntityType> searchableTypes, String c) {
 		String[] parts = c.split("\\.");
 		
-		// TODO check parts
+		if (parts.length != 2) {
+			throw new IllegalArgumentException("Cannot parse attribute " + c + "!");
+		}
+		
+		String type = SearchParamParser.workaroundForTypeMapping(parts[0]);
+		String attributeName = parts[1];
 		
 		return searchableTypes.stream()
-				.filter(e -> e.getName().equalsIgnoreCase(parts[0]))
+				.filter(e -> e.getName().equalsIgnoreCase(type))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("EntityType '" + parts[0] + "' not found!"))
-				.getAttribute(parts[1]);
+				.orElseThrow(() -> new IllegalArgumentException("EntityType '" + type + "' not found!"))
+				.getAttribute(attributeName);
 	}
 
 	private Class<? extends Entity> getEntityClassByNameType(SearchService s, String name) {

@@ -5,7 +5,7 @@ import {PreferenceService, Preference} from '../core/preference.service';
 
 export class View {
   name: string;
-  columns: ViewColumn[];
+  columns: ViewColumn[] = [];
 
   constructor(name?: string, cols?: ViewColumn[]) {
     this.name = name || '';

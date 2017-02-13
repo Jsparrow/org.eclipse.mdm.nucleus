@@ -40,6 +40,16 @@ export class PreferenceService {
             .catch( this.handleError );
     }
 
+    getPreferencesBySource( source: string, key?: string  ): Promise<Preference[]> {
+        if ( key == null ) {
+            key = '';
+        }
+        return this.http.get( this.prefEndpoint + '/source?source=' + source + '&key=' + key)
+            .toPromise()
+            .then( response => <Preference[]>response.json().preferences )
+            .catch( this.handleError );
+    }
+
     savePreference( preference: Preference ) {
         let pref = {
             'scope': preference.scope,

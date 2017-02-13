@@ -8,12 +8,13 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, OnInit} from '@angular/core';
+
+import {Input, Component, OnInit} from '@angular/core';
 
 import { ModalDirective } from 'ng2-bootstrap';
 
 import {MDMItem} from '../core/mdm-item';
-import {Node} from '../navigator/node';
+import {Node, Attribute} from '../navigator/node';
 import {BasketService} from '../basket/basket.service';
 
 import {Release, FilereleaseService} from '../filerelease/filerelease.service';
@@ -24,22 +25,31 @@ import {LocalizationService} from '../localization/localization.service';
 import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
 import {NavigatorService} from '../navigator/navigator.service';
 
+import { FilterService } from '../core/filter.service';
+
 @Component({
   selector: 'mdm-detail-view',
   templateUrl: 'mdm-detail-view.component.html'
 })
 export class MDMDetailViewComponent implements OnInit {
   selectedNode: Node;
+  @Input() displayAttributes: Attribute[];
 
   locals: Localization[] = [];
 
   constructor(private localService: LocalizationService,
               private basketService: BasketService,
-              private navigatorService: NavigatorService) {}
+              private navigatorService: NavigatorService,
+              private filterService: FilterService) {}
 
   ngOnInit() {
     this.navigatorService.selectedNodeChanged
-        .subscribe(node => this.selectedNode = node);
+        .subscribe(node => this.onSelectedNodeChange(node));
+  }
+
+  onSelectedNodeChange( node: Node ) {
+      this.selectedNode = node;
+      this.displayAttributes = this.getAttributesToDisplay();
   }
 
   add2Basket() {
@@ -60,11 +70,9 @@ export class MDMDetailViewComponent implements OnInit {
   getTrans(type: string, attr: string) {
     return this.localService.getTranslation(type, attr);
   }
-  getAttributesForDisplay() {
-    if (this.selectedNode.attributes !== undefined) {
-      return this.selectedNode.attributes.filter(a => a.name !== 'MimeType').filter(a => a.name !== 'Sortindex');
-    }
 
-    return this.selectedNode.attributes;
+  getAttributesToDisplay() {
+      return this.filterService.getAttributesToDisplay(this.selectedNode);
   }
 }
+

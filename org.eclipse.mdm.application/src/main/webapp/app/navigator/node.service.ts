@@ -14,10 +14,10 @@ import {Observable} from 'rxjs/Observable';
 
 import {Node} from './node';
 import {PropertyService} from '../core/property.service';
+import {PreferenceService, Preference} from '../core/preference.service';
 
 declare function require(path: string): any;
 const defaultNodeProvider = require('./defaultnodeprovider.json');
-const nodeprovider2  = require('./nodeprovider2.json');
 
 @Injectable()
 export class NodeService {
@@ -26,13 +26,15 @@ export class NodeService {
 
   private _nodeUrl: string;
 
-  private nodeproviders = [defaultNodeProvider, nodeprovider2];
+  private nodeproviders = [defaultNodeProvider];
 
   private activeNodeprovider: any = this.nodeproviders[0];
 
   constructor(private http: Http,
-              private _prop: PropertyService) {
-    this._nodeUrl = _prop.getUrl() + '/mdm/environments';
+              private _prop: PropertyService,
+              private preferenceService: PreferenceService) {
+      this._nodeUrl = _prop.getUrl() + '/mdm/environments';
+      this.setNodeproviders();
   }
 
   setActiveNodeprovider(nodeprovider: any) {
@@ -46,6 +48,17 @@ export class NodeService {
 
   getNodeproviders() {
     return this.nodeproviders;
+  }
+
+  setNodeproviders() {
+      this.preferenceService.getPreference('system', 'nodeprovider.')
+      .then( preferences => preferences.forEach(p => {
+          try {
+              this.nodeproviders.push(JSON.parse(p.value));
+          } catch (e) {
+              console.error('Nodeprovider preferences are corrupted.\n', p);
+          }
+      }));
   }
 
   searchNodes(query, env, type) {

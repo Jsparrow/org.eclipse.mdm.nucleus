@@ -41,7 +41,7 @@ export class Row {
   source: string;
   type: string;
   id: string;
-  columns: Columns[];
+  columns: Columns[] = [];
 
   public getItem() {
     return new MDMItem(this.source, this.type, +this.id);

@@ -96,6 +96,27 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/CHANNELID
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channels/123456_
 
+**Business Object: Project**
+
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects 
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects?filter=FILTERSTRING
+* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/projects?filter=Project.Name eq p*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/projects?filter=Project.Name%20eq%20p*)_
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/searchattributes
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/localizations
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/PROJECTID
+* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/projects/123_
+
+**Business Object: Pool**
+
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools 
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools?filter=FILTERSTRING
+* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools?filter=Pool.Name eq p*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/pools?filter=Pool.Name%20eq%20p*)_
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/searchattributes
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/localizations
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/POOLID
+* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools/123_
+
+
 ## Preference Service
 Preference service stores its data to a relational database. The database connection is looked up be JNDI and the JNDI name is specified in src/main/resources/META-INF/persistence.xml. The default is set to jdbc/__default which is available in glassfish per default and uses a derby database. The derby database is not started automatically with glassfish, but has to be started with following command: GLASSFISH_HOME/bin/asadmin start-database
 

@@ -96,6 +96,11 @@ export class TableviewComponent implements OnInit, OnChanges {
 
   getNodeClass(type: string) {
     switch (type) {
+      case 'Project':
+        return 'project';
+      case 'Pool':
+      case 'StructureLevel':
+        return 'pool';
       case 'Test':
         return 'test';
       case 'TestStep':

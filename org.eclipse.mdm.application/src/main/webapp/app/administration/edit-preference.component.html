@@ -23,7 +23,7 @@
 			<li *ngIf="showSource">
 			  <label>Source: </label>
 			  <select class="form-control" formControlName="source" >
-				<option *ngFor="let env of envs" [selected]="source == env.name">{{env.name}}</option>
+				<option *ngFor="let env of envs" [selected]="source == env.sourceName">{{env.sourceName}}</option>
 			  </select>
 			</li>
 			<li *ngIf="showUser">
