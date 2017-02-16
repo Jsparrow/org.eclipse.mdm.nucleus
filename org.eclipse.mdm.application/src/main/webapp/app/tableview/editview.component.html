@@ -34,7 +34,7 @@
             </div>
             <div class="col-md-6" style="max-height:50vh;overflow-y:auto;">
             <ul  class="list-group">
-              <li class="list-group-item" style="border-bottom: 1px solid #ddd;" *ngFor="let col of currentView.cols">
+              <li class="list-group-item" style="border-bottom: 1px solid #ddd;" *ngFor="let col of currentView.columns">
                 <span class="pull-right glyphicon glyphicon-remove" [ngClass]="" style="cursor: pointer; margin: 0px 5px;" (click)="remove(col)"></span>
                 <span class="pull-right glyphicon" [ngClass]="{'glyphicon-sort': isNone(col), 'glyphicon-sort-by-alphabet-alt': isDesc(col), 'glyphicon-sort-by-alphabet': isAsc(col)}" style="cursor: pointer; margin: 0px 5px;" (click)="toggleSort(col)"></span>
                 <span class="pull-right glyphicon glyphicon-menu-down" [ngStyle]="{'visibility': isLast(col)? 'hidden': 'visible'}" style="cursor: pointer; margin: 0px 5px;" (click)="moveDown(col)"></span>

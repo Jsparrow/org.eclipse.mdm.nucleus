@@ -34,7 +34,7 @@ export class NodeService {
               private _prop: PropertyService,
               private preferenceService: PreferenceService) {
       this._nodeUrl = _prop.getUrl() + '/mdm/environments';
-      this.setNodeproviders();
+      this.loadNodeproviders();
   }
 
   setActiveNodeprovider(nodeprovider: any) {
@@ -50,8 +50,8 @@ export class NodeService {
     return this.nodeproviders;
   }
 
-  setNodeproviders() {
-      this.preferenceService.getPreference('system', 'nodeprovider.')
+  loadNodeproviders() {
+    this.preferenceService.getPreference('system', 'nodeprovider.')
       .then( preferences => preferences.forEach(p => {
           try {
               this.nodeproviders.push(JSON.parse(p.value));

@@ -26,7 +26,7 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      './karma-shim.js': ['webpack', 'sourcemap']
+      './karma-shim.js': ['coverage', 'webpack', 'sourcemap']
     },
 
     webpack: webpackConfig,
@@ -73,12 +73,24 @@ module.exports = function (config) {
 
     _config.coverageReporter = {
       dir: 'coverage/',
+      includeAllSources: true,
       reporters: [{
         type: 'json',
         dir: 'coverage',
         subdir: 'json',
         file: 'coverage-final.json'
+      }, {
+        type:   'lcov',
+        dir:    'coverage',
+        subdir: 'lcov'
       }]
+    };
+    _config.reporters.push("remap-coverage");
+
+    _config.remapCoverageReporter = {
+      'text-summary': null,
+      json: './coverage/coverage.json',
+      html: './coverage/html'
     };
   }
 

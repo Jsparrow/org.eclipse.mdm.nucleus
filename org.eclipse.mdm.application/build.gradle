@@ -16,6 +16,30 @@ apply plugin: 'com.moowork.node'
 
 System.setProperty('file.encoding', 'UTF-8')
 
+
+task map_tslint(type: Copy) {
+	File tsLintFile = file("${project.buildDir}/node/coverage/tslint_out.json")
+	File mappedTsLintFile = file("${project.buildDir}/node/coverage/tslint_out_mapped.json")
+	
+	String contents = tsLintFile.getText('UTF-8') 
+	contents = contents.replaceAll( 'app', 'src/main/webapp/app' )
+	mappedTsLintFile.write(contents, 'UTF-8')
+}
+
+sonarqube {
+    properties {
+        property "sonar.sources", "src/main/webapp,src/main/java"
+        property "sonar.exclusions", "src/main/webapp/node_modules/**, src/main/webapp/coverage/**, src/main/webapp/dist/**,**/*.spec.ts, **/*.js"
+        property "sonar.tests", "src/main/webapp"
+		property "sonar.test.inclusions", "**/*.spec.ts"
+		
+		property "sonar.ts.tslint.configPath", "src/main/webapp"
+		property "sonar.ts.tslint.projectPath", "src/main/webapp"
+        property "sonar.ts.tslint.outputPath", "${project.buildDir}/node/coverage/tslint_out_mapped.json"
+        property "sonar.ts.coverage.lcovReportpath", "${project.buildDir}/node/coverage/lcov/lcov.info"
+    }
+}
+
 dependencies {
 
 	runtime 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
@@ -80,6 +104,7 @@ task copy_loginsites(type: Copy) {
 }
 
 compileJava.dependsOn(copy_loginsites)
+map_tslint.dependsOn(runBuild)
 copy_loginsites.dependsOn(runBuild)
 runBuild.dependsOn(npmInstall)
 npmInstall.dependsOn(copy_websources)

@@ -9,7 +9,6 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, ViewChild} from '@angular/core';
-import {DynamicForm} from './dynamic-form.component';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
 import {DropdownSearch} from './search-dropdown';
@@ -129,6 +128,7 @@ export class MDMSearchComponent {
   }
 
   updateSearches() {
+    console.log('updating searches');
     let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
 
     this.searchableFields = [];

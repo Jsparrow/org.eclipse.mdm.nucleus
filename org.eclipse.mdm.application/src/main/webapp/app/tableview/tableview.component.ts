@@ -31,9 +31,6 @@ export class TableviewComponent implements OnInit, OnChanges {
 
   activeItems: MDMItem[] = [];
 
-  @ViewChild(EditViewComponent)
-  private editViewComponent: EditViewComponent;
-
   constructor(private viewService: ViewService,
     private basketService: BasketService,
     private _pref: PreferenceService,

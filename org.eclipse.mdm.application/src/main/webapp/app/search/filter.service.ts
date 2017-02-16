@@ -3,7 +3,6 @@ import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
 import {SearchBase} from './search-base';
-import {DynamicForm} from './dynamic-form.component';
 import {TextboxSearch} from './search-textbox';
 import {DropdownSearch} from './search-dropdown';
 

@@ -94,9 +94,10 @@ jacoco {
 sonarqube {
     properties {
         property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+        property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/test.exec"
     }
 }
+tasks["sonarqube"].dependsOn "org.eclipse.mdm.application:map_tslint"
 
 buildscript {
     repositories {

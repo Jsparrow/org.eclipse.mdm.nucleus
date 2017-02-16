@@ -70,7 +70,7 @@
 <accordion>
   <accordion-group [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch>
     <div accordion-heading>Advanced search
-      <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></i>
+      <span class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
     </div>
     <div class="container-fluid">
       <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
@@ -119,7 +119,7 @@
   <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
     <div accordion-heading>
       Ergebnisse
-      <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></i>
+      <span class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></span>
     </div>
     <div class="container-fluid">
       <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
