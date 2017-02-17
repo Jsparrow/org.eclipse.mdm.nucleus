@@ -9,6 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
 
@@ -25,7 +26,7 @@ import {QueryService, Query, SearchResult, Row, Filter} from '../tableview/query
 @Component({
   selector: 'mdm-basket',
   templateUrl: 'mdm-basket.component.html',
-  styles: ['.remove {color:black; cursor: pointer; float: right}'],
+  styleUrls: ['./mdm-basket.component.css'],
   providers: []
 })
 export class MDMBasketComponent {
@@ -33,11 +34,11 @@ export class MDMBasketComponent {
   @Output() onSelect = new EventEmitter<Node>();
   @Input() activeNode: Node;
 
-  basketName = '';
+  basketName = 'basket';
   basketContent: SearchResult = new SearchResult();
 
   baskets: Basket[] = [];
-  selectedBasket: Basket;
+  selectedBasket = new Basket('Basket', []);
 
   selectedView: View;
 
@@ -48,7 +49,9 @@ export class MDMBasketComponent {
   @ViewChild('lgSaveModal')
   private childSaveModal: ModalDirective;
 
-  constructor(private _basketService: BasketService, private queryService: QueryService) {
+  constructor(private _basketService: BasketService,
+              private queryService: QueryService,
+              private sanitizer: DomSanitizer) {
   }
 
   ngOnInit() {
@@ -60,13 +63,12 @@ export class MDMBasketComponent {
   }
 
   setItems(items: MDMItem[]) {
-    if (this.selectedView) {
-      this.queryService.queryItems(items, this.selectedView.columns.map(c => c.type + '.' + c.name))
-        .forEach(q => q.subscribe(r => this.basketContent.rows = r.rows));
-    }
+    this.basketContent.rows = [];
+    this.addItems(items);
   }
 
   addItems(items: MDMItem[]) {
+    this.basketName = '';
     if (this.selectedView) {
       this.queryService.queryItems(items, this.selectedView.columns.map(c => c.type + '.' + c.name))
         .forEach(q => q.subscribe(r => this.addData(r.rows)));
@@ -74,6 +76,7 @@ export class MDMBasketComponent {
   }
 
   removeItems(items: MDMItem[]) {
+    this.basketName = '';
     items.forEach(item =>
       this.basketContent.rows = this.basketContent.rows.filter(row =>
         !(row.source === item.source && row.type === item.type && +row.id === item.id)));
@@ -91,16 +94,20 @@ export class MDMBasketComponent {
 
   loadBasket(basket: Basket) {
     this.selectedBasket = basket;
+    this.basketName = basket.name;
     this.setItems(basket.items);
+    this._basketService.setItems(basket.items);
     this.childLoadModal.hide();
   }
 
   loadBaskets() {
-    this._basketService.getBaskets().then(baskets => this.baskets = baskets);
+    this._basketService.getBaskets().then(baskets => {
+            this.baskets = baskets; this.selectedBasket = this.baskets[0]; });
   }
 
   clearBasket() {
     this.basketContent = new SearchResult();
+    this._basketService.removeAll();
     this.basketName = '';
   }
 
@@ -111,6 +118,25 @@ export class MDMBasketComponent {
 
   showSaveModal() {
     this.childSaveModal.show();
+  }
+
+  downloadBasket() {
+    let downloadContent = new Basket(this.basketName, this._basketService.getItems());
+    return this.sanitizer.bypassSecurityTrustUrl('data:application/json, ' + JSON.stringify(downloadContent));
+  }
+
+  onUploadChange(event) {
+    this.onUploadEvent(event.target);
+  }
+
+  private onUploadEvent(inputValue: any) {
+    let file = inputValue.files[0];
+    let reader = new FileReader();
+    reader.onloadend = (obj) => {
+      let upload = JSON.parse(reader.result);
+      this.loadBasket(upload);
+    };
+    reader.readAsText(file);
   }
 
   private addData(rows: Row[]) {

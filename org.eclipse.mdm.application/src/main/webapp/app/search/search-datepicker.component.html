@@ -1,0 +1,8 @@
+
+<div class="input-group" dropdown [autoClose]="'outsideClick'" [isOpen]="isOpen" style="width: 100%">
+  <input type="text" class="form-control input-sm" placeholder="DD.MM.YYYY HH:MM" [value]="date | date:'dd.MM.yyyy HH:mm'" (input)="setDate($event.target.value)" >
+  <span class="input-group-addon" (click)="isOpen = true" title="Select date" style="cursor:pointer; border-radius: 4px; padding-right: 12px; width: 1%; border-top-left-radius: 0; border-bottom-left-radius: 0;" dropdownToggle><i class="glyphicon glyphicon-calendar" ></i></span>
+  <ul class="dropdown-menu" dropdownMenu>
+    <datepicker [(ngModel)]="date" [showWeeks]="false" (selectionDone)="onSelectionDone($event); isOpen = false;"></datepicker>
+  </ul>
+</div>

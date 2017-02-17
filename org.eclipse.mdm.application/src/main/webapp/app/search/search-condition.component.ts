@@ -46,6 +46,7 @@ export class SearchConditionComponent {
   remove() {
     this.onRemove.emit(this.condition);
   }
+
   /* get isValid() {
     return this.form.controls[this.search.key].valid;
   }

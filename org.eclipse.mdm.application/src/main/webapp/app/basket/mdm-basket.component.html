@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid" id="container">
   <div class="row"  style="margin-top: 5px; margin-bottom: 5px;">
     <div class="col-md-6">
       <mdm-view (viewSelected)="selectedView = $event"></mdm-view>
@@ -7,6 +7,13 @@
       <button type="submit" class="btn btn-default" (click)="showSaveModal()" title="Save shopping basket" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
       <button type="submit" class="btn btn-default" (click)="showLoadModal()" title="Load shopping basket" ><span class="glyphicon glyphicon-folder-open"></span></button>
       <button type="submit" class="btn btn-default" (click)="clearBasket()" title="Clear shopping basket" ><span class="glyphicon glyphicon-erase"></span></button>
+      <a [download]="selectedBasket.name + '.json'" [href]="downloadBasket()" style="text-decoration:none;">
+        <button type="submit" class="btn btn-default" title="Download shopping basket"><span class="glyphicon glyphicon-download"></span></button>
+      </a>
+      <div class="fileUpload btn btn-default" title="Upload" >
+        <span class="glyphicon glyphicon-upload"></span>
+        <input title="Upload shopping basket" class="upload" name="datei" type="file" accept=".json, application/json" id="fileInput" (change)="onUploadChange($event)">
+      </div>
     </div>
   </div>
   <div class="row">
@@ -16,7 +23,7 @@
   </div>
 </div>
 
-<div bsModal #lgLoadModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
+<div bsModal #lgLoadModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true" (keyup.enter)="loadBasket(selectedBasket)">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -32,8 +39,8 @@
               <p class="secondary-heading" style="text-align:center;font-weight:bold;text-decoration:underline;">Warenkorb</p>
               <ul class="list-group" style="max-height:50vh; padding: 0; list-style-type: none; overflow-y:auto;">
                 <div style="display: table; width: 100%; border: 1px solid #ddd;">
-                  <li class="list-group-item" *ngFor="let basket of baskets" [ngClass]="{'active': selectedBasket == basket}">
-                    <a style="color:black; cursor: pointer;"  title="{{basket.name}}" (click)="loadBasket(basket)">{{basket.name}}</a>
+                  <li class="list-group-item" *ngFor="let basket of baskets" [ngClass]="{'active': selectedBasket == basket}" >
+                    <a style="color:black; cursor: pointer;"  title="{{basket.name}}" (click)="selectedBasket = basket" >{{basket.name}}</a>
                   </li>
                 </div>
               </ul>
@@ -42,8 +49,8 @@
               <p class="secondary-heading" style="text-align:center;font-weight:bold;text-decoration:underline;">Inhalt</p>
               <ul class="list-group" style="max-height:70vh; padding: 0; list-style-type: none; overflow-y:auto;">
                 <div style="display: table; width: 100%; border: 1px solid #ddd;">
-                  <li class="list-group-item" *ngFor="let node of selectedBasket?.nodes" >
-                    <a style="color:black;"  title="{{node.id}}" >Id: {{node.id}}, Type: {{node.type}}</a>
+                  <li class="list-group-item" *ngFor="let item of selectedBasket?.items" >
+                    <a style="color:black;"  title="{{item.id}}" >Type: {{item.type}}</a>
                   </li>
                 </div>
               </ul>
@@ -52,7 +59,7 @@
           <div class="row" style="margin-top: 20px;">
             <div class="col-md-12">
               <form class="form-inline">
-                <button type="button" class="btn btn-default pull-right" (click)="loadBasket()">Laden</button>
+                <button type="button" class="btn btn-default pull-right" (click)="loadBasket(selectedBasket)" >Laden</button>
               </form>
             </div>
           </div>
@@ -73,18 +80,18 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid">
-          <div class="row">
-            <input type="text" class="form-control" placeholder="Warenkorb-Name" [value]="basketName" (input) = "basketName = $event.target.value" (keyup.enter)="saveBasket()">
-          </div>
-          <div class="row" style="margin-top: 10px;">
-            <div class="col-md-12">
-              <form class="form-inline">
+          <form class="form-inline">
+            <div class="row">
+              <input type="text" class="form-control" placeholder="Warenkorb-Name" [value]="basketName" (input) = "basketName = $event.target.value" (keyup.enter)="saveBasket()" required>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+              <div class="col-md-12">
                 <button type="button" class="btn btn-default pull-right" (click)="saveBasket()" [disabled]="!basketName" title="{{basketName? '' : 'Name nicht gesetzt!'}}">
                   <span class="glyphicon glyphicon-floppy-disk"></span> Speichern
                 </button>
-              </form>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

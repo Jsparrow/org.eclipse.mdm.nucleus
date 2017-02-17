@@ -10,11 +10,15 @@
 //   *******************************************************************************
 import {Injectable, EventEmitter} from '@angular/core';
 
+import {deserialize, serialize} from 'serializer.ts/Serializer';
+import {Type} from 'serializer.ts/Decorators';
+
 import {MDMItem} from '../core/mdm-item';
 import {PreferenceService, Preference} from '../core/preference.service';
 
 export class Basket {
   name: string;
+  @Type(() => MDMItem)
   items: MDMItem[] = [];
 
   constructor(name: string, items: MDMItem[]) {
@@ -73,8 +77,12 @@ export class BasketService {
     return this.items;
   }
 
+  setItems(items: MDMItem[]) {
+    this.items = items;
+  }
+
   private preferenceToBasket(pref: Preference) {
-    return <Basket> JSON.parse(pref.value);
+    return deserialize<Basket>(Basket, JSON.parse(pref.value));
   }
 
   private basketToPreference(basket: Basket) {

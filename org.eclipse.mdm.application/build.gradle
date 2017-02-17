@@ -21,9 +21,11 @@ task map_tslint(type: Copy) {
 	File tsLintFile = file("${project.buildDir}/node/coverage/tslint_out.json")
 	File mappedTsLintFile = file("${project.buildDir}/node/coverage/tslint_out_mapped.json")
 	
-	String contents = tsLintFile.getText('UTF-8') 
-	contents = contents.replaceAll( 'app', 'src/main/webapp/app' )
-	mappedTsLintFile.write(contents, 'UTF-8')
+	if (tsLintFile.exists()) {
+		String contents = tsLintFile.getText('UTF-8') 
+		contents = contents.replaceAll( 'app', 'src/main/webapp/app' )
+		mappedTsLintFile.write(contents, 'UTF-8')
+	}
 }
 
 sonarqube {

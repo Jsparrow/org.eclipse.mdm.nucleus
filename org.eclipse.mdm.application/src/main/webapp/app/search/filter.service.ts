@@ -67,7 +67,7 @@ export class Condition {
     this.attribute = attribute;
     this.operator = operator;
     this.value = value;
-    this.valueType = valueType || 'text';
+    this.valueType = valueType.toLowerCase() || 'text';
   }
 }
 

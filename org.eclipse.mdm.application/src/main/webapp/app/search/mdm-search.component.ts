@@ -186,7 +186,7 @@ export class MDMSearchComponent {
   }
 
   addCondition(field: SearchAttribute) {
-    let condition = new Condition(field.boType, field.attrName, Operator.EQUALS, []);
+    let condition = new Condition(field.boType, field.attrName, Operator.EQUALS, [], field.valueType);
 
     this.selectedFilter.conditions.push(condition);
     this.calcCurrentSearch();

@@ -19,6 +19,7 @@ import { TabsModule } from 'ng2-bootstrap/tabs';
 import { PositioningService } from 'ng2-bootstrap/positioning';
 import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
 import { TypeaheadModule } from 'ng2-bootstrap';
+import { DatepickerModule } from 'ng2-bootstrap';
 
 import {NodeService} from './navigator/node.service';
 import {BasketService} from './basket/basket.service';
@@ -43,7 +44,8 @@ import {QueryService} from './tableview/query.service';
     AdminModule,
     MDMCoreModule,
     MDMBasketModule,
-    TypeaheadModule.forRoot()
+    TypeaheadModule.forRoot(),
+    DatepickerModule.forRoot()
   ],
   declarations: [
     MDMComponent,

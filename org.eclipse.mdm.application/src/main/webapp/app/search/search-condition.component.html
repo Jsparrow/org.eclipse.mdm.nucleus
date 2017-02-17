@@ -13,7 +13,7 @@
   </div>
 </td>
 <td [ngSwitch]="condition.valueType">
-  <rl-tag-input *ngSwitchCase="'text'"
+  <rl-tag-input *ngSwitchCase="'string' && 'text'"
     [addOnBlur]="false"
     [addOnSpace]="false"
     [addOnPaste]="false"
@@ -24,6 +24,8 @@
     [(ngModel)]="condition.value"
     placeholder="Add search value">
   </rl-tag-input>
+
+  <div search-datepicker *ngSwitchCase="'date'" (onSetValue)="setValue($event)" style="width: 100%"></div>
 
   <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)">
 </td>
