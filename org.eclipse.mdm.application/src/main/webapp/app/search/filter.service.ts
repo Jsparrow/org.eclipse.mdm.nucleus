@@ -13,6 +13,7 @@ import {Node} from '../navigator/node';
 import {SearchAttribute} from './search.service';
 import {QueryService, Query, SearchResult, Filter} from '../tableview/query.service';
 import {View} from '../tableview/tableview.service';
+import {PreferenceService, Preference} from '../core/preference.service';
 
 export enum Operator {
   EQUALS,
@@ -90,34 +91,35 @@ export class SearchFilter {
 @Injectable()
 export class FilterService {
   public filterChanged$ = new EventEmitter<SearchFilter>();
-  private filters: SearchFilter[];
-  private selectedFilter: SearchFilter;
 
   // private searchService: SearchService;
   constructor(private http: Http,
-              private _prop: PropertyService) {
-    this.filters = [new SearchFilter('Standard', [], 'Test', '', [
-        new Condition('Test', 'Name', Operator.EQUALS, ['PBN*'], 'text'),
-        new Condition('TestStep', 'Name', Operator.EQUALS, [], 'number')
-      ]), new SearchFilter('Test', [], 'tests', '', [
-        new Condition('Channel', 'Name', Operator.EQUALS, ['Standard_*'], 'text')
-      ])
-    ];
+              private _prop: PropertyService,
+              private preferenceService: PreferenceService) {
   }
 
   setSelectedFilter(filter: SearchFilter) {
-    this.selectedFilter = filter;
-    this.filterChanged$.emit(this.selectedFilter);
+    this.filterChanged$.emit(filter);
   }
 
-  getActiveFilter() {
-    return this.filters[0];
-  }
   getFilters() {
-    return this.filters;
+    return this.preferenceService.getPreference('User', 'filter.nodes.')
+      .then(preferences => preferences.map(p => this.preferenceToFilter(p)));
   }
 
   saveFilter(filter: SearchFilter) {
-    this.filters.push(filter);
+    return this.preferenceService.savePreference(this.filterToPreference(filter));
+  }
+
+  private preferenceToFilter(pref: Preference) {
+    return <SearchFilter> JSON.parse(pref.value);
+  }
+
+  private filterToPreference(filter: SearchFilter) {
+    let pref = new Preference();
+    pref.value = JSON.stringify(filter);
+    pref.key = 'filter.nodes.' + filter.name;
+    pref.scope = 'User';
+    return pref;
   }
 }

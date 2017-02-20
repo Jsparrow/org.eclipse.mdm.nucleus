@@ -32,15 +32,18 @@ import {View} from '../tableview/tableview.service';
 import { IDropdownItem, IMultiselectConfig  } from 'ng2-dropdown-multiselect';
 import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 
+import { ModalDirective } from 'ng2-bootstrap';
+
 @Component({
   selector: 'mdm-search',
   templateUrl: 'mdm-search.component.html',
 })
 export class MDMSearchComponent {
 
-  filters: SearchFilter[];
-  selectedFilter: SearchFilter;
+  filters: SearchFilter[] = [];
+  selectedFilter: SearchFilter = new SearchFilter('No filter selected', [], '*', '', []);
   selectedView: View;
+  filterName = '';
 
   searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
@@ -57,11 +60,15 @@ export class MDMSearchComponent {
   public dropdownModel: IDropdownItem[];
   public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
 
+
   @ViewChild(ViewComponent)
   private viewComponent: ViewComponent;
 
   @ViewChild(TableviewComponent)
   private tableViewComponent: TableviewComponent;
+
+  @ViewChild('lgSaveModal')
+  private childSaveModal: ModalDirective;
 
   constructor(private searchService: SearchService,
               private queryService: QueryService,
@@ -73,28 +80,36 @@ export class MDMSearchComponent {
               }
   ngOnInit() {
     this.definitions = this.searchService.getDefinitionsSimple();
-
-    this.filters = this.filterService.getFilters();
-    this.selectedFilter = this.filters[0];
+    this.filterService.getFilters().then(
+      filters => { this.filters = filters;
+                   this.filters.push(new SearchFilter('No filter selected', [], '*', '', []));
+                   this.selectedFilter = this.filters.find(f => f.name === 'Standard');
+                   if (this.selectedFilter === undefined) {
+                      this.selectedFilter = this.filters.find(f => f.name === 'No filter selected');
+                   }
+                   this.getEnvironments();
+                 }
+    );
 
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
-
-    this.nodeService.getNodes().subscribe(
-      nodes => this.setEnvironments(nodes),
-      error => this.errorMessage = <any>error);
 
     this.dropdownModel = [];
   }
 
   onConditionChanged(condition: Condition) {
-    console.log(condition);
     this.calcCurrentSearch();
   }
 
   onFilterChanged(filter: SearchFilter) {
-    this.filters = this.filterService.getFilters();
+    this.getEnvironments();
     this.selectedFilter = filter;
+  }
+
+  getEnvironments() {
+    this.nodeService.getNodes().subscribe(
+      nodes => this.setEnvironments(nodes),
+      error => this.errorMessage = <any>error);
   }
 
   setEnvironments(environments: Node[]) {
@@ -161,8 +176,13 @@ export class MDMSearchComponent {
   }
 
   resetFilter() {
-    this.filters = this.filterService.getFilters();
-    this.selectedFilter = this.filters.find(f => f.name === this.selectedFilter.name);
+    this.onFilterChanged(this.filters.find(f => f.name === 'No filter selected'));
+  }
+
+  saveFilter() {
+    this.selectedFilter.name = this.filterName;
+    this.filterService.saveFilter(this.selectedFilter);
+    this.childSaveModal.hide();
   }
 
   addCondition(field: SearchAttribute) {
@@ -187,5 +207,9 @@ export class MDMSearchComponent {
     if (node) {
       this.basketService.add(new MDMItem(node.sourceName, node.type, node.id));
     }
+  }
+
+  showSaveModal() {
+    this.childSaveModal.show();
   }
 }

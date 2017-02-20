@@ -8,7 +8,6 @@ import { LocalizationService } from '../localization/localization.service';
 import {SearchService, SearchAttribute} from '../search/search.service';
 import {SearchDeprecatedService} from '../search/search-deprecated.service';
 
-import {FilterService} from '../search/filter.service';
 import {NodeService} from '../navigator/node.service';
 import {BasketService} from '../basket/basket.service';
 import { Node } from '../navigator/node';
@@ -17,7 +16,7 @@ import {MDMItem} from '../core/mdm-item';
 @Component({
   selector: 'edit-view',
   templateUrl: './editview.component.html',
-  providers: [SearchDeprecatedService, FilterService, NodeService],
+  providers: [SearchDeprecatedService, NodeService],
   styles: ['.remove {color:black; cursor: pointer; float: right}', '.icon { cursor: pointer; margin: 0px 5px; }']
 })
 export class EditViewComponent {
@@ -33,20 +32,16 @@ export class EditViewComponent {
   selectedEnv: Node[] = [];
   type: any = { label: 'Ergebnistyp wählen' };
   errorMessage: string;
-  filters: any;
-  selectedFilter: any = {name: 'Filter wählen'};
   typeaheadQuery = '';
   isReadOnly = false;
   private currentView: View = new View();
 
   constructor(private searchDeprecatedService: SearchDeprecatedService,
-              private filterService: FilterService,
               private nodeService: NodeService,
               private viewService: ViewService,
               private localService: LocalizationService,
               private basketService: BasketService) {
     this.definitions = searchDeprecatedService.getDefinitions();
-    this.filters = filterService.getFilters();
     let node: Node;
     this.nodeService.getNodes(node).subscribe(
       nodes => this.setEvns(nodes),
