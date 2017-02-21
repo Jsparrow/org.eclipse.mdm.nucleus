@@ -6,7 +6,7 @@
       <th width="30px" style="text-align: center;"></th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="noselect">
     <tr *ngIf="results?.rows?.length <= 0">
       <td [colSpan]="view?.columns?.length + 2" style="text-align: center;">Keine Daten vorhanden</td>
     </tr>
@@ -14,7 +14,7 @@
       <td width="30px">
         <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="onSelectNode(node)" [title]="row.type"> </a>
       </td>
-      <td *ngFor="let col of view?.columns" (click)="selectRow(row)">{{getData(row, col)}}</td>
+        <td *ngFor="let col of view?.columns" (click)="onClickRow(row, $event)" >{{getData(row, col)}}</td>
       <td style="text-align: center;">
         <span class="glyphicon" [ngClass]="{'glyphicon-shopping-cart': isShopable, 'glyphicon-remove': isRemovable}"
           style="cursor: pointer" title="{{isShopable?'Add to shopping basket':'Remove from shopping basket'}}" (click)="functionalityProvider(isShopable, row)"></span>

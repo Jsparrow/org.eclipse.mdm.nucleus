@@ -111,6 +111,29 @@ export class TableviewComponent implements OnInit, OnChanges {
     return this.activeItems.findIndex(ai => ai.equals(item)) === -1 ? '' : 'active';
   }
 
+  onClickRow(row: Row, event: MouseEvent) {
+    if (event.shiftKey && this.activeItems.length > 0) {
+      let lastItem = this.activeItems[this.activeItems.length - 1];
+      let lastIndex = this.results.rows.findIndex(r => r.getItem().equals(lastItem));
+      let thisIndex = this.results.rows.findIndex(r => r.getItem().equals(row.getItem()));
+
+      this.results.rows.slice(Math.min(lastIndex, thisIndex), Math.max(lastIndex, thisIndex) + 1)
+            .map(r => r.getItem())
+            .forEach(item => {
+              if (this.activeItems.findIndex(i => i.equals(item)) === -1) {
+                this.activeItems.push(item);
+              }
+            });
+    } else if (event.ctrlKey) {
+        this.selectRow(row);
+    } else {
+      if ( this.activeItems[0] ? !row.getItem().equals(this.activeItems[0]) : false) {
+        this.activeItems = [];
+      }
+      this.selectRow(row);
+    }
+  }
+
   selectRow(row: Row) {
     let item = row.getItem();
     let index = this.activeItems.findIndex(ai => ai.equals(item));
@@ -120,4 +143,5 @@ export class TableviewComponent implements OnInit, OnChanges {
       this.activeItems.splice(index, 1);
     }
   }
+
 }
