@@ -1,3 +1,23 @@
+<style>
+:host /deep/ .dropdown {
+  width: 200px;
+}
+:host /deep/ .dropdown-toggle {
+    overflow: hidden;
+    padding-right: 24px /* Optional for caret */;
+    text-align: left;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Optional for caret */
+:host /deep/ .dropdown-toggle .caret {
+    position: absolute;
+    right: 12px;
+    top: calc(50% - 2px);
+}
+</style>
+
 <div class="btn-group" dropdown>
   <button id="view" title="Select View" type="button" class="btn btn-default dropdown-toggle" dropdownToggle [disabled]="disabled" aria-haspopup="true" aria-expanded="false">
     {{selectedView?.name}} <span class="caret"></span>

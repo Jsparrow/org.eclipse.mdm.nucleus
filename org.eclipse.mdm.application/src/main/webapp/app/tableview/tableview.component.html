@@ -3,19 +3,19 @@
     <tr>
     	<th width="30px"> </th>
       <th *ngFor="let col of view?.columns">{{col.type}}.{{col.name}} </th>
-      <th width="30px"> </th>
+      <th width="30px" style="text-align: center;"></th>
     </tr>
   </thead>
   <tbody>
     <tr *ngIf="results?.rows?.length <= 0">
       <td [colSpan]="view?.columns?.length + 2" style="text-align: center;">Keine Daten vorhanden</td>
     </tr>
-    <tr *ngFor="let row of results?.rows">
+    <tr *ngFor="let row of results?.rows" [ngClass]="isActive(row)">
       <td width="30px">
         <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="onSelectNode(node)" [title]="row.type"> </a>
       </td>
-      <td *ngFor="let col of view?.columns">{{getData(row, col)}}</td>
-      <td width="30px">
+      <td *ngFor="let col of view?.columns" (click)="selectRow(row)">{{getData(row, col)}}</td>
+      <td style="text-align: center;">
         <span class="glyphicon" [ngClass]="{'glyphicon-shopping-cart': isShopable, 'glyphicon-remove': isRemovable}"
           style="cursor: pointer" title="{{isShopable?'Add to shopping basket':'Remove from shopping basket'}}" (click)="functionalityProvider(isShopable, row)"></span>
       </td>

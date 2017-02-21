@@ -203,10 +203,8 @@ export class MDMSearchComponent {
     this.addCondition(match.item.attribute);
   }
 
-  add2Basket(node: Node) {
-    if (node) {
-      this.basketService.add(new MDMItem(node.sourceName, node.type, node.id));
-    }
+  selected2Basket() {
+    this.tableViewComponent.activeItems.forEach(item => this.basketService.add(item));
   }
 
   showSaveModal() {

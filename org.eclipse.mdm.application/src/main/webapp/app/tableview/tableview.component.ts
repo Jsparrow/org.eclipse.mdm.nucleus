@@ -29,7 +29,7 @@ export class TableviewComponent implements OnInit, OnChanges {
   @Input() isShopable = false;
   @Input() isRemovable = false;
 
-  results1: SearchResult;
+  activeItems: MDMItem[] = [];
 
   @ViewChild(EditViewComponent)
   private editViewComponent: EditViewComponent;
@@ -96,24 +96,31 @@ export class TableviewComponent implements OnInit, OnChanges {
 
   getNodeClass(type: string) {
     switch (type) {
-      case 'Project':
-        return 'project';
-      case 'Pool':
       case 'StructureLevel':
         return 'pool';
-      case 'Test':
-        return 'test';
-      case 'TestStep':
-        return 'teststep';
-      case 'Measurement':
       case 'MeaResult':
         return 'measurement';
-      case 'ChannelGroup':
       case 'SubMatrix':
         return 'channelgroup';
-      case 'Channel':
       case 'MeaQuantity':
         return 'channel';
+      default:
+        return type.toLowerCase();
+    }
+  }
+
+  isActive(row: Row) {
+    let item = row.getItem();
+    return this.activeItems.findIndex(ai => ai.equals(item)) === -1 ? '' : 'active';
+  }
+
+  selectRow(row: Row) {
+    let item = row.getItem();
+    let index = this.activeItems.findIndex(ai => ai.equals(item));
+    if (index === -1) {
+      this.activeItems.push(item);
+    } else {
+      this.activeItems.splice(index, 1);
     }
   }
 }

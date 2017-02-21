@@ -4,6 +4,8 @@ import {Observable} from 'rxjs/Observable';
 
 import {PropertyService} from '../core/property.service';
 import {MDMItem} from '../core/mdm-item';
+import {deserialize, serialize} from 'serializer.ts/Serializer';
+import {Type} from 'serializer.ts/Decorators';
 
 export class Filter {
   sourceName: string;
@@ -18,6 +20,7 @@ export class Filter {
 }
 export class Query {
   resultType: string;
+  @Type(() => Filter)
   filters: Filter[] = [];
   columns: String[] = [];
 
@@ -41,6 +44,7 @@ export class Row {
   source: string;
   type: string;
   id: string;
+  @Type(() => Columns)
   columns: Columns[] = [];
 
   public getItem() {
@@ -49,6 +53,7 @@ export class Row {
 }
 
 export class SearchResult {
+  @Type(() => Row)
   rows: Row[] = [];
 }
 
@@ -63,8 +68,8 @@ export class QueryService {
 
   query(query: Query): Observable<SearchResult> {
     return this.http.post(this.queryUrl, query)
-              .map(res => <SearchResult> res.json())
-              .catch(this.handleError);
+               .map(res => deserialize<SearchResult>(SearchResult, res.json()))
+               .catch(this.handleError);
   }
 
   queryItems(items: MDMItem[], columns: string[]): Observable<SearchResult>[] {

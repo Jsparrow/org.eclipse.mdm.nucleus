@@ -123,8 +123,15 @@
     </div>
     <div class="container-fluid">
       <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
-        <div class="col-md-12">
+        <div class="col-md-6">
           <mdm-view (viewSelected)="selectedView = $event"></mdm-view>
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+          <button type="button" class="btn btn-default" title="Selection to basket" (click)="selected2Basket()">
+            <span class="glyphicon glyphicon-shopping-cart" style="color:#DADADA; margin-right: -12px;"></span>
+            <span class="glyphicon glyphicon-shopping-cart" style="color:#A8A4A4; margin-right: -12px;"></span>
+            <span class="glyphicon glyphicon-shopping-cart"></span>
+          </button>
         </div>
       </div>
       <div class="row">

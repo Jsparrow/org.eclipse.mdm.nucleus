@@ -27,3 +27,7 @@
 .channel {
 	background-image: url("../../assets/img/meaquantity.png");
 }
+
+.table > tbody > tr.active > td {
+	background-color: #66afe9; /*#337ab7;*/
+}
