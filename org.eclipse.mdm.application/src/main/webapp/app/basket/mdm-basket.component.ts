@@ -38,7 +38,7 @@ export class MDMBasketComponent {
   basketContent: SearchResult = new SearchResult();
 
   baskets: Basket[] = [];
-  selectedBasket = new Basket('Basket', []);
+  selectedBasket: Basket;
 
   selectedView: View;
 
@@ -68,7 +68,6 @@ export class MDMBasketComponent {
   }
 
   addItems(items: MDMItem[]) {
-    this.basketName = '';
     if (this.selectedView) {
       this.queryService.queryItems(items, this.selectedView.columns.map(c => c.type + '.' + c.name))
         .forEach(q => q.subscribe(r => this.addData(r.rows)));
@@ -76,12 +75,10 @@ export class MDMBasketComponent {
   }
 
   removeItems(items: MDMItem[]) {
-    this.basketName = '';
     items.forEach(item =>
       this.basketContent.rows = this.basketContent.rows.filter(row =>
         !(row.source === item.source && row.type === item.type && +row.id === item.id)));
   }
-
 
   setView(view: View) {
     console.log('setView', view);
@@ -92,8 +89,13 @@ export class MDMBasketComponent {
     this.childSaveModal.hide();
   }
 
-  loadBasket(basket: Basket) {
-    this.selectedBasket = basket;
+  loadBasket(basket?: Basket) {
+    if (basket === undefined) {
+      basket = this.selectedBasket;
+      if (this.selectedBasket === undefined) {
+        return;
+      }
+    }
     this.basketName = basket.name;
     this.setItems(basket.items);
     this._basketService.setItems(basket.items);
@@ -101,22 +103,23 @@ export class MDMBasketComponent {
   }
 
   loadBaskets() {
-    this._basketService.getBaskets().subscribe(baskets => {
-            this.baskets = baskets; this.selectedBasket = this.baskets[0]; });
+    this._basketService.getBaskets().subscribe(baskets => this.baskets = baskets);
   }
 
   clearBasket() {
     this.basketContent = new SearchResult();
     this._basketService.removeAll();
-    this.basketName = '';
+    this.basketName = 'basket';
   }
 
   showLoadModal() {
+    this.selectedBasket = undefined;
     this.loadBaskets();
     this.childLoadModal.show();
   }
 
   showSaveModal() {
+    this.basketName = '';
     this.childSaveModal.show();
   }
 
@@ -127,6 +130,10 @@ export class MDMBasketComponent {
 
   onUploadChange(event) {
     this.onUploadEvent(event.target);
+  }
+
+  toggleSelect(basket: Basket) {
+    this.selectedBasket = this.selectedBasket === basket ? undefined : basket;
   }
 
   private onUploadEvent(inputValue: any) {

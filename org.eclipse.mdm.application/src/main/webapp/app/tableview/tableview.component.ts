@@ -127,7 +127,7 @@ export class TableviewComponent implements OnInit, OnChanges {
     } else if (event.ctrlKey) {
         this.selectRow(row);
     } else {
-      if ( this.activeItems[0] ? !row.getItem().equals(this.activeItems[0]) : false) {
+      if ( this.activeItems.length > 1 || (this.activeItems.length !== 0 && !row.getItem().equals(this.activeItems[0]))) {
         this.activeItems = [];
       }
       this.selectRow(row);

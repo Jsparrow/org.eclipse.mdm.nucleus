@@ -7,8 +7,12 @@
       <button type="submit" class="btn btn-default" (click)="showSaveModal()" title="Save shopping basket" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
       <button type="submit" class="btn btn-default" (click)="showLoadModal()" title="Load shopping basket" ><span class="glyphicon glyphicon-folder-open"></span></button>
       <button type="submit" class="btn btn-default" (click)="clearBasket()" title="Clear shopping basket" ><span class="glyphicon glyphicon-erase"></span></button>
-      <a [download]="selectedBasket.name + '.json'" [href]="downloadBasket()" style="text-decoration:none;">
-        <button type="submit" class="btn btn-default" title="Download shopping basket"><span class="glyphicon glyphicon-download"></span></button>
+      <a class="basketContent.rows.length <= 0 ? 'disabled' : ''" (keydown.enter)="!isDisabled(link)"
+         [download]="selectedBasket?.name != undefined ? selectedBasket.name + '.json' : 'basket.json'"
+         [href]="downloadBasket()" style="text-decoration:none;">
+        <button type="submit" class="btn btn-default" title="Download shopping basket" [disabled]="basketContent.rows.length <= 0">
+          <span class="glyphicon glyphicon-download"></span>
+        </button>
       </a>
       <div class="fileUpload btn btn-default" title="Upload" >
         <span class="glyphicon glyphicon-upload"></span>
@@ -23,8 +27,8 @@
   </div>
 </div>
 
-<div bsModal #lgLoadModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true" (keyup.enter)="loadBasket(selectedBasket)">
-  <div class="modal-dialog modal-lg">
+<div bsModal #lgLoadModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true" (keyup.enter)="loadBasket()">
+  <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" (click)="childLoadModal.hide()" aria-label="Close">
@@ -35,33 +39,19 @@
       <div class="modal-body">
         <div class="container-fluid">
           <div class="row">
-            <div class="col-md-6" style="max-height:50vh; ">
-              <p class="secondary-heading" style="text-align:center;font-weight:bold;text-decoration:underline;">Warenkorb</p>
-              <ul class="list-group" style="max-height:50vh; padding: 0; list-style-type: none; overflow-y:auto;">
-                <div style="display: table; width: 100%; border: 1px solid #ddd;">
-                  <li class="list-group-item" *ngFor="let basket of baskets" [ngClass]="{'active': selectedBasket == basket}" >
-                    <a style="color:black; cursor: pointer;"  title="{{basket.name}}" (click)="selectedBasket = basket" >{{basket.name}}</a>
-                  </li>
-                </div>
-              </ul>
-            </div>
-            <div class="col-md-6" style="max-height:50vh; ">
-              <p class="secondary-heading" style="text-align:center;font-weight:bold;text-decoration:underline;">Inhalt</p>
-              <ul class="list-group" style="max-height:70vh; padding: 0; list-style-type: none; overflow-y:auto;">
-                <div style="display: table; width: 100%; border: 1px solid #ddd;">
-                  <li class="list-group-item" *ngFor="let item of selectedBasket?.items" >
-                    <a style="color:black;"  title="{{item.id}}" >Type: {{item.type}}</a>
-                  </li>
-                </div>
-              </ul>
-            </div>
+            <ul class="list-group" style="max-height:50vh; padding: 0; list-style-type: none; overflow-y:auto;">
+              <div style="display: table; width: 100%; border: 1px solid #ddd;">
+                <li class="list-group-item" *ngFor="let basket of baskets" [ngClass]="{'active': selectedBasket == basket}"
+                    (click)="toggleSelect(basket)" (dblclick)="loadBasket(basket)" style="cursor: pointer">
+                    {{basket.name}}<span class="badge">{{basket.items.length}}</span>
+                </li>
+              </div>
+            </ul>
           </div>
           <div class="row" style="margin-top: 20px;">
-            <div class="col-md-12">
-              <form class="form-inline">
-                <button type="button" class="btn btn-default pull-right" (click)="loadBasket(selectedBasket)" >Laden</button>
-              </form>
-            </div>
+            <button type="button" class="btn btn-default pull-right" (click)="loadBasket()" [disabled]="baskets.length <= 0 || selectedBasket == undefined" >
+              <span class="glyphicon glyphicon-open"></span> Laden
+            </button>
           </div>
         </div>
       </div>
