@@ -9,6 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 import {Component, ViewChild} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
 import {DropdownSearch} from './search-dropdown';
@@ -28,10 +29,10 @@ import {TableviewComponent} from '../tableview/tableview.component';
 import {ViewComponent} from '../tableview/view.component';
 
 import {View} from '../tableview/tableview.service';
-import { IDropdownItem, IMultiselectConfig  } from 'ng2-dropdown-multiselect';
+import {IDropdownItem, IMultiselectConfig} from 'ng2-dropdown-multiselect';
 import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 
-import { ModalDirective } from 'ng2-bootstrap';
+import {ModalDirective} from 'ng2-bootstrap';
 
 @Component({
   selector: 'mdm-search',
@@ -132,12 +133,11 @@ export class MDMSearchComponent {
 
     this.searchableFields = [];
 
-    this.selectedFilter.environments.forEach(env =>
-      this.searchService.loadSearchAttributes(type, env)
-        .map(attrs => attrs.map(sa => {
-          return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa };
-      }))
-      .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs)));
+    Observable.forkJoin(this.selectedFilter.environments.map(env => this.searchService.loadSearchAttributes(type, env)))
+      .map(attrs => <SearchAttribute[]> [].concat.apply([], attrs))
+      .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
+      .map(sa => this.uniqueBy(sa, p => p.label))
+      .subscribe(attrs => this.searchableFields = attrs);
   }
 
   onSearch() {
@@ -208,5 +208,13 @@ export class MDMSearchComponent {
 
   showSaveModal() {
     this.childSaveModal.show();
+  }
+
+  private uniqueBy<T>(a: T[], key: (T) => any) {
+    let seen = {};
+    return a.filter(function(item) {
+        let k = key(item);
+        return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+    });
   }
 }

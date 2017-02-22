@@ -106,6 +106,10 @@ export class TableviewComponent implements OnInit, OnChanges {
     }
   }
 
+  getRowTitle(row: Row) {
+    return [row.source, row.type, row.id].join('/');
+  }
+
   isActive(row: Row) {
     let item = row.getItem();
     return this.activeItems.findIndex(ai => ai.equals(item)) === -1 ? '' : 'active';

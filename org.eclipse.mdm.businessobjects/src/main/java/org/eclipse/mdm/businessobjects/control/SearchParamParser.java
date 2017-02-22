@@ -26,6 +26,8 @@ import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.Operation;
 
+import com.google.common.base.Strings;
+
 /**
  * Class for parsing the filter strings.
  * 
@@ -57,6 +59,9 @@ public class SearchParamParser {
 	 */
 	public static Filter parseFilterString(List<EntityType> possibleSearchAttrs, String filterString)
 			throws IllegalArgumentException {
+		if (Strings.isNullOrEmpty(filterString)) {
+			return Filter.and();
+		}
 		SearchFilterBuilder filterBuilder = new SearchFilterBuilder();
 		while (filterString.contains(AND_DELIMITER) || filterString.contains(OR_DELIMITER)) {
 			int andIndex = filterString.indexOf(AND_DELIMITER) >= 0 ? filterString.indexOf(AND_DELIMITER)

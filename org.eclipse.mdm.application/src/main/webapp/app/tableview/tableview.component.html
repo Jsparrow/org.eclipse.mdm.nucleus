@@ -12,7 +12,7 @@
     </tr>
     <tr *ngFor="let row of results?.rows" [ngClass]="isActive(row)">
       <td width="30px">
-        <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="onSelectNode(node)" [title]="row.type"> </a>
+        <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="onSelectNode(node)" [title]="getRowTitle(row)"> </a>
       </td>
         <td *ngFor="let col of view?.columns" (click)="onClickRow(row, $event)" >{{getData(row, col)}}</td>
       <td style="text-align: center;">
