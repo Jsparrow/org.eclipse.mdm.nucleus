@@ -56,7 +56,7 @@ export class PreferenceComponent implements OnInit {
         let index = this.preferences.findIndex( p => this.preferenceEqualsWithoutId( p, preference ) );
 
         this.preferenceService.savePreference( preference )
-            .then(() => index !== -1 ? this.preferences[index] = preference : this.reloadPreference( preference ));
+            .subscribe(() => index !== -1 ? this.preferences[index] = preference : this.reloadPreference( preference ));
         this.subscription.unsubscribe();
     }
 

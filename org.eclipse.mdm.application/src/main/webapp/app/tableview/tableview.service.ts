@@ -83,6 +83,6 @@ export class ViewService {
     pref.value = serialize(view);
     pref.key = this.preferencePrefix + view.name;
     pref.scope = 'User';
-    this.prefService.savePreference(pref).then(saved => this.viewsChanged$.emit(view));
+    this.prefService.savePreference(pref).subscribe(saved => this.viewsChanged$.emit(view));
   }
 }

@@ -128,7 +128,6 @@ export class MDMSearchComponent {
   }
 
   updateSearches() {
-    console.log('updating searches');
     let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
 
     this.searchableFields = [];

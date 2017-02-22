@@ -7,13 +7,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {SearchService, SearchAttribute} from './search.service';
 import {Condition, Operator} from './filter.service';
 
-describe ( 'Search service', () => {
+describe ( 'SearchService', () => {
 
   let service: SearchService;
   beforeEach(() => { service = new SearchService(null, null, null); });
 
   describe('group()', () => {
-    it('group conditions', () => {
+    it('should group conditions', () => {
       let cond1 = new Condition('Test', 'Name', Operator.EQUALS, []);
       let cond2 = new Condition('Vehicle', 'Name', Operator.EQUALS, []);
 
@@ -45,7 +45,7 @@ describe ( 'Search service', () => {
   });
 
   describe('createSearchLayout()', () => {
-    it('check', () => {
+    it('should create a searchLayout object from conditions', () => {
       let cond1 = new Condition('Test', 'Name', Operator.EQUALS, []);
       let cond2 = new Condition('Vehicle', 'Name', Operator.EQUALS, []);
 
@@ -74,7 +74,7 @@ describe ( 'Search service', () => {
     });
   });
   describe('convert()', () => {
-    it('simple', () => {
+    it('should convert conditions to filter string', () => {
       let cond1 = new Condition('Test', 'Name', Operator.LIKE, ['PBN*']);
       let cond2 = new Condition('Vehicle', 'Name', Operator.EQUALS, ['car']);
 

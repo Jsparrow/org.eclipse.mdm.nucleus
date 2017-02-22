@@ -33,49 +33,29 @@ export class PreferenceService {
     this.prefEndpoint = _prop.getUrl() + '/mdm/preferences';
   }
 
-  getPreference( scope: string, key?: string ) {
-      if ( key == null ) {
+  getPreference(scope: string, key?: string) {
+      if (key == null) {
           key = '';
       }
-      return this.http.get( this.prefEndpoint + '?scope=' + scope + '&key=' + key )
+      return this.http.get(this.prefEndpoint + '?scope=' + scope + '&key=' + key)
           .map(response => plainToClass(Preference, response.json().preferences));
   }
 
-  getPreferencesBySource( source: string, key?: string  ): Promise<Preference[]> {
-      if ( key == null ) {
-          key = '';
-      }
-      return this.http.get( this.prefEndpoint + '/source?source=' + source + '&key=' + key)
-          .toPromise()
-          .then( response => <Preference[]>response.json().preferences )
-          .catch( this.handleError );
+  savePreference(preference: Preference) {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.put(this.prefEndpoint, JSON.stringify(preference), options)
+      .catch(this.handleError);
   }
 
-  savePreference( preference: Preference ) {
-      let pref = {
-          'scope': preference.scope,
-          'source': preference.source,
-          'key': preference.key,
-          'value': preference.value,
-          'id': preference.id
-      };
-
-  let headers = new Headers({ 'Content-Type': 'application/json' });
-  let options = new RequestOptions({ headers: headers });
-
-      return this.http.put( this.prefEndpoint, JSON.stringify( pref ), options )
-          .toPromise()
-          .catch( this.handleError );
+  deletePreference(id: number) {
+    return this.http.delete(this.prefEndpoint + '/' + id)
+      .catch(this.handleError);
   }
 
-  deletePreference( id: number ) {
-      return this.http.delete( this.prefEndpoint + '/' + id )
-                  .toPromise()
-                  .catch( this.handleError );
-  }
-
-  private handleError( error: Response ) {
-      console.error( error );
-      return Observable.throw( error.json().error || 'Server error' );
+  private handleError(error: Response) {
+      console.error(error);
+      return Observable.throw(error.json().error || 'Server error');
   }
 }
