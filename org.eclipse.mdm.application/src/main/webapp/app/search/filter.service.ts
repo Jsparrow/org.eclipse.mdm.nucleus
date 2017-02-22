@@ -67,7 +67,11 @@ export class Condition {
     this.attribute = attribute;
     this.operator = operator;
     this.value = value;
-    this.valueType = valueType.toLowerCase() || 'text';
+    if (valueType) {
+      this.valueType = valueType.toLowerCase();
+    } else {
+      this.valueType = 'string';
+    }
   }
 }
 

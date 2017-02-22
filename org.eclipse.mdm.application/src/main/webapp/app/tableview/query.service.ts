@@ -67,7 +67,7 @@ export class QueryService {
 
   query(query: Query): Observable<SearchResult> {
     return this.http.post(this.queryUrl, query)
-               .map(res => deserialize<SearchResult>(SearchResult, res.json()))
+               .map(res => deserialize(SearchResult, res.text()))
                .catch(this.handleError);
   }
 

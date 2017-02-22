@@ -75,8 +75,7 @@ export class ViewService {
     return this.prefService.getPreference('', this.preferencePrefix)
         .map(preferences => preferences.map(p => new PreferenceView(p.scope, deserialize(View, p.value))))
         .filter(prefViews => !(prefViews === undefined || prefViews.length === 0))
-        .defaultIfEmpty(this.defaultPrefViews)
-        .do(p => console.log(p));
+        .defaultIfEmpty(this.defaultPrefViews);
   }
 
   saveView(view: View) {

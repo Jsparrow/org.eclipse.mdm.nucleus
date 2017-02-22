@@ -81,7 +81,7 @@ export class BasketService {
   }
 
   private preferenceToBasket(pref: Preference) {
-    return deserialize<Basket>(Basket, JSON.parse(pref.value));
+    return deserialize(Basket, pref.value);
   }
 
   private basketToPreference(basket: Basket) {
