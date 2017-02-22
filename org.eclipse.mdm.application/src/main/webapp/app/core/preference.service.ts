@@ -4,6 +4,9 @@ import { Observable } from 'rxjs/Observable';
 
 import { PropertyService } from './property.service';
 
+import {Type, Exclude, plainToClass, serialize, deserializeArray} from 'class-transformer';
+
+
 export class Preference {
 
     scope: string;
@@ -30,14 +33,12 @@ export class PreferenceService {
     this.prefEndpoint = _prop.getUrl() + '/mdm/preferences';
   }
 
-  getPreference( scope: string, key?: string ): Promise<Preference[]> {
+  getPreference( scope: string, key?: string ) {
       if ( key == null ) {
           key = '';
       }
       return this.http.get( this.prefEndpoint + '?scope=' + scope + '&key=' + key )
-          .toPromise()
-          .then( response => <Preference[]>response.json().preferences )
-          .catch( this.handleError );
+          .map(response => plainToClass(Preference, response.json().preferences));
   }
 
   getPreferencesBySource( source: string, key?: string  ): Promise<Preference[]> {

@@ -52,7 +52,7 @@ export class NodeService {
 
   loadNodeproviders() {
     this.preferenceService.getPreference('system', 'nodeprovider.')
-      .then( preferences => preferences.forEach(p => {
+      .subscribe( preferences => preferences.forEach(p => {
           try {
               this.nodeproviders.push(JSON.parse(p.value));
           } catch (e) {

@@ -101,7 +101,7 @@ export class MDMBasketComponent {
   }
 
   loadBaskets() {
-    this._basketService.getBaskets().then(baskets => {
+    this._basketService.getBaskets().subscribe(baskets => {
             this.baskets = baskets; this.selectedBasket = this.baskets[0]; });
   }
 

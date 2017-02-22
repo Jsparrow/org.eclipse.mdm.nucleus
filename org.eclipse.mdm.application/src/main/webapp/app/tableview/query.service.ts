@@ -4,8 +4,7 @@ import {Observable} from 'rxjs/Observable';
 
 import {PropertyService} from '../core/property.service';
 import {MDMItem} from '../core/mdm-item';
-import {deserialize, serialize} from 'serializer.ts/Serializer';
-import {Type} from 'serializer.ts/Decorators';
+import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
 
 export class Filter {
   sourceName: string;

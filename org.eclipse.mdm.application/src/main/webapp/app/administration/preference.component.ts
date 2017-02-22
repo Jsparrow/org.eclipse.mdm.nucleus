@@ -32,8 +32,8 @@ export class PreferenceComponent implements OnInit {
 
     onScopeChange(params: any) {
         this.scope = params['scope'];
-        this.preferenceService.getPreference( this.scope )
-        .then( pref => this.preferences = pref );
+        this.preferenceService.getPreference(this.scope)
+          .subscribe(pref => this.preferences = pref);
     }
 
     editPreference( preference?: Preference ) {
@@ -62,7 +62,7 @@ export class PreferenceComponent implements OnInit {
 
     reloadPreference( preference: Preference ) {
         this.preferenceService.getPreference( preference.scope, preference.key )
-            .then( p => this.preferences.push( p[0] ) );
+            .subscribe(p => this.preferences.push(p[0]));
     }
 
     preferenceEqualsWithoutId( pref1: Preference, pref2: Preference ) {

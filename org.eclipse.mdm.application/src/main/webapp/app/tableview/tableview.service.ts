@@ -1,10 +1,12 @@
 import {Injectable, EventEmitter} from '@angular/core';
-import {Http} from '@angular/http';
+import {Observable} from 'rxjs';
 
 import {PreferenceService, Preference} from '../core/preference.service';
+import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
 
 export class View {
   name: string;
+  @Type(() => ViewColumn)
   columns: ViewColumn[] = [];
 
   constructor(name?: string, cols?: ViewColumn[]) {
@@ -14,6 +16,7 @@ export class View {
 }
 export class PreferenceView {
   scope: string;
+  @Type(() => View)
   view: View;
 
   constructor(scope?: string, view?: View) {
@@ -29,6 +32,7 @@ export enum SortOrder {
 export class ViewColumn {
   type: string;
   name: string;
+  @Exclude()
   sort: SortOrder = SortOrder.None;
 
   constructor(type: string, name: string, sort: SortOrder) {
@@ -36,6 +40,15 @@ export class ViewColumn {
     this.name = name;
     this.sort = sort;
   }
+
+  get sortType(): string {
+      return SortOrder[this.sort];
+  }
+
+  set sortType(sortName: string) {
+      this.sort = SortOrder[sortName];
+  }
+
   isNone() {
     return this.sort === SortOrder.None;
   }
@@ -50,25 +63,27 @@ export class ViewColumn {
 @Injectable()
 export class ViewService {
   public viewsChanged$ = new EventEmitter<View>();
+  readonly preferencePrefix = 'tableview.view.';
   private views: View[] = [];
 
-  constructor(private http: Http,
-              private prefService: PreferenceService) {
+  private defaultPrefViews =  [ new PreferenceView('System', new View('Standard', [new ViewColumn('Test', 'Name', SortOrder.None)])) ];
+
+  constructor(private prefService: PreferenceService) {
   }
 
-  getViews(): Promise<PreferenceView[]> {
-    return this.prefService.getPreference('', 'tableview.view.').then(preferences => this.preparePrefs(preferences));
-  }
-
-  preparePrefs(prefs: Preference[]) {
-    return prefs.map(p => new PreferenceView(p.scope, JSON.parse(p.value)));
+  getViews() {
+    return this.prefService.getPreference('', this.preferencePrefix)
+        .map(preferences => preferences.map(p => new PreferenceView(p.scope, deserialize(View, p.value))))
+        .filter(prefViews => !(prefViews === undefined || prefViews.length === 0))
+        .defaultIfEmpty(this.defaultPrefViews)
+        .do(p => console.log(p));
   }
 
   saveView(view: View) {
     let pref = new Preference();
-    pref.value = JSON.stringify(view);
-    pref.key = 'tableview.view.' + view.name;
+    pref.value = serialize(view);
+    pref.key = this.preferencePrefix + view.name;
     pref.scope = 'User';
     this.prefService.savePreference(pref).then(saved => this.viewsChanged$.emit(view));
-    }
+  }
 }

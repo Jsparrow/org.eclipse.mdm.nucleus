@@ -10,8 +10,7 @@
 //   *******************************************************************************
 import {Injectable, EventEmitter} from '@angular/core';
 
-import {deserialize, serialize} from 'serializer.ts/Serializer';
-import {Type} from 'serializer.ts/Decorators';
+import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
 
 import {MDMItem} from '../core/mdm-item';
 import {PreferenceService, Preference} from '../core/preference.service';
@@ -70,7 +69,7 @@ export class BasketService {
 
   getBaskets() {
     return this._pref.getPreference('', 'basket.nodes.')
-      .then(preferences => preferences.map(p => this.preferenceToBasket(p)));
+      .map(preferences => preferences.map(p => this.preferenceToBasket(p)));
   }
 
   getItems() {

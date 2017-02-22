@@ -14,7 +14,7 @@ export class FilterService {
 
     onInit() {
         this.preferenceService.getPreference('source', 'ignoreAttributes')
-            .then( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
+            .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
     }
 
     getAttributesToDisplay(node: Node) {

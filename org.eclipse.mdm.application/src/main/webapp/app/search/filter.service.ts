@@ -103,7 +103,7 @@ export class FilterService {
 
   getFilters() {
     return this.preferenceService.getPreference('User', 'filter.nodes.')
-      .then(preferences => preferences.map(p => this.preferenceToFilter(p)));
+      .map(preferences => preferences.map(p => this.preferenceToFilter(p)));
   }
 
   saveFilter(filter: SearchFilter) {

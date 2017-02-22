@@ -79,7 +79,7 @@ export class MDMSearchComponent {
               }
   ngOnInit() {
     this.definitions = this.searchService.getDefinitionsSimple();
-    this.filterService.getFilters().then(
+    this.filterService.getFilters().subscribe(
       filters => { this.filters = filters;
                    this.filters.push(new SearchFilter('No filter selected', [], '*', '', []));
                    this.selectedFilter = this.filters.find(f => f.name === 'Standard');

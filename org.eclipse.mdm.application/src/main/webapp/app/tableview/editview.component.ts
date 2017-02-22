@@ -52,7 +52,7 @@ export class EditViewComponent {
 
   loadData() {
     this.definitions = this.searchDeprecatedService.getDefinitions();
-    this.filterService.getFilters().then(filters => this.filters = filters);
+    this.filterService.getFilters().subscribe(filters => this.filters = filters);
     let node: Node;
     this.nodeService.getNodes(node).subscribe(
       nodes => this.setEvns(nodes),

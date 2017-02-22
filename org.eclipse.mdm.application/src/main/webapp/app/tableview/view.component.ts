@@ -22,7 +22,7 @@ export class ViewComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.viewService.getViews().then(views => this.setViews(views));
+    this.viewService.getViews().subscribe(views => this.setViews(views));
     this.viewService.viewsChanged$.subscribe(view => this.onViewsChanged(view));
   }
 
@@ -32,7 +32,7 @@ export class ViewComponent implements OnInit {
   }
 
   private onViewsChanged(view: View) {
-    this.viewService.getViews().then(prefViews => this.getGroupedView(prefViews));
+    this.viewService.getViews().subscribe(prefViews => this.getGroupedView(prefViews));
     this.selectView(view);
   }
 
