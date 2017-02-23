@@ -1,0 +1,30 @@
+.navigator {
+  display: inline-block !important;
+  position: fixed !important;
+  width: 20em;
+  margin: 0 1em;
+  bottom: 6em;
+  top: 5em;
+}
+.navigator-content {
+  margin-left: 22em;
+}
+
+.panel-body {
+  padding: 0px;
+}
+.list-group {
+  margin-bottom: 0px;
+}
+.list-group-item {
+  white-space: nowrap;
+}
+.list-group-item:first-child {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+.list-group-item:last-child {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-bottom-style: none;
+}
