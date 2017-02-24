@@ -23,22 +23,22 @@ task map_tslint(type: Copy) {
 	
 	if (tsLintFile.exists()) {
 		String contents = tsLintFile.getText('UTF-8') 
-		contents = contents.replaceAll( 'app', 'src/main/webapp/app' )
+		contents = contents.replaceAll( 'src/app', 'src/main/webapp/src/app' )
 		mappedTsLintFile.write(contents, 'UTF-8')
 	}
 }
 
 sonarqube {
     properties {
-        property "sonar.sources", "src/main/webapp,src/main/java"
+        property "sonar.sources", "src/main/webapp/src,src/main/java"
         property "sonar.exclusions", "src/main/webapp/node_modules/**, src/main/webapp/coverage/**, src/main/webapp/dist/**,**/*.spec.ts, **/*.js"
-        property "sonar.tests", "src/main/webapp"
-		property "sonar.test.inclusions", "**/*.spec.ts"
+        property "sonar.tests", "src/main/webapp/src"
+		    property "sonar.test.inclusions", "**/*.spec.ts"
 		
-		property "sonar.ts.tslint.configPath", "src/main/webapp"
-		property "sonar.ts.tslint.projectPath", "src/main/webapp"
+		    property "sonar.ts.tslint.configPath", "src/main/webapp"
+		    property "sonar.ts.tslint.projectPath", "src/main/webapp"
         property "sonar.ts.tslint.outputPath", "${project.buildDir}/node/coverage/tslint_out_mapped.json"
-        property "sonar.ts.coverage.lcovReportpath", "${project.buildDir}/node/coverage/lcov/lcov.info"
+        property "sonar.ts.coverage.lcovReportpath", "${project.buildDir}/node/coverage/lcov.info"
     }
 }
 
@@ -94,13 +94,13 @@ npm_install {
 }
 
 task runBuild(type: NpmTask) {
-    args = ['run', 'build']
+    args = ['run', 'ci_build']
 }
 
 task copy_loginsites(type: Copy) {
-	from 	"${project.buildDir}/node/login.jsp", 
-			"${project.buildDir}/node/login.css", 
-			"${project.buildDir}/node/error.jsp"
+	from 	"${project.buildDir}/node/src/login.jsp", 
+			"${project.buildDir}/node/src/login.css", 
+			"${project.buildDir}/node/src/error.jsp"
 			
 	into	 "${project.buildDir}/node/dist"
 }

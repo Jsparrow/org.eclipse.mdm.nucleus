@@ -29,7 +29,7 @@ import {QueryService, Query, SearchResult, Row, Filter} from '../tableview/query
   styleUrls: ['./mdm-basket.component.css'],
   providers: []
 })
-export class MDMBasketComponent {
+export class MDMBasketComponent implements OnInit {
   @Output() onActive = new EventEmitter<Node>();
   @Output() onSelect = new EventEmitter<Node>();
   @Input() activeNode: Node;
@@ -43,11 +43,11 @@ export class MDMBasketComponent {
   selectedView: View;
 
   @ViewChild(ViewComponent)
-  private viewComponent: ViewComponent;
+  viewComponent: ViewComponent;
   @ViewChild('lgLoadModal')
-  private childLoadModal: ModalDirective;
+  childLoadModal: ModalDirective;
   @ViewChild('lgSaveModal')
-  private childSaveModal: ModalDirective;
+  childSaveModal: ModalDirective;
 
   constructor(private _basketService: BasketService,
               private queryService: QueryService,
@@ -134,6 +134,10 @@ export class MDMBasketComponent {
 
   toggleSelect(basket: Basket) {
     this.selectedBasket = this.selectedBasket === basket ? undefined : basket;
+  }
+
+  isDownloadDisabled() {
+    return this.basketContent.rows.length <= 0;
   }
 
   private onUploadEvent(inputValue: any) {

@@ -8,6 +8,7 @@ import { DatePipe } from '@angular/common';
 export class SearchDatepickerComponent {
   @Output() onSetValue = new EventEmitter<string>();
 
+  date: any;
   constructor(private datePipe: DatePipe) {}
 
   setDate(inputDate: string) {

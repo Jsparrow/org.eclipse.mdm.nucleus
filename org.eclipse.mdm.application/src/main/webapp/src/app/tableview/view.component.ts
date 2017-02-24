@@ -12,8 +12,8 @@ export class ViewComponent implements OnInit {
   @Output()
   public onViewSelected = new EventEmitter<View>();
 
-  private selectedView: View;
-  private groupedViews: {scope: string, view: View[]}[] = [];
+  public selectedView: View;
+  public groupedViews: {scope: string, view: View[]}[] = [];
 
   @ViewChild(EditViewComponent)
   private editViewComponent: EditViewComponent;
@@ -31,17 +31,17 @@ export class ViewComponent implements OnInit {
     this.onViewSelected.emit(view);
   }
 
-  private onViewsChanged(view: View) {
-    this.viewService.getViews().subscribe(prefViews => this.getGroupedView(prefViews));
-    this.selectView(view);
-  }
-
-  private editSelectedView() {
+  public editSelectedView() {
     this.editViewComponent.showDialog(this.selectedView);
   }
 
-  private newView() {
+  public newView() {
     this.editViewComponent.showDialog(new View());
+  }
+
+  private onViewsChanged(view: View) {
+    this.viewService.getViews().subscribe(prefViews => this.getGroupedView(prefViews));
+    this.selectView(view);
   }
 
   private setViews(prefViews: PreferenceView[]) {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, ViewChild, EventEmitter } from '@angular/core';
+import { Component, Input, Output, ViewChild, EventEmitter, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@angular/forms';
 
 import { ModalDirective } from 'ng2-bootstrap';
@@ -12,7 +12,7 @@ import { Node } from '../navigator/node';
     templateUrl: './edit-preference.component.html',
     styleUrls: ['./edit-preference.component.css']
 })
-export class EditPreferenceComponent {
+export class EditPreferenceComponent implements OnInit {
 
     @Input() scope: string;
     showSource: boolean;

@@ -1,6 +1,6 @@
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 
 import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
 
@@ -19,8 +19,8 @@ const defaultNodeProvider = require('../navigator/defaultnodeprovider.json');
 class TestPreferenceService {
   getPreference( scope: string, key?: string ): Observable<Preference[]> {
     let p = new Preference();
-    p.value = JSON.stringify(defaultNodeProvider)
-    return Observable.of([p])
+    p.value = JSON.stringify(defaultNodeProvider);
+    return Observable.of([p]);
     /*new Promise(function(resolve, reject) {
       let p = new Preference();
       p.value = JSON.stringify(defaultNodeProvider)
@@ -34,7 +34,15 @@ describe ( 'NodeproviderService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpModule],
-      providers: [PropertyService, { provide: PreferenceService, useClass: TestPreferenceService }, NodeproviderService, QueryService, NodeService]
+      providers: [
+        PropertyService,
+        {
+          provide: PreferenceService,
+          useClass: TestPreferenceService
+        },
+        NodeproviderService,
+        QueryService,
+        NodeService]
     });
   });
 

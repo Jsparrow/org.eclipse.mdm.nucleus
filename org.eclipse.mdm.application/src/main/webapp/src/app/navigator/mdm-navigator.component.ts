@@ -40,7 +40,7 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   loadNode(event) {
-    if(event.node) {
+    if (event.node) {
       return this.getChildren(event.node).then(nodes => event.node.children = nodes);
     }
   }
@@ -78,7 +78,7 @@ export class MDMNavigatorComponent implements OnInit {
       leaf: false,
       data: item,
       icon: this.getNodeClass(item)
-    }
+    };
   }
 
   getChildren(node: TreeNode) {

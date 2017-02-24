@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
@@ -38,7 +38,7 @@ import {ModalDirective} from 'ng2-bootstrap';
   selector: 'mdm-search',
   templateUrl: 'mdm-search.component.html',
 })
-export class MDMSearchComponent {
+export class MDMSearchComponent implements OnInit {
 
   filters: SearchFilter[] = [];
   selectedFilter: SearchFilter = new SearchFilter('No filter selected', [], '*', '', []);
@@ -56,6 +56,7 @@ export class MDMSearchComponent {
   isAdvancedSearchOpen = false;
   isSearchResultsOpen = false;
 
+  selectedAttribute: any;
   layout: SearchLayout = new SearchLayout;
   public dropdownModel: IDropdownItem[];
   public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
@@ -68,16 +69,15 @@ export class MDMSearchComponent {
   private tableViewComponent: TableviewComponent;
 
   @ViewChild('lgSaveModal')
-  private childSaveModal: ModalDirective;
+  childSaveModal: ModalDirective;
 
   constructor(private searchService: SearchService,
               private queryService: QueryService,
               private filterService: FilterService,
               private nodeService: NodeService,
               private localService: LocalizationService,
-              private basketService: BasketService) {
+              private basketService: BasketService) {}
 
-              }
   ngOnInit() {
     this.definitions = this.searchService.getDefinitionsSimple();
     this.filterService.getFilters().subscribe(

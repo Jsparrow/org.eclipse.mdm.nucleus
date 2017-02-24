@@ -1,6 +1,6 @@
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 
 import { ComponentFixture, async, TestBed, inject } from '@angular/core/testing';
 import { BaseRequestOptions, Http, HttpModule, Response, ResponseOptions, RequestMethod} from '@angular/http';

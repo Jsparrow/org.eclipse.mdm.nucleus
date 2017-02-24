@@ -52,7 +52,8 @@ describe('PreferenceService', () => {
       });
     })));
 
-    it('should return empty array if no preferences were found', async(inject([PreferenceService, MockBackend], (prefService, mockBackend) => {
+    it('should return empty array if no preferences were found',
+        async(inject([PreferenceService, MockBackend], (prefService, mockBackend) => {
 
       mockBackend.connections.subscribe(conn => {
         conn.mockRespond(new Response(new ResponseOptions({ body: { preferences: [] } })));

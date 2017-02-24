@@ -1,5 +1,5 @@
 import { DebugElement } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 
 import { ComponentFixture, async, TestBed, inject } from '@angular/core/testing';
 import { BaseRequestOptions, Http, HttpModule, Response, ResponseOptions } from '@angular/http';
@@ -32,7 +32,7 @@ describe ( 'TableviewService', () => {
     it('should return view from preference', async(inject([ViewService, MockBackend], (tableviewService, mockBackend) => {
 
       mockBackend.connections.subscribe(conn => {
-        let mockResponse = {
+        const mockResponse = {
           preferences: [
           {
             id: 22,
@@ -53,10 +53,11 @@ describe ( 'TableviewService', () => {
       });
     })));
 
-    it('should return default view, if no view preferences are available', async(inject([ViewService, MockBackend], (tableviewService, mockBackend) => {
+    it('should return default view, if no view preferences are available',
+        async(inject([ViewService, MockBackend], (tableviewService, mockBackend) => {
 
       mockBackend.connections.subscribe(conn => {
-        let mockResponse = { preferences: [] };
+        const mockResponse = { preferences: [] };
         conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
       });
 

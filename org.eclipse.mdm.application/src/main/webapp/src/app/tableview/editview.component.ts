@@ -39,7 +39,7 @@ export class EditViewComponent {
 
   typeaheadQuery = '';
   isReadOnly = false;
-  private currentView: View = new View();
+  currentView: View = new View();
 
   constructor(private searchDeprecatedService: SearchDeprecatedService,
               private filterService: FilterService,

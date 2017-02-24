@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, ViewEncapsulation, OnInit, OnDestroy} from '@angular/core';
 
 import { DropdownModule, AccordionConfig, DropdownConfig } from 'ng2-bootstrap';
 
@@ -23,7 +23,7 @@ import {NodeproviderService} from '../navigator/nodeprovider.service';
   providers: [DropdownConfig, AccordionConfig],
   encapsulation: ViewEncapsulation.None
 })
-export class MDMNavigatorViewComponent {
+export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
   selectedNode = new Node;
   activeNode: Node;
   closeOther = false;

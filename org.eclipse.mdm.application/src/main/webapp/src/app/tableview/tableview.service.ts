@@ -1,8 +1,8 @@
-import {Injectable, EventEmitter} from '@angular/core';
-import {Observable} from 'rxjs';
+import { Injectable, EventEmitter } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
-import {PreferenceService, Preference} from '../core/preference.service';
-import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
+import { PreferenceService, Preference } from '../core/preference.service';
+import { Type, Exclude, plainToClass, serialize, deserialize } from 'class-transformer';
 
 export class View {
   name: string;
@@ -79,7 +79,7 @@ export class ViewService {
   }
 
   saveView(view: View) {
-    let pref = new Preference();
+    const pref = new Preference();
     pref.value = serialize(view);
     pref.key = this.preferencePrefix + view.name;
     pref.scope = 'User';

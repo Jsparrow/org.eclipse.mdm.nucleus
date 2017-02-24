@@ -7,10 +7,10 @@
       <button type="submit" class="btn btn-default" (click)="showSaveModal()" title="Save shopping basket" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
       <button type="submit" class="btn btn-default" (click)="showLoadModal()" title="Load shopping basket" ><span class="glyphicon glyphicon-folder-open"></span></button>
       <button type="submit" class="btn btn-default" (click)="clearBasket()" title="Clear shopping basket" ><span class="glyphicon glyphicon-erase"></span></button>
-      <a class="basketContent.rows.length <= 0 ? 'disabled' : ''" (keydown.enter)="!isDisabled(link)"
+      <a class="isDownloadDisabled() ? 'disabled' : ''" (keydown.enter)="!isDownloadDisabled()"
          [download]="selectedBasket?.name != undefined ? selectedBasket.name + '.json' : 'basket.json'"
          [href]="downloadBasket()" style="text-decoration:none;">
-        <button type="submit" class="btn btn-default" title="Download shopping basket" [disabled]="basketContent.rows.length <= 0">
+        <button type="submit" class="btn btn-default" title="Download shopping basket" [disabled]="isDownloadDisabled()">
           <span class="glyphicon glyphicon-download"></span>
         </button>
       </a>

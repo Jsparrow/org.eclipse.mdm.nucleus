@@ -8,10 +8,11 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {FilereleaseService, Release} from './filerelease.service';
 import {MDMFilereleaseDisplayComponent} from './mdm-filerelease-display.component';
 import {PropertyService} from '../core/property.service';
+import { ModalDirective } from 'ng2-bootstrap';
 
 @Component({
   selector: 'mdm-filerelease',
@@ -27,6 +28,12 @@ export class MDMFilereleaseComponent implements OnInit {
   release: Release = new Release;
   event = 'display';
   dataHost: string;
+
+  @ViewChild('lgModal')
+  lgModal: ModalDirective;
+
+  @ViewChild('smModal')
+  smModal: ModalDirective;
 
   constructor(private service: FilereleaseService,
               private prop: PropertyService) {

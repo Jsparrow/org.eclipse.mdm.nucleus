@@ -1,4 +1,4 @@
-import { NgModule }            from '@angular/core';
+import { NgModule } from '@angular/core';
 
 import { MDMBasketComponent } from './mdm-basket.component';
 

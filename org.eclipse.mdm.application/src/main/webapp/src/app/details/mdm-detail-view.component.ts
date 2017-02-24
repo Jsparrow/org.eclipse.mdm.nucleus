@@ -9,7 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 
-import {Input, Component, OnInit} from '@angular/core';
+import {Input, Component, OnInit, ViewChild} from '@angular/core';
 
 import { ModalDirective } from 'ng2-bootstrap';
 
@@ -36,6 +36,9 @@ export class MDMDetailViewComponent implements OnInit {
   @Input() displayAttributes: Attribute[];
 
   locals: Localization[] = [];
+
+  @ViewChild('lgModal')
+  lgModal: ModalDirective;
 
   constructor(private localService: LocalizationService,
               private basketService: BasketService,
@@ -75,4 +78,3 @@ export class MDMDetailViewComponent implements OnInit {
       return this.filterService.getAttributesToDisplay(this.selectedNode);
   }
 }
-

@@ -1,10 +1,10 @@
-import { NgModule }             from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { MDMNavigatorViewComponent }    from './mdm-navigator-view.component';
-import { MDMDetailComponent }    from '../details/mdm-detail.component';
-import { MDMSearchComponent }    from '../search/mdm-search.component';
-import { MDMModulesComponent }    from '../modules/mdm-modules.component';
+import { MDMNavigatorViewComponent } from './mdm-navigator-view.component';
+import { MDMDetailComponent } from '../details/mdm-detail.component';
+import { MDMSearchComponent } from '../search/mdm-search.component';
+import { MDMModulesComponent } from '../modules/mdm-modules.component';
 
 const navigatorViewRoutes: Routes = [
   { path: 'navigator', component: MDMNavigatorViewComponent,

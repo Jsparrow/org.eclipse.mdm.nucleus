@@ -43,4 +43,6 @@ import {NodeproviderService} from './navigator/nodeprovider.service';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+    
+    }
