@@ -7,6 +7,7 @@ import { MDMCoreModule } from '../core/mdm-core.module';
 import { MDMSearchComponent } from './mdm-search.component';
 import { SearchConditionComponent } from './search-condition.component';
 import { SearchDatepickerComponent } from './search-datepicker.component';
+import { EditSearchFieldsComponent } from './edit-searchFields.component';
 
 import { TableViewModule } from '../tableview/tableview.module';
 import {SearchService} from './search.service';
@@ -21,10 +22,12 @@ import {FilterService} from './filter.service';
   declarations: [
     MDMSearchComponent,
     SearchConditionComponent,
-    SearchDatepickerComponent
+    SearchDatepickerComponent,
+    EditSearchFieldsComponent
   ],
   exports: [
-    MDMSearchComponent
+    MDMSearchComponent,
+    EditSearchFieldsComponent
   ],
   providers: [
     SearchService,

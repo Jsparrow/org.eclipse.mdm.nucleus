@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild, OnInit, Input} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
@@ -34,6 +34,9 @@ import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 
 import {ModalDirective} from 'ng2-bootstrap';
 
+import {TreeModule, TreeNode} from 'primeng/primeng';
+import {EditSearchFieldsComponent} from './edit-searchFields.component';
+
 @Component({
   selector: 'mdm-search',
   templateUrl: 'mdm-search.component.html',
@@ -56,11 +59,14 @@ export class MDMSearchComponent implements OnInit {
   isAdvancedSearchOpen = false;
   isSearchResultsOpen = false;
 
-  selectedAttribute: any;
   layout: SearchLayout = new SearchLayout;
   public dropdownModel: IDropdownItem[];
   public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
 
+  selectedFile: any;
+  searchFields: {group: string, attribute: string}[] = [];
+
+  subscription: any;
 
   @ViewChild(ViewComponent)
   private viewComponent: ViewComponent;
@@ -71,6 +77,9 @@ export class MDMSearchComponent implements OnInit {
   @ViewChild('lgSaveModal')
   childSaveModal: ModalDirective;
 
+  @ViewChild(EditSearchFieldsComponent)
+  private editSearchFieldsComponent: EditSearchFieldsComponent;
+
   constructor(private searchService: SearchService,
               private queryService: QueryService,
               private filterService: FilterService,
@@ -80,30 +89,23 @@ export class MDMSearchComponent implements OnInit {
 
   ngOnInit() {
     this.definitions = this.searchService.getDefinitionsSimple();
-    this.filterService.getFilters().subscribe(
-      filters => { this.filters = filters;
-                   this.filters.push(new SearchFilter('No filter selected', [], '*', '', []));
-                   this.selectedFilter = this.filters.find(f => f.name === 'Standard');
-                   if (this.selectedFilter === undefined) {
-                      this.selectedFilter = this.filters.find(f => f.name === 'No filter selected');
-                   }
-                   this.getEnvironments();
-                 }
-    );
-
+    this.getFilters('Standard');
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
 
     this.dropdownModel = [];
   }
 
-  onConditionChanged(condition: Condition) {
-    this.calcCurrentSearch();
-  }
-
-  onFilterChanged(filter: SearchFilter) {
-    this.getEnvironments();
-    this.selectedFilter = filter;
+  getFilters(defaultFilterName: string) {
+    this.filterService.getFilters().subscribe(
+      filters => { this.filters = filters;
+                   this.filters.push(this.selectedFilter);
+                   if (this.filters.find(f => f.name === defaultFilterName) !== undefined) {
+                      this.selectedFilter = this.filters.find(f => f.name === defaultFilterName);
+                   }
+                   this.getEnvironments();
+                 }
+    );
   }
 
   getEnvironments() {
@@ -117,6 +119,11 @@ export class MDMSearchComponent implements OnInit {
     this.dropdownModel = environments.map(env => <IDropdownItem> { id: env.sourceName, label: env.name, selected: true });
     this.selectResultType(this.definitions[0]);
     this.calcCurrentSearch();
+  }
+
+  removeSearchField(searchField: {group: string, attribute: string}) {
+    let index = this.searchFields.findIndex(sf => sf.group === searchField.group && sf.attribute === searchField.attribute);
+    this.searchFields.splice(index, 1);
   }
 
   selectResultType(type: any) {
@@ -166,8 +173,9 @@ export class MDMSearchComponent implements OnInit {
         .subscribe(l => this.layout = l);
   }
 
-  getEnvs(currentSearch: any) {
-    return Object.keys(currentSearch) || [];
+  onFilterChanged(filter: SearchFilter) {
+    this.getEnvironments();
+    this.selectedFilter = filter;
   }
 
   selectFilter(filter: SearchFilter) {
@@ -179,9 +187,15 @@ export class MDMSearchComponent implements OnInit {
   }
 
   saveFilter() {
-    this.selectedFilter.name = this.filterName;
-    this.filterService.saveFilter(this.selectedFilter);
+    let filter = this.selectedFilter;
+    filter.name = this.filterName;
+    this.filterService.saveFilter(filter).subscribe();
+    this.getFilters(filter.name);
     this.childSaveModal.hide();
+  }
+
+  onConditionChanged(condition: Condition) {
+    this.calcCurrentSearch();
   }
 
   addCondition(field: SearchAttribute) {
@@ -216,5 +230,21 @@ export class MDMSearchComponent implements OnInit {
         let k = key(item);
         return seen.hasOwnProperty(k) ? false : (seen[k] = true);
     });
+  }
+
+  showSearchFieldsEditor(filter?: SearchFilter) {
+    if (filter === undefined) {
+      filter = new SearchFilter('New Filter', [], '*', '', []);
+    }
+    this.subscription = this.editSearchFieldsComponent.childModal.onHide.subscribe(() => this.handleSearchFieldsEditorResult() );
+    this.editSearchFieldsComponent.show(filter);
+  }
+
+  handleSearchFieldsEditorResult() {
+    if ( !this.editSearchFieldsComponent.needSave ) {
+        return;
+    }
+    this.selectFilter(this.editSearchFieldsComponent.filter);
+    this.subscription.unsubscribe();
   }
 }

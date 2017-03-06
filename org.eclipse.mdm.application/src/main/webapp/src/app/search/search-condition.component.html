@@ -1,7 +1,7 @@
 <td style="vertical-align: middle">{{condition.type}}</td>
 <td style="vertical-align: middle">{{condition.attribute}}</td>
-<td>
-  <div class="btn-group" dropdown>
+<td style="vertical-align: middle">
+  <div class="btn-group" dropdown style="width: 66px;">
     <button id="operator" type="button" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
       {{getOperatorName(condition.operator)}} <span class="caret"></span>
     </button>
@@ -29,4 +29,4 @@
 
   <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)">
 </td>
-<td><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()"></button></td>
+<td style="vertical-align: middle"><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()"></button></td>

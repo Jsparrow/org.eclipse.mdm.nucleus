@@ -39,7 +39,7 @@
       <div class="modal-body">
         <div class="container-fluid">
           <div class="row">
-            <ul class="list-group" style="max-height:50vh; padding: 0; list-style-type: none; overflow-y:auto;">
+            <ul class="list-group" style="max-height:80vh; padding: 0; list-style-type: none; overflow-y:auto;">
               <div style="display: table; width: 100%; border: 1px solid #ddd;">
                 <li class="list-group-item" *ngFor="let basket of baskets" [ngClass]="{'active': selectedBasket == basket}"
                     (click)="toggleSelect(basket)" (dblclick)="loadBasket(basket)" style="cursor: pointer">

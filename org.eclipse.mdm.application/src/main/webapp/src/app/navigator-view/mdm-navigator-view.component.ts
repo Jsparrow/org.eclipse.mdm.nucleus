@@ -15,6 +15,7 @@ import { DropdownModule, AccordionConfig, DropdownConfig } from 'ng2-bootstrap';
 import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
 import {NodeproviderService} from '../navigator/nodeprovider.service';
+import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 
 @Component({
   selector: 'mdm-navigator-view',
@@ -74,4 +75,8 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
       return 'open ';
     }
   }
+
+  minWidthLeft() { return 180; }
+  minWidthRight() { return window.innerWidth < 1204 ? Math.max(35, window.innerWidth - 400) : 804; }
+  initRatio() { return Math.max(230 / window.innerWidth, 0.19); }
 }

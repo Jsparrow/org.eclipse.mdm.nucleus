@@ -1,13 +1,32 @@
 .navigator {
-  display: inline-block !important;
-  position: fixed !important;
-  width: 20em;
+  /*display: inline-block !important;
+  position: absolute !important;*/
+  position: relative;
   margin: 0 1em;
-  bottom: 6em;
-  top: 5em;
+  /*bottom: 6em;
+  top: 5em;*/
 }
 .navigator-content {
-  margin-left: 22em;
+  margin-left: 8px;
+  min-height: 100%;
+  max-height: calc(100vh - 85px);
+  overflow: auto;
+}
+
+.navigator .navbar-right {
+  position: absolute;
+  right: 15px;
+  z-index: 1;
+}
+
+.navigator .navbar-header {
+  position: relative;
+  background-color: #f8f8f8;
+  z-index: 2;
+}
+
+.navbar {
+  margin-bottom: 18px;
 }
 
 .panel-body {
@@ -27,4 +46,8 @@
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
   border-bottom-style: none;
+}
+
+vertical-split-separator {
+  height: calc(100vh - 85px);
 }

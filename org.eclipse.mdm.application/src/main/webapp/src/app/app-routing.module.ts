@@ -7,7 +7,7 @@ import { AdminModulesComponent } from './administration/admin-modules.component'
 const appRoutes: Routes = [
   { path: '', redirectTo: 'navigator', pathMatch: 'full' },
   { path: 'navigator', component: MDMNavigatorViewComponent, loadChildren: './modules/mdm-modules.module#MDMModulesModule' },
-  { path: 'administration', component: AdminModulesComponent/*, loadChildren: './administration/admin.module#AdminModule'*/ }
+  { path: 'administration', component: AdminModulesComponent, loadChildren: './administration/admin.module#AdminModule' }
 ];
 
 @NgModule({

@@ -46,7 +46,11 @@ export class PreferenceComponent implements OnInit, OnDestroy {
   }
 
   removePreference( preference: Preference ) {
-      this.preferenceService.deletePreference( preference.id );
+      if (preference.id) {
+        console.log(preference.id);
+        this.preferenceService.deletePreference( preference.id )
+        .subscribe();
+      }
       let index = this.preferences.findIndex( p => p === preference );
       this.preferences.splice( index, 1 );
   }

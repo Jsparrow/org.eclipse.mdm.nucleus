@@ -46,14 +46,12 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.reloadTree();
     this.nodeproviderService.nodeProviderChanged
       .subscribe(np => this.reloadTree());
 
     this.navigatorService.selectedNodeChanged
       .subscribe(node => this.selectNode(node));
-
   }
 
   reloadTree() {

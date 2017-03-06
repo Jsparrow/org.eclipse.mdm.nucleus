@@ -1,5 +1,23 @@
+<style>
+  >>>.ui-tree {
+    /*position: absolute;
+  top: 5em;
+  bottom: 0;
+  padding: .25em .25em .5em .25em !important;
+  height: auto !important;*/
+    overflow: auto;
+    max-height: calc(100vh - 154px);
+    min-height: calc(100vh - 154px);
+    padding: .25em .25em .5em .25em !important;
+  }
+
+  >>>.ui-tree .ui-tree-container {
+    overflow: visible;
+  }
+</style>
+
 <p-tree [value]="nodes" selectionMode="single" [(selection)]="selectedFile" (onNodeExpand)="loadNode($event)" (onNodeSelect)="nodeSelect($event)">
-    <template let-node pTemplate="default">
+  <template let-node pTemplate="default">
         <span [title]="node.label">{{ node.label }}</span>
     </template>
 </p-tree>

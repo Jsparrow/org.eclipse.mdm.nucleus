@@ -96,26 +96,16 @@ export class NodeService {
 
   typeToUrl(type: string) {
     switch (type) {
-      case 'Project':
-        return 'projects';
-      case 'Project':
-        return 'projects';
-      case 'Pool':
       case 'StructureLevel':
         return 'pools';
-      case 'Test':
-        return 'tests';
-      case 'TestStep':
-        return 'teststeps';
-      case 'Measurement':
       case 'MeaResult':
         return 'measurements';
-      case 'ChannelGroup':
       case 'SubMatrix':
         return 'channelgroups';
-      case 'Channel':
       case 'MeaQuantity':
         return 'channels';
+      default:
+        return type.toLowerCase + 's';
     }
   }
 

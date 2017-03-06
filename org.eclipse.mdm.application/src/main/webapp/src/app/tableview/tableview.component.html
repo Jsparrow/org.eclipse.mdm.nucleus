@@ -10,11 +10,11 @@
     <tr *ngIf="results?.rows?.length <= 0">
       <td [colSpan]="view?.columns?.length + 2" style="text-align: center;">Keine Daten vorhanden</td>
     </tr>
-    <tr *ngFor="let row of results?.rows" [ngClass]="isActive(row)">
+    <tr [ngClass]="isActive(row)" *ngFor="let row of results?.rows | paginate: { itemsPerPage: 5, currentPage: p }">
       <td width="30px">
         <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="selectRow(row)" [title]="getRowTitle(row)"> </a>
       </td>
-        <td *ngFor="let col of view?.columns" (click)="onClickRow(row, $event)" >{{getData(row, col)}}</td>
+      <td *ngFor="let col of view?.columns" (click)="onClickRow(row, $event)" style="cursor: pointer;">{{getData(row, col)}}</td>
       <td style="text-align: center;">
         <span class="glyphicon" [ngClass]="{'glyphicon-shopping-cart': isShopable, 'glyphicon-remove': isRemovable}"
           style="cursor: pointer" title="{{isShopable?'Add to shopping basket':'Remove from shopping basket'}}" (click)="functionalityProvider(isShopable, row)"></span>
@@ -22,3 +22,33 @@
     </tr>
   </tbody>
 </table>
+
+<pagination-controls (pageChange)="p = $event" autoHide="true" maxSize="5"></pagination-controls>
+
+<!-- <div>
+    <div class="container">
+        <div class="text-center">
+            <!-- items being paged
+            <!-- <div *ngFor="let item of pagedItems">{{item.name}}</div>
+
+            <!-- pager
+            <ul *ngIf="pager.pages && pager.pages.length" class="pagination">
+                <li [ngClass]="{disabled:pager.currentPage === 1}">
+                    <a (click)="setPage(1)">First</a>
+                </li>
+                <li [ngClass]="{disabled:pager.currentPage === 1}">
+                    <a (click)="setPage(pager.currentPage - 1)">Previous</a>
+                </li>
+                <li *ngFor="let page of pager.pages" [ngClass]="{active:pager.currentPage === page}">
+                    <a (click)="setPage(page)">{{page}}</a>
+                </li>
+                <li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                    <a (click)="setPage(pager.currentPage + 1)">Next</a>
+                </li>
+                <li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                    <a (click)="setPage(pager.totalPages)">Last</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div> -->

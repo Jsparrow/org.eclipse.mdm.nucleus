@@ -8,36 +8,49 @@
   * Contributors:
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
-<nav class="navigator">
-  <div class="navbar navbar-default container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" (click)="activate('Navigation')" style="cursor:pointer;">Navigator</a>
-    </div>
-    <div>
-      <ul class="nav navbar-nav navbar-right">
-        <li [ngClass]="isDropActive('Dropdown')" dropdown>
-          <a (click)="activate('Dropdown')" class="dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" style="cursor:pointer;">{{activeNodeprovider.name}} <b class="caret" ></b></a>
-          <ul class="dropdown-menu" dropdownMenu>
-            <li *ngFor="let np of getNodeproviders()"><a class="dropdown-item" (click)="activateNodeProvider(np)" style="cursor:pointer;">{{np.name}}</a></li>
+
+<vertical-split-pane primary-component-minsize="{{minWidthLeft()}}" secondary-component-minsize="{{minWidthRight()}}" primary-component-initialratio="{{initRatio()}}">
+  <div class="split-pane-content-primary">
+    <nav class="navigator">
+      <div class="navbar navbar-default container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" (click)="activate('Navigation')" style="cursor:pointer;">Navigator</a>
+        </div>
+        <div>
+          <ul class="nav navbar-nav navbar-right">
+            <li [ngClass]="isDropActive('Dropdown')" dropdown>
+              <a (click)="activate('Dropdown')" class="dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" style="cursor:pointer;">
+                  {{activeNodeprovider.name}}
+                <b class="caret" ></b>
+              </a>
+              <ul class="dropdown-menu" dropdownMenu>
+                <li *ngFor="let np of getNodeproviders()">
+                  <a class="dropdown-item" (click)="activateNodeProvider(np)" style="cursor:pointer;">
+                      {{np.name}}
+                  </a>
+                </li>
+              </ul>
+            </li>
           </ul>
-        </li>
-      </ul>
+        </div>
+      </div>
+      <mdm-navigator></mdm-navigator>
+    </nav>
+  </div>
+  <div class="split-pane-content-secondary">
+    <div class="navigator-content">
+
+      <router-outlet></router-outlet>
+
+      <accordion [closeOthers]="closeOther">
+        <accordion-group #basketGroup [isOpen]="false">
+          <div accordion-heading>
+            {{basket}}
+            <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': basketGroup?.isOpen, 'glyphicon-chevron-right': !basketGroup?.isOpen}"></i>
+          </div>
+          <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
+        </accordion-group>
+      </accordion>
     </div>
   </div>
-
-  <mdm-navigator></mdm-navigator>
-</nav>
-
-<div class="navigator-content">
-  <router-outlet></router-outlet>
-
-  <accordion [closeOthers]="closeOther">
-    <accordion-group #basketGroup [isOpen]="false">
-      <div accordion-heading>
-        {{basket}}
-        <i class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': basketGroup?.isOpen, 'glyphicon-chevron-right': !basketGroup?.isOpen}"></i>
-      </div>
-      <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
-    </accordion-group>
-  </accordion>
-</div>
+</vertical-split-pane>

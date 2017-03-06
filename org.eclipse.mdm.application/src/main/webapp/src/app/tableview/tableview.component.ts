@@ -1,4 +1,5 @@
 import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
 import { PreferenceView, View, ViewColumn, ViewService } from './tableview.service';
 
@@ -14,21 +15,27 @@ import {PreferenceService} from '../core/preference.service';
 import {Preference} from '../core/preference.service';
 import {QueryService, Query, SearchResult, Row} from './query.service';
 
+
+export class TestItem {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
 @Component({
   selector: 'mdm-tableview',
   templateUrl: 'tableview.component.html',
-  providers: [ViewService],
   styleUrls: [ './tableview.component.css']
 })
 export class TableviewComponent implements OnInit, OnChanges {
-  @Input() view: View;
 
-  @Input() nodes: Node[];
-  @Input() items: MDMItem[];
+  @Input() view: View;
   @Input() results: SearchResult;
   @Input() isShopable = false;
   @Input() isRemovable = false;
 
+  p: any;
   activeItems: MDMItem[] = [];
 
   constructor(private viewService: ViewService,
@@ -147,5 +154,4 @@ export class TableviewComponent implements OnInit, OnChanges {
       this.activeItems.splice(index, 1);
     }
   }
-
 }

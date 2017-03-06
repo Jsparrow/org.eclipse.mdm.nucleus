@@ -6,10 +6,12 @@ import { TableviewComponent } from './tableview.component';
 import { EditViewComponent } from './editview.component';
 import { ViewComponent } from './view.component';
 import { ViewService } from './tableview.service';
+import { Ng2PaginationModule } from 'ng2-pagination';
 
 @NgModule({
   imports: [
     MDMCoreModule,
+    Ng2PaginationModule
   ],
   declarations: [
     TableviewComponent,
