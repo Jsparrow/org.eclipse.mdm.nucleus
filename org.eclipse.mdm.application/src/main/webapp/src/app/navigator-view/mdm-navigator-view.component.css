@@ -1,28 +1,14 @@
 .navigator {
-  /*display: inline-block !important;
-  position: absolute !important;*/
-  position: relative;
+  display: inline-block !important;
+  position: absolute !important;
+  width: 20em;
   margin: 0 1em;
-  /*bottom: 6em;
-  top: 5em;*/
+  bottom: 6em;
+  top: 5em;
 }
+
 .navigator-content {
-  margin-left: 8px;
-  min-height: 100%;
-  max-height: calc(100vh - 85px);
-  overflow: auto;
-}
-
-.navigator .navbar-right {
-  position: absolute;
-  right: 15px;
-  z-index: 1;
-}
-
-.navigator .navbar-header {
-  position: relative;
-  background-color: #f8f8f8;
-  z-index: 2;
+  margin-left: 22em;
 }
 
 .navbar {
@@ -48,6 +34,34 @@
   border-bottom-style: none;
 }
 
+/*******************************************************************************
+Add for split-pane styling:
+
+.navigator {                        (replace!)
+  position: relative;
+  margin: 0 1em;
+}
+
+.navigator-content {                (replace!)
+  margin-left: 8px;
+  min-height: 100%;
+  max-height: calc(100vh - 85px);
+  overflow: auto;
+}
+
+.navigator .navbar-right {
+  position: absolute;
+  right: 15px;
+  z-index: 1;
+}
+
+.navigator .navbar-header {
+  position: relative;
+  background-color: #f8f8f8;
+  z-index: 2;
+}
+
 vertical-split-separator {
   height: calc(100vh - 85px);
 }
+*******************************************************************************/

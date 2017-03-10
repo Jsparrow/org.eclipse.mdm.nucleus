@@ -2,18 +2,18 @@ import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
 import { PreferenceView, View, ViewColumn, ViewService } from './tableview.service';
+import { NavigatorService } from '../navigator/navigator.service';
+import { FilterService } from '../search/filter.service';
 
-import {FilterService} from '../search/filter.service';
-
-import {BasketService} from '../basket/basket.service';
+import { BasketService} from '../basket/basket.service';
 import { Node } from '../navigator/node';
-import {MDMItem} from '../core/mdm-item';
+import { MDMItem } from '../core/mdm-item';
 
 import { EditViewComponent } from './editview.component';
 
-import {PreferenceService} from '../core/preference.service';
-import {Preference} from '../core/preference.service';
-import {QueryService, Query, SearchResult, Row} from './query.service';
+import { PreferenceService } from '../core/preference.service';
+import { Preference } from '../core/preference.service';
+import { QueryService, Query, SearchResult, Row } from './query.service';
 
 
 export class TestItem {
@@ -41,7 +41,8 @@ export class TableviewComponent implements OnInit, OnChanges {
   constructor(private viewService: ViewService,
     private basketService: BasketService,
     private _pref: PreferenceService,
-    private queryService: QueryService) {
+    private queryService: QueryService,
+    private navigatorService: NavigatorService) {
   }
 
   ngOnInit() {
@@ -91,10 +92,12 @@ export class TableviewComponent implements OnInit, OnChanges {
   }
 
   functionalityProvider(isShopable: boolean, row: Row) {
+    let item = row.getItem();
+    console.log(item);
     if (isShopable) {
-      this.basketService.add(new MDMItem(row.source, row.type, +row.id));
+      this.basketService.add(item);
     } else {
-      this.basketService.remove(new MDMItem(row.source, row.type, +row.id));
+      this.basketService.remove(item);
     }
   }
 
@@ -153,5 +156,9 @@ export class TableviewComponent implements OnInit, OnChanges {
     } else {
       this.activeItems.splice(index, 1);
     }
+  }
+
+  openInTree(row: Row, event: Event) {
+    this.navigatorService.fireOnOpenInTree(row.getItem());
   }
 }

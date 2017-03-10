@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {TreeModule, TreeNode} from 'primeng/primeng';
 
 import {MDMItem} from '../core/mdm-item';
@@ -21,7 +21,7 @@ import {NavigatorService} from './navigator.service';
 export class MDMNavigatorComponent implements OnInit {
 
   selectedFile: any;
-  nodes = [];
+  nodes: TreeNode[] = [];
 
   options = {
     getChildren: (node: TreeNode) => {
@@ -40,7 +40,7 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   loadNode(event) {
-    if (event.node) {
+    if (event.node && event.node.children === undefined) {
       return this.getChildren(event.node).then(nodes => event.node.children = nodes);
     }
   }
@@ -52,6 +52,9 @@ export class MDMNavigatorComponent implements OnInit {
 
     this.navigatorService.selectedNodeChanged
       .subscribe(node => this.selectNode(node));
+
+    this.navigatorService.onOpenInTree
+      .subscribe(item => this.openInTree(item));
   }
 
   reloadTree() {
@@ -60,18 +63,18 @@ export class MDMNavigatorComponent implements OnInit {
     });
   }
 
-  onFocus(event: { eventName: string, node: TreeNode}) {
-     this.navigatorService.setSelectedItem(event.node.data.item);
+  onFocus(event: { eventName: string, node: TreeNode }) {
+    this.navigatorService.setSelectedItem(event.node.data.item);
   }
 
   getNodeClass(item: MDMItem) {
-      return 'icon ' + item.type.toLowerCase();
+    return 'icon ' + item.type.toLowerCase();
   }
 
   mapNode(node: Node) {
     let item = new MDMItem(node.sourceName, node.type, +node.id);
 
-    return <TreeNode> {
+    return <TreeNode>{
       label: node.name,
       leaf: false,
       data: item,
@@ -85,7 +88,60 @@ export class MDMNavigatorComponent implements OnInit {
       .toPromise();
   }
 
-  selectNode(node: Node) {
-    // TODO
+  selectNode(event) {
+  }
+
+  typeToUrl(type: string) {
+    switch (type) {
+      case 'StructureLevel':
+        return 'pools';
+      case 'MeaResult':
+        return 'measurements';
+      case 'SubMatrix':
+        return 'channelgroups';
+      case 'MeaQuantity':
+        return 'channels';
+      default:
+        return type.toLowerCase() + 's';
+    }
+  }
+
+  openInTree(item: MDMItem) {
+    let pathTypes = this.nodeproviderService.getPathTypes(item.type);
+    if (pathTypes.length === 0) {
+      alert('Items of this type are not displayed in the current Tree!');
+    } else {
+      let env = this.nodes.find(e => item.source === e.data.source);
+      env.expanded = true;
+      this.openChildrenRecursive(item, env, pathTypes, 1);
+    }
+  }
+
+  openChildrenRecursive(item: MDMItem, current: TreeNode, pathTypes: string[], iii: number) {
+    if (current.children) {
+      this.expander(item, current, pathTypes, iii);
+    } else {
+      this.getChildren(current)
+        .then(n => current.children = n)
+        .then(() => {
+          this.expander(item, current, pathTypes, iii);
+        });
+    }
+  }
+
+  expander(item: MDMItem, current: TreeNode, pathTypes: string[], iii: number) {
+    let expandList: number[] = [];
+    this.nodeService.searchNodes('filter=' + item.type + '.Id eq ' + item.id,
+      item.source, this.typeToUrl(pathTypes[iii]))
+      .subscribe(nodes => {
+        expandList = nodes.map(n => n.id);
+        current.children.filter(node => expandList.findIndex(n => n === node.data.id) > -1)
+          .forEach(node => {
+            if (++iii < pathTypes.length) {
+              node.expanded = true;
+              this.openChildrenRecursive(item, node, pathTypes, iii);
+            }
+          });
+      });
   }
 }

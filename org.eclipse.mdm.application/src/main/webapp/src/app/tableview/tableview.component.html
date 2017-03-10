@@ -4,6 +4,7 @@
     	<th width="30px"> </th>
       <th *ngFor="let col of view?.columns">{{col.type}}.{{col.name}} </th>
       <th width="30px" style="text-align: center;"></th>
+      <th width="30px" style="text-align: center;"></th>
     </tr>
   </thead>
   <tbody class="noselect">
@@ -18,6 +19,9 @@
       <td style="text-align: center;">
         <span class="glyphicon" [ngClass]="{'glyphicon-shopping-cart': isShopable, 'glyphicon-remove': isRemovable}"
           style="cursor: pointer" title="{{isShopable?'Add to shopping basket':'Remove from shopping basket'}}" (click)="functionalityProvider(isShopable, row)"></span>
+      </td>
+      <td style="text-align: center;">
+        <span class="glyphicon glyphicon-list-alt" style="cursor: pointer" title="Open in tree" (click)="openInTree(row, $event)"></span>
       </td>
     </tr>
   </tbody>

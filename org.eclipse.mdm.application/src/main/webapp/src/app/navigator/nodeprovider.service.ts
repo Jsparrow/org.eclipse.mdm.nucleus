@@ -83,6 +83,19 @@ export class NodeproviderService {
     });
   }
 
+  getPathTypes(type: string): string[] {
+    let current = this.activeNodeprovider;
+    let ancestorList: string[] = [];
+    while (current) {
+        ancestorList.push(current.type);
+        if (current.type === type) {
+          return ancestorList;
+        }
+        current = current.children;
+   }
+    return [];
+  }
+
 /*
   getParentNodes(node: Node) {
     return Observable.forkJoin(

@@ -105,7 +105,7 @@ export class NodeService {
       case 'MeaQuantity':
         return 'channels';
       default:
-        return type.toLowerCase + 's';
+        return type.toLowerCase() + 's';
     }
   }
 
