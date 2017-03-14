@@ -17,9 +17,9 @@ export class SearchField {
   group: string;
   attribute: string;
 
-  constructor (group: string, attribute: string) {
-      this.group = group;
-      this.attribute = attribute;
+  constructor(group: string, attribute: string) {
+    this.group = group;
+    this.attribute = attribute;
   }
 
   equals(searchField: SearchField) {
@@ -44,34 +44,35 @@ export class EditSearchFieldsComponent {
   selectedAttribute: any;
 
   constructor(private searchService: SearchService,
-              private filterService: FilterService,
-              private nodeService: NodeService) {}
+    private filterService: FilterService,
+    private nodeService: NodeService) { }
 
   show(filter: SearchFilter) {
-    this.nodeService.getNodes().subscribe( nodes => this.nodes = nodes.map(n => this.mapNode(n)));
+    this.nodeService.getNodes().subscribe(nodes => this.nodes = nodes.map(n => this.mapNode(n)));
     this.filter = filter;
     this.needSave = false;
     this.childModal.show();
-    this.searchFields = this.filter.conditions.map(cond =>  <SearchField> {group: cond.type, attribute: cond.attribute});
+    this.searchFields = this.filter.conditions.map(cond => <SearchField>{ group: cond.type, attribute: cond.attribute });
   }
 
   loadNodes(event) {
     if (event.node) {
       event.node.children = this.getChildren(event.node);
-      }
+    }
   }
 
   mapStringToTreeNode(strg: string, type: string, leaf: boolean) {
-    return <TreeNode> {
+    return <TreeNode>{
       label: strg,
       leaf: leaf,
-      type: type};
+      type: type
+    };
   }
 
   mapNode(node: Node) {
     let item = new MDMItem(node.sourceName, node.type, +node.id);
 
-    return <TreeNode> {
+    return <TreeNode>{
       label: node.name,
       leaf: false,
       data: item
@@ -80,33 +81,34 @@ export class EditSearchFieldsComponent {
 
   getChildren(node: TreeNode): TreeNode[] {
     if (node.data) {
-        return this.getSearchableGroups().map(g => this.mapStringToTreeNode(g, 'group', false));
+      return this.getSearchableGroups(node.data.source).map(g => this.mapStringToTreeNode(g, 'group', false));
     } else {
-        return this.getSearchableAttributes(node.label).map(g => this.mapStringToTreeNode(g, 'attribute', true));
+      return this.getSearchableAttributes(node.label).map(g => this.mapStringToTreeNode(g, 'attribute', true));
     }
   }
 
-  getSearchableGroups() {
+  getSearchableGroups(env: string) {
     let distinctGroupArray = [];
-    this.searchableFields.map(sf => sf.group)
-        .forEach( group => {
-            if (distinctGroupArray.findIndex(g => g === group) === -1) {
-              distinctGroupArray.push(group);
-            }
-        });
-    return distinctGroupArray.sort( (a, b) => a < b ? -1 : 1);
+    let attributesPerEnv = this.searchService.groupByEnv(this.searchableFields.map(sf => sf.attribute));
+    attributesPerEnv[env].map(attr => attr.boType)
+      .forEach(boType => {
+        if (distinctGroupArray.findIndex(bt => bt === boType) === -1) {
+          distinctGroupArray.push(boType);
+        }
+      });
+    return distinctGroupArray.sort((a, b) => a < b ? -1 : 1);
   }
 
   getSearchableAttributes(group: string) {
     let distinctAttrArray = [];
     this.searchableFields.filter(sf => sf.group === group)
-        .map(sf => sf.attribute.attrName)
-        .forEach( attr => {
-            if (distinctAttrArray.findIndex(a => a === attr) === -1) {
-              distinctAttrArray.push(attr);
-            }
-        });
-    return distinctAttrArray.sort( (a, b) => a < b ? -1 : 1);
+      .map(sf => sf.attribute.attrName)
+      .forEach(attr => {
+        if (distinctAttrArray.findIndex(a => a === attr) === -1) {
+          distinctAttrArray.push(attr);
+        }
+      });
+    return distinctAttrArray.sort((a, b) => a < b ? -1 : 1);
   }
 
   nodeSelect(event) {
@@ -118,25 +120,25 @@ export class EditSearchFieldsComponent {
     }
   }
 
-  removeSearchField(searchField: {group: string, attribute: string}) {
+  removeSearchField(searchField: { group: string, attribute: string }) {
     let index = this.searchFields.findIndex(sf => sf.group === searchField.group && sf.attribute === searchField.attribute);
     this.searchFields.splice(index, 1);
   }
 
   addSearchFields() {
     this.filter.conditions = this.searchFields
-      .map( sf => new Condition(sf.group, sf.attribute, Operator.EQUALS, [], this.getValueType(sf.attribute)));
+      .map(sf => new Condition(sf.group, sf.attribute, Operator.EQUALS, [], this.getValueType(sf.attribute)));
     this.needSave = true;
     this.childModal.hide();
   }
 
   getValueType(typ: string) {
     return typ.toLowerCase().indexOf('date') === 0
-            || typ.toLowerCase().indexOf('date') === typ.length - 4
-            || typ.indexOf('Date') !== -1
-            || typ.toLowerCase().indexOf('_date') !== -1
-            || typ.toLowerCase().indexOf('date_') !== -1
-            ? 'date' : 'string';
+      || typ.toLowerCase().indexOf('date') === typ.length - 4
+      || typ.indexOf('Date') !== -1
+      || typ.toLowerCase().indexOf('_date') !== -1
+      || typ.toLowerCase().indexOf('date_') !== -1
+      ? 'date' : 'string';
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {

@@ -17,8 +17,8 @@ export class PropertyService {
   private api_prefix: string;
 
   constructor() {
-    this.api_host = 'sa:sa@localhost';
-    this.api_port = '4200';
+    this.api_host = 'localhost';
+    this.api_port = '8080';
     this.api_prefix = '/org.eclipse.mdm.nucleus';
   }
 
