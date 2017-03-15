@@ -31,11 +31,7 @@
       <div class="modal-body">
         <div class="container-fluid">
           <div class="col-lg-4" style="min-height: 50vh; max-height: 77vh; padding-right: 12px;">
-            <p-tree [value]="nodes" selectionMode="single" (onNodeExpand)="loadNodes($event)" (onNodeSelect)="nodeSelect($event)">
-                <template let-node pTemplate="default">
-                    <span [title]="node.label" >{{ node.label }}</span>
-                </template>
-            </p-tree>
+            <searchattribute-tree [searchableFields]="searchableFields"></searchattribute-tree>
           </div>
           <div class="col-lg-8" style="min-height: 50vh; max-height: 77vh; padding-right: 12px; overflow-y:auto;">
             <label for="search-source" class="control-label">Ausgewählte Suchfelder</label>
@@ -62,6 +58,7 @@
                     typeaheadOptionField="label"
                     typeaheadGroupField="group"
                     typeaheadOptionsLimit="15"
+                    placeholder="Suchtext eingeben"
                     class="form-control"  >
             </div>
           </div>

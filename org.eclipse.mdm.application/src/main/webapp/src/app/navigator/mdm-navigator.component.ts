@@ -35,16 +35,6 @@ export class MDMNavigatorComponent implements OnInit {
     private navigatorService: NavigatorService) {
   }
 
-  nodeSelect(event) {
-    this.navigatorService.setSelectedItem(event.node.data);
-  }
-
-  loadNode(event) {
-    if (event.node && event.node.children === undefined) {
-      return this.getChildren(event.node).then(nodes => event.node.children = nodes);
-    }
-  }
-
   ngOnInit() {
     this.reloadTree();
     this.nodeproviderService.nodeProviderChanged
@@ -55,6 +45,16 @@ export class MDMNavigatorComponent implements OnInit {
 
     this.navigatorService.onOpenInTree
       .subscribe(item => this.openInTree(item));
+  }
+
+  nodeSelect(event) {
+    this.navigatorService.setSelectedItem(event.node.data);
+  }
+
+  loadNode(event) {
+    if (event.node && event.node.children === undefined) {
+      return this.getChildren(event.node).then(nodes => event.node.children = nodes);
+    }
   }
 
   reloadTree() {

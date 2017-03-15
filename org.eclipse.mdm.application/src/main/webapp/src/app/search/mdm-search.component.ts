@@ -64,7 +64,7 @@ export class MDMSearchComponent implements OnInit {
   public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
 
   selectedFile: any;
-  searchFields: {group: string, attribute: string}[] = [];
+  searchFields: { group: string, attribute: string }[] = [];
 
   subscription: any;
 
@@ -81,11 +81,11 @@ export class MDMSearchComponent implements OnInit {
   private editSearchFieldsComponent: EditSearchFieldsComponent;
 
   constructor(private searchService: SearchService,
-              private queryService: QueryService,
-              private filterService: FilterService,
-              private nodeService: NodeService,
-              private localService: LocalizationService,
-              private basketService: BasketService) {}
+    private queryService: QueryService,
+    private filterService: FilterService,
+    private nodeService: NodeService,
+    private localService: LocalizationService,
+    private basketService: BasketService) { }
 
   ngOnInit() {
     this.definitions = this.searchService.getDefinitionsSimple();
@@ -98,13 +98,14 @@ export class MDMSearchComponent implements OnInit {
 
   getFilters(defaultFilterName: string) {
     this.filterService.getFilters().subscribe(
-      filters => { this.filters = filters;
-                   this.filters.push(this.selectedFilter);
-                   if (this.filters.find(f => f.name === defaultFilterName) !== undefined) {
-                      this.selectedFilter = this.filters.find(f => f.name === defaultFilterName);
-                   }
-                   this.getEnvironments();
-                 }
+      filters => {
+      this.filters = filters;
+        this.filters.push(this.selectedFilter);
+        if (this.filters.find(f => f.name === defaultFilterName) !== undefined) {
+          this.selectedFilter = this.filters.find(f => f.name === defaultFilterName);
+        }
+        this.getEnvironments();
+      }
     );
   }
 
@@ -116,12 +117,12 @@ export class MDMSearchComponent implements OnInit {
 
   setEnvironments(environments: Node[]) {
     this.selectedFilter.environments = environments.map(e => e.sourceName);
-    this.dropdownModel = environments.map(env => <IDropdownItem> { id: env.sourceName, label: env.name, selected: true });
+    this.dropdownModel = environments.map(env => <IDropdownItem>{ id: env.sourceName, label: env.name, selected: true });
     this.selectResultType(this.definitions[0]);
     this.calcCurrentSearch();
   }
 
-  removeSearchField(searchField: {group: string, attribute: string}) {
+  removeSearchField(searchField: { group: string, attribute: string }) {
     let index = this.searchFields.findIndex(sf => sf.group === searchField.group && sf.attribute === searchField.attribute);
     this.searchFields.splice(index, 1);
   }
@@ -141,7 +142,7 @@ export class MDMSearchComponent implements OnInit {
     this.searchableFields = [];
 
     Observable.forkJoin(this.selectedFilter.environments.map(env => this.searchService.loadSearchAttributes(type, env)))
-      .map(attrs => <SearchAttribute[]> [].concat.apply([], attrs))
+      .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
       .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
       .map(sa => this.uniqueBy(sa, p => p.label))
       .subscribe(attrs => this.searchableFields = attrs);
@@ -157,7 +158,7 @@ export class MDMSearchComponent implements OnInit {
     let query = this.searchService.convertToQuery(this.selectedFilter, attrs, this.selectedView);
     this.queryService.query(query).subscribe(
       result => {
-        this.results = <SearchResult> result;
+        this.results = <SearchResult>result;
         this.isSearchResultsOpen = true;
       },
       error => this.errorMessage = <any>error
@@ -168,9 +169,8 @@ export class MDMSearchComponent implements OnInit {
     let environments = this.selectedFilter.environments;
     let conditions = this.selectedFilter.conditions;
     let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
-
     this.searchService.getSearchLayout(environments, conditions, type)
-        .subscribe(l => this.layout = l);
+      .subscribe(l => this.layout = l);
   }
 
   onFilterChanged(filter: SearchFilter) {
@@ -182,8 +182,9 @@ export class MDMSearchComponent implements OnInit {
     this.filterService.setSelectedFilter(filter);
   }
 
-  resetFilter() {
-    this.onFilterChanged(this.filters.find(f => f.name === 'No filter selected'));
+  resetConditions() {
+    this.selectedFilter.conditions.forEach(cond => cond.value = []);
+    // this.onFilterChanged(this.filters.find(f => f.name === 'No filter selected'));
   }
 
   saveFilter() {
@@ -194,9 +195,9 @@ export class MDMSearchComponent implements OnInit {
     this.childSaveModal.hide();
   }
 
-  onConditionChanged(condition: Condition) {
-    this.calcCurrentSearch();
-  }
+  // onConditionChanged(condition: Condition) {
+  //   this.calcCurrentSearch();
+  // }
 
   addCondition(field: SearchAttribute) {
     let condition = new Condition(field.boType, field.attrName, Operator.EQUALS, [], field.valueType);
@@ -207,7 +208,7 @@ export class MDMSearchComponent implements OnInit {
 
   removeCondition(condition: Condition) {
     this.selectedFilter.conditions = this.selectedFilter.conditions
-        .filter(c => !(c.type === condition.type && c.attribute === condition.attribute));
+      .filter(c => !(c.type === condition.type && c.attribute === condition.attribute));
 
     this.calcCurrentSearch();
   }
@@ -227,8 +228,8 @@ export class MDMSearchComponent implements OnInit {
   private uniqueBy<T>(a: T[], key: (T) => any) {
     let seen = {};
     return a.filter(function(item) {
-        let k = key(item);
-        return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+      let k = key(item);
+      return seen.hasOwnProperty(k) ? false : (seen[k] = true);
     });
   }
 
@@ -236,13 +237,13 @@ export class MDMSearchComponent implements OnInit {
     if (filter === undefined) {
       filter = new SearchFilter('New Filter', [], '*', '', []);
     }
-    this.subscription = this.editSearchFieldsComponent.childModal.onHide.subscribe(() => this.handleSearchFieldsEditorResult() );
+    this.subscription = this.editSearchFieldsComponent.childModal.onHide.subscribe(() => this.handleSearchFieldsEditorResult());
     this.editSearchFieldsComponent.show(filter);
   }
 
   handleSearchFieldsEditorResult() {
-    if ( !this.editSearchFieldsComponent.needSave ) {
-        return;
+    if (!this.editSearchFieldsComponent.needSave) {
+      return;
     }
     this.selectFilter(this.editSearchFieldsComponent.filter);
     this.subscription.unsubscribe();

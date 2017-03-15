@@ -1,3 +1,24 @@
+<style>
+  .modal-body >>> .dropup .dropdown-menu {
+    margin-bottom: 38px !important;
+  }
+
+  .modal-body >>> .ui-tree .ui-tree-container {
+    margin: 0 0 4px 0 !important;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .modal-body >>> .ui-tree {
+    min-height: 50vh !important;
+    max-height: 72vh !important;
+    overflow: auto;
+  }
+
+  .modal-body >>> .ui-tree .ui-treenode .ui-treenode-content .ui-treenode-label {
+    padding-right: .75em;
+  }
+</style>
 <div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -9,30 +30,21 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid">
-          <div class="row">
-          	<input [(ngModel)]="typeaheadQuery"
-               [typeahead]="ungrouped"
-               typeaheadOptionField="label"
-               (typeaheadOnSelect)="typeaheadOnSelect($event)"
-               typeaheadMinLength="1"
-               placeholder="Suchtext eingeben"
-               typeaheadOptionsLimit="7"
-               class="form-control"
-            >
+          <div class="row" style="padding: 15px;">
+            <input [(ngModel)] = "selectedAttribute"
+                  [typeahead]="searchableFields"
+                  (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                  typeaheadOptionField="label"
+                  typeaheadGroupField="group"
+                  typeaheadOptionsLimit="15"
+                  placeholder="Suchtext eingeben"
+                  class="form-control"  >
           </div>
           <div class="row">
-            <div class="col-md-6" style="max-height:50vh; overflow-y:auto; border: 1px solid #ddd;">
-              <accordion>
-                <accordion-group *ngFor="let group of groups" heading="{{getTrans(group.name)}}">
-                  <ul class="list-group">
-                    <li class="list-group-item" *ngFor="let item of group.items" (click)="selectItem(item)" [ngClass]="isActive(item)">
-                    {{getTrans(item.label)}}
-                    </li>
-                  </ul>
-                </accordion-group>
-              </accordion>
+            <div class="col-md-4" style="min-height: 50vh; max-height: 72vh; padding-right: 15px;">
+              <searchattribute-tree [searchableFields]="searchableFields"></searchattribute-tree>
             </div>
-            <div class="col-md-6" style="max-height:50vh;overflow-y:auto;">
+            <div class="col-md-8" style="min-height: 50vh; max-height: 72vh; padding-right: 15px; overflow-y:auto;">
             <ul  class="list-group">
               <li class="list-group-item" style="border-bottom: 1px solid #ddd;" *ngFor="let col of currentView.columns">
                 <span class="pull-right glyphicon glyphicon-remove" [ngClass]="" style="cursor: pointer; margin: 0px 5px;" (click)="remove(col)"></span>

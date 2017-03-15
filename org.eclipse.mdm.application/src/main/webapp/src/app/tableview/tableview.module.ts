@@ -7,11 +7,13 @@ import { EditViewComponent } from './editview.component';
 import { ViewComponent } from './view.component';
 import { ViewService } from './tableview.service';
 import { Ng2PaginationModule } from 'ng2-pagination';
+import {SearchattributeTreeModule} from '../searchattribute-tree/searchattribute-tree.module';
 
 @NgModule({
   imports: [
     MDMCoreModule,
-    Ng2PaginationModule
+    Ng2PaginationModule,
+    SearchattributeTreeModule,
   ],
   declarations: [
     TableviewComponent,

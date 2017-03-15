@@ -18,6 +18,7 @@ import {FilereleaseService} from './filerelease/filerelease.service';
 import {NavigatorService} from './navigator/navigator.service';
 import {QueryService} from './tableview/query.service';
 import {NodeproviderService} from './navigator/nodeprovider.service';
+import { SearchattributeTreeComponent } from './searchattribute-tree/searchattribute-tree.component';
 
 @NgModule({
   imports: [
@@ -44,5 +45,5 @@ import {NodeproviderService} from './navigator/nodeprovider.service';
   bootstrap: [AppComponent]
 })
 export class AppModule {
-    
+
     }

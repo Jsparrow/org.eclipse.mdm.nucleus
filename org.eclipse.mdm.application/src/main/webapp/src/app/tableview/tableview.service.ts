@@ -58,6 +58,9 @@ export class ViewColumn {
   isDesc() {
     return this.sort === SortOrder.Desc;
   }
+  equals(vc: ViewColumn) {
+    return this.type === vc.type && this.name === vc.name;
+  }
 }
 
 @Injectable()

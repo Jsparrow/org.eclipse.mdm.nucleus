@@ -14,10 +14,13 @@ import {SearchService} from './search.service';
 import {SearchDeprecatedService} from './search-deprecated.service';
 import {FilterService} from './filter.service';
 
+import {SearchattributeTreeModule} from '../searchattribute-tree/searchattribute-tree.module';
+
 @NgModule({
   imports: [
     MDMCoreModule,
-    TableViewModule
+    TableViewModule,
+    SearchattributeTreeModule,
   ],
   declarations: [
     MDMSearchComponent,

@@ -1,87 +1,67 @@
-import { Component, Input, Output, ViewChild, EventEmitter } from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 
-import { ModalDirective } from 'ng2-bootstrap';
-
-import { View, ViewColumn, SortOrder, ViewService } from './tableview.service';
-import { LocalizationService } from '../localization/localization.service';
-
-import {SearchService, SearchAttribute} from '../search/search.service';
-import {SearchDeprecatedService} from '../search/search-deprecated.service';
-
-import {FilterService, SearchFilter} from '../search/filter.service';
+import {View, ViewColumn, SortOrder, ViewService} from './tableview.service';
 import {NodeService} from '../navigator/node.service';
-import {BasketService} from '../basket/basket.service';
-import { Node } from '../navigator/node';
-import {MDMItem} from '../core/mdm-item';
+import {Node} from '../navigator/node';
+import {SearchService, SearchAttribute} from '../search/search.service';
+import {SearchattributeTreeService} from '../searchattribute-tree/searchattribute-tree.service';
+import {SearchattributeTreeComponent} from '../searchattribute-tree/searchattribute-tree.component';
+
+import {TreeNode} from 'primeng/primeng';
+import {ModalDirective} from 'ng2-bootstrap';
+import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'edit-view',
   templateUrl: './editview.component.html',
-  providers: [SearchDeprecatedService, FilterService],
   styles: ['.remove {color:black; cursor: pointer; float: right}', '.icon { cursor: pointer; margin: 0px 5px; }']
 })
 export class EditViewComponent {
   @ViewChild('lgModal') public childModal: ModalDirective;
-  @Input() prefViews;
 
   nodes: Node[] = [];
-  definitions: any;
-  ungrouped: any[] = [];
-  groups: any[] = [];
-  selectedGroups: any[] = [];
-  envs: Node[] = [];
-  selectedEnv: Node[] = [];
-  type: any = { label: 'Ergebnistyp wählen' };
-  errorMessage: string;
-
-  filters: SearchFilter[] = [];
-  selectedFilter: any = {name: 'Filter wählen'};
-
-  typeaheadQuery = '';
   isReadOnly = false;
   currentView: View = new View();
+  searchableFields = [];
 
-  constructor(private searchDeprecatedService: SearchDeprecatedService,
-              private filterService: FilterService,
-              private nodeService: NodeService,
-              private viewService: ViewService,
-              private localService: LocalizationService,
-              private basketService: BasketService) {
+  constructor(private nodeService: NodeService,
+    private viewService: ViewService,
+    private searchService: SearchService,
+    private treeService: SearchattributeTreeService) {
 
+      this.treeService.onNodeSelect$.subscribe(node => this.selectNode(node));
+      this.nodeService.getNodes().subscribe(
+        envs => {
+          let types = ['tests', 'teststeps', 'measurements'];
+          types.forEach(type =>
+            Observable.forkJoin(envs.map(env => env.sourceName)
+              .map(env => this.searchService.loadSearchAttributes(type, env)))
+              .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
+              .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
+              .map(sa => this.uniqueBy(sa, p => p.label))
+              .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs))
+          );
+        }
+      );
   }
 
-  loadData() {
-    this.definitions = this.searchDeprecatedService.getDefinitions();
-    this.filterService.getFilters().subscribe(filters => this.filters = filters);
-    let node: Node;
-    this.nodeService.getNodes(node).subscribe(
-      nodes => this.setEvns(nodes),
-      error => this.errorMessage = <any>error);
+  private uniqueBy<T>(a: T[], key: (T) => any) {
+    let seen = {};
+    return a.filter(function(item) {
+      let k = key(item);
+      return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+    });
   }
-
-  setEvns(envs) {
-    this.envs = envs;
-    for (let i = 0; i < envs.length; i++) {
-      this.selectedEnv.push(envs[i]);
-    }
-    this.selectDef(this.definitions.options[0]);
-  }
-
-  selectDef(type: any) {
-    this.type = type;
-    this.groups = [];
-    this.ungrouped = [];
-    for (let i = 0; i < this.selectedEnv.length; i++) {
-      this.searchDeprecatedService.getSearches(type.value, this.selectedEnv[i].sourceName).then(defs => this.groupBy(defs));
-    }
-  }
-
 
   showDialog(currentView: View) {
-    this.loadData();
-    this.currentView = <View> JSON.parse(JSON.stringify(currentView));
-    this.isNameReadOnly(currentView);
-    this.typeaheadQuery = '';
+    currentView.columns.forEach(c => {
+      if (c.sort === undefined) {
+        c.sort = SortOrder.None;
+      }
+    });
+    this.currentView = currentView;
+    this.isNameReadOnly();
     this.childModal.show();
   }
 
@@ -90,12 +70,8 @@ export class EditViewComponent {
   }
 
   save() {
-    if (this.checkViews(this.currentView) && this.isReadOnly === false) {
-      alert('Name schon vorhanden!');
-    } else {
       this.viewService.saveView(this.currentView);
       this.closeDialog();
-    }
   }
 
   remove(col: ViewColumn) {
@@ -148,101 +124,21 @@ export class EditViewComponent {
     }
   }
 
-  selectItem(item) {
-    let a = item.key.split('.');
-    let g = this.groups.map(function(x) {return x.name; }).indexOf(a[0]);
-    let i = this.groups[g].items.indexOf(item);
-    if (this.groups[g].items[i].active) {
-      this.groups[g].items[i].active = false;
-    } else {
-      this.groups[g].items[i].active = true;
+  selectNode(node: TreeNode) {
+    if (node.type !== 'attribute') {
+      return;
     }
-
-    this.currentView.columns.push(new ViewColumn(a[0], a[1], SortOrder.None));
-  }
-
-  groupBy(defs) {
-    this.ungrouped = this.arrayUnique(defs, this.ungrouped);
-    this.ungrouped.sort(this.compare);
-    let groups = this.groups.slice();
-    defs.forEach(function(obj) {
-      let str = obj.key;
-      let a = str.split('.');
-      let g = groups.map(function(x) {return x.name; }).indexOf(a[0]);
-      if (g === -1) {
-        groups.push({name: a[0], items: [obj]});
-      } else {
-        let i = groups[g].items.map(function(x) { return x.key; }).indexOf(obj.key);
-        if (i !== -1) { return; }
-        groups[g].items.push(obj);
-      }
-    });
-
-    this.groups = groups.sort((g1, g2) => {
-      if (g1.name.toLowerCase() > g2.name.toLowerCase()) {
-          return 1;
-      }
-
-      if (g1.name.toLowerCase() < g2.name.toLowerCase()) {
-          return -1;
-      }
-
-      return 0;
-    });
-  }
-
-  isActive(item) {
-    if (item.active) { return 'active'; }
-    return;
-  }
-
-  getTrans(label: string) {
-    let type = '',
-    comp = '';
-    if (label.includes('.')) {
-      let a = label.split('.');
-      type = a[0];
-      comp = a[1];
-    } else {
-      type = label;
-    }
-    return this.localService.getTranslation(type, comp);
-  }
-
-  add2Basket(node: Node) {
-    if (node) {
-      this.basketService.add(new MDMItem(node.sourceName, node.type, node.id));
+    let viewCol = new ViewColumn(node.parent.label, node.label, SortOrder.None);
+    if (this.currentView.columns.findIndex(c => c.equals(viewCol)) === -1 ) {
+      this.currentView.columns.push(viewCol);
     }
   }
 
-  public typeaheadOnSelect(e: any): void {
-    this.selectItem(e.item);
-    this.typeaheadQuery = '';
+  public typeaheadOnSelect(match: TypeaheadMatch) {
+    this.currentView.columns.push(new ViewColumn(match.item.attribute.boType, match.item.attribute.attrName, SortOrder.None));
   }
 
-  private arrayUnique(source, target) {
-    source.forEach(function(item) {
-      let i = target.map(function(x) { return x.key; }).indexOf(item.key);
-      if (i !== -1) { return; }
-      target.push(item);
-    });
-    return target;
-  }
-
-  private compare(g1, g2) {
-      if (g1.label.toLowerCase() > g2.label.toLowerCase()) {
-        return 1;
-      }
-      if (g1.label.toLowerCase() < g2.label.toLowerCase()) {
-        return -1;
-      }
-  }
-
-  private isNameReadOnly(currentView: View) {
-    return this.isReadOnly = (currentView.name === '') ? false : true;
-  }
-
-  private checkViews(currentView: View) {
-    return this.prefViews.findIndex(pv => currentView.name === pv.view.name) >= 0;
+  private isNameReadOnly() {
+    return this.isReadOnly = (this.currentView.name === '') ? false : true;
   }
 }

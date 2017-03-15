@@ -34,8 +34,8 @@ export class SearchLayout {
     this.map[environment] = conditions;
   }
   add(environment: string, condition: Condition) {
-      this.map[environment] = this.map[environment] || [];
-      this.map[environment].push(condition);
+    this.map[environment] = this.map[environment] || [];
+    this.map[environment].push(condition);
   }
 }
 
@@ -71,35 +71,35 @@ export class SearchService {
   private defs: SearchAttribute[];
 
   constructor(private http: Http,
-              private localService: LocalizationService,
-              private _prop: PropertyService) {
+    private localService: LocalizationService,
+    private _prop: PropertyService) {
   }
 
   loadSearchAttributes(type: string, env: string) {
     return this.http.get(this._prop.getUrl() + '/mdm/environments/' + env + '/' + type + '/searchattributes')
-              .map(response => <SearchAttribute[]> response.json().data)
-              .map(sas => sas.map(sa => { sa.source = env; return sa; }));
+      .map(response => <SearchAttribute[]>response.json().data)
+      .map(sas => sas.map(sa => { sa.source = env; return sa; }));
   }
 
   getDefinitionsSimple() {
     return [
-      <SearchDefinition> {key: '1', value: 'tests', type: 'Test', label: 'Versuche'},
-      <SearchDefinition> {key: '2', value: 'teststeps', type: 'TestStep', label: 'Versuchsschritte'},
-      <SearchDefinition> {key: '3', value: 'measurements', type: 'Measurement', label: 'Messungen'}
+      <SearchDefinition>{ key: '1', value: 'tests', type: 'Test', label: 'Versuche' },
+      <SearchDefinition>{ key: '2', value: 'teststeps', type: 'TestStep', label: 'Versuchsschritte' },
+      <SearchDefinition>{ key: '3', value: 'measurements', type: 'Measurement', label: 'Messungen' }
     ];
   }
 
   getSearchAttributesPerEnvs(envs: string[], type: string) {
 
     return Observable.forkJoin(envs.map(env => this.loadSearchAttributes(type, env)
-        .map(sas => sas.map(sa => { sa.source = env; return sa; }))))
-        .map(x => x.reduce(function(explored, toExplore) {
-          return explored.concat(toExplore);
-        }, []));
+      .map(sas => sas.map(sa => { sa.source = env; return sa; }))))
+      .map(x => x.reduce(function(explored, toExplore) {
+        return explored.concat(toExplore);
+      }, []));
   }
 
   groupByEnv(attrs: SearchAttribute[]) {
-    let attributesPerEnv: { [environment: string]: SearchAttribute[]} = {};
+    let attributesPerEnv: { [environment: string]: SearchAttribute[] } = {};
 
     attrs.forEach(attr => {
       attributesPerEnv[attr.source] = attributesPerEnv[attr.source] || [];
@@ -108,7 +108,7 @@ export class SearchService {
     return attributesPerEnv;
   }
 
-  group(conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[]}) {
+  group(conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
     let attribute2Envs: { [attribute: string]: string[] } = {};
 
     Object.keys(attributesPerEnv).forEach(env =>
@@ -117,7 +117,7 @@ export class SearchService {
 
         attribute2Envs[attr] = attribute2Envs[attr] || [];
         attribute2Envs[attr].push(env);
-    }));
+      }));
 
     return attribute2Envs;
   }
@@ -127,7 +127,7 @@ export class SearchService {
       .map(attrs => this.createSearchLayout(envs, conditions, this.groupByEnv(attrs)));
   }
 
-  createSearchLayout(envs: string[], conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[]}) {
+  createSearchLayout(envs: string[], conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
     let result = new SearchLayout();
     let attribute2Envs = this.group(conditions, attributesPerEnv);
     let globalEnv = 'Global';
