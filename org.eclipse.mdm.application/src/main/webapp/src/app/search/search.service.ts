@@ -82,11 +82,11 @@ export class SearchService {
   }
 
   getDefinitionsSimple() {
-    return [
-      <SearchDefinition>{ key: '1', value: 'tests', type: 'Test', label: 'Versuche' },
-      <SearchDefinition>{ key: '2', value: 'teststeps', type: 'TestStep', label: 'Versuchsschritte' },
-      <SearchDefinition>{ key: '3', value: 'measurements', type: 'Measurement', label: 'Messungen' }
-    ];
+    return Observable.of([
+      <SearchDefinition> {key: '1', value: 'tests', type: 'Test', label: 'Versuche'},
+      <SearchDefinition> {key: '2', value: 'teststeps', type: 'TestStep', label: 'Versuchsschritte'},
+      <SearchDefinition> {key: '3', value: 'measurements', type: 'Measurement', label: 'Messungen'}
+    ]);
   }
 
   getSearchAttributesPerEnvs(envs: string[], type: string) {

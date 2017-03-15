@@ -33,7 +33,7 @@
     <label for="search-source" class="control-label">Filter</label>
     <div class="btn-group" dropdown>
       <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
-        {{selectedFilter.name}} <span class="caret"></span>
+        {{currentFilter.name}} <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" dropdownMenu>
         <li *ngFor="let filter of filters">
@@ -44,13 +44,13 @@
   </div>
   <div class="form-group">
     <label for="search-source" class="control-label">Quelle</label>
-    <dropdown-multiselect name="envs" [dropdownConfig]="dropdownConfig" [(ngModel)]="dropdownModel"></dropdown-multiselect>
+    <dropdown-multiselect name="envs" [dropdownConfig]="dropdownConfig" [(ngModel)]="dropdownModel" (ngModelChange)="selectedEnvironmentsChanged($event)"></dropdown-multiselect>
   </div>
   <div class="form-group">
     <label for="search-resulttype" class="control-label">Ergebnistyp</label>
     <div class="btn-group" dropdown>
       <button id="search-resulttype" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
-      {{getSearchDefinition(selectedFilter.resultType)?.label}} <span class="caret"></span>
+      {{getSearchDefinition(currentFilter.resultType)?.label}} <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" dropdownMenu>
         <li *ngFor="let def of definitions" role="menuitem">
@@ -60,7 +60,7 @@
     </div>
   </div>
   <div class="form-group">
-    <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="selectedFilter.fulltextQuery" (keyup.enter)="onSearch()" aria-describedby="basic-addon1">
+    <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="currentFilter.fulltextQuery" (keyup.enter)="onSearch()" aria-describedby="basic-addon1">
   </div>
   <div class="form-group">
     <button type="button" class="btn btn-default" (click)="onSearch()">Suchen</button>
@@ -76,7 +76,7 @@
       <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
         <div class="col-xs-6">
           <button id="filter-add" type="button" class="btn btn-default" (click)="showSearchFieldsEditor()"><span class="glyphicon glyphicon-plus"></span></button>
-          <button id="filter-add" type="button" class="btn btn-default" (click)="showSearchFieldsEditor(selectedFilter)"><span class="glyphicon glyphicon-edit"></span></button>
+          <button id="filter-add" type="button" class="btn btn-default" (click)="showSearchFieldsEditor(currentFilter)"><span class="glyphicon glyphicon-edit"></span></button>
         </div>
         <div class="col-xs-6" style="text-align: right;">
           <button type="button" class="btn btn-default" (click)="showSaveModal()" title="Save search filter"><span class="glyphicon glyphicon-floppy-disk"></span></button>

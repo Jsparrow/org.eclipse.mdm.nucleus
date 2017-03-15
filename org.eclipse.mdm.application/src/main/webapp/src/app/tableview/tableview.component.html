@@ -4,31 +4,28 @@
     	<th width="30px"> </th>
       <th *ngFor="let col of view?.columns">{{col.type}}.{{col.name}} </th>
       <th width="30px" style="text-align: center;"></th>
-      <th width="30px" style="text-align: center;"></th>
     </tr>
   </thead>
   <tbody class="noselect">
     <tr *ngIf="results?.rows?.length <= 0">
       <td [colSpan]="view?.columns?.length + 2" style="text-align: center;">Keine Daten vorhanden</td>
     </tr>
-    <tr [ngClass]="isActive(row)" *ngFor="let row of results?.rows | paginate: { itemsPerPage: 5, currentPage: p }">
+    <tr [ngClass]="isActive(row)" *ngFor="let row of results?.rows | paginate: { itemsPerPage: 10, currentPage: p }">
       <td width="30px">
-        <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="selectRow(row)" [title]="getRowTitle(row)"> </a>
+        <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="openInTree(row, $event)" title="Open in tree: {{getRowTitle(row)}}"> </a>
       </td>
       <td *ngFor="let col of view?.columns" (click)="onClickRow(row, $event)" style="cursor: pointer;">{{getData(row, col)}}</td>
       <td style="text-align: center;">
         <span class="glyphicon" [ngClass]="{'glyphicon-shopping-cart': isShopable, 'glyphicon-remove': isRemovable}"
           style="cursor: pointer" title="{{isShopable?'Add to shopping basket':'Remove from shopping basket'}}" (click)="functionalityProvider(isShopable, row)"></span>
       </td>
-      <td style="text-align: center;">
-        <span class="glyphicon glyphicon-list-alt" style="cursor: pointer" title="Open in tree" (click)="openInTree(row, $event)"></span>
-      </td>
     </tr>
   </tbody>
 </table>
 
-<pagination-controls (pageChange)="p = $event" autoHide="true" maxSize="5"></pagination-controls>
-
+<div class="text-center">
+  <pagination-controls (pageChange)="p = $event" autoHide="true" maxSize="5"></pagination-controls>
+</div>
 <!-- <div>
     <div class="container">
         <div class="text-center">

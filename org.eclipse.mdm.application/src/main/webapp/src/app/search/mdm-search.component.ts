@@ -36,6 +36,7 @@ import {ModalDirective} from 'ng2-bootstrap';
 
 import {TreeModule, TreeNode} from 'primeng/primeng';
 import {EditSearchFieldsComponent} from './edit-searchFields.component';
+import {classToClass} from 'class-transformer';
 
 @Component({
   selector: 'mdm-search',
@@ -44,7 +45,7 @@ import {EditSearchFieldsComponent} from './edit-searchFields.component';
 export class MDMSearchComponent implements OnInit {
 
   filters: SearchFilter[] = [];
-  selectedFilter: SearchFilter = new SearchFilter('No filter selected', [], '*', '', []);
+  currentFilter: SearchFilter = new SearchFilter('No filter selected', [], 'Test', '', []);
   selectedView: View;
   filterName = '';
 
@@ -60,11 +61,10 @@ export class MDMSearchComponent implements OnInit {
   isSearchResultsOpen = false;
 
   layout: SearchLayout = new SearchLayout;
-  public dropdownModel: IDropdownItem[];
+  public dropdownModel: IDropdownItem[] = [];
   public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
 
-  selectedFile: any;
-  searchFields: { group: string, attribute: string }[] = [];
+  searchFields: {group: string, attribute: string}[] = [];
 
   subscription: any;
 
@@ -88,38 +88,40 @@ export class MDMSearchComponent implements OnInit {
     private basketService: BasketService) { }
 
   ngOnInit() {
-    this.definitions = this.searchService.getDefinitionsSimple();
-    this.getFilters('Standard');
+    // Load contents for environment selection
+    this.nodeService.getNodes()
+        .do(nodes => this.loadSearchAttributes(nodes.map(env => env.sourceName)))
+        .map(nodes => nodes.map(env => <IDropdownItem> { id: env.sourceName, label: env.name, selected: true }))
+        .subscribe(
+          dropDownItems => this.dropdownModel = dropDownItems,
+          error => this.errorMessage = <any>error);
+
+    this.searchService.getDefinitionsSimple()
+        .subscribe(defs => this.definitions = defs);
+
+    this.loadFilters('Standard');
+
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
-
-    this.dropdownModel = [];
   }
 
-  getFilters(defaultFilterName: string) {
-    this.filterService.getFilters().subscribe(
-      filters => {
-      this.filters = filters;
-        this.filters.push(this.selectedFilter);
-        if (this.filters.find(f => f.name === defaultFilterName) !== undefined) {
-          this.selectedFilter = this.filters.find(f => f.name === defaultFilterName);
+  selectedEnvironmentsChanged(items: IDropdownItem[]) {
+    this.currentFilter.environments = items.filter(item => item.selected).map(item => item.id);
+    this.calcCurrentSearch();
+  }
+
+  loadFilters(defaultFilterName: string) {
+    this.filterService.getFilters()
+      .defaultIfEmpty([ this.currentFilter ])
+      .subscribe(filters => {
+          this.filters = filters;
+          this.selectFilterByName(defaultFilterName);
         }
-        this.getEnvironments();
-      }
     );
   }
 
-  getEnvironments() {
-    this.nodeService.getNodes().subscribe(
-      nodes => this.setEnvironments(nodes),
-      error => this.errorMessage = <any>error);
-  }
-
-  setEnvironments(environments: Node[]) {
-    this.selectedFilter.environments = environments.map(e => e.sourceName);
-    this.dropdownModel = environments.map(env => <IDropdownItem>{ id: env.sourceName, label: env.name, selected: true });
-    this.selectResultType(this.definitions[0]);
-    this.calcCurrentSearch();
+  selectFilterByName(defaultFilterName: string) {
+    this.selectFilter(this.filters.find(f => f.name === defaultFilterName));
   }
 
   removeSearchField(searchField: { group: string, attribute: string }) {
@@ -128,37 +130,24 @@ export class MDMSearchComponent implements OnInit {
   }
 
   selectResultType(type: any) {
-    this.selectedFilter.resultType = type.type;
-    this.updateSearches();
+    this.currentFilter.resultType = type.type;
   }
 
   getSearchDefinition(type: string) {
     return this.definitions.find(def => def.type === type);
   }
 
-  updateSearches() {
-    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
-
-    this.searchableFields = [];
-
-    Observable.forkJoin(this.selectedFilter.environments.map(env => this.searchService.loadSearchAttributes(type, env)))
-      .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
-      .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
-      .map(sa => this.uniqueBy(sa, p => p.label))
-      .subscribe(attrs => this.searchableFields = attrs);
-  }
-
   onSearch() {
-    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
-    this.searchService.getSearchAttributesPerEnvs(this.selectedFilter.environments, type)
+    let type = this.getSearchDefinition(this.currentFilter.resultType).value;
+    this.searchService.getSearchAttributesPerEnvs(this.currentFilter.environments, type)
       .subscribe(attrs => this.search(attrs));
   }
 
   search(attrs: SearchAttribute[]) {
-    let query = this.searchService.convertToQuery(this.selectedFilter, attrs, this.selectedView);
+    let query = this.searchService.convertToQuery(this.currentFilter, attrs, this.selectedView);
     this.queryService.query(query).subscribe(
       result => {
-        this.results = <SearchResult>result;
+        this.results = <SearchResult> result;
         this.isSearchResultsOpen = true;
       },
       error => this.errorMessage = <any>error
@@ -166,16 +155,20 @@ export class MDMSearchComponent implements OnInit {
   }
 
   calcCurrentSearch() {
-    let environments = this.selectedFilter.environments;
-    let conditions = this.selectedFilter.conditions;
-    let type = this.getSearchDefinition(this.selectedFilter.resultType).value;
+    let environments = this.currentFilter.environments;
+    let conditions = this.currentFilter.conditions;
+    let type = this.getSearchDefinition(this.currentFilter.resultType).value;
+
     this.searchService.getSearchLayout(environments, conditions, type)
-      .subscribe(l => this.layout = l);
+      	.subscribe(l => this.layout = l);
   }
 
   onFilterChanged(filter: SearchFilter) {
-    this.getEnvironments();
-    this.selectedFilter = filter;
+    this.currentFilter = classToClass(filter);
+
+    this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
+
+    this.calcCurrentSearch();
   }
 
   selectFilter(filter: SearchFilter) {
@@ -183,37 +176,33 @@ export class MDMSearchComponent implements OnInit {
   }
 
   resetConditions() {
-    this.selectedFilter.conditions.forEach(cond => cond.value = []);
-    // this.onFilterChanged(this.filters.find(f => f.name === 'No filter selected'));
+    this.currentFilter.conditions.forEach(cond => cond.value = []);
+    this.onFilterChanged(this.currentFilter);
   }
 
   saveFilter() {
-    let filter = this.selectedFilter;
+    let filter = this.currentFilter;
     filter.name = this.filterName;
     this.filterService.saveFilter(filter).subscribe();
-    this.getFilters(filter.name);
+    this.loadFilters(filter.name);
     this.childSaveModal.hide();
   }
-
-  // onConditionChanged(condition: Condition) {
-  //   this.calcCurrentSearch();
-  // }
 
   addCondition(field: SearchAttribute) {
     let condition = new Condition(field.boType, field.attrName, Operator.EQUALS, [], field.valueType);
 
-    this.selectedFilter.conditions.push(condition);
+    this.currentFilter.conditions.push(condition);
     this.calcCurrentSearch();
   }
 
   removeCondition(condition: Condition) {
-    this.selectedFilter.conditions = this.selectedFilter.conditions
-      .filter(c => !(c.type === condition.type && c.attribute === condition.attribute));
+    this.currentFilter.conditions = this.currentFilter.conditions
+        .filter(c => !(c.type === condition.type && c.attribute === condition.attribute));
 
     this.calcCurrentSearch();
   }
 
-  public typeaheadOnSelect(match: TypeaheadMatch) {
+  typeaheadOnSelect(match: TypeaheadMatch) {
     this.addCondition(match.item.attribute);
   }
 
@@ -225,27 +214,29 @@ export class MDMSearchComponent implements OnInit {
     this.childSaveModal.show();
   }
 
+  showSearchFieldsEditor(filter?: SearchFilter) {
+    this.editSearchFieldsComponent.show(filter).subscribe(filter => this.selectFilter(filter));
+  }
+
+  private loadSearchAttributes(environments: string[]) {
+    let searchDef = this.getSearchDefinition(this.currentFilter.resultType);
+    if (searchDef === undefined) {
+      return;
+    }
+
+    Observable.forkJoin(environments.map(env => this.searchService.loadSearchAttributes(searchDef.value, env)))
+      .map(attrs => <SearchAttribute[]> [].concat.apply([], attrs))
+      .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
+      .map(sa => this.uniqueBy(sa, p => p.label))
+      .do(sa => console.log(sa))
+      .subscribe(attrs => this.searchableFields = attrs);
+  }
+
   private uniqueBy<T>(a: T[], key: (T) => any) {
     let seen = {};
     return a.filter(function(item) {
       let k = key(item);
       return seen.hasOwnProperty(k) ? false : (seen[k] = true);
     });
-  }
-
-  showSearchFieldsEditor(filter?: SearchFilter) {
-    if (filter === undefined) {
-      filter = new SearchFilter('New Filter', [], '*', '', []);
-    }
-    this.subscription = this.editSearchFieldsComponent.childModal.onHide.subscribe(() => this.handleSearchFieldsEditorResult());
-    this.editSearchFieldsComponent.show(filter);
-  }
-
-  handleSearchFieldsEditorResult() {
-    if (!this.editSearchFieldsComponent.needSave) {
-      return;
-    }
-    this.selectFilter(this.editSearchFieldsComponent.filter);
-    this.subscription.unsubscribe();
   }
 }

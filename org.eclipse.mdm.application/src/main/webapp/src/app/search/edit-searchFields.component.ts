@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 
 import {SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
 import {FilterService, SearchFilter, Condition, Operator} from './filter.service';
@@ -36,21 +36,27 @@ export class EditSearchFieldsComponent {
 
   @ViewChild('lgEditSearchFieldsModal') public childModal: ModalDirective;
 
-  filter: SearchFilter = new SearchFilter('New Filter', [], '*', '', []);
   @Input() searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
+  @Output()
+  filterSubmitted = new EventEmitter<SearchFilter>();
+
+  filter: SearchFilter = new SearchFilter('New Filter', [], 'Test', '', []);
+  nodes: TreeNode[] = [];
   searchFields: SearchField[] = [];
-  needSave: boolean;
 
   constructor(private filterService: FilterService,
     private treeService: SearchattributeTreeService) { }
 
-  show(filter: SearchFilter) {
+  show(filter?: SearchFilter) {
+    if (filter) {
+      this.filter = filter;
+    }
     this.treeService.onNodeSelect$.subscribe(node => this.nodeSelect(node));
-    this.filter = filter;
-    this.needSave = false;
-    this.childModal.show();
+
     this.searchFields = this.filter.conditions.map(cond => <SearchField>{ group: cond.type, attribute: cond.attribute });
+    this.childModal.show();
+    return this.filterSubmitted;
   }
 
   nodeSelect(node: TreeNode) {
@@ -70,8 +76,8 @@ export class EditSearchFieldsComponent {
   addSearchFields() {
     this.filter.conditions = this.searchFields
       .map(sf => new Condition(sf.group, sf.attribute, Operator.EQUALS, [], this.getValueType(sf.attribute)));
-    this.needSave = true;
     this.childModal.hide();
+    this.filterSubmitted.emit(this.filter);
   }
 
   getValueType(typ: string) {
@@ -86,5 +92,4 @@ export class EditSearchFieldsComponent {
   public typeaheadOnSelect(match: TypeaheadMatch) {
     this.searchFields.push(new SearchField(match.item.attribute.boType, match.item.attribute.attrName));
   }
-
 }

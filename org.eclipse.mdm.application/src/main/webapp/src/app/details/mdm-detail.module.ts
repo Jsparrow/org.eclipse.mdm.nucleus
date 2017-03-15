@@ -8,6 +8,7 @@ import { MDMFilereleaseModule } from '../filerelease/mdm-filerelease.module';
 import { MDMDetailComponent } from './mdm-detail.component';
 import { MDMDetailViewComponent } from './mdm-detail-view.component';
 import { MDMDescriptiveDataComponent } from './mdm-detail-descriptive-data.component';
+import { DetailViewService } from './detail-view.service';
 
 
 @NgModule({
@@ -22,7 +23,10 @@ import { MDMDescriptiveDataComponent } from './mdm-detail-descriptive-data.compo
     MDMDescriptiveDataComponent,
   ],
   exports: [
-    MDMDetailComponent,
+    MDMDetailComponent
+  ],
+  providers: [
+    DetailViewService
   ]
 })
 export class MDMDetailModule {

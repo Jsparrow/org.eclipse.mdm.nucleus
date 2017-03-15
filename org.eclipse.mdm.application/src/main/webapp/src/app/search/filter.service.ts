@@ -102,7 +102,9 @@ export class FilterService {
   }
 
   setSelectedFilter(filter: SearchFilter) {
-    this.filterChanged$.emit(filter);
+    if (filter) {
+      this.filterChanged$.emit(filter);
+    }
   }
 
   getFilters() {

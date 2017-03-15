@@ -1,20 +1,16 @@
 import { Injectable} from '@angular/core';
-import { Preference, PreferenceService } from './preference.service';
+import { Preference, PreferenceService } from '../core/preference.service';
 
 import { Node, Attribute } from '../navigator/node';
 
 @Injectable()
-export class FilterService {
+export class DetailViewService {
 
     ignoreAttributesPrefs: Preference[] = [];
 
     constructor (private preferenceService: PreferenceService) {
-        this.onInit();
-    }
-
-    onInit() {
-        this.preferenceService.getPreference('source', 'ignoreAttributes')
-            .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
+      this.preferenceService.getPreference('source', 'ignoredAttributes')
+          .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
     }
 
     getAttributesToDisplay(node: Node) {
@@ -23,30 +19,29 @@ export class FilterService {
         return this.getFilteredAttributes(node.attributes, filterList);
     }
 
-    getFilterPreference(source: string): string[] {
+    private getFilterPreference(source: string): string[] {
         let pref = this.ignoreAttributesPrefs.find(p => p.source === source);
         let prefList: string[] = [];
         if (pref) {
             try {
                 prefList = JSON.parse(pref.value);
             } catch (e) {
-                console.log('Preference for invisible attributes is corrupted.\n', pref);
+                console.log('Preference for ignored attributes is corrupted.\n', pref);
             }
         }
         return prefList;
     }
 
-    processFilter(prefList: string[], type: string) {
+    private processFilter(prefList: string[], type: string) {
             return prefList.filter(p => p.split('.')[0] === type || p.split('.')[0] === '*')
             .map(p => p.split('.')[1]);
     }
 
-    getFilteredAttributes(attributes: Attribute[], filter: string[]) {
+    private getFilteredAttributes(attributes: Attribute[], filter: string[]) {
         if (filter.indexOf('*') !== -1) {
             return [];
         } else {
             return attributes.filter(attr => filter.indexOf(attr.name ) === -1);
         }
     }
-
 }

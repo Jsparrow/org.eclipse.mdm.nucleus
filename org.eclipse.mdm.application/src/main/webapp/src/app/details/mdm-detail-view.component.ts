@@ -25,7 +25,7 @@ import {LocalizationService} from '../localization/localization.service';
 import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
 import {NavigatorService} from '../navigator/navigator.service';
 
-import { FilterService } from '../core/filter.service';
+import { DetailViewService } from './detail-view.service';
 
 @Component({
   selector: 'mdm-detail-view',
@@ -43,16 +43,16 @@ export class MDMDetailViewComponent implements OnInit {
   constructor(private localService: LocalizationService,
               private basketService: BasketService,
               private navigatorService: NavigatorService,
-              private filterService: FilterService) {}
+              private detailViewService: DetailViewService) {}
 
   ngOnInit() {
     this.navigatorService.selectedNodeChanged
         .subscribe(node => this.onSelectedNodeChange(node));
   }
 
-  onSelectedNodeChange( node: Node ) {
+  onSelectedNodeChange(node: Node) {
       this.selectedNode = node;
-      this.displayAttributes = this.getAttributesToDisplay();
+      this.displayAttributes = this.detailViewService.getAttributesToDisplay(this.selectedNode);
   }
 
   add2Basket() {
@@ -65,6 +65,7 @@ export class MDMDetailViewComponent implements OnInit {
     if (this.selectedNode && this.selectedNode.name !== undefined) { return false; }
     return true;
   }
+
   isReleasable() {
     if (this.selectedNode && this.selectedNode.sourceType === 'TestStep') { return false; }
     return true;
@@ -72,9 +73,5 @@ export class MDMDetailViewComponent implements OnInit {
 
   getTrans(type: string, attr: string) {
     return this.localService.getTranslation(type, attr);
-  }
-
-  getAttributesToDisplay() {
-      return this.filterService.getAttributesToDisplay(this.selectedNode);
   }
 }

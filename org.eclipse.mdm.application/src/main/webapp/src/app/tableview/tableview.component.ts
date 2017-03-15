@@ -37,6 +37,7 @@ export class TableviewComponent implements OnInit, OnChanges {
 
   p: any;
   activeItems: MDMItem[] = [];
+  public static readonly pageSize = 5;
 
   constructor(private viewService: ViewService,
     private basketService: BasketService,

@@ -16,7 +16,6 @@ import { TreeModule } from 'primeng/primeng';
 
 import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
-import { FilterService } from './filter.service';
 
 @NgModule({
   imports: [
@@ -45,8 +44,7 @@ import { FilterService } from './filter.service';
       ComponentLoaderFactory,
 
       PropertyService,
-      PreferenceService,
-      FilterService
+      PreferenceService
     ],
 })
 export class MDMCoreModule { }

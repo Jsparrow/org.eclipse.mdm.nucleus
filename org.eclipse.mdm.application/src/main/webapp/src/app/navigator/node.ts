@@ -8,14 +8,33 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
+import {Type, Exclude, plainToClass, serialize, deserializeArray} from 'class-transformer';
+
+
 export class Node {
   name: string;
   id: number;
   type: string;
   sourceType: string;
   sourceName: string;
-  attributes: Array<Attribute>;
+  @Type(() => Attribute)
+  attributes: Attribute[];
   active: boolean;
+
+  getClass() {
+    switch (this.type) {
+      case 'StructureLevel':
+        return 'pool';
+      case 'MeaResult':
+        return 'measurement';
+      case 'SubMatrix':
+        return 'channelgroup';
+      case 'MeaQuantity':
+        return 'channel';
+      default:
+        return this.type.toLowerCase();
+    }
+  }
 }
 
 export class Attribute {
