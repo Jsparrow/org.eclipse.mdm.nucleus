@@ -16,7 +16,16 @@
   }
 </style>
 
-<p-tree [value]="nodes" selectionMode="multiple" [(selection)]="selectedNodes" (onNodeExpand)="loadNode($event)" (onNodeSelect)="nodeSelect($event)">
+<p-contextMenu #cm [model]="contextMenuItems" appendTo="body"></p-contextMenu>
+
+<p-tree
+    [value]="nodes"
+    selectionMode="multiple"
+    [(selection)]="selectedNodes"
+    (onNodeExpand)="loadNode($event)"
+    (onNodeSelect)="nodeSelect($event)"
+    [contextMenu]="cm"
+    >
   <template let-node pTemplate="default">
         <span [title]="node.label" [id]="getId(node)">{{ node.label }}</span>
   </template>

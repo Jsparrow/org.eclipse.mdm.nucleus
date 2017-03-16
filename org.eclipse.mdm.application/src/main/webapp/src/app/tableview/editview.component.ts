@@ -55,11 +55,6 @@ export class EditViewComponent {
   }
 
   showDialog(currentView: View) {
-    currentView.columns.forEach(c => {
-      if (c.sort === undefined) {
-        c.sort = SortOrder.None;
-      }
-    });
     this.currentView = currentView;
     this.isNameReadOnly();
     this.childModal.show();
@@ -84,26 +79,6 @@ export class EditViewComponent {
 
   isFirst(col: ViewColumn) {
     return this.currentView.columns.indexOf(col) === 0;
-  }
-
-  isAsc(col: ViewColumn) {
-    return col.sort === SortOrder.Asc;
-  }
-  isDesc(col: ViewColumn) {
-    return col.sort === SortOrder.Desc;
-  }
-  isNone(col: ViewColumn) {
-    return col.sort === SortOrder.None;
-  }
-
-  toggleSort(col: ViewColumn) {
-    if (col.sort === SortOrder.None) {
-      col.sort = SortOrder.Asc;
-    } else if (col.sort === SortOrder.Asc) {
-      col.sort = SortOrder.Desc;
-    } else if (col.sort === SortOrder.Desc) {
-      col.sort = SortOrder.None;
-    }
   }
 
   moveUp(col: ViewColumn) {

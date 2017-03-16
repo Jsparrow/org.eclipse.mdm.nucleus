@@ -46,6 +46,15 @@ export class BasketService {
     }
   }
 
+  public addAll(items: MDMItem[]) {
+    let newItemsWithoutExisting = items.filter(newItem => this.items.findIndex(existingItem => existingItem.equals(newItem)) < 0);
+
+    if (newItemsWithoutExisting) {
+      newItemsWithoutExisting.forEach(item => this.items.push(item));
+      this.itemsAdded$.emit(newItemsWithoutExisting);
+    }
+  }
+
   public remove(item: MDMItem) {
     let itemsToRemove = this.items.filter(i => i.equals(item));
 

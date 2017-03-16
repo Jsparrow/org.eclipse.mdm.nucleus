@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {TreeModule, TreeNode} from 'primeng/primeng';
+import {TreeModule, TreeNode, ContextMenuModule,MenuItem} from 'primeng/primeng';
 
 import {MDMItem} from '../core/mdm-item';
 import {Node} from '../navigator/node';
@@ -7,6 +7,7 @@ import {NodeService} from '../navigator/node.service';
 import {QueryService} from '../tableview/query.service';
 import {NodeproviderService} from './nodeprovider.service';
 import {NavigatorService} from './navigator.service';
+import {BasketService} from '../basket/basket.service';
 
 
 @Component({
@@ -28,9 +29,13 @@ export class MDMNavigatorComponent implements OnInit {
       return this.getChildren(node);
     }
   };
+  contextMenuItems : MenuItem[] = [
+    { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
+  ];
 
   constructor(private nodeService: NodeService,
     private queryService: QueryService,
+    private basketService: BasketService,
     private nodeproviderService: NodeproviderService,
     private navigatorService: NavigatorService) {
   }
@@ -44,7 +49,7 @@ export class MDMNavigatorComponent implements OnInit {
       .subscribe(node => this.selectNode(node));
 
     this.navigatorService.onOpenInTree
-      .subscribe(item => this.openInTree(item));
+      .subscribe(items => this.openInTree(items));
   }
 
   nodeSelect(event) {
@@ -92,6 +97,10 @@ export class MDMNavigatorComponent implements OnInit {
 
   }
 
+  addSelectionToBasket() {
+    this.basketService.addAll(this.selectedNodes.map(node => <MDMItem>node.data));
+  }
+
   typeToUrl(type: string) {
     switch (type) {
       case 'StructureLevel':
@@ -107,16 +116,18 @@ export class MDMNavigatorComponent implements OnInit {
     }
   }
 
-  openInTree(item: MDMItem) {
+  openInTree(items: MDMItem[]) {
     this.selectedNodes = []
-    let pathTypes = this.nodeproviderService.getPathTypes(item.type);
-    if (pathTypes.length === 0) {
-      alert('Items of this type are not displayed in the current Tree!');
-    } else {
-      let env = this.nodes.find(e => item.source === e.data.source);
-      env.expanded = true;
-      this.openChildrenRecursive(item, env, pathTypes, 1);
-    }
+    items.forEach(item => {
+      let pathTypes = this.nodeproviderService.getPathTypes(item.type);
+      if (pathTypes.length === 0) {
+        alert('Items of this type are not displayed in the current Tree!');
+      } else {
+        let env = this.nodes.find(e => item.source === e.data.source);
+        env.expanded = true;
+        this.openChildrenRecursive(item, env, pathTypes, 1);
+      }
+    });
   }
 
   openChildrenRecursive(item: MDMItem, current: TreeNode, pathTypes: string[], iii: number) {

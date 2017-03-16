@@ -1,7 +1,6 @@
 package org.eclipse.mdm.query.boundary;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,11 +53,15 @@ public class QueryService {
 			Class<? extends Entity> resultType = getEntityClassByNameType(searchService, resultEntity);
 
 			List<EntityType> searchableTypes = searchService.listEntityTypes(resultType);
-			List<Attribute> attributes = columns.stream().map(c -> getAttribute(searchableTypes, c)).collect(Collectors.toList());
+			List<Attribute> attributes = columns.stream()
+					.map(c -> getAttribute(searchableTypes, c))
+					.filter(Optional::isPresent)
+				    .map(Optional::get)
+					.collect(Collectors.toList());
 
 			Filter filter = SearchParamParser.parseFilterString(searchableTypes, filterString);
 			
-			Collection<Result> result = searchService.fetchResults(resultType, attributes, filter, searchString);
+			List<Result> result = searchService.fetchResults(resultType, attributes, filter, searchString);
 	
 			
 			return Util.convertResultList(result, resultType, modelManager.getEntityType(resultType));
@@ -76,7 +79,7 @@ public class QueryService {
 		return mm.get();
 	}
 	
-	private Attribute getAttribute(List<EntityType> searchableTypes, String c) {
+	private Optional<Attribute> getAttribute(List<EntityType> searchableTypes, String c) {
 		String[] parts = c.split("\\.");
 		
 		if (parts.length != 2) {
@@ -86,11 +89,17 @@ public class QueryService {
 		String type = SearchParamParser.workaroundForTypeMapping(parts[0]);
 		String attributeName = parts[1];
 		
-		return searchableTypes.stream()
+		Optional<EntityType> entityType = searchableTypes.stream()
 				.filter(e -> e.getName().equalsIgnoreCase(type))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("EntityType '" + type + "' not found!"))
-				.getAttribute(attributeName);
+				.findFirst();
+		
+		if (entityType.isPresent()) {
+			return entityType.get().getAttributes().stream()
+				.filter(a -> a.getName().equalsIgnoreCase(attributeName))
+				.findFirst();
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	private Class<? extends Entity> getEntityClassByNameType(SearchService s, String name) {

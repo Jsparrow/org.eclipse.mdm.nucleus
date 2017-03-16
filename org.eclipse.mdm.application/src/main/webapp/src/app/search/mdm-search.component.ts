@@ -34,7 +34,7 @@ import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 
 import {ModalDirective} from 'ng2-bootstrap';
 
-import {TreeModule, TreeNode} from 'primeng/primeng';
+import {TreeModule, TreeNode, MenuItem} from 'primeng/primeng';
 import {EditSearchFieldsComponent} from './edit-searchFields.component';
 import {classToClass} from 'class-transformer';
 
@@ -67,6 +67,10 @@ export class MDMSearchComponent implements OnInit {
   searchFields: {group: string, attribute: string}[] = [];
 
   subscription: any;
+
+  contextMenuItems : MenuItem[] = [
+    { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
+  ];
 
   @ViewChild(ViewComponent)
   private viewComponent: ViewComponent;
@@ -207,7 +211,7 @@ export class MDMSearchComponent implements OnInit {
   }
 
   selected2Basket() {
-    this.tableViewComponent.activeItems.forEach(item => this.basketService.add(item));
+    this.tableViewComponent.selectedRows.forEach(row => this.basketService.add(row.getItem()));
   }
 
   showSaveModal() {
@@ -215,7 +219,11 @@ export class MDMSearchComponent implements OnInit {
   }
 
   showSearchFieldsEditor(filter?: SearchFilter) {
-    this.editSearchFieldsComponent.show(filter).subscribe(filter => this.selectFilter(filter));
+    this.editSearchFieldsComponent.show(filter).subscribe(f => this.selectFilter(f));
+  }
+
+  addSelectionToBasket() {
+    this.basketService.addAll(this.tableViewComponent.selectedRows.map(row => row.getItem()));
   }
 
   private loadSearchAttributes(environments: string[]) {

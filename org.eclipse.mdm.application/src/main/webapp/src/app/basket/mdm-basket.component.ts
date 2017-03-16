@@ -14,6 +14,8 @@ import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
 
 import {BasketService, Basket} from './basket.service';
+import { NavigatorService } from '../navigator/navigator.service';
+
 import {TableviewComponent} from '../tableview/tableview.component';
 import {ViewComponent} from '../tableview/view.component';
 
@@ -22,6 +24,7 @@ import { View } from '../tableview/tableview.service';
 import { ModalDirective } from 'ng2-bootstrap';
 
 import {QueryService, Query, SearchResult, Row, Filter} from '../tableview/query.service';
+import {MenuItem} from 'primeng/primeng';
 
 @Component({
   selector: 'mdm-basket',
@@ -42,6 +45,13 @@ export class MDMBasketComponent implements OnInit {
 
   selectedView: View;
 
+  contextMenuItems: MenuItem[] = [
+      {label: 'Selektion aus Warenkorb entfernen', icon: 'glyphicon glyphicon-remove', command: (event) => this.removeSelected() }
+  ];
+
+  @ViewChild(TableviewComponent)
+  tableViewComponent: TableviewComponent;
+
   @ViewChild(ViewComponent)
   viewComponent: ViewComponent;
   @ViewChild('lgLoadModal')
@@ -51,7 +61,12 @@ export class MDMBasketComponent implements OnInit {
 
   constructor(private _basketService: BasketService,
               private queryService: QueryService,
+              private navigatorService: NavigatorService,
               private sanitizer: DomSanitizer) {
+  }
+
+  removeSelected() {
+    this.tableViewComponent.selectedRows.map(r => r.getItem()).forEach(i => this._basketService.remove(i));
   }
 
   ngOnInit() {

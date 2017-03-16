@@ -11,7 +11,7 @@ import {NodeService} from './node.service';
 @Injectable()
 export class NavigatorService {
 
-  @Output() onOpenInTree = new EventEmitter<MDMItem>();
+  @Output() onOpenInTree = new EventEmitter<MDMItem[]>();
 
   public selectedNodeChanged: EventEmitter<Node> = new EventEmitter<Node>();
   private selectedNode: Node;
@@ -33,7 +33,7 @@ export class NavigatorService {
     return this.selectedNode;
   }
 
-  fireOnOpenInTree(item: MDMItem) {
-    this.onOpenInTree.emit(item);
+  fireOnOpenInTree(items: MDMItem[]) {
+    this.onOpenInTree.emit(items);
   }
 }

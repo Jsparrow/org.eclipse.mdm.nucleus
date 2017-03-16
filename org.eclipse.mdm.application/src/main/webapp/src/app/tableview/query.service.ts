@@ -47,7 +47,17 @@ export class Row {
   columns: Columns[] = [];
 
   getColumn(col: string) {
-    return this.columns.find(c => c.type + '.' + c.attribute === col).value;
+    let column = this.columns.find(c => c.type + '.' + c.attribute === col);
+    if (column) {
+      return column.value;
+    }
+    else {
+      return '';
+    }
+  }
+  
+  equals (row: Row) {
+    return this.source === row.source && this.type === row.type && this.id === row.id;
   }
   
   public getItem() {
