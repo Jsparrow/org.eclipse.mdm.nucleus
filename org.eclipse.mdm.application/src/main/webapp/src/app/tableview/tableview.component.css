@@ -1,33 +1,3 @@
-.icon {
-	background-repeat: no-repeat;
-    background-position: left center;
-	padding-left: 18px;
-}
-.environment {
-	background-image: url("../../assets/img/environment.png");
-}
-.project {
-	background-image: url("../../assets/img/project.png");
-}
-.pool {
-	background-image: url("../../assets/img/structurelevel.png");
-}
-.test {
-	background-image: url("../../assets/img/test.png");
-}
-.teststep {
-	background-image: url("../../assets/img/teststep.png");
-}
-.measurement {
-	background-image: url("../../assets/img/mearesult.png");
-}
-.channelgroup {
-	background-image: url("../../assets/img/meaquantity.png");
-}
-.channel {
-	background-image: url("../../assets/img/meaquantity.png");
-}
-
 .table > tbody > tr.active > td {
 	background-color: #66afe9; /*#337ab7;*/
 }

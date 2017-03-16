@@ -31,3 +31,11 @@
 .channel {
   background-image: url("assets/img/meaquantity.png");
 }
+
+.ui-datatable .ui-datatable-data > tr > td {
+	padding: .25em .5em !important;
+}
+
+.ui-datatable .ui-datatable-thead > tr > th {
+  padding: .50em .5em !important;
+}

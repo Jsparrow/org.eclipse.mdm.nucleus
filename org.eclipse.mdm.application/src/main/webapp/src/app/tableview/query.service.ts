@@ -46,6 +46,10 @@ export class Row {
   @Type(() => Columns)
   columns: Columns[] = [];
 
+  getColumn(col: string) {
+    return this.columns.find(c => c.type + '.' + c.attribute === col).value;
+  }
+  
   public getItem() {
     return new MDMItem(this.source, this.type, +this.id);
   }

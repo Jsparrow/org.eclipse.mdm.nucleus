@@ -12,7 +12,7 @@ import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
 
 import { DropdownMultiselectModule } from 'ng2-dropdown-multiselect';
 import { RlTagInputModule } from 'angular2-tag-input';
-import { TreeModule } from 'primeng/primeng';
+import { TreeModule, DataTableModule, SharedModule, ContextMenuModule } from 'primeng/primeng';
 
 import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
@@ -28,7 +28,10 @@ import { PreferenceService } from './preference.service';
     DatepickerModule.forRoot(),
     DropdownMultiselectModule,
     RlTagInputModule,
-    TreeModule
+    TreeModule,
+    DataTableModule,
+    SharedModule,
+    ContextMenuModule
   ],
   declarations: [  ],
   exports: [
@@ -37,7 +40,10 @@ import { PreferenceService } from './preference.service';
     Ng2BootstrapModule,
     DropdownMultiselectModule,
     RlTagInputModule,
-    TreeModule
+    TreeModule,
+    DataTableModule,
+    SharedModule,
+    ContextMenuModule
   ],
   providers: [
       PositioningService,
