@@ -16,8 +16,8 @@
   }
 </style>
 
-<p-tree [value]="nodes" selectionMode="single" [(selection)]="selectedFile" (onNodeExpand)="loadNode($event)" (onNodeSelect)="nodeSelect($event)">
+<p-tree [value]="nodes" selectionMode="multiple" [(selection)]="selectedNodes" (onNodeExpand)="loadNode($event)" (onNodeSelect)="nodeSelect($event)">
   <template let-node pTemplate="default">
-        <span [title]="node.label">{{ node.label }}</span>
-    </template>
+        <span [title]="node.label" [id]="getId(node)">{{ node.label }}</span>
+  </template>
 </p-tree>

@@ -20,7 +20,7 @@ import {NavigatorService} from './navigator.service';
 })
 export class MDMNavigatorComponent implements OnInit {
 
-  selectedFile: any;
+  selectedNodes: TreeNode[] = [];
   nodes: TreeNode[] = [];
 
   options = {
@@ -89,6 +89,7 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   selectNode(event) {
+
   }
 
   typeToUrl(type: string) {
@@ -107,6 +108,7 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   openInTree(item: MDMItem) {
+    this.selectedNodes = []
     let pathTypes = this.nodeproviderService.getPathTypes(item.type);
     if (pathTypes.length === 0) {
       alert('Items of this type are not displayed in the current Tree!');
@@ -140,8 +142,29 @@ export class MDMNavigatorComponent implements OnInit {
             if (++iii < pathTypes.length) {
               node.expanded = true;
               this.openChildrenRecursive(item, node, pathTypes, iii);
+              this.scrollToSelectionPrimeNgDataTable(node);
+            } else {
+              this.selectedNodes.push(node);
+              this.scrollToSelectionPrimeNgDataTable(node);
             }
           });
       });
+  }
+
+  /**
+   * PrimeNG does not support scroll to view. This methods implements a
+   * workaround by using HTML element IDs.
+   * @see https://github.com/primefaces/primeng/issues/1278
+   */
+  scrollToSelectionPrimeNgDataTable(node: TreeNode) {
+    let list = document.querySelectorAll('p-tree span#' + this.getId(node));
+
+    if (list && list.length > 0) {
+        list.item(0).scrollIntoView();
+    }
+  }
+
+  getId(node: TreeNode) {
+    return 'node_' + node.data.source + '_' + node.data.type + '_' + node.data.id;
   }
 }
