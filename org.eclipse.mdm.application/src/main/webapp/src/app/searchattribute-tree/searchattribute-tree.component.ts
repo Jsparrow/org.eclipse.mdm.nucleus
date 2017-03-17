@@ -19,17 +19,22 @@ import {TreeModule, TreeNode} from 'primeng/primeng';
 })
 export class SearchattributeTreeComponent implements OnInit {
 
+  @Input() environments: Node[];
   @Input() searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
   nodes: TreeNode[] = [];
-  selectedAttribute: any;
+  selectedAttribute: { label: string, group: string, attribute: SearchAttribute };
 
   constructor(private searchService: SearchService,
     private nodeService: NodeService,
     private treeService: SearchattributeTreeService) { }
 
   ngOnInit() {
-    this.nodeService.getNodes().subscribe(nodes => this.nodes = nodes.map(n => this.mapNode(n)));
+    if (this.environments) {
+      this.nodes = this.environments.map(n => this.mapNode(n));
+    } else {
+      this.nodeService.getNodes().subscribe(nodes => this.nodes = nodes.map(n => this.mapNode(n)));
+    }
   }
 
   loadNodes(event) {

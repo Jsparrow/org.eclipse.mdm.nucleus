@@ -20,41 +20,35 @@ import {Observable} from 'rxjs/Observable';
 export class EditViewComponent {
   @ViewChild('lgModal') public childModal: ModalDirective;
 
-  nodes: Node[] = [];
+  envs: Node[] = [];
   isReadOnly = false;
   currentView: View = new View();
   searchableFields = [];
+  selectedAttribute: SearchAttribute;
 
   constructor(private nodeService: NodeService,
     private viewService: ViewService,
     private searchService: SearchService,
     private treeService: SearchattributeTreeService) {
 
-      this.treeService.onNodeSelect$.subscribe(node => this.selectNode(node));
-      this.nodeService.getNodes().subscribe(
-        envs => {
-          let types = ['tests', 'teststeps', 'measurements'];
-          types.forEach(type =>
-            Observable.forkJoin(envs.map(env => env.sourceName)
-              .map(env => this.searchService.loadSearchAttributes(type, env)))
-              .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
-              .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
-              .map(sa => this.uniqueBy(sa, p => p.label))
-              .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs))
-          );
-        }
-      );
-  }
-
-  private uniqueBy<T>(a: T[], key: (T) => any) {
-    let seen = {};
-    return a.filter(function(item) {
-      let k = key(item);
-      return seen.hasOwnProperty(k) ? false : (seen[k] = true);
-    });
+    this.treeService.onNodeSelect$.subscribe(node => this.selectNode(node));
   }
 
   showDialog(currentView: View) {
+    this.nodeService.getNodes().subscribe(
+      envs => {
+        this.envs = envs;
+        let types = ['tests', 'teststeps', 'measurements'];
+        types.forEach(type =>
+          Observable.forkJoin(envs.map(env => env.sourceName)
+            .map(env => this.searchService.loadSearchAttributes(type, env)))
+            .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
+            .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
+            .map(sa => this.uniqueBy(sa, p => p.label))
+            .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs))
+        );
+      }
+    );
     this.currentView = new View(currentView.name, currentView.columns);
     this.isNameReadOnly();
     this.childModal.show();
@@ -107,6 +101,15 @@ export class EditViewComponent {
     if (this.currentView.columns.findIndex(c => c.equals(viewCol)) === -1 ) {
       this.currentView.columns.push(viewCol);
     }
+  }
+
+
+  private uniqueBy<T>(a: T[], key: (T) => any) {
+    let seen = {};
+    return a.filter(function(item) {
+      let k = key(item);
+      return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+    });
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {

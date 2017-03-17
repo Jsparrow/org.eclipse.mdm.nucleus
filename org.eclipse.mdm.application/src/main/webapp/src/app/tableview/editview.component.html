@@ -31,7 +31,7 @@
       <div class="modal-body">
         <div class="container-fluid">
           <div class="row" style="padding: 15px;">
-            <input [(ngModel)] = "selectedAttribute"
+            <input [(ngModel)]="selectedAttribute"
                   [typeahead]="searchableFields"
                   (typeaheadOnSelect)="typeaheadOnSelect($event)"
                   typeaheadOptionField="label"
@@ -42,7 +42,7 @@
           </div>
           <div class="row">
             <div class="col-md-4" style="min-height: 50vh; max-height: 72vh; padding-right: 15px;">
-              <searchattribute-tree [searchableFields]="searchableFields"></searchattribute-tree>
+              <searchattribute-tree [searchableFields]="searchableFields" [environments]="envs"></searchattribute-tree>
             </div>
             <div class="col-md-8" style="min-height: 50vh; max-height: 72vh; padding-right: 15px; overflow-y:auto;">
             <ul  class="list-group">

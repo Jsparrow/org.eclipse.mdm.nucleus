@@ -19,6 +19,7 @@ import {NavigatorService} from './navigator/navigator.service';
 import {QueryService} from './tableview/query.service';
 import {NodeproviderService} from './navigator/nodeprovider.service';
 import { SearchattributeTreeComponent } from './searchattribute-tree/searchattribute-tree.component';
+import { MDMNotificationService } from './core/mdm-notification.service';
 
 @NgModule({
   imports: [
@@ -40,7 +41,8 @@ import { SearchattributeTreeComponent } from './searchattribute-tree/searchattri
     BasketService,
     NavigatorService,
     QueryService,
-    NodeproviderService
+    NodeproviderService,
+    MDMNotificationService
   ],
   bootstrap: [AppComponent]
 })

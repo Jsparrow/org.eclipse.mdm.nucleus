@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {TreeModule, TreeNode, ContextMenuModule,MenuItem} from 'primeng/primeng';
+import {TreeModule, TreeNode, ContextMenuModule, MenuItem} from 'primeng/primeng';
 
 import {MDMItem} from '../core/mdm-item';
 import {Node} from '../navigator/node';
@@ -29,7 +29,7 @@ export class MDMNavigatorComponent implements OnInit {
       return this.getChildren(node);
     }
   };
-  contextMenuItems : MenuItem[] = [
+  contextMenuItems: MenuItem[] = [
     { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
   ];
 
@@ -117,7 +117,7 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   openInTree(items: MDMItem[]) {
-    this.selectedNodes = []
+    this.selectedNodes = [];
     items.forEach(item => {
       let pathTypes = this.nodeproviderService.getPathTypes(item.type);
       if (pathTypes.length === 0) {

@@ -11,7 +11,6 @@ import { EditSearchFieldsComponent } from './edit-searchFields.component';
 
 import { TableViewModule } from '../tableview/tableview.module';
 import {SearchService} from './search.service';
-import {SearchDeprecatedService} from './search-deprecated.service';
 import {FilterService} from './filter.service';
 
 import {SearchattributeTreeModule} from '../searchattribute-tree/searchattribute-tree.module';
@@ -35,7 +34,6 @@ import {SearchattributeTreeModule} from '../searchattribute-tree/searchattribute
   providers: [
     SearchService,
     FilterService,
-    SearchDeprecatedService,
     DatePipe
   ],
 })

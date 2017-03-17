@@ -50,8 +50,7 @@ export class Row {
     let column = this.columns.find(c => c.type + '.' + c.attribute === col);
     if (column) {
       return column.value;
-    }
-    else {
+    } else {
       return '';
     }
   }

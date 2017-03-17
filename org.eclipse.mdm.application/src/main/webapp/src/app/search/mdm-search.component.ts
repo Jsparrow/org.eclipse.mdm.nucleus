@@ -21,6 +21,7 @@ import {BasketService} from '../basket/basket.service';
 import {QueryService, Query, SearchResult, Filter} from '../tableview/query.service';
 
 import {LocalizationService} from '../localization/localization.service';
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
@@ -44,15 +45,16 @@ import {classToClass} from 'class-transformer';
 })
 export class MDMSearchComponent implements OnInit {
 
+  maxResults = 10;
+
   filters: SearchFilter[] = [];
   currentFilter: SearchFilter = new SearchFilter('No filter selected', [], 'Test', '', []);
   filterName = '';
 
+  environments: Node[];
   searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
   definitions: SearchDefinition[];
-
-  errorMessage: string;
 
   results: SearchResult;
 
@@ -88,16 +90,18 @@ export class MDMSearchComponent implements OnInit {
     private filterService: FilterService,
     private nodeService: NodeService,
     private localService: LocalizationService,
+    private notificationService: MDMNotificationService,
     private basketService: BasketService) { }
 
   ngOnInit() {
     // Load contents for environment selection
     this.nodeService.getNodes()
+        .do(envs => this.environments = envs)
         .do(nodes => this.loadSearchAttributes(nodes.map(env => env.sourceName)))
         .map(nodes => nodes.map(env => <IDropdownItem> { id: env.sourceName, label: env.name, selected: true }))
         .subscribe(
           dropDownItems => this.dropdownModel = dropDownItems,
-          error => this.errorMessage = <any>error);
+          error => this.notificationService.notifyError('Datenquellen konnten nicht geladen werden!', error));
 
     this.searchService.getDefinitionsSimple()
         .subscribe(defs => this.definitions = defs);
@@ -148,13 +152,27 @@ export class MDMSearchComponent implements OnInit {
 
   search(attrs: SearchAttribute[]) {
     let query = this.searchService.convertToQuery(this.currentFilter, attrs, this.viewComponent.selectedView);
-    this.queryService.query(query).subscribe(
-      result => {
-        this.results = <SearchResult> result;
+    this.queryService.query(query)
+      .do(result => this.generateWarningsIfMaxResultsReached(result))
+      .subscribe(result => {
+        this.results = result;
         this.isSearchResultsOpen = true;
       },
-      error => this.errorMessage = <any>error
+      error => this.notificationService.notifyError('Suchanfrage konnte nicht bearbeitet werden!', error)
     );
+  }
+
+  generateWarningsIfMaxResultsReached(result: SearchResult) {
+    let resultsPerSource = result.rows
+      .map(r => r.source)
+      .reduce((prev, item) => { (prev[item]) ? prev[item] += 1 : prev[item] = 1; return prev; }, {});
+
+    Object.keys(resultsPerSource)
+      .filter(source => resultsPerSource[source] > this.maxResults)
+      .forEach(source => this.notificationService.notifyWarn(
+          'Zu viele Suchergebnisse',
+          `Es werden die ersten ${this.maxResults} Suchergebnisse aus ${source}
+          angezeigt. Bitte schränken Sie die Suchanfrage weiter ein.`));
   }
 
   calcCurrentSearch() {
@@ -234,8 +252,6 @@ export class MDMSearchComponent implements OnInit {
     Observable.forkJoin(environments.map(env => this.searchService.loadSearchAttributes(searchDef.value, env)))
       .map(attrs => <SearchAttribute[]> [].concat.apply([], attrs))
       .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
-      .map(sa => this.uniqueBy(sa, p => p.label))
-      .do(sa => console.log(sa))
       .subscribe(attrs => this.searchableFields = attrs);
   }
 

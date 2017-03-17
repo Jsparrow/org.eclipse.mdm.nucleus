@@ -36,6 +36,7 @@ export class EditSearchFieldsComponent {
 
   @ViewChild('lgEditSearchFieldsModal') public childModal: ModalDirective;
 
+  @Input() environments: Node[];
   @Input() searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
   @Output()
@@ -44,6 +45,7 @@ export class EditSearchFieldsComponent {
   filter: SearchFilter = new SearchFilter('New Filter', [], 'Test', '', []);
   nodes: TreeNode[] = [];
   searchFields: SearchField[] = [];
+  selectedAttribute: SearchField;
 
   constructor(private filterService: FilterService,
     private treeService: SearchattributeTreeService) { }

@@ -53,8 +53,16 @@ export class TableviewComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.menuItems.push({label: 'In Baum zeigen', icon: 'glyphicon glyphicon-tree-conifer', command: (event) => this.openInTree() });
-    this.menuItems.push({label: 'Selektion zurücksetzen', icon: 'glyphicon glyphicon-unchecked', command: (event) => this.selectedRows = [] });
+    this.menuItems.push({
+      label: 'In Baum zeigen',
+      icon: 'glyphicon glyphicon-tree-conifer',
+      command: (event) => this.openInTree()
+    });
+    this.menuItems.push({
+      label: 'Selektion zurücksetzen',
+      icon: 'glyphicon glyphicon-unchecked',
+      command: (event) => this.selectedRows = []
+    });
   }
 
   onContextMenuSelect(event: any) {
