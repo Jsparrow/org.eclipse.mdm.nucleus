@@ -43,15 +43,12 @@ export class MDMBasketComponent implements OnInit {
   baskets: Basket[] = [];
   selectedBasket: Basket;
 
-  selectedView: View;
-
   contextMenuItems: MenuItem[] = [
       {label: 'Selektion aus Warenkorb entfernen', icon: 'glyphicon glyphicon-remove', command: (event) => this.removeSelected() }
   ];
 
   @ViewChild(TableviewComponent)
   tableViewComponent: TableviewComponent;
-
   @ViewChild(ViewComponent)
   viewComponent: ViewComponent;
   @ViewChild('lgLoadModal')
@@ -72,7 +69,6 @@ export class MDMBasketComponent implements OnInit {
   ngOnInit() {
     this.setItems(this._basketService.items);
 
-    this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
     this._basketService.itemsAdded$.subscribe(items => this.addItems(items));
     this._basketService.itemsRemoved$.subscribe(items => this.removeItems(items));
   }
@@ -83,8 +79,8 @@ export class MDMBasketComponent implements OnInit {
   }
 
   addItems(items: MDMItem[]) {
-    if (this.selectedView) {
-      this.queryService.queryItems(items, this.selectedView.columns.map(c => c.type + '.' + c.name))
+    if (this.viewComponent.selectedView) {
+      this.queryService.queryItems(items, this.viewComponent.selectedView.columns.map(c => c.type + '.' + c.name))
         .forEach(q => q.subscribe(r => this.addData(r.rows)));
     }
   }

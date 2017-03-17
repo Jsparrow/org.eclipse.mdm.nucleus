@@ -46,7 +46,6 @@ export class MDMSearchComponent implements OnInit {
 
   filters: SearchFilter[] = [];
   currentFilter: SearchFilter = new SearchFilter('No filter selected', [], 'Test', '', []);
-  selectedView: View;
   filterName = '';
 
   searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
@@ -68,12 +67,12 @@ export class MDMSearchComponent implements OnInit {
 
   subscription: any;
 
-  contextMenuItems : MenuItem[] = [
+  contextMenuItems: MenuItem[] = [
     { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
   ];
 
   @ViewChild(ViewComponent)
-  private viewComponent: ViewComponent;
+  viewComponent: ViewComponent;
 
   @ViewChild(TableviewComponent)
   private tableViewComponent: TableviewComponent;
@@ -106,7 +105,7 @@ export class MDMSearchComponent implements OnInit {
     this.loadFilters('Standard');
 
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
-    this.viewComponent.onViewSelected.subscribe(view => this.selectedView = view);
+
   }
 
   selectedEnvironmentsChanged(items: IDropdownItem[]) {
@@ -148,7 +147,7 @@ export class MDMSearchComponent implements OnInit {
   }
 
   search(attrs: SearchAttribute[]) {
-    let query = this.searchService.convertToQuery(this.currentFilter, attrs, this.selectedView);
+    let query = this.searchService.convertToQuery(this.currentFilter, attrs, this.viewComponent.selectedView);
     this.queryService.query(query).subscribe(
       result => {
         this.results = <SearchResult> result;

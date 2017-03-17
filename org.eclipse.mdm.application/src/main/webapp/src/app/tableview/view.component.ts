@@ -62,4 +62,8 @@ export class ViewComponent implements OnInit {
       if (pushed === false) { this.groupedViews.push({scope: prefViews[i].scope, view: [prefViews[i].view]}); }
     }
   }
+
+  saveView() {
+    this.viewService.saveView(this.selectedView);
+  }
 }

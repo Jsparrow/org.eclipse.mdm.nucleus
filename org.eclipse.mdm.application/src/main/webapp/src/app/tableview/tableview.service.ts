@@ -29,35 +29,23 @@ export enum SortOrder {
   Asc,
   Desc
 }
+
+export class Style {
+  [field: string]: string
+}
+
 export class ViewColumn {
   type: string;
   name: string;
-  @Exclude()
-  sort: SortOrder = SortOrder.None;
+  @Type(() => Style)
+  style: Style;
 
-  constructor(type: string, name: string, sort: SortOrder) {
+  constructor(type: string, name: string, style?: Style) {
     this.type = type;
     this.name = name;
-    this.sort = sort;
+    this.style = style;
   }
 
-  get sortType(): string {
-      return SortOrder[this.sort];
-  }
-
-  set sortType(sortName: string) {
-      this.sort = SortOrder[sortName];
-  }
-
-  isNone() {
-    return this.sort === SortOrder.None;
-  }
-  isAsc() {
-    return this.sort === SortOrder.Asc;
-  }
-  isDesc() {
-    return this.sort === SortOrder.Desc;
-  }
   equals(vc: ViewColumn) {
     return this.type === vc.type && this.name === vc.name;
   }
@@ -69,7 +57,7 @@ export class ViewService {
   readonly preferencePrefix = 'tableview.view.';
   private views: View[] = [];
 
-  private defaultPrefViews =  [ new PreferenceView('System', new View('Standard', [new ViewColumn('Test', 'Name', SortOrder.None)])) ];
+  private defaultPrefViews =  [ new PreferenceView('System', new View('Standard', [new ViewColumn('Test', 'Name')])) ];
 
   constructor(private prefService: PreferenceService) {
   }

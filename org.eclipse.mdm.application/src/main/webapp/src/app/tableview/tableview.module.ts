@@ -6,14 +6,18 @@ import { TableviewComponent } from './tableview.component';
 import { EditViewComponent } from './editview.component';
 import { ViewComponent } from './view.component';
 import { ViewService } from './tableview.service';
-import { Ng2PaginationModule } from 'ng2-pagination';
 import {SearchattributeTreeModule} from '../searchattribute-tree/searchattribute-tree.module';
+
+import { Ng2PaginationModule } from 'ng2-pagination';
+import {DataTableModule, SharedModule} from 'primeng/primeng';
 
 @NgModule({
   imports: [
     MDMCoreModule,
     Ng2PaginationModule,
     SearchattributeTreeModule,
+    DataTableModule,
+    SharedModule
   ],
   declarations: [
     TableviewComponent,

@@ -117,7 +117,7 @@
     <div class="container-fluid">
       <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
         <div class="col-md-6">
-          <mdm-view (viewSelected)="selectedView = $event"></mdm-view>
+          <mdm-view></mdm-view>
         </div>
         <div class="col-md-6" style="text-align: right;">
           <button type="button" class="btn btn-default" title="Selection to basket" (click)="selected2Basket()">
@@ -128,8 +128,8 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-12">
-          <mdm-tableview [results]="results" [view]="selectedView" isShopable="true" [menuItems]="contextMenuItems" ></mdm-tableview>
+        <div class="col-md-12" style="max-width: 100%; overflow: auto;">
+          <mdm-tableview [results]="results" [view]="viewComponent.selectedView" isShopable="true" [menuItems]="contextMenuItems"></mdm-tableview>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 <div class="container-fluid" id="container">
   <div class="row"  style="margin-top: 5px; margin-bottom: 5px;">
     <div class="col-md-6">
-      <mdm-view (viewSelected)="selectedView = $event"></mdm-view>
+      <mdm-view></mdm-view>
     </div>
     <div class="col-md-6" style="text-align: right;">
       <button type="submit" class="btn btn-default" (click)="showSaveModal()" title="Save shopping basket" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
@@ -21,8 +21,8 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-md-12">
-      <mdm-tableview [results]="basketContent" [view]="selectedView" isRemovable="true" [menuItems]="contextMenuItems" ></mdm-tableview>
+    <div class="col-md-12" style="max-width: 100%; overflow: auto;">
+      <mdm-tableview [results]="basketContent" [view]="viewComponent.selectedView" isRemovable="true" [menuItems]="contextMenuItems"></mdm-tableview>
     </div>
   </div>
 </div>

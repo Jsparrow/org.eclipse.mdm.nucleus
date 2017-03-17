@@ -1,7 +1,7 @@
 import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
-import { PreferenceView, View, ViewColumn, ViewService } from './tableview.service';
+import { PreferenceView, View, ViewColumn, ViewService, Style } from './tableview.service';
 import { NavigatorService } from '../navigator/navigator.service';
 import { FilterService } from '../search/filter.service';
 
@@ -30,7 +30,7 @@ export class TestItem {
   templateUrl: 'tableview.component.html',
   styleUrls: ['./tableview.component.css']
 })
-export class TableviewComponent implements OnInit, OnChanges {
+export class TableviewComponent implements OnInit {
 
   public static readonly pageSize = 5;
 
@@ -43,9 +43,7 @@ export class TableviewComponent implements OnInit, OnChanges {
 
   menuSelectedRow: Row;
   selectedRows: Row[] = [];
-
-  p: any;
-  activeItems: MDMItem[] = [];
+  buttonColumns = 3;
 
   constructor(private viewService: ViewService,
     private basketService: BasketService,
@@ -59,14 +57,21 @@ export class TableviewComponent implements OnInit, OnChanges {
     this.menuItems.push({label: 'Selektion zurücksetzen', icon: 'glyphicon glyphicon-unchecked', command: (event) => this.selectedRows = [] });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['view']) {
-      this.view = changes['view'].currentValue;
-    }
-  }
-
   onContextMenuSelect(event: any) {
     this.menuSelectedRow = event.data;
+  }
+
+  onColResize(event: any) {
+    this.view.columns[event.element.cellIndex - this.buttonColumns].style = {'width': event.element.clientWidth.toString() + 'px'};
+  }
+
+  onColReorder(event: any) {
+    let dragIndex = event.dragIndex > this.buttonColumns ? event.dragIndex - this.buttonColumns : 0;
+    let dropIndex = event.dropIndex > this.buttonColumns ? event.dragIndex - this.buttonColumns : 0;
+
+    let tmp = this.view.columns[dragIndex ];
+    this.view.columns[dragIndex] = this.view.columns[dropIndex];
+    this.view.columns[dropIndex] = tmp;
   }
 
   customSort(event: any) {
@@ -109,7 +114,6 @@ export class TableviewComponent implements OnInit, OnChanges {
 
   functionalityProvider(isShopable: boolean, row: Row) {
     let item = row.getItem();
-    console.log(item);
     if (isShopable) {
       this.basketService.add(item);
     } else {
@@ -176,8 +180,7 @@ export class TableviewComponent implements OnInit, OnChanges {
   openInTree() {
     if (this.selectedRows && this.selectedRows.length === 0) {
       this.navigatorService.fireOnOpenInTree([ this.menuSelectedRow.getItem() ]);
-    }
-    else {
+    } else {
       this.navigatorService.fireOnOpenInTree(this.selectedRows.map(r => r.getItem()));
     }
 

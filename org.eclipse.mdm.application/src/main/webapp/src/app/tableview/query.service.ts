@@ -59,7 +59,7 @@ export class Row {
   equals (row: Row) {
     return this.source === row.source && this.type === row.type && this.id === row.id;
   }
-  
+
   public getItem() {
     return new MDMItem(this.source, this.type, +this.id);
   }

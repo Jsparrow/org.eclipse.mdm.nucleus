@@ -12,6 +12,8 @@
   [(selection)]="selectedRows"
   [contextMenu]="cm"
   (onRowClick)="onRowClick($event)"
+  (onColResize)="onColResize($event)"
+  (onColReorder)="onColReorder($event)"
   (onContextMenuSelect)="onContextMenuSelect($event)">
 
 
@@ -27,7 +29,7 @@
         style="cursor: pointer" title="{{isShopable?'Add to shopping basket':'Remove from shopping basket'}}" (click)="functionalityProvider(isShopable, row)"></span>
     </template>
   </p-column>
-  <p-column *ngFor="let col of view?.columns" header="{{col.type}}.{{col.name}}" sortable="custom" sortField="{{col.type}}.{{col.name}}" (sortFunction)="customSort($event)">
+  <p-column *ngFor="let col of view?.columns" [style]="col.style" header="{{col.type}}.{{col.name}}" sortable="custom" sortField="{{col.type}}.{{col.name}}" (sortFunction)="customSort($event)" >
     <template pTemplate="body" let-col let-row="rowData" >
       {{row.getColumn(col.header)}}
     </template>

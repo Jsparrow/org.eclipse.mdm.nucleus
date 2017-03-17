@@ -55,7 +55,7 @@ export class EditViewComponent {
   }
 
   showDialog(currentView: View) {
-    this.currentView = currentView;
+    this.currentView = new View(currentView.name, currentView.columns);
     this.isNameReadOnly();
     this.childModal.show();
   }
@@ -103,14 +103,14 @@ export class EditViewComponent {
     if (node.type !== 'attribute') {
       return;
     }
-    let viewCol = new ViewColumn(node.parent.label, node.label, SortOrder.None);
+    let viewCol = new ViewColumn(node.parent.label, node.label);
     if (this.currentView.columns.findIndex(c => c.equals(viewCol)) === -1 ) {
       this.currentView.columns.push(viewCol);
     }
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {
-    this.currentView.columns.push(new ViewColumn(match.item.attribute.boType, match.item.attribute.attrName, SortOrder.None));
+    this.currentView.columns.push(new ViewColumn(match.item.attribute.boType, match.item.attribute.attrName));
   }
 
   private isNameReadOnly() {
