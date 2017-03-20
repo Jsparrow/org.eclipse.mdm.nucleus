@@ -9,7 +9,7 @@
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
 
-import {Input, Component, OnInit, ViewChild} from '@angular/core';
+import {Input, Component, OnInit, ViewChild, OnDestroy} from '@angular/core';
 
 import { ModalDirective } from 'ng2-bootstrap';
 
@@ -31,11 +31,12 @@ import { DetailViewService } from './detail-view.service';
   selector: 'mdm-detail-view',
   templateUrl: 'mdm-detail-view.component.html'
 })
-export class MDMDetailViewComponent implements OnInit {
+export class MDMDetailViewComponent implements OnInit, OnDestroy {
   selectedNode: Node;
   @Input() displayAttributes: Attribute[];
 
   locals: Localization[] = [];
+  subscription: any;
 
   @ViewChild('lgModal')
   lgModal: ModalDirective;
@@ -46,13 +47,20 @@ export class MDMDetailViewComponent implements OnInit {
               private detailViewService: DetailViewService) {}
 
   ngOnInit() {
-    this.navigatorService.selectedNodeChanged
+    this.onSelectedNodeChange(this.navigatorService.getSelectedNode());
+    this.subscription = this.navigatorService.selectedNodeChanged
         .subscribe(node => this.onSelectedNodeChange(node));
   }
 
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
   onSelectedNodeChange(node: Node) {
+    if (node) {
       this.selectedNode = node;
       this.displayAttributes = this.detailViewService.getAttributesToDisplay(this.selectedNode);
+    }
   }
 
   add2Basket() {
@@ -62,7 +70,9 @@ export class MDMDetailViewComponent implements OnInit {
   }
 
   isShopable() {
-    if (this.selectedNode && this.selectedNode.name !== undefined) { return false; }
+    if (this.selectedNode && this.selectedNode.name !== undefined && this.selectedNode.type !== 'Environment') {
+      return false;
+    }
     return true;
   }
 

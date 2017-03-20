@@ -8,9 +8,9 @@
   * Contributors:
   * Dennis Schroeder - initial implementation
   ******************************************************************************* -->
-<div class="row">
+<div class="row" style="margin: 0; padding-bottom: 15px;">
   <div *ngIf="!contexts">
-    <div class="alert alert-info">
+    <div class="alert alert-info" style="margin: 0;">
       <strong>{{status}}</strong>
     </div>
   </div>
@@ -18,7 +18,10 @@
   <tabset *ngIf="contexts">
     <tab *ngIf="isUUT()" heading={{uut}}>
       <accordion>
-        <accordion-group *ngFor="let template of contexts['UNITUNDERTEST']" [isOpen]="true" heading={{template.name}}>
+        <accordion-group *ngFor="let template of contexts['UNITUNDERTEST']" #UUT>
+          <div accordion-heading>{{template.name}}
+            <span class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': UUT?.isOpen, 'glyphicon-chevron-right': !UUT?.isOpen}"></span>
+          </div>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -40,7 +43,10 @@
     </tab>
     <tab *ngIf="isTS()" heading={{ts}}>
       <accordion>
-        <accordion-group *ngFor="let template of contexts['TESTSEQUENCE']" heading={{template.name}}>
+        <accordion-group *ngFor="let template of contexts['TESTSEQUENCE']" #TS>
+          <div accordion-heading>{{template.name}}
+            <span class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': TS?.isOpen, 'glyphicon-chevron-right': !TS?.isOpen}"></span>
+          </div>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -62,7 +68,10 @@
     </tab>
     <tab  *ngIf="isTE()" heading={{te}}>
       <accordion>
-        <accordion-group *ngFor="let template of contexts['TESTEQUIPMENT']" heading={{template.name}}>
+        <accordion-group *ngFor="let template of contexts['TESTEQUIPMENT']" #TE>
+          <div accordion-heading>{{template.name}}
+            <span class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': TE?.isOpen, 'glyphicon-chevron-right': !TE?.isOpen}"></span>
+          </div>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -84,7 +93,10 @@
     </tab>
     <tab heading={{s}}>
       <accordion>
-        <accordion-group *ngFor="let node of sensors" heading={{node.name}}>
+        <accordion-group *ngFor="let node of sensors" #s>
+          <div accordion-heading>{{node.name}}
+            <span class="pull-right glyphicon"[ngClass]="{'glyphicon-chevron-down': s?.isOpen, 'glyphicon-chevron-right': !s?.isOpen}"></span>
+          </div>
           <table class="table table-hover">
             <thead>
               <tr>

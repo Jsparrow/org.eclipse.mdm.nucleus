@@ -18,32 +18,24 @@ import { QueryService, Query, SearchResult, Row } from './query.service';
 import {DataTableModule, SharedModule, ContextMenuModule, MenuItem} from 'primeng/primeng';
 import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
 
-export class TestItem {
-  name: string;
-  constructor(name: string) {
-    this.name = name;
-  }
-}
-
 @Component({
   selector: 'mdm-tableview',
   templateUrl: 'tableview.component.html',
   styleUrls: ['./tableview.component.css']
 })
-export class TableviewComponent implements OnInit {
+export class TableviewComponent implements OnInit, OnChanges {
 
   public static readonly pageSize = 5;
+  readonly buttonColumns = 3;   // private static?!
 
   @Input() view: View;
   @Input() results: SearchResult;
   @Input() isShopable = false;
   @Input() isRemovable = false;
-
   @Input() menuItems: MenuItem[] = [];
 
   menuSelectedRow: Row;
   selectedRows: Row[] = [];
-  buttonColumns = 3;
 
   constructor(private viewService: ViewService,
     private basketService: BasketService,
@@ -65,21 +57,35 @@ export class TableviewComponent implements OnInit {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['results'] && this.view) {
+        this.customSort({ 'field': this.view.getSortField(), 'order': this.view.getSortOrder() });
+    }
+  }
+
   onContextMenuSelect(event: any) {
     this.menuSelectedRow = event.data;
   }
 
   onColResize(event: any) {
-    this.view.columns[event.element.cellIndex - this.buttonColumns].style = {'width': event.element.clientWidth.toString() + 'px'};
+    let index = event.element.cellIndex - this.buttonColumns;
+    if (index > -1) {
+      this.view.columns[index].style = { 'width': event.element.clientWidth.toString() + 'px' };
+    }
   }
 
   onColReorder(event: any) {
     let dragIndex = event.dragIndex > this.buttonColumns ? event.dragIndex - this.buttonColumns : 0;
-    let dropIndex = event.dropIndex > this.buttonColumns ? event.dragIndex - this.buttonColumns : 0;
+    let dropIndex = event.dropIndex > this.buttonColumns ? event.dropIndex - this.buttonColumns : 0;
 
-    let tmp = this.view.columns[dragIndex ];
+    let tmp = this.view.columns[dragIndex];
     this.view.columns[dragIndex] = this.view.columns[dropIndex];
     this.view.columns[dropIndex] = tmp;
+  }
+
+  onSort(event: any) {
+    let a = event.field.split('.');
+    this.view.setSortOrder(a[0], a[1], event.order);
   }
 
   customSort(event: any) {
@@ -97,27 +103,6 @@ export class TableviewComponent implements OnInit {
     };
 
     this.results.rows.sort(comparer);
-  }
-
-  getData(row: Row, col: ViewColumn) {
-    let resultColumn = row.columns.find(c => c.type === col.type && c.attribute === col.name);
-
-    if (resultColumn) {
-      return resultColumn.value;
-    }
-  }
-
-  nodeDataProvider(node: Node, col: ViewColumn) {
-    if (node.type !== col.type) {
-      return '-';
-    } else {
-      for (let index in node.attributes) {
-        if (node.attributes[index].name === col.name) {
-          return node.attributes[index].value;
-        }
-      }
-    }
-    return '-';
   }
 
   functionalityProvider(isShopable: boolean, row: Row) {
@@ -185,12 +170,16 @@ export class TableviewComponent implements OnInit {
     }
   }
 
-  openInTree() {
-    if (this.selectedRows && this.selectedRows.length === 0) {
-      this.navigatorService.fireOnOpenInTree([ this.menuSelectedRow.getItem() ]);
+  openInTree(row?: Row) {
+    if (row) {
+      this.selectedRows = [row];
+    }
+    if (this.selectedRows && this.selectedRows.length === 0 && this.menuSelectedRow) {
+      this.navigatorService.fireOnOpenInTree([this.menuSelectedRow.getItem()]);
+    } else if (row) {
+      this.navigatorService.fireOnOpenInTree([row.getItem()]);
     } else {
       this.navigatorService.fireOnOpenInTree(this.selectedRows.map(r => r.getItem()));
     }
-
   }
 }

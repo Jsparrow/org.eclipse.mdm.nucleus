@@ -31,6 +31,7 @@ export class BasketService {
 
   public itemsAdded$ = new EventEmitter<MDMItem[]>();
   public itemsRemoved$ = new EventEmitter<MDMItem[]>();
+  readonly preferencePrefix = 'basket.nodes.';
 
   items: MDMItem[] = [];
 
@@ -73,7 +74,7 @@ export class BasketService {
   }
 
   saveBasket(basket: Basket) {
-    return this._pref.savePreference(this.basketToPreference(basket));
+    return this._pref.savePreference(this.basketToPreference(basket)).subscribe();
   }
 
   getBaskets() {
@@ -94,9 +95,9 @@ export class BasketService {
   }
 
   private basketToPreference(basket: Basket) {
-    let pref = new Preference();
-    pref.value = JSON.stringify(basket);
-    pref.key = 'basket.nodes.' + basket.name;
+    const pref = new Preference();
+    pref.value = serialize(basket);
+    pref.key = this.preferencePrefix + basket.name;
     pref.scope = 'User';
     return pref;
   }

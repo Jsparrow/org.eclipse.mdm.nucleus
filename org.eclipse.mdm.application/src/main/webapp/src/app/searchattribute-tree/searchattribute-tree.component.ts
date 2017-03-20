@@ -30,7 +30,7 @@ export class SearchattributeTreeComponent implements OnInit {
     private treeService: SearchattributeTreeService) { }
 
   ngOnInit() {
-    if (this.environments) {
+    if (this.environments && this.environments.length > 0) {
       this.nodes = this.environments.map(n => this.mapNode(n));
     } else {
       this.nodeService.getNodes().subscribe(nodes => this.nodes = nodes.map(n => this.mapNode(n)));

@@ -57,7 +57,7 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   loadNode(event) {
-    if (event.node && event.node.children === undefined) {
+    if (event.node && event.node.children === undefined && !event.node.leaf) {
       return this.getChildren(event.node).then(nodes => event.node.children = nodes);
     }
   }
@@ -78,10 +78,9 @@ export class MDMNavigatorComponent implements OnInit {
 
   mapNode(node: Node) {
     let item = new MDMItem(node.sourceName, node.type, +node.id);
-
     return <TreeNode>{
       label: node.name,
-      leaf: false,
+      leaf: this.nodeproviderService.getSubNodeprovider(item) === undefined,
       data: item,
       icon: this.getNodeClass(item)
     };
@@ -94,7 +93,6 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   selectNode(event) {
-
   }
 
   addSelectionToBasket() {
@@ -156,6 +154,11 @@ export class MDMNavigatorComponent implements OnInit {
               this.scrollToSelectionPrimeNgDataTable(node);
             } else {
               this.selectedNodes.push(node);
+              let length = this.selectedNodes.length;
+              if (length === 1) {
+                this.nodeService.getNodeFromItem(this.selectedNodes[length - 1].data)
+                    .subscribe( n => this.navigatorService.setSelectedNode(n));
+              };
               this.scrollToSelectionPrimeNgDataTable(node);
             }
           });

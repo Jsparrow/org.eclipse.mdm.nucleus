@@ -55,9 +55,8 @@ export class NodeproviderService {
 
   getSubNodeprovider(item: MDMItem) {
     let current = this.activeNodeprovider;
-
     do {
-      if (current.type === item.type) {
+      if (current.type === item.type && current.children) {
         return current.children.query;
       } else {
         current = current.children;
@@ -68,7 +67,7 @@ export class NodeproviderService {
     return current;
   }
 
-  replace(query: string, item: MDMItem) {
+replace(query: string, item: MDMItem) {
     return '/' + item.source + query.replace(/{(\w+)\.(\w+)}/g, function(match, type, attr) {
 
       if (type !== item.type) {
@@ -81,7 +80,7 @@ export class NodeproviderService {
         // TODO support for other filters
       }
     });
-  }
+}
 
   getPathTypes(type: string): string[] {
     let current = this.activeNodeprovider;

@@ -17,8 +17,7 @@ import { ModalDirective } from 'ng2-bootstrap';
 @Component({
   selector: 'mdm-filerelease',
   templateUrl: 'mdm-filerelease.component.html',
-  styles: ['.box1 {border: 1px solid #ddd; border-radius: 4px;}',
-           '.box2 {border: 1px solid #ddd; border-radius: 4px; margin-top: 20px}']
+  styles: ['.box {border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px}']
 })
 export class MDMFilereleaseComponent implements OnInit {
 

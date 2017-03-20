@@ -100,7 +100,10 @@ export class MDMSearchComponent implements OnInit {
         .do(nodes => this.loadSearchAttributes(nodes.map(env => env.sourceName)))
         .map(nodes => nodes.map(env => <IDropdownItem> { id: env.sourceName, label: env.name, selected: true }))
         .subscribe(
-          dropDownItems => this.dropdownModel = dropDownItems,
+          dropDownItems => {
+            this.dropdownModel = dropDownItems;
+            this.selectedEnvironmentsChanged(dropDownItems);
+          },
           error => this.notificationService.notifyError('Datenquellen konnten nicht geladen werden!', error));
 
     this.searchService.getDefinitionsSimple()

@@ -13,7 +13,32 @@ export class View {
     this.name = name || '';
     this.columns = cols || [];
   }
+
+  setSortOrder(type: string, name: string, order: any) {
+    this.columns.forEach(c => {
+    if (c.type === type && c.name === name ) {
+      c.sortOrder = order;
+    } else {
+      c.sortOrder = null;
+    }
+  });
+  }
+
+  getSortOrder() {
+    let col = this.columns.find(c => c.sortOrder !== null);
+    if (col) {
+      return col.sortOrder;
+    }
+  }
+
+  getSortField() {
+    let col = this.columns.find(c => c.sortOrder !== null);
+    if (col) {
+      return col.type + '.' + col.name;
+    }
+  }
 }
+
 export class PreferenceView {
   scope: string;
   @Type(() => View)
@@ -23,11 +48,6 @@ export class PreferenceView {
     this.scope = scope || '';
     this.view = view || new View();
   }
-}
-export enum SortOrder {
-  None,
-  Asc,
-  Desc
 }
 
 export class Style {
@@ -39,11 +59,13 @@ export class ViewColumn {
   name: string;
   @Type(() => Style)
   style: Style;
+  sortOrder: number;
 
-  constructor(type: string, name: string, style?: Style) {
+  constructor(type: string, name: string, style?: Style, sortOrder?: number) {
     this.type = type;
     this.name = name;
-    this.style = style;
+    this.style = style || undefined;
+    this.sortOrder = sortOrder || null;
   }
 
   equals(vc: ViewColumn) {

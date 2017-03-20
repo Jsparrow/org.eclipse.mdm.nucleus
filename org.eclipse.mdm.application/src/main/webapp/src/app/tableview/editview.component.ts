@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild} from '@angular/core';
 
-import {View, ViewColumn, SortOrder, ViewService} from './tableview.service';
+import {View, ViewColumn, ViewService} from './tableview.service';
 import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
 import {SearchService, SearchAttribute} from '../search/search.service';
@@ -11,6 +11,7 @@ import {TreeNode} from 'primeng/primeng';
 import {ModalDirective} from 'ng2-bootstrap';
 import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 import {Observable} from 'rxjs/Observable';
+import {classToClass} from 'class-transformer';
 
 @Component({
   selector: 'edit-view',
@@ -49,7 +50,7 @@ export class EditViewComponent {
         );
       }
     );
-    this.currentView = new View(currentView.name, currentView.columns);
+    this.currentView = classToClass(currentView);
     this.isNameReadOnly();
     this.childModal.show();
   }
@@ -103,6 +104,25 @@ export class EditViewComponent {
     }
   }
 
+  isAsc(col: ViewColumn) {
+    return col.sortOrder === 1;
+  }
+  isDesc(col: ViewColumn) {
+    return col.sortOrder === -1;
+  }
+  isNone(col: ViewColumn) {
+    return col.sortOrder === null;
+  }
+
+  toggleSort(col: ViewColumn) {
+    if (col.sortOrder === null) {
+      col.sortOrder = 1;
+    } else if (col.sortOrder === 1) {
+      col.sortOrder = -1;
+    } else if (col.sortOrder === -1) {
+      col.sortOrder = null;
+    }
+  }
 
   private uniqueBy<T>(a: T[], key: (T) => any) {
     let seen = {};

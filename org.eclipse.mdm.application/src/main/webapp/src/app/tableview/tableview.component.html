@@ -11,11 +11,13 @@
   [rowsPerPageOptions]="[10,20,50]"
   [(selection)]="selectedRows"
   [contextMenu]="cm"
+  [sortField]="view?.getSortField()"
+  [sortOrder]="view?.getSortOrder()"
   (onRowClick)="onRowClick($event)"
   (onColResize)="onColResize($event)"
   (onColReorder)="onColReorder($event)"
+  (onSort)="onSort($event)"
   (onContextMenuSelect)="onContextMenuSelect($event)">
-
 
   <p-column [style]="{'width':'30px'}" selectionMode="multiple"></p-column>
   <p-column [style]="{'width':'30px'}">

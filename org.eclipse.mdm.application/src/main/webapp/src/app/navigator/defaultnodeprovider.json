@@ -27,9 +27,9 @@
 			  "query" : "/channelgroups?filter=MeaResult.Id eq {Measurement.Id}",
 			  "caption" : "ChannelGroup.Name",
 			  "children" : {
-				"type" : "Channel",
-				"attribute" : "Name",
-				"query" : "/channels?filter=SubMatrix.Id eq {ChannelGroup.Id}"
+				  "type" : "Channel",
+				  "attribute" : "Name",
+				  "query" : "/channels?filter=SubMatrix.Id eq {ChannelGroup.Id}"
 			  }
 			}
 		  }
