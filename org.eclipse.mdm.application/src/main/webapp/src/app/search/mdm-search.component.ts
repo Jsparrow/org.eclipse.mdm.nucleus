@@ -45,7 +45,7 @@ import {classToClass} from 'class-transformer';
 })
 export class MDMSearchComponent implements OnInit {
 
-  maxResults = 10;
+  maxResults = 100;
 
   filters: SearchFilter[] = [];
   currentFilter: SearchFilter = new SearchFilter('No filter selected', [], 'Test', '', []);

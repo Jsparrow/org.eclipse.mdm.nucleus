@@ -7,7 +7,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.mdm.query.entity.LoadRequest;
 import org.eclipse.mdm.query.entity.QueryRequest;
 import org.eclipse.mdm.query.entity.QueryResult;
 import org.slf4j.Logger;

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.query.Attribute;
@@ -21,6 +22,7 @@ import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.SearchParamParser;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
+import org.eclipse.mdm.property.GlobalProperty;
 import org.eclipse.mdm.query.entity.QueryRequest;
 import org.eclipse.mdm.query.entity.Row;
 import org.eclipse.mdm.query.entity.SourceFilter;
@@ -29,8 +31,13 @@ import org.eclipse.mdm.query.util.Util;
 @Stateless
 public class QueryService {
 	
+	@Inject
+	@GlobalProperty(value = "search.maxresultspersource")
+	private String maxResultsPerSource = "1001";
+	
 	@EJB
 	ConnectorService connectorService;
+	
 	
 	public List<Row> queryRows(QueryRequest request) {
 		List<Row> rows = new ArrayList<>();
@@ -64,7 +71,7 @@ public class QueryService {
 			List<Result> result = searchService.fetchResults(resultType, attributes, filter, searchString);
 	
 			
-			return Util.convertResultList(result, resultType, modelManager.getEntityType(resultType));
+			return Util.convertResultList(result.subList(0, Math.min(result.size(), getMaxResultsPerSource())), resultType, modelManager.getEntityType(resultType));
 			
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
@@ -111,6 +118,15 @@ public class QueryService {
 		}
 		throw new IllegalArgumentException("Invalid Entity '" + name + "'. Allowed values are: " 
 				+ s.listSearchableTypes().stream().map(c -> c.getSimpleName()).collect(Collectors.joining(", ")));
+	}
+	
+	private int getMaxResultsPerSource() {
+		try {
+			return Integer.parseInt(maxResultsPerSource);
+		}
+		catch (NumberFormatException e) {
+			return 1001;
+		}
 	}
 	
 }
