@@ -7,13 +7,13 @@
       <button type="submit" class="btn btn-default" (click)="showSaveModal()" title="Save shopping basket" ><span class="glyphicon glyphicon-floppy-disk"></span></button>
       <button type="submit" class="btn btn-default" (click)="showLoadModal()" title="Load shopping basket" ><span class="glyphicon glyphicon-folder-open"></span></button>
       <button type="submit" class="btn btn-default" (click)="clearBasket()" title="Clear shopping basket" ><span class="glyphicon glyphicon-erase"></span></button>
-      <a class="isDownloadDisabled() ? 'disabled' : ''" (keydown.enter)="!isDownloadDisabled()"
+      <!-- <a class="isDownloadDisabled() ? 'disabled' : ''" (keydown.enter)="!isDownloadDisabled()"
          [download]="selectedBasket?.name != undefined ? selectedBasket.name + '.json' : 'basket.json'"
-         [href]="downloadBasket()" style="text-decoration:none;">
-        <button type="submit" class="btn btn-default" title="Download shopping basket" [disabled]="isDownloadDisabled()">
+         [href]="downloadBasket()" style="text-decoration:none;"> -->
+        <button type="submit" class="btn btn-default" (click)="downloadBasket()" title="Download shopping basket" [disabled]="isDownloadDisabled()">
           <span class="glyphicon glyphicon-download"></span>
         </button>
-      </a>
+      <!-- </a> -->
       <div class="fileUpload btn btn-default" title="Upload" >
         <span class="glyphicon glyphicon-upload"></span>
         <input title="Upload shopping basket" class="upload" name="datei" type="file" accept=".json, application/json" id="fileInput" (change)="onUploadChange($event)">

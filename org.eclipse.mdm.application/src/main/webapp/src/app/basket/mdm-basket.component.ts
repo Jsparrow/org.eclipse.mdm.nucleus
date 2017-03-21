@@ -26,6 +26,8 @@ import { ModalDirective } from 'ng2-bootstrap';
 import {QueryService, Query, SearchResult, Row, Filter} from '../tableview/query.service';
 import {MenuItem} from 'primeng/primeng';
 
+import * as FileSaver from 'file-saver';
+
 @Component({
   selector: 'mdm-basket',
   templateUrl: 'mdm-basket.component.html',
@@ -135,8 +137,12 @@ export class MDMBasketComponent implements OnInit {
   }
 
   downloadBasket() {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!')
     let downloadContent = new Basket(this.basketName, this._basketService.getItems());
-    return this.sanitizer.bypassSecurityTrustUrl('data:application/json, ' + JSON.stringify(downloadContent));
+    let blob = new Blob([JSON.stringify(downloadContent)], {
+         type: 'application/json'
+     });
+    FileSaver.saveAs(blob, this.basketName + '.json');
   }
 
   onUploadChange(event) {
