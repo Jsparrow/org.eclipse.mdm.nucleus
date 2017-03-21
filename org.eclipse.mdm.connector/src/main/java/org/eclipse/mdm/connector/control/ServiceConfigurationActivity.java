@@ -14,151 +14,106 @@ package org.eclipse.mdm.connector.control;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * ServiceConfigurationReader to read MDM Service configurations from a service.xml file
  * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ * @author Canoo Engineering AG (support for arbitrary entity manager factories and connection parameters)
  *
  */
 @Stateless
 public class ServiceConfigurationActivity {
-	
+
+	private static final String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.connector";
+	private static final String SERVICE_XML_FILE_NAME = "service.xml";
+
 	private static final String ROOT_ELEMENT_NAME = "services";
-	private static final String SERVICE_ELEMENT = "service";
-	private static final String SERVICE_ATTR_NS_HOST = "nameServiceHost";
-	private static final String SERVICE_ATTR_NS_PORT = "nameServicePort";
-	private static final String SERVICE_ATTR_NS_NAME = "nameServiceName";
-	private static final String SERVICE_ATTR_SERVICENAME = "serviceName";
-	
-	private final static String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.connector";
-	private final static String SERVICE_XML_FILE_NAME = "service.xml";		
-	
-	private static final Logger LOG = LoggerFactory.getLogger(ServiceConfigurationActivity.class); 
-	
+	private static final String SERVICE_ELEMENT_NAME = "service";
+	private static final String PARAM_ELEMENT_NAME = "param";
+	private static final String EMFACTORYCLASS_ATTRIBUTE_NAME = "entityManagerFactoryClass";
+	private static final String NAME_ATTRIBUTE_NAME = "name";
+
 	public List<ServiceConfiguration> readServiceConfigurations() {
-		
-		InputStream is = null; 
-		
-		try {
-			List<ServiceConfiguration> list = new ArrayList<>();
-			
-			File serviceXML = getServiceFile();
-			
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-	        DocumentBuilder db = dbf.newDocumentBuilder();
-	        
-	        is = new BufferedInputStream(new FileInputStream(serviceXML));
-	        Document doc = db.parse(is);
-	       
-	        Element root = doc.getDocumentElement();
-	        if(!root.getNodeName().equalsIgnoreCase(ROOT_ELEMENT_NAME)) {
-	        	String message = "unable to find root element with name '" + ROOT_ELEMENT_NAME + "'";
-	        	throw new ConnectorServiceException(message);
-	        }
-	                
-	        Element[] services = getChildElementsByName(root, SERVICE_ELEMENT, true);
-	        for(Element service : services) {
-	        	list.add(readServiceConfiguration(service));
-	        }   
-	        
-	        return list;	        
-		} catch(ParserConfigurationException | SAXException | IOException e) {
-			throw new ConnectorServiceException(e.getMessage(), e);
-		} finally {
-			closeInputStream(is);
+		File serviceXML = getServiceFile();
+
+		try (InputStream is = new BufferedInputStream(new FileInputStream(serviceXML))) {
+
+			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document doc = db.parse(is);
+
+			Element root = doc.getDocumentElement();
+			if (!ROOT_ELEMENT_NAME.equals(root.getNodeName())) {
+				throw new ConnectorServiceException("unable to find root element with name '" + ROOT_ELEMENT_NAME + "'");
+			}
+
+			NodeList serviceElements = root.getElementsByTagName(SERVICE_ELEMENT_NAME);
+			List<ServiceConfiguration> parsedServiceElements = new ArrayList<>(serviceElements.getLength());
+			for (int i = 0, n = serviceElements.getLength(); i < n; i++) {
+				parsedServiceElements.add(parseServiceElement((Element)serviceElements.item(i)));
+			}
+
+			return parsedServiceElements;
+
+		} catch(ConnectorServiceException e) {
+			throw e;
+		} catch(Exception e) {
+			throw new ConnectorServiceException(e.toString(), e);
 		}
 	}
 
 
-	private ServiceConfiguration readServiceConfiguration(Element service) {
-		String nameServiceHost = readElementAttribute(SERVICE_ATTR_NS_HOST, "", true, service);
-		String nameServicePort = readElementAttribute(SERVICE_ATTR_NS_PORT, "", true, service);
-		String nameServiceName = readElementAttribute(SERVICE_ATTR_NS_NAME, "NameService", false, service);
-		String serviceName = readElementAttribute(SERVICE_ATTR_SERVICENAME, "", true, service);
-		String nameService = "corbaloc::1.2@" + nameServiceHost + ":" + nameServicePort + "/" + nameServiceName;
-		return new ServiceConfiguration(nameService, serviceName);
+	private static ServiceConfiguration parseServiceElement(Element serviceElement) {
+		String entityManagerFactoryClass = readElementAttribute(serviceElement, EMFACTORYCLASS_ATTRIBUTE_NAME);
+		NodeList paramElements = serviceElement.getElementsByTagName(PARAM_ELEMENT_NAME);
+		Map<String, String> connectionParameters = new LinkedHashMap<>(paramElements.getLength());
+		for (int i = 0, n = paramElements.getLength(); i < n; i++) {
+			Element paramElement = (Element)paramElements.item(i);
+			String paramName = readElementAttribute(paramElement, NAME_ATTRIBUTE_NAME);
+			String paramValue = paramElement.getTextContent();
+			if (paramValue != null && !(paramValue = paramValue.trim()).isEmpty()) {
+				connectionParameters.put(paramName, paramValue);
+			}
+		}
+		return new ServiceConfiguration(entityManagerFactoryClass, connectionParameters);
 	}
-	
-	
-	private Element[] getChildElementsByName(Element element, String name, boolean mandatory) {
-		
-		List<Element> elements = new ArrayList<Element>();
-		
-		NodeList childNodes = element.getChildNodes();
-		for (int i = 0; i < childNodes.getLength(); i++) {
-			Node node = childNodes.item(i);
-			if(node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equalsIgnoreCase(name)) {
-				elements.add((Element) node);
-			}					
-		}
-		
-		if(mandatory && elements.size() <= 0) {
-			String errorMessage = "mandatory element '" + name + "' not found!";
-			throw new ConnectorServiceException(errorMessage);
-		}
-		
-		return elements.toArray(new Element[elements.size()]);
-	}	
-	
-	
-	private String readElementAttribute(String attrName, String defaultValue, boolean mandatory, Element element) {	
+
+
+	private static String readElementAttribute(Element element, String attrName) {
 		String value = element.getAttribute(attrName);
-		if(value.trim().length() <= 0) {
-			if(mandatory) {
-				String elementName = element.getNodeName();
-				String errorMessage = "mandatory attribute '" + attrName + "' at element '" + elementName + "' is missing!";				
-				throw new ConnectorServiceException(errorMessage);
-			}			
-			value = defaultValue;
+		if (value.trim().isEmpty()) {
+			throw new ConnectorServiceException("mandatory attribute '" + attrName + "' of element '" + element.getNodeName() + "' is missing!");
 		}
 		return value;
 	}
-	
-	
-	private File getServiceFile() {
+
+
+	private static File getServiceFile() {
 		File file = new File(COMPONENT_CONFIG_ROOT_FOLDER);
-		if(!file.exists() || !file.isDirectory()) {
-			String errorMessage = "mandatory configuration folder '" + file.getAbsolutePath() + "' does not exist!";
-			throw new ConnectorServiceException(errorMessage);
+		if (!file.exists() || !file.isDirectory()) {
+			throw new ConnectorServiceException("mandatory configuration folder '" + file.getAbsolutePath() + "' does not exist!");
 		}
 		File serviceXML = new File(file, SERVICE_XML_FILE_NAME);
-		if(!file.exists()) {
-			String errorMessage = "mandatory service configuration file at '" + serviceXML.getAbsolutePath() 
-			+ "' does not exist!";
-			throw new ConnectorServiceException(errorMessage);
+		if (!file.exists()) {
+			throw new ConnectorServiceException("mandatory service configuration file at '" + serviceXML.getAbsolutePath() + "' does not exist!");
 		}
 		return serviceXML;
 	}
-	
-	
-	
-	private void closeInputStream(InputStream is) {
-		try {
-			if(is != null) {
-				is.close();
-			}
-		} catch(IOException e) {
-			LOG.error(e.getMessage());
-		}
-	}
+
+
 }

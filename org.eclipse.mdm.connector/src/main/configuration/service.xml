@@ -1,5 +1,14 @@
 <services>
-	<service nameServiceHost="YOUR_HOST1" nameServicePort="2809" nameServiceName="NameService" serviceName="YOUR_SERVICE1.ASAM-ODS"/>
-	<service nameServiceHost="YOUR_HOST2" nameServicePort="2809" nameServiceName="NameService" serviceName="YOUR_SERVICE2.ASAM-ODS"/>
-	<service nameServiceHost="YOUR_HOST3" nameServicePort="2809" nameServiceName="NameService" serviceName="YOUR_SERVICE3.ASAM-ODS"/>	
+	<service entityManagerFactoryClass="org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory">
+		<param name="nameservice">corbaloc::1.2@YOUR_HOST1:2809/NameService</param>
+		<param name="servicename">YOUR_SERVICE1.ASAM-ODS</param>
+	</service>
+	<service entityManagerFactoryClass="org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory">
+		<param name="nameservice">corbaloc::1.2@YOUR_HOST2:2809/NameService</param>
+		<param name="servicename">YOUR_SERVICE2.ASAM-ODS</param>
+	</service>
+	<service entityManagerFactoryClass="org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory">
+		<param name="nameservice">corbaloc::1.2@YOUR_HOST3:2809/NameService</param>
+		<param name="servicename">YOUR_SERVICE3.ASAM-ODS</param>
+	</service>
 </services>
