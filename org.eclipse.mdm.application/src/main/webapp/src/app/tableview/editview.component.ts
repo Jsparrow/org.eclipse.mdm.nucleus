@@ -6,6 +6,7 @@ import {Node} from '../navigator/node';
 import {SearchService, SearchAttribute} from '../search/search.service';
 import {SearchattributeTreeService} from '../searchattribute-tree/searchattribute-tree.service';
 import {SearchattributeTreeComponent} from '../searchattribute-tree/searchattribute-tree.component';
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 import {TreeNode} from 'primeng/primeng';
 import {ModalDirective} from 'ng2-bootstrap';
@@ -30,26 +31,34 @@ export class EditViewComponent {
   constructor(private nodeService: NodeService,
     private viewService: ViewService,
     private searchService: SearchService,
-    private treeService: SearchattributeTreeService) {
+    private treeService: SearchattributeTreeService,
+    private notificationService: MDMNotificationService) {
 
     this.treeService.onNodeSelect$.subscribe(node => this.selectNode(node));
-  }
 
-  showDialog(currentView: View) {
     this.nodeService.getNodes().subscribe(
       envs => {
         this.envs = envs;
         let types = ['tests', 'teststeps', 'measurements'];
-        types.forEach(type =>
-          Observable.forkJoin(envs.map(env => env.sourceName)
-            .map(env => this.searchService.loadSearchAttributes(type, env)))
+        let mapedEnvs = this.envs.map(env => env.sourceName);
+        let crossProd: {envName: string, type: string}[] = [];
+
+        for (let iii = 0; iii < this.envs.length; ++iii) {
+          for (let jjj = 0; jjj < types.length; ++jjj) {
+            crossProd.push({envName: mapedEnvs[iii], type: types[jjj]});
+          }
+        }
+
+        Observable.forkJoin(crossProd.map(kr => this.searchService.loadSearchAttributes(kr.type, kr.envName)))
             .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
             .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
             .map(sa => this.uniqueBy(sa, p => p.label))
-            .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs))
-        );
+            .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs));
       }
     );
+  }
+
+  showDialog(currentView: View) {
     this.currentView = classToClass(currentView);
     this.isNameReadOnly();
     this.childModal.show();
@@ -98,9 +107,14 @@ export class EditViewComponent {
     if (node.type !== 'attribute') {
       return;
     }
-    let viewCol = new ViewColumn(node.parent.label, node.label);
-    if (this.currentView.columns.findIndex(c => c.equals(viewCol)) === -1 ) {
+    this.pushViewCol(new ViewColumn(node.parent.label, node.label));
+  }
+
+  pushViewCol(viewCol: ViewColumn) {
+    if (viewCol && this.currentView.columns.findIndex(c => viewCol.equals(c)) === -1 ) {
       this.currentView.columns.push(viewCol);
+    } else {
+      this.notificationService.notifyInfo('Das Attribut wurde bereits ausgewählt!', 'Info');
     }
   }
 
@@ -133,7 +147,8 @@ export class EditViewComponent {
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {
-    this.currentView.columns.push(new ViewColumn(match.item.attribute.boType, match.item.attribute.attrName));
+    this.pushViewCol(new ViewColumn(match.item.attribute.boType, match.item.attribute.attrName));
+    this.selectedAttribute = undefined;
   }
 
   private isNameReadOnly() {

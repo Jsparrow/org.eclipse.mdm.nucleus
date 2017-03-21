@@ -11,3 +11,9 @@
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
+
+>>> thead >>> .ui-state-active {
+	background-color: #e7e7e7 !important;
+	border-color: #c7c7c7 !important;
+	color: inherit !important;
+}

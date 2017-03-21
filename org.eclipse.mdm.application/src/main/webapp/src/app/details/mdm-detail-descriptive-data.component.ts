@@ -66,16 +66,24 @@ export class MDMDescriptiveDataComponent implements OnInit {
       if (node.name !== undefined && (node.type.toLowerCase() === 'measurement' || node.type.toLowerCase() === 'teststep')) {
         this.status = 'loading...';
         this._contextService.getContext(node).subscribe(
-          contexts => this.contexts = contexts,
+          contexts => {
+            if (contexts.hasOwnProperty('UNITUNDERTEST')
+                || contexts.hasOwnProperty('TESTEQUIPMENT')
+                || contexts.hasOwnProperty('TESTSEQUENCE')) {
+                  this.contexts = contexts;
+                } else {
+                  this.status = 'Keine beschreibende Daten verfügbar';
+                }
+          },
           error => this.errorMessage = <any>error);
         this._contextService.getSensors(node).subscribe(
             sensors => this.sensors = sensors,
             error => this.errorMessage = <any>error);
       } else {
-        this.status = 'keine Beschreibende Daten verfügbar';
+        this.status = 'Keine beschreibende Daten verfügbar';
       }
     } else {
-      this.status = 'kein Knoten ausgewählt';
+      this.status = 'Kein Knoten ausgewählt';
     }
   }
 

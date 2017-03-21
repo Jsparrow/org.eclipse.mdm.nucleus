@@ -57,6 +57,7 @@ export class MDMSearchComponent implements OnInit {
   definitions: SearchDefinition[];
 
   results: SearchResult;
+  searchAttributes: SearchAttribute[];
 
   isAdvancedSearchOpen = false;
   isSearchResultsOpen = false;
@@ -65,9 +66,10 @@ export class MDMSearchComponent implements OnInit {
   public dropdownModel: IDropdownItem[] = [];
   public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
 
-  searchFields: {group: string, attribute: string}[] = [];
+  searchFields: { group: string, attribute: string }[] = [];
 
   subscription: any;
+  isBoxChecked = true;
 
   contextMenuItems: MenuItem[] = [
     { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
@@ -85,6 +87,8 @@ export class MDMSearchComponent implements OnInit {
   @ViewChild(EditSearchFieldsComponent)
   private editSearchFieldsComponent: EditSearchFieldsComponent;
 
+
+
   constructor(private searchService: SearchService,
     private queryService: QueryService,
     private filterService: FilterService,
@@ -96,23 +100,28 @@ export class MDMSearchComponent implements OnInit {
   ngOnInit() {
     // Load contents for environment selection
     this.nodeService.getNodes()
-        .do(envs => this.environments = envs)
-        .do(nodes => this.loadSearchAttributes(nodes.map(env => env.sourceName)))
-        .map(nodes => nodes.map(env => <IDropdownItem> { id: env.sourceName, label: env.name, selected: true }))
-        .subscribe(
-          dropDownItems => {
-            this.dropdownModel = dropDownItems;
-            this.selectedEnvironmentsChanged(dropDownItems);
-          },
-          error => this.notificationService.notifyError('Datenquellen konnten nicht geladen werden!', error));
+      .do(envs => this.environments = envs)
+      .do(nodes => this.loadSearchAttributes(nodes.map(env => env.sourceName)))
+      .map(nodes => nodes.map(env => <IDropdownItem>{ id: env.sourceName, label: env.name, selected: true }))
+      .subscribe(
+      dropDownItems => {
+        this.dropdownModel = dropDownItems;
+        this.selectedEnvironmentsChanged(dropDownItems);
+      },
+      error => this.notificationService.notifyError('Datenquellen konnten nicht geladen werden!', error));
 
     this.searchService.getDefinitionsSimple()
-        .subscribe(defs => this.definitions = defs);
+      .subscribe(defs => this.definitions = defs);
 
     this.loadFilters('Standard');
 
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
+    this.viewComponent.viewChanged$.subscribe(() => this.search());
+  }
 
+  preventToggle(event: any) {
+    event.stopPropagation();
+    this.isBoxChecked = event.target.checked;
   }
 
   selectedEnvironmentsChanged(items: IDropdownItem[]) {
@@ -122,12 +131,12 @@ export class MDMSearchComponent implements OnInit {
 
   loadFilters(defaultFilterName: string) {
     this.filterService.getFilters()
-      .defaultIfEmpty([ this.currentFilter ])
+      .defaultIfEmpty([this.currentFilter])
       .subscribe(filters => {
-          this.filters = filters;
-          this.selectFilterByName(defaultFilterName);
-        }
-    );
+        this.filters = filters;
+        this.selectFilterByName(defaultFilterName);
+      }
+      );
   }
 
   selectFilterByName(defaultFilterName: string) {
@@ -150,11 +159,21 @@ export class MDMSearchComponent implements OnInit {
   onSearch() {
     let type = this.getSearchDefinition(this.currentFilter.resultType).value;
     this.searchService.getSearchAttributesPerEnvs(this.currentFilter.environments, type)
-      .subscribe(attrs => this.search(attrs));
+      .subscribe(attrs => {
+        this.searchAttributes = attrs;
+        this.search();
+      });
   }
 
-  search(attrs: SearchAttribute[]) {
-    let query = this.searchService.convertToQuery(this.currentFilter, attrs, this.viewComponent.selectedView);
+  search() {
+    let query;
+    if (this.isBoxChecked) {
+      query = this.searchService.convertToQuery(this.currentFilter, this.searchAttributes, this.viewComponent.selectedView);
+    } else {
+      let filter = classToClass(this.currentFilter);
+      filter.conditions = [];
+      query = this.searchService.convertToQuery(filter, this.searchAttributes, this.viewComponent.selectedView);
+    }
     this.queryService.query(query)
       .do(result => this.generateWarningsIfMaxResultsReached(result))
       .subscribe(result => {
@@ -162,7 +181,7 @@ export class MDMSearchComponent implements OnInit {
         this.isSearchResultsOpen = true;
       },
       error => this.notificationService.notifyError('Suchanfrage konnte nicht bearbeitet werden!', error)
-    );
+      );
   }
 
   generateWarningsIfMaxResultsReached(result: SearchResult) {
@@ -173,8 +192,8 @@ export class MDMSearchComponent implements OnInit {
     Object.keys(resultsPerSource)
       .filter(source => resultsPerSource[source] > this.maxResults)
       .forEach(source => this.notificationService.notifyWarn(
-          'Zu viele Suchergebnisse',
-          `Es werden die ersten ${this.maxResults} Suchergebnisse aus ${source}
+        'Zu viele Suchergebnisse',
+        `Es werden die ersten ${this.maxResults} Suchergebnisse aus ${source}
           angezeigt. Bitte schränken Sie die Suchanfrage weiter ein.`));
   }
 
@@ -184,14 +203,12 @@ export class MDMSearchComponent implements OnInit {
     let type = this.getSearchDefinition(this.currentFilter.resultType).value;
 
     this.searchService.getSearchLayout(environments, conditions, type)
-      	.subscribe(l => this.layout = l);
+      .subscribe(l => this.layout = l);
   }
 
   onFilterChanged(filter: SearchFilter) {
     this.currentFilter = classToClass(filter);
-
     this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
-
     this.calcCurrentSearch();
   }
 
@@ -212,22 +229,11 @@ export class MDMSearchComponent implements OnInit {
     this.childSaveModal.hide();
   }
 
-  addCondition(field: SearchAttribute) {
-    let condition = new Condition(field.boType, field.attrName, Operator.EQUALS, [], field.valueType);
-
-    this.currentFilter.conditions.push(condition);
-    this.calcCurrentSearch();
-  }
-
   removeCondition(condition: Condition) {
     this.currentFilter.conditions = this.currentFilter.conditions
-        .filter(c => !(c.type === condition.type && c.attribute === condition.attribute));
+      .filter(c => !(c.type === condition.type && c.attribute === condition.attribute));
 
     this.calcCurrentSearch();
-  }
-
-  typeaheadOnSelect(match: TypeaheadMatch) {
-    this.addCondition(match.item.attribute);
   }
 
   selected2Basket() {
@@ -238,8 +244,11 @@ export class MDMSearchComponent implements OnInit {
     this.childSaveModal.show();
   }
 
-  showSearchFieldsEditor(filter?: SearchFilter) {
-    this.editSearchFieldsComponent.show(filter).subscribe(f => this.selectFilter(f));
+  showSearchFieldsEditor(conditions?: Condition[]) {
+    this.editSearchFieldsComponent.show(conditions).subscribe(conds => {
+      this.currentFilter.conditions = conds;
+      this.calcCurrentSearch();
+    });
   }
 
   addSelectionToBasket() {
@@ -252,10 +261,20 @@ export class MDMSearchComponent implements OnInit {
       return;
     }
 
-    Observable.forkJoin(environments.map(env => this.searchService.loadSearchAttributes(searchDef.value, env)))
-      .map(attrs => <SearchAttribute[]> [].concat.apply([], attrs))
+    let types = ['tests', 'teststeps', 'measurements'];
+    let crossProd: { envName: string, type: string }[] = [];
+
+    for (let iii = 0; iii < environments.length; ++iii) {
+      for (let jjj = 0; jjj < types.length; ++jjj) {
+        crossProd.push({ envName: environments[iii], type: types[jjj] });
+      }
+    }
+
+    Observable.forkJoin(crossProd.map(kr => this.searchService.loadSearchAttributes(kr.type, kr.envName)))
+      .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
       .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
-      .subscribe(attrs => this.searchableFields = attrs);
+      .map(sa => this.uniqueBy(sa, p => p.label))
+      .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs));
   }
 
   private uniqueBy<T>(a: T[], key: (T) => any) {

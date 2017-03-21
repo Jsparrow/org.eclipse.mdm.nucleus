@@ -38,11 +38,10 @@
     </nav>
   <!-- </div> -->
   <!-- <div class="split-pane-content-secondary"> -->
-    <div class="navigator-content">
-
-      <router-outlet></router-outlet>
-
-      <accordion [closeOthers]="closeOther">
+  <div class="navigator-content" style="margin-right: 15px;">
+    <router-outlet></router-outlet>
+    <div style="padding-top: 15px;">
+      <accordion [closeOthers]="closeOther" >
         <accordion-group #basketGroup [isOpen]="false">
           <div accordion-heading>
             {{basket}}
@@ -52,5 +51,6 @@
         </accordion-group>
       </accordion>
     </div>
+</div>
   <!-- </div> -->
 <!-- </vertical-split-pane> -->

@@ -9,6 +9,7 @@ import {NodeproviderService} from './nodeprovider.service';
 import {NavigatorService} from './navigator.service';
 import {BasketService} from '../basket/basket.service';
 
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'mdm-navigator',
@@ -24,11 +25,12 @@ export class MDMNavigatorComponent implements OnInit {
   selectedNodes: TreeNode[] = [];
   nodes: TreeNode[] = [];
 
-  options = {
-    getChildren: (node: TreeNode) => {
-      return this.getChildren(node);
-    }
+  loadingNode = <TreeNode>{
+    label: 'Loading children',
+    leaf: true,
+    icon: 'fa fa-spinner fa-pulse fa-3x fa-fw'
   };
+
   contextMenuItems: MenuItem[] = [
     { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
   ];
@@ -58,7 +60,10 @@ export class MDMNavigatorComponent implements OnInit {
 
   loadNode(event) {
     if (event.node && event.node.children === undefined && !event.node.leaf) {
-      return this.getChildren(event.node).then(nodes => event.node.children = nodes);
+      return this.getChildren(event.node)
+        .startWith([this.loadingNode])
+        .do(nodes => (nodes && nodes.length === 0) ? event.node.leaf = true : event.node.leaf = false)
+        .subscribe(nodes => event.node.children = nodes);
     }
   }
 
@@ -89,7 +94,7 @@ export class MDMNavigatorComponent implements OnInit {
   getChildren(node: TreeNode) {
     return this.nodeService.getNodesByUrl(this.nodeproviderService.getQueryForChildren(node.data))
       .map(nodes => nodes.map(n => this.mapNode(n)))
-      .toPromise();
+      .map(treenodes => treenodes.sort((n1, n2) => n1.label.localeCompare(n2.label)))
   }
 
   selectNode(event) {
@@ -133,8 +138,8 @@ export class MDMNavigatorComponent implements OnInit {
       this.expander(item, current, pathTypes, iii);
     } else {
       this.getChildren(current)
-        .then(n => current.children = n)
-        .then(() => {
+        .do(n => current.children = n)
+        .subscribe(() => {
           this.expander(item, current, pathTypes, iii);
         });
     }
@@ -179,6 +184,10 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   getId(node: TreeNode) {
-    return 'node_' + node.data.source + '_' + node.data.type + '_' + node.data.id;
+    if (node && node.data) {
+      return 'node_' + node.data.source + '_' + node.data.type + '_' + node.data.id;
+    } else {
+      return '';
+    }
   }
 }

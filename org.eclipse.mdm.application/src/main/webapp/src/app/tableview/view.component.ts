@@ -1,19 +1,19 @@
-import { Component, ViewChild, OnInit, Output, EventEmitter} from '@angular/core';
+import { Component, ViewChild, OnInit, EventEmitter} from '@angular/core';
 
-import { PreferenceView, View, ViewService } from './tableview.service';
-
+import { PreferenceView, View, ViewService} from './tableview.service';
 import { EditViewComponent } from './editview.component';
+
+import {classToClass} from 'class-transformer';
 
 @Component({
   selector: 'mdm-view',
   templateUrl: 'view.component.html'
 })
 export class ViewComponent implements OnInit {
-  @Output()
-  public onViewSelected = new EventEmitter<View>();
 
   public selectedView: View;
   public groupedViews: {scope: string, view: View[]}[] = [];
+  public viewChanged$ = new EventEmitter();
 
   @ViewChild(EditViewComponent)
   private editViewComponent: EditViewComponent;
@@ -28,7 +28,7 @@ export class ViewComponent implements OnInit {
 
   selectView(view: View) {
     this.selectedView = view;
-    this.onViewSelected.emit(view);
+    this.viewChanged$.emit();
   }
 
   public editSelectedView() {
@@ -41,7 +41,9 @@ export class ViewComponent implements OnInit {
 
   private onViewsChanged(view: View) {
     this.viewService.getViews().subscribe(prefViews => this.getGroupedView(prefViews));
-    this.selectView(view);
+    if (this.selectedView.name === view.name) {
+      this.selectView(classToClass(view));
+    }
   }
 
   private setViews(prefViews: PreferenceView[]) {

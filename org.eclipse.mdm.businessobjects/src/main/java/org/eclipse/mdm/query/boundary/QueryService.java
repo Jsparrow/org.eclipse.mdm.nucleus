@@ -32,7 +32,7 @@ import org.eclipse.mdm.query.util.Util;
 public class QueryService {
 	
 	@Inject
-	@GlobalProperty(value = "search.maxresultspersource")
+	@GlobalProperty(value = "businessobjects.query.maxresultspersource")
 	private String maxResultsPerSource = "1001";
 	
 	@EJB

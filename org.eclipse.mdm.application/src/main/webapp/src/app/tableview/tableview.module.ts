@@ -5,7 +5,6 @@ import { MDMCoreModule } from '../core/mdm-core.module';
 import { TableviewComponent } from './tableview.component';
 import { EditViewComponent } from './editview.component';
 import { ViewComponent } from './view.component';
-import { ViewService } from './tableview.service';
 import {SearchattributeTreeModule} from '../searchattribute-tree/searchattribute-tree.module';
 
 import {DataTableModule, SharedModule} from 'primeng/primeng';
@@ -25,10 +24,9 @@ import {DataTableModule, SharedModule} from 'primeng/primeng';
   exports: [
     TableviewComponent,
     EditViewComponent,
-    ViewComponent
+    ViewComponent,
   ],
   providers: [
-    ViewService
   ]
 })
 export class TableViewModule {

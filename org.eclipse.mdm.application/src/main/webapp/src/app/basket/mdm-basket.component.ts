@@ -73,6 +73,8 @@ export class MDMBasketComponent implements OnInit {
 
     this._basketService.itemsAdded$.subscribe(items => this.addItems(items));
     this._basketService.itemsRemoved$.subscribe(items => this.removeItems(items));
+
+    this.viewComponent.viewChanged$.subscribe(() => this.setItems(this._basketService.items));
   }
 
   setItems(items: MDMItem[]) {
@@ -137,7 +139,6 @@ export class MDMBasketComponent implements OnInit {
   }
 
   downloadBasket() {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!')
     let downloadContent = new Basket(this.basketName, this._basketService.getItems());
     let blob = new Blob([JSON.stringify(downloadContent)], {
          type: 'application/json'
@@ -169,5 +170,9 @@ export class MDMBasketComponent implements OnInit {
 
   private addData(rows: Row[]) {
     rows.forEach(row => this.basketContent.rows.push(row));
+    this.tableViewComponent.customSort({
+      'field': this.tableViewComponent.view.getSortField(),
+      'order': this.tableViewComponent.view.getSortOrder()
+    });
   }
 }

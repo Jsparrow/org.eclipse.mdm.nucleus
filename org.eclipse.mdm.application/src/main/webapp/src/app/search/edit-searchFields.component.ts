@@ -13,14 +13,15 @@ import {IDropdownItem, IMultiselectConfig} from 'ng2-dropdown-multiselect';
 import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 import {ModalDirective} from 'ng2-bootstrap';
 import {TreeNode} from 'primeng/primeng';
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 export class SearchField {
   group: string;
   attribute: string;
 
-  constructor(group: string, attribute: string) {
-    this.group = group;
-    this.attribute = attribute;
+  constructor(group?: string, attribute?: string) {
+    this.group = group || '';
+    this.attribute = attribute || '';
   }
 
   equals(searchField: SearchField) {
@@ -40,25 +41,29 @@ export class EditSearchFieldsComponent {
   @Input() searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
   @Output()
-  filterSubmitted = new EventEmitter<SearchFilter>();
+  conditionsSubmitted = new EventEmitter<Condition[]>();
 
-  filter: SearchFilter = new SearchFilter('New Filter', [], 'Test', '', []);
   nodes: TreeNode[] = [];
   searchFields: SearchField[] = [];
   selectedAttribute: SearchField;
 
   constructor(private filterService: FilterService,
-    private treeService: SearchattributeTreeService) { }
+              private treeService: SearchattributeTreeService,
+              private notificationService: MDMNotificationService) { }
 
-  show(filter?: SearchFilter) {
-    if (filter) {
-      this.filter = filter;
+  show(conditions?: Condition[]) {
+    if (conditions) {
+      this.searchFields = conditions.map(cond => this.mapCondToSf(cond));
+    } else {
+      this.searchFields = [];
     }
     this.treeService.onNodeSelect$.subscribe(node => this.nodeSelect(node));
-
-    this.searchFields = this.filter.conditions.map(cond => <SearchField>{ group: cond.type, attribute: cond.attribute });
     this.childModal.show();
-    return this.filterSubmitted;
+    return this.conditionsSubmitted;
+  }
+
+  mapCondToSf(cond: Condition) {
+    return <SearchField>{ group: cond.type, attribute: cond.attribute };
   }
 
   nodeSelect(node: TreeNode) {
@@ -66,7 +71,7 @@ export class EditSearchFieldsComponent {
       return;
     }
     if (this.searchFields.findIndex(sf => (sf.group === node.parent.label && sf.attribute === node.label)) === -1) {
-      this.searchFields.push(new SearchField(node.parent.label, node.label));
+      this.pushSearchField(new SearchField(node.parent.label, node.label));
     }
   }
 
@@ -76,10 +81,10 @@ export class EditSearchFieldsComponent {
   }
 
   addSearchFields() {
-    this.filter.conditions = this.searchFields
-      .map(sf => new Condition(sf.group, sf.attribute, Operator.EQUALS, [], this.getValueType(sf.attribute)));
+    let conditions = this.searchFields
+       .map(sf => new Condition(sf.group, sf.attribute, Operator.EQUALS, [], this.getValueType(sf.attribute)));
     this.childModal.hide();
-    this.filterSubmitted.emit(this.filter);
+    this.conditionsSubmitted.emit(conditions);
   }
 
   getValueType(typ: string) {
@@ -92,6 +97,15 @@ export class EditSearchFieldsComponent {
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {
-    this.searchFields.push(new SearchField(match.item.attribute.boType, match.item.attribute.attrName));
+    this.pushSearchField(new SearchField(match.item.attribute.boType, match.item.attribute.attrName));
+    this.selectedAttribute = undefined;
+  }
+
+  pushSearchField(searchField: SearchField) {
+    if (searchField && this.searchFields.findIndex(c => searchField.equals(c)) === -1 ) {
+      this.searchFields.push(searchField);
+    } else {
+      this.notificationService.notifyInfo('Das Suchfeld wurde bereits ausgewählt!', 'Info');
+    }
   }
 }

@@ -17,6 +17,7 @@ import {LocalizationService} from './localization/localization.service';
 import {FilereleaseService} from './filerelease/filerelease.service';
 import {NavigatorService} from './navigator/navigator.service';
 import {QueryService} from './tableview/query.service';
+import {ViewService} from './tableview/tableview.service';
 import {NodeproviderService} from './navigator/nodeprovider.service';
 import { SearchattributeTreeComponent } from './searchattribute-tree/searchattribute-tree.component';
 import { MDMNotificationService } from './core/mdm-notification.service';
@@ -42,7 +43,8 @@ import { MDMNotificationService } from './core/mdm-notification.service';
     NavigatorService,
     QueryService,
     NodeproviderService,
-    MDMNotificationService
+    MDMNotificationService,
+    ViewService
   ],
   bootstrap: [AppComponent]
 })

@@ -1,22 +1,14 @@
-import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 
-import { PreferenceView, View, ViewColumn, ViewService, Style } from './tableview.service';
+import { View} from './tableview.service';
 import { NavigatorService } from '../navigator/navigator.service';
-import { FilterService } from '../search/filter.service';
 
 import { BasketService} from '../basket/basket.service';
-import { Node } from '../navigator/node';
-import { MDMItem } from '../core/mdm-item';
 
 import { EditViewComponent } from './editview.component';
-
-import { PreferenceService } from '../core/preference.service';
-import { Preference } from '../core/preference.service';
-import { QueryService, Query, SearchResult, Row } from './query.service';
+import { SearchResult, Row } from './query.service';
 
 import {DataTableModule, SharedModule, ContextMenuModule, MenuItem} from 'primeng/primeng';
-import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
 
 @Component({
   selector: 'mdm-tableview',
@@ -26,7 +18,7 @@ import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transfo
 export class TableviewComponent implements OnInit, OnChanges {
 
   public static readonly pageSize = 5;
-  readonly buttonColumns = 3;   // private static?!
+  readonly buttonColumns = 3;
 
   @Input() view: View;
   @Input() results: SearchResult;
@@ -37,10 +29,7 @@ export class TableviewComponent implements OnInit, OnChanges {
   menuSelectedRow: Row;
   selectedRows: Row[] = [];
 
-  constructor(private viewService: ViewService,
-    private basketService: BasketService,
-    private _pref: PreferenceService,
-    private queryService: QueryService,
+  constructor(private basketService: BasketService,
     private navigatorService: NavigatorService) {
   }
 
@@ -93,12 +82,14 @@ export class TableviewComponent implements OnInit, OnChanges {
       let value1 = row1.getColumn(event.field) || '';
       let value2 = row2.getColumn(event.field) || '';
 
-      if (value1 < value2) {
-        return event.order;
-      } else if (value1 > value2) {
-        return -1 * event.order;
+      if (!isNaN(<any>value1) && !isNaN(<any>value2)) {
+        if (value1 === value2) {
+          return 0;
+        } else {
+          return (+value1 < +value2 ? -1 : 1) * event.order;
+        }
       } else {
-        return 0;
+        return value1.localeCompare(value2) * -event.order;
       }
     };
 
