@@ -31,10 +31,21 @@ export class SearchattributeTreeComponent implements OnInit {
 
   ngOnInit() {
     if (this.environments && this.environments.length > 0) {
-      this.nodes = this.environments.map(n => this.mapNode(n));
+      this.nodes = this.environments.map(n => this.mapRootNode(n));
     } else {
-      this.nodeService.getNodes().subscribe(nodes => this.nodes = nodes.map(n => this.mapNode(n)));
+      this.nodeService.getNodes().subscribe(nodes => this.nodes = nodes.map(n => this.mapRootNode(n)));
     }
+  }
+
+  mapRootNode(node: Node) {
+    let item = new MDMItem(node.sourceName, node.type, +node.id);
+
+    return <TreeNode>{
+      label: node.name,
+      leaf: false,
+      type: 'env',
+      data: item
+    };
   }
 
   loadNodes(event) {
@@ -43,54 +54,52 @@ export class SearchattributeTreeComponent implements OnInit {
     }
   }
 
-  mapStringToTreeNode(strg: string, type: string, leaf: boolean) {
+  mapType(group: { boType: string, attributes: SearchAttribute[] }) {
     return <TreeNode>{
-      label: strg,
-      leaf: leaf,
-      type: type
+      label: group.boType,
+      leaf: false,
+      type: 'group',
+      data: group.attributes
     };
   }
 
-  mapNode(node: Node) {
-    let item = new MDMItem(node.sourceName, node.type, +node.id);
-
+  mapAttribute(attribute: SearchAttribute) {
     return <TreeNode>{
-      label: node.name,
-      leaf: false,
-      data: item
+      label: attribute.attrName,
+      leaf: true,
+      type: 'attribute',
+      data: attribute
     };
   }
 
   getChildren(node: TreeNode): TreeNode[] {
-    if (node.data) {
-      return this.getSearchableGroups(node.data.source).map(g => this.mapStringToTreeNode(g, 'group', false));
+    if (node.type === 'env') {
+      return this.getSearchableGroups(node.data.source)
+        .sort((a, b) => a.boType.localeCompare(b.boType))
+        .map(g => this.mapType(g));
+    } else if (node.type === 'group') {
+      return (<SearchAttribute[]>node.data)
+        .sort((a, b) => a.attrName.localeCompare(b.attrName))
+        .map(a => this.mapAttribute(a));
     } else {
-      return this.getSearchableAttributes(node.label).map(g => this.mapStringToTreeNode(g, 'attribute', true));
+      return [];
     }
   }
 
-  getSearchableGroups(env: string) {
-    let distinctGroupArray = [];
-    let attributesPerEnv = this.searchService.groupByEnv(this.searchableFields.map(sf => sf.attribute));
-    attributesPerEnv[env].map(attr => attr.boType)
-      .forEach(boType => {
-        if (distinctGroupArray.findIndex(bt => bt === boType) === -1) {
-          distinctGroupArray.push(boType);
-        }
-      });
-    return distinctGroupArray.sort((a, b) => a < b ? -1 : 1);
-  }
+  getSearchableGroups(env: string): { boType: string, attributes: SearchAttribute[] }[] {
+    let distinctGroupArray: { boType: string, attributes: SearchAttribute[] }[] = [];
 
-  getSearchableAttributes(group: string) {
-    let distinctAttrArray = [];
-    this.searchableFields.filter(sf => sf.group === group)
-      .map(sf => sf.attribute.attrName)
-      .forEach(attr => {
-        if (distinctAttrArray.findIndex(a => a === attr) === -1) {
-          distinctAttrArray.push(attr);
-        }
-      });
-    return distinctAttrArray.sort((a, b) => a < b ? -1 : 1);
+    let attributesPerEnv = this.searchService.groupByEnv(this.searchableFields.map(sf => sf.attribute));
+    attributesPerEnv[env].forEach(attribute => {
+      let item = distinctGroupArray.find(p => p.boType == attribute.boType);
+      if (item) {
+        item.attributes.push(attribute);
+      } else {
+        distinctGroupArray.push({ boType: attribute.boType, attributes: [attribute]})
+      }
+    });
+
+    return distinctGroupArray;
   }
 
   nodeSelect(event) {

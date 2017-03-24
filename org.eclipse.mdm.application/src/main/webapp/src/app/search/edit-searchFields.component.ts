@@ -43,9 +43,8 @@ export class EditSearchFieldsComponent {
   @Output()
   conditionsSubmitted = new EventEmitter<Condition[]>();
 
-  nodes: TreeNode[] = [];
-  searchFields: SearchField[] = [];
-  selectedAttribute: SearchField;
+  conditions: Condition[] = [];
+  selectedSearchAttribute: SearchAttribute;
 
   constructor(private filterService: FilterService,
               private treeService: SearchattributeTreeService,
@@ -53,59 +52,42 @@ export class EditSearchFieldsComponent {
 
   show(conditions?: Condition[]) {
     if (conditions) {
-      this.searchFields = conditions.map(cond => this.mapCondToSf(cond));
+      this.conditions = conditions;
     } else {
-      this.searchFields = [];
+      this.conditions = [];
     }
     this.treeService.onNodeSelect$.subscribe(node => this.nodeSelect(node));
     this.childModal.show();
     return this.conditionsSubmitted;
   }
 
-  mapCondToSf(cond: Condition) {
-    return <SearchField>{ group: cond.type, attribute: cond.attribute };
-  }
-
   nodeSelect(node: TreeNode) {
-    if (node.type !== 'attribute') {
-      return;
-    }
-    if (this.searchFields.findIndex(sf => (sf.group === node.parent.label && sf.attribute === node.label)) === -1) {
-      this.pushSearchField(new SearchField(node.parent.label, node.label));
+    if (node.type === 'attribute') {
+      let sa = <SearchAttribute>node.data;
+      this.pushSearchField(new Condition(sa.boType, sa.attrName, Operator.EQUALS, [], sa.valueType));
     }
   }
 
-  removeSearchField(searchField: { group: string, attribute: string }) {
-    let index = this.searchFields.findIndex(sf => sf.group === searchField.group && sf.attribute === searchField.attribute);
-    this.searchFields.splice(index, 1);
+  removeCondition(condition: Condition) {
+    let index = this.conditions.findIndex(c => condition.type === c.type && condition.attribute === c.attribute);
+    this.conditions.splice(index, 1);
   }
 
   addSearchFields() {
-    let conditions = this.searchFields
-       .map(sf => new Condition(sf.group, sf.attribute, Operator.EQUALS, [], this.getValueType(sf.attribute)));
     this.childModal.hide();
-    this.conditionsSubmitted.emit(conditions);
-  }
-
-  getValueType(typ: string) {
-    return typ.toLowerCase().indexOf('date') === 0
-      || typ.toLowerCase().indexOf('date') === typ.length - 4
-      || typ.indexOf('Date') !== -1
-      || typ.toLowerCase().indexOf('_date') !== -1
-      || typ.toLowerCase().indexOf('date_') !== -1
-      ? 'date' : 'string';
+    this.conditionsSubmitted.emit(this.conditions);
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {
-    this.pushSearchField(new SearchField(match.item.attribute.boType, match.item.attribute.attrName));
-    this.selectedAttribute = undefined;
+    this.pushSearchField(new Condition(match.item.attribute.boType, match.item.attribute.attrName, Operator.EQUALS, [], match.item.attribute.valueType));
+    this.selectedSearchAttribute = undefined;
   }
 
-  pushSearchField(searchField: SearchField) {
-    if (searchField && this.searchFields.findIndex(c => searchField.equals(c)) === -1 ) {
-      this.searchFields.push(searchField);
-    } else {
+  pushSearchField(condition: Condition) {
+    if (this.conditions.find(c => condition.type === c.type && condition.attribute === c.attribute)) {
       this.notificationService.notifyInfo('Das Suchfeld wurde bereits ausgewählt!', 'Info');
+    } else {
+      this.conditions.push(condition);
     }
   }
 }

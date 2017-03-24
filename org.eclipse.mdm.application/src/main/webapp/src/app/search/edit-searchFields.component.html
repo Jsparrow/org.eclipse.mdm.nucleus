@@ -36,15 +36,15 @@
           <div class="col-lg-8" style="min-height: 50vh; max-height: 77vh; padding-right: 12px; overflow-y:auto;">
             <label for="search-source" class="control-label">Ausgewählte Suchfelder</label>
             <table class="table table-bordered" style="padding: 0; overflow-y:auto; table-layout: fixed;">
-              <tr *ngFor="let sf of searchFields">
+              <tr *ngFor="let condition of conditions">
                 <td width=48% >
-                  {{sf.group}}
+                  {{condition.type}}
                 </td>
                 <td width=48%>
-                   {{sf.attribute}}
+                   {{condition.attribute}}
                 </td>
                 <td width="30px" style="text-align: center;">
-                  <span class="glyphicon glyphicon-remove" style="cursor: pointer" title="Remove" (click)="removeSearchField(sf)"></span>
+                  <span class="glyphicon glyphicon-remove" style="cursor: pointer" title="Remove" (click)="removeCondition(condition)"></span>
                 </td>
               </tr>
             </table>
@@ -53,7 +53,7 @@
         <div class="row" style="margin: 15px 15px 0px 15px;">
           <div class="col-lg-4" style="padding-right: 12px;">
             <div class="dropup">
-              <input [(ngModel)]="selectedAttribute" [typeahead]="searchableFields"
+              <input [(ngModel)]="selectedSearchAttribute" [typeahead]="searchableFields"
                     (typeaheadOnSelect)="typeaheadOnSelect($event)"
                     typeaheadOptionField="label"
                     typeaheadGroupField="group"
@@ -63,7 +63,7 @@
             </div>
           </div>
           <div class="col-lg-8">
-            <button type="button" class="btn btn-default pull-right" (click)="addSearchFields()" [disabled]="searchFields.length == 0">
+            <button type="button" class="btn btn-default pull-right" (click)="addSearchFields()" [disabled]="conditions.length === 0">
               <span class="glyphicon glyphicon-ok"></span> Änderungen anwenden
             </button>
           </div>

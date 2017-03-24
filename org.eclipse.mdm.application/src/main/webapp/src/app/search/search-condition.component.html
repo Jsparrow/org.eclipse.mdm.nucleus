@@ -2,7 +2,7 @@
 <td style="vertical-align: middle">{{condition.attribute}}</td>
 <td style="vertical-align: middle">
   <div class="btn-group" dropdown style="width: 66px;">
-    <button id="operator" type="button" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
+    <button id="operator" type="button" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" [disabled]="disabled">
       {{getOperatorName(condition.operator)}} <span class="caret"></span>
     </button>
     <ul class="dropdown-menu" dropdownMenu>
@@ -22,11 +22,12 @@
     [autocompleteMustMatch]="false"
     [autocompleteItems]="values"
     [(ngModel)]="condition.value"
-    placeholder="Add search value">
+    placeholder="Add search value"
+    [disabled]="disabled">
   </rl-tag-input>
 
   <div search-datepicker *ngSwitchCase="'date'" (onSetValue)="setValue($event)" style="width: 100%"></div>
 
-  <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)">
+  <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)" [disabled]="disabled">
 </td>
-<td style="vertical-align: middle"><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()"></button></td>
+<td style="vertical-align: middle"><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()" [disabled]="disabled"></button></td>

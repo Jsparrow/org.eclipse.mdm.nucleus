@@ -39,3 +39,8 @@
 .ui-datatable .ui-datatable-thead > tr > th {
   padding: .50em .5em !important;
 }
+
+.greyed * {
+  color: #ccc !important;
+  border-color: #e3e3e3 !important;
+}

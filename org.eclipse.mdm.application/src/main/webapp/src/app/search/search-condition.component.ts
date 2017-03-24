@@ -13,6 +13,7 @@ export class SearchConditionComponent {
   @Input() env: string;
   @Input() condition: Condition;
   @Input() form: FormGroup;
+  @Input() disabled: boolean;
   @Output() onRemove = new EventEmitter<Condition>();
 
   values = ['Car', 'Train', 'Bus'];

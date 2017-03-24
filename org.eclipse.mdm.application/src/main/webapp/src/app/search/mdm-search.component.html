@@ -32,6 +32,8 @@
   .mar {
     margin-left: 15px;
   }
+
+  /*.greyed * {color: #ccc !important;}*/
 </style>
 <form class="form-inline" style="margin-bottom: 10px; width:100% !important;">
   <div class="form-group">
@@ -78,19 +80,20 @@
 </div>
 
 <accordion>
-  <accordion-group [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch>
+
+  <accordion-group  [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isBoxChecked}">
     <div accordion-heading><input type="checkbox" [(ngModel)]="isBoxChecked" (click)="preventToggle($event)"/> Advanced search
       <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
     </div>
     <div class="container-fluid">
       <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
         <div class="col-xs-6">
-          <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor()"><span class="glyphicon glyphicon-plus"></span></button>
-          <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor(currentFilter.conditions)"><span class="glyphicon glyphicon-edit"></span></button>
-          <button type="button" class="btn btn-default" (click)="showSaveModal()" title="Save search filter"><span class="glyphicon glyphicon-floppy-disk"></span></button>
+          <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor()" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-plus"></span></button>
+          <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor(currentFilter.conditions)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-edit"></span></button>
+          <button type="button" class="btn btn-default" (click)="showSaveModal()" title="Save search filter" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-floppy-disk"></span></button>
         </div>
         <div class="col-xs-6" style="text-align: right;">
-          <button type="button" class="btn btn-default" (click)="resetConditions()" title="Reset search conditions"><span class="glyphicon glyphicon-erase"></span></button>
+          <button type="button" class="btn btn-default" (click)="resetConditions()" title="Reset search conditions" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-erase"></span></button>
         </div>
       </div>
       <div class="row">
@@ -109,7 +112,7 @@
                   <col style="width: 58%;">
                   <col style="width: 3%;">
                 </colgroup>
-                <tr search-condition class="condition" *ngFor="let condition of layout.getConditions(env)" [env]="env" [condition]="condition" (onRemove)="removeCondition($event)">
+                <tr search-condition class="condition" *ngFor="let condition of layout.getConditions(env)" [env]="env" [condition]="condition" [disabled]="!isBoxChecked"(onRemove)="removeCondition($event)">
                 </tr>
               </table>
             </div>
