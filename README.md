@@ -36,17 +36,17 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 
 ## available rest URLs
-   
-**Business Object: Environment** 
+
+**Business Object: Environment**
 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/localizations
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments_
-      
+
 **Business Object: Test**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests 
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests?filter=FILTERSTRING
 * _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/tests?filter=Test.Name eq t*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/tests?filter=Test.Name%20eq%20t*)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/searchattributes
@@ -81,24 +81,24 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/testsequence
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/testequipment
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/measurements/12345/contexts_
-   
+
 **Business Object: ChannelGroup**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups 
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups/CHANNELGROUPID
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channelgroups/12345_ 
-   
+* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channelgroups/12345_
+
 **Business Object: Channel**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels 
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/CHANNELID
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channels/123456_
 
 **Business Object: Project**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects 
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects?filter=FILTERSTRING
 * _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/projects?filter=Project.Name eq p*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/projects?filter=Project.Name%20eq%20p*)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/searchattributes
@@ -108,7 +108,7 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 **Business Object: Pool**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools 
+* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools?filter=FILTERSTRING
 * _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools?filter=Pool.Name eq p*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/pools?filter=Pool.Name%20eq%20p*)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/searchattributes
@@ -136,3 +136,104 @@ The Indexing is completely independent from the searching. So the Indexer can be
 ##Known issues:
 If you run into "java.lang.ClassNotFoundException: javax.xml.parsers.ParserConfigurationException not found by org.eclipse.persistence.moxy" this is a bug described in https://bugs.eclipse.org/bugs/show_bug.cgi?id=463169.
 This solution is to replace GLASSFISH_HOME/glassfish/modules/org.eclipse.persistence.moxy.jar with this: http://central.maven.org/maven2/org/eclipse/persistence/org.eclipse.persistence.moxy/2.6.1/org.eclipse.persistence.moxy-2.6.1.jar
+
+
+## Client preferences
+
+The applications preferences are managed in the administration section. This section can be accessed via the `Administration` button in the main navigation bar or via
+* `http://../administration`.
+A preference is a pair of a unique key and a value. The key is composed of a prefix defining the purpose of the preference followed by an arbitrary but unique identifier string. It is recommended to choose the identifier the same as the preferences 'name' field, in case there is one. The value holds the preference's data in a Json string. The following preferences, sorted by their scope, can be set:
+
+User:
+  - Basket
+  - View
+  - Filter
+
+System:
+  - Node provider
+
+Source:
+  - Ignored attributes
+
+However, it might be necessary to reload the application before a newly defined preference is available or any changes on an existing preferences are applied.
+WARNING: Corrupted preferences can result in malfunctions of the application.
+
+### User scope
+A user scoped preference's area of effect is limited to the logged in user. All user scoped preferences can also be set in dialogs in the main application.
+
+1.) Basket
+  Basket preferences keys must start with the prefix `basket.nodes.`. This preference has the fields 'items' and 'name' and holds all the information for saved baskets. The field 'items' holds an array of MDMItems, providing the relevant information of a related node, i.e. 'source', 'type' and 'id'. The field 'name' defines the name, which is provided in the main application to load this basket.
+
+  ** Example:
+  { "items": [{"source":"MDMNVH","type":"Test","id":38}],
+    "name": "basketExample" }
+
+2.) View
+  View preferences keys must start with the prefix `tableview.view.` This preference has the fields 'columns' and 'name' and holds the layout information for the tables displaying the search results and the basket nodes.
+  The field 'columns' holds an array of ViewColumn objects. A ViewColumn is an Object with the fields 'type', 'name', 'sortOrder' and an optional field 'style'. The ViewColumn's 'type' can be set to all available MDM data types, i.e. `Project`, `Pool`, `Test`, `TestStep`, `Measurement`, `ChannelGroup`, `Channel`. The ViewColumn's 'name' field specifies an attribute, which must be an searchable attribute for the given 'type'. The ViewColumn's sortOrder can be set by the number `1` (ascending), `-1` (descending), or null (unsorted). Only one column of the array can have a non-null value sortOrder at a time. The ViewColumn's style element can hold any CSS-style object. However, it is supposed to contain only the columns width. The column order in the array is identically with the appearance in the table.
+  The view's field 'name' defines the name, which is provided in the main application to load this view.
+
+  **Example:
+  { "columns": [{"type":"Test","name":"Id","style":{"width":"75px"},"sortOrder":null}],
+    "name": "viewExample" }
+
+3.) Filter
+  Filter preferences keys must start with the prefix `filter.nodes.`. This preference has the fields 'conditions', 'name', 'environments', 'resultType' and 'fulltextQuery'. It provides the information for the attribute based / advanced search.
+  The field 'conditions' holds an array of Condition objects. A Condition specifies a search condition for attribute based search. It consists of the fields 'type', 'name', 'operator', 'value' and 'valueType'. The Condition's 'type' can be set to all available MDM data types, i.e. `Project`, `Pool`, `Test`, `TestStep`, `Measurement`, `ChannelGroup`, `Channel`. The Condition's 'name' field specifies an attribute, which must be an searchable attribute for the given 'type'. The Condition's 'operator' field, holds on of the following numbers: `0`(=), `1`(<), `2`(>), `3`(like). The Condition's 'value' field holds a string array containing input for the attribute based search. The Condition's 'resultType' field should match the type corresponding to the attribute specified in the 'name' filed, e.g. `string`, `date` or `long`.
+  The Filter's field 'name' defines the name, which is provided in the main application to load this filter.
+  The Filter's field 'environments' holds an string array with the names of the sources that should be included in the search.
+  The Filter's field 'resultType' can be set to all available MDM data types (see above). Only nodes of this type will be included in the search.
+  The Filter's field 'fulltextQuery' holds a string containing full text search input.
+
+  **Example:
+  { "conditions":[{"type":"Test","attribute":"Name","operator":0,"value":[],"valueType":"string"}],
+    "name":"filterExample",
+    "environments":["sourceName"],
+    "resultType":"Test",
+    "fulltextQuery":"" }
+
+
+### System scope
+System scoped preference are applied globally.
+
+1.) Node provider
+
+  The navigation tree structure can be defined via a node provider. The default node provider is set in
+  * ..\src\main\webapp\src\app\navigator\defaultnodeprovider.json.
+  It is recommended not to change the default node provider. Instead new node providers can be added as preferences. Their keys must start with the prefix ´nodeprovider.´. Once a custom node provider is supplied it can be selected in the dropdown menu in the navigation tree header.
+
+  I.) Structure
+
+    a) First layer/root nodes
+    In the node provider each layer of nodes of the navigation tree is defined in a nested object. The first layer of nodes, is always the environment level. This is necessary due to the provided endpoints. The first layer consists of the fields 'name', 'type', and 'children'. The field 'name' sets the name, which is displayed in the application to select the corresponding node provider. The field 'type' defines the data type of the nodes, which is always `Environments` on the first layer. The next layer of nodes are defined via the field 'children'.
+
+    b) Children
+    A child object consists of the fields 'type', 'query', and 'children'. The field 'type' sets the data type of this layer of nodes. It can be set to all available MDM data types, i.e. `Project`, `Pool`, `Test`, `TestStep`, `Measurement`, `ChannelGroup`, `Channel`. The filed 'query' holds the URL to load this layer of nodes. The first part of the query for each child object should be `/` plus the type of the layer in small letters followed by an `s`. For a nested child objected a filter is attached to the query in the form: `?filter=<parentType>.Id eq {<parentType>.Id}`. The placeholder <parentType> has to be replaced by the actual parent type (set in the field 'type' in the parent child or root layer, see example below). At runtime the curly braces will be replaced by the Id of the parent node. Further child objects, and thereby more sublayers, can be nested via the field 'children'. The children field does not need to be set for the last layer of nodes.
+
+  II.) Examples
+
+    a) Minimal node provider
+    { "name": "My name to display", "type": "Environment"}
+
+    b) node provider with two child layers
+    {
+      "name": "My name to display",
+      "type": "Environment",
+      "children": {
+        "type": "Project",
+        "query": "/projects",
+        "children": {
+          "type": "Pool",
+          "query": "/pools?filter=Project.Id eq {Project.Id}"
+        }
+      }
+    }
+
+### Source scope
+Source scoped preferences are applied at any user but limited to the specified source. The source can be specified in the `Add Preference` or `Edit Preference` dialog.
+
+1.) Ignored Attributes
+The ignore attributes preference must have the exact key `ignoredAttributes`. An identifier must not be added. The preference specifies all attributes, which are supposed to be ignored in the detail view. The preference is a simple Json string holding a list of attributes in the form {"<type>.<AttributeName>"}. The placeholders <type> and <AttributeName> have to be replaced by the actual type and name of the attribute which should be ignored, respectively.
+
+**Example:
+{"Test.Name"}

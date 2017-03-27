@@ -32,8 +32,6 @@
   .mar {
     margin-left: 15px;
   }
-
-  /*.greyed * {color: #ccc !important;}*/
 </style>
 <form class="form-inline" style="margin-bottom: 10px; width:100% !important;">
   <div class="form-group">
@@ -83,7 +81,7 @@
 
   <accordion-group  [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isBoxChecked}">
     <div accordion-heading><input type="checkbox" [(ngModel)]="isBoxChecked" (click)="preventToggle($event)"/> Advanced search
-      <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
+      <span class="pull-right glyphicon" style="color: #333 !important;" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
     </div>
     <div class="container-fluid">
       <div class="row" style="margin-top: 5px; margin-bottom: 5px;">

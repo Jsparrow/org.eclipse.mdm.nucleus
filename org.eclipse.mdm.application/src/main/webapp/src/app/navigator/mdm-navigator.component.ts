@@ -138,6 +138,7 @@ export class MDMNavigatorComponent implements OnInit {
       this.expander(item, current, pathTypes, iii);
     } else {
       this.getChildren(current)
+        .startWith([this.loadingNode])
         .do(n => current.children = n)
         .subscribe(() => {
           this.expander(item, current, pathTypes, iii);
