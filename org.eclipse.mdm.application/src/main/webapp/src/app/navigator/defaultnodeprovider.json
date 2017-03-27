@@ -12,7 +12,7 @@
 	  "children" : {
 		"type" : "Test",
 		"attribute" : "Name",
-		"query" : "/tests?filter=StructureLevel.Id eq {Pool.Id}",
+		"query" : "/tests?filter=Pool.Id eq {Pool.Id}",
 		"children" : {
 		  "type" : "TestStep",
 		  "attribute" : "Name",
@@ -24,12 +24,12 @@
 			"children" : {
 			  "type" : "ChannelGroup",
 			  "attribute" : "Name",
-			  "query" : "/channelgroups?filter=MeaResult.Id eq {Measurement.Id}",
+			  "query" : "/channelgroups?filter=Measurement.Id eq {Measurement.Id}",
 			  "caption" : "ChannelGroup.Name",
 			  "children" : {
 				  "type" : "Channel",
 				  "attribute" : "Name",
-				  "query" : "/channels?filter=SubMatrix.Id eq {ChannelGroup.Id}"
+				  "query" : "/channels?filter=ChannelGroup.Id eq {ChannelGroup.Id}"
 			  }
 			}
 		  }

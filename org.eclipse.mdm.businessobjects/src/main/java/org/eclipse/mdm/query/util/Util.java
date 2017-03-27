@@ -10,6 +10,7 @@ import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
+import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.query.entity.Column;
 import org.eclipse.mdm.query.entity.Row;
 
@@ -40,7 +41,7 @@ public class Util {
 
 	public static  Column convertColumn(Record record, Value value) {
 		return new Column(
-				record.getEntityType().getName(),
+				ServiceUtils.workaroundForTypeMapping(record.getEntityType()),
 				value.getName(), 
 				Strings.emptyToNull(Objects.toString(value.extract())), 
 				Strings.emptyToNull(value.getUnit()));

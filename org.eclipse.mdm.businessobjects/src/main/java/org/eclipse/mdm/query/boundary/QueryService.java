@@ -93,11 +93,11 @@ public class QueryService {
 			throw new IllegalArgumentException("Cannot parse attribute " + c + "!");
 		}
 		
-		String type = SearchParamParser.workaroundForTypeMapping(parts[0]);
+		String type = parts[0];
 		String attributeName = parts[1];
 		
 		Optional<EntityType> entityType = searchableTypes.stream()
-				.filter(e -> e.getName().equalsIgnoreCase(type))
+				.filter(e -> ServiceUtils.workaroundForTypeMapping(e).equalsIgnoreCase(type))
 				.findFirst();
 		
 		if (entityType.isPresent()) {

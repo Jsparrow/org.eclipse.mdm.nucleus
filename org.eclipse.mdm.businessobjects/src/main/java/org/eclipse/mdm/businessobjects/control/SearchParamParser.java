@@ -25,6 +25,7 @@ import org.eclipse.mdm.api.base.query.Condition;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.Operation;
+import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
 import com.google.common.base.Strings;
 
@@ -194,7 +195,7 @@ public class SearchParamParser {
 			throws IllegalArgumentException {
 
 		String[] attrDefinition = attributeIdentifier.split("\\.");
-		String entityName = workaroundForTypeMapping(attrDefinition[0]);
+		String entityName = attrDefinition[0];
 		String attrName = attrDefinition[1];
 
 		return validateAttribute(entityName, attrName, possibleSearchAttrs);
@@ -204,7 +205,7 @@ public class SearchParamParser {
 	private static Attribute validateAttribute(String entityName, String attrName, List<EntityType> possibleSearchAttrs)
 			throws IllegalArgumentException {
 		for (EntityType entityType : possibleSearchAttrs) {
-			if (entityType.getName().equals(entityName)) {
+			if (ServiceUtils.workaroundForTypeMapping(entityType).equals(entityName)) {
 				List<Attribute> attributes = entityType.getAttributes();
 				for (Attribute attribute : attributes) {
 					if (attribute.getName().equals(attrName)) {
@@ -284,26 +285,5 @@ public class SearchParamParser {
 			throw new IllegalArgumentException("Unsupported operation: " + operationString);
 		}
 		return operation;
-	}
-
-	
-	/**
-	 * Simple workaround for naming mismatch between Adapter and Business object names.
-	 * @param type
-	 * @return
-	 */
-	public static String workaroundForTypeMapping(String type) {
-		switch (type) {
-		case "Pool":
-			return "StructureLevel";
-		case "Measurement":
-			return "MeaResult";
-		case "ChannelGroup":
-			return "SubMatrix";
-		case "Channel":
-			return "MeaQuantity";
-		default: 
-			return type;
-		}
 	}
 }

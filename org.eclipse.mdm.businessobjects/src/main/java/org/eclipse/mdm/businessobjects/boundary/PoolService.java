@@ -24,8 +24,10 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
+import org.eclipse.mdm.businessobjects.control.NavigationActivity;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
+import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
@@ -42,6 +44,8 @@ public class PoolService {
 	private I18NActivity i18nActivity;
 	@EJB
 	private SearchActivity searchActivity;
+	@EJB
+	private NavigationActivity navigationActivity;
 	
 	
 
@@ -61,6 +65,11 @@ public class PoolService {
 			if(filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(Pool.class);
 			}		
+			
+			if(ServiceUtils.isParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT)) {
+				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT);
+				return this.navigationActivity.getPools(sourceName, id);
+			}
 			
 			return this.searchActivity.search(em, Pool.class, filter);
 		} catch(DataAccessException e) {
