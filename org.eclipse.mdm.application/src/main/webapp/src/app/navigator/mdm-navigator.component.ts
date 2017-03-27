@@ -94,7 +94,7 @@ export class MDMNavigatorComponent implements OnInit {
   getChildren(node: TreeNode) {
     return this.nodeService.getNodesByUrl(this.nodeproviderService.getQueryForChildren(node.data))
       .map(nodes => nodes.map(n => this.mapNode(n)))
-      .map(treenodes => treenodes.sort((n1, n2) => n1.label.localeCompare(n2.label)))
+      .map(treenodes => treenodes.sort((n1, n2) => n1.label.localeCompare(n2.label)));
   }
 
   selectNode(event) {

@@ -8,7 +8,7 @@
   <h4 class="modal-title">Preference Editor</h4>
     </div>
     <div class="modal-body">
-  <form [formGroup]="preferenceForm" novalidate (keyup.enter)="onSave(preferenceForm)">
+  <form [formGroup]="preferenceForm" novalidate >
     <ul class="list-group">
   <li>
   <div class="block">
@@ -42,7 +42,7 @@
     <button type="button" class="btn btn-default" (click)="closeDialog()">
   <span class="glyphicon glyphicon-remove"></span> Cancel
     </button>
-    <button type="button" class="btn btn-default pull-right" (click)="onSave(preferenceForm)" [disabled]="!preferenceForm.valid">
+    <button type="button" class="btn btn-default pull-right" (click)="onSave()" [disabled]="!preferenceForm.valid">
   <span class="glyphicon glyphicon-save"></span> Save
     </button>
   </div>
