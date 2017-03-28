@@ -52,12 +52,13 @@ export class MDMSearchComponent implements OnInit {
   filterName = '';
 
   environments: Node[];
-  searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
+  selectedEnvironments: Node[];
 
   definitions: SearchDefinition[];
 
   results: SearchResult;
   searchAttributes: SearchAttribute[];
+  allSearchAttributes: SearchAttribute[] = [];
 
   isAdvancedSearchOpen = false;
   isSearchResultsOpen = false;
@@ -126,6 +127,10 @@ export class MDMSearchComponent implements OnInit {
 
   selectedEnvironmentsChanged(items: IDropdownItem[]) {
     this.currentFilter.environments = items.filter(item => item.selected).map(item => item.id);
+    if (this.environments) {
+      this.selectedEnvironments = this.environments.filter(env =>
+        this.currentFilter.environments.find(envName => envName === env.sourceName));
+    }
     this.calcCurrentSearch();
   }
 
@@ -264,24 +269,16 @@ export class MDMSearchComponent implements OnInit {
     let types = ['tests', 'teststeps', 'measurements'];
     let crossProd: { envName: string, type: string }[] = [];
 
-    for (let iii = 0; iii < environments.length; ++iii) {
-      for (let jjj = 0; jjj < types.length; ++jjj) {
-        crossProd.push({ envName: environments[iii], type: types[jjj] });
+    for (let i = 0; i < environments.length; ++i) {
+      for (let j = 0; j < types.length; ++j) {
+        crossProd.push({ envName: environments[i], type: types[j] });
       }
     }
 
     Observable.forkJoin(crossProd.map(kr => this.searchService.loadSearchAttributes(kr.type, kr.envName)))
       .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
-      .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
-      .map(sa => this.uniqueBy(sa, p => p.label))
-      .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs));
-  }
-
-  private uniqueBy<T>(a: T[], key: (T) => any) {
-    let seen = {};
-    return a.filter(function(item) {
-      let k = key(item);
-      return seen.hasOwnProperty(k) ? false : (seen[k] = true);
-    });
+      // .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
+      // .map(sa => this.uniqueBy(sa, p => p.boType + '.' + p.attrName))
+      .subscribe(attrs => this.allSearchAttributes = this.allSearchAttributes.concat(attrs));
   }
 }

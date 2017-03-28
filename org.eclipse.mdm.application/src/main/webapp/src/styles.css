@@ -1,5 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
 
+body {
+  margin-top: 3em;
+}
+
+.navbar {
+  min-height: 2em !important;
+  margin-bottom: 1em;
+}
+
+.navbar-nav > li > a, .navbar-brand {
+    padding-top: 4px !important;
+    padding-bottom: 0 !important;
+    height: 2em;
+    font-size: 1em;
+}
+
+.table > thead > tr > th, .table > tbody > tr > td {
+  padding: 2px 4px;
+}
+
+body .mdmtree .ui-tree { display: inline-block; width: 100%; height: 100%; }
+body .mdmtree .ui-treenode { padding: 0; }
+body .mdmtree .ui-treenode .ui-treenode-content { height: 1.5em; }
+body .mdmtree .ui-treenode .ui-treenode-content .ui-treenode-label { padding-left: 0 2px; }
+body .mdmtree .ui-treenode .ui-treenode-content .ui-treenode-icon { margin: 0.2em 0; width: 15px; }
+body .mdmtree .ui-treenode .ui-treenode-content .ui-tree-toggler { width: 1em; }
+
 .icon {
   background-repeat: no-repeat;
   background-position: left center;

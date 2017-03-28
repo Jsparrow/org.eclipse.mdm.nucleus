@@ -236,4 +236,4 @@ Source scoped preferences are applied at any user but limited to the specified s
 The ignore attributes preference must have the exact key `ignoredAttributes`. An identifier must not be added. The preference specifies all attributes, which are supposed to be ignored in the detail view. The preference is a simple Json string holding a list of attributes in the form {"<type>.<AttributeName>"}. The placeholders <type> and <AttributeName> have to be replaced by the actual type and name of the attribute which should be ignored, respectively.
 
 **Example:
-{"Test.Name"}
+["Test.Name"]

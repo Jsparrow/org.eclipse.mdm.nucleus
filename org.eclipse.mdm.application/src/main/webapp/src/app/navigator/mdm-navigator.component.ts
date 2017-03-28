@@ -15,9 +15,8 @@ import {Observable} from 'rxjs/Observable';
   selector: 'mdm-navigator',
   templateUrl: './mdm-navigator.component.html',
   styles: [
-    ':host >>> .ui-tree { display: inline-block; width: 100%; height: 100%; }',
-    ':host >>> .ui-tree .ui-treenode .ui-treenode-content .ui-treenode-label { padding: 2px 3px; }',
-    ':host >>> .ui-tree .ui-treenode .ui-treenode-content .ui-treenode-icon { margin: 0.2em 0; width: 15px; }'
+    '>>>.ui-tree { overflow: auto; max-height: calc(100vh - 7em); min-height: calc(100vh - 7em); padding: .25em .25em .5em .25em !important; }',
+    '>>>.ui-tree .ui-tree-container { overflow: visible; }'
   ]
 })
 export class MDMNavigatorComponent implements OnInit {

@@ -1,10 +1,9 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild, OnInit, OnDestroy} from '@angular/core';
 
 import {View, ViewColumn, ViewService} from './tableview.service';
 import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
 import {SearchService, SearchAttribute} from '../search/search.service';
-import {SearchattributeTreeService} from '../searchattribute-tree/searchattribute-tree.service';
 import {SearchattributeTreeComponent} from '../searchattribute-tree/searchattribute-tree.component';
 import {MDMNotificationService} from '../core/mdm-notification.service';
 
@@ -19,23 +18,25 @@ import {classToClass} from 'class-transformer';
   templateUrl: './editview.component.html',
   styles: ['.remove {color:black; cursor: pointer; float: right}', '.icon { cursor: pointer; margin: 0px 5px; }']
 })
-export class EditViewComponent {
+export class EditViewComponent implements OnInit {
   @ViewChild('lgModal') public childModal: ModalDirective;
+  @ViewChild(SearchattributeTreeComponent) tree: SearchattributeTreeComponent;
 
   envs: Node[] = [];
   isReadOnly = false;
   currentView: View = new View();
-  searchableFields = [];
+  searchAttributes: SearchAttribute[] = [];
+  typeAheadValues: {label: string, group: string, attribute: SearchAttribute }[] = [];
+
   selectedAttribute: SearchAttribute;
 
   constructor(private nodeService: NodeService,
     private viewService: ViewService,
     private searchService: SearchService,
-    private treeService: SearchattributeTreeService,
-    private notificationService: MDMNotificationService) {
+    private notificationService: MDMNotificationService) { }
 
-    this.treeService.onNodeSelect$.subscribe(node => this.selectNode(node));
-
+  ngOnInit() {
+    this.tree.onNodeSelect$.subscribe(node => this.selectNode(node));
     this.nodeService.getNodes().subscribe(
       envs => {
         this.envs = envs;
@@ -43,19 +44,21 @@ export class EditViewComponent {
         let mapedEnvs = this.envs.map(env => env.sourceName);
         let crossProd: {envName: string, type: string}[] = [];
 
-        for (let iii = 0; iii < this.envs.length; ++iii) {
-          for (let jjj = 0; jjj < types.length; ++jjj) {
-            crossProd.push({envName: mapedEnvs[iii], type: types[jjj]});
+        for (let i = 0; i < this.envs.length; ++i) {
+          for (let j = 0; j < types.length; ++j) {
+            crossProd.push({envName: mapedEnvs[i], type: types[j]});
           }
         }
 
         Observable.forkJoin(crossProd.map(kr => this.searchService.loadSearchAttributes(kr.type, kr.envName)))
             .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
-            .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
-            .map(sa => this.uniqueBy(sa, p => p.label))
-            .subscribe(attrs => this.searchableFields = this.searchableFields.concat(attrs));
-      }
-    );
+            .subscribe(attrs => {
+              this.searchAttributes = this.searchAttributes.concat(attrs);
+              this.typeAheadValues = [this.searchAttributes.map(
+                sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; })]
+                .map(sa => this.uniqueBy(sa, p => p.label))[0];
+            });
+      });
   }
 
   showDialog(currentView: View) {

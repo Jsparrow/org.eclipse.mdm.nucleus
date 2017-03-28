@@ -1,7 +1,6 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit, Input, OnChanges, SimpleChanges, EventEmitter} from '@angular/core';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from '../search/search.service';
-import {SearchattributeTreeService} from './searchattribute-tree.service';
 
 import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
@@ -17,23 +16,25 @@ import {TreeModule, TreeNode} from 'primeng/primeng';
   templateUrl: './searchattribute-tree.component.html',
   styleUrls: ['./searchattribute-tree.component.css']
 })
-export class SearchattributeTreeComponent implements OnInit {
+export class SearchattributeTreeComponent implements OnChanges {
 
   @Input() environments: Node[];
-  @Input() searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
+  @Input() searchAttributes: SearchAttribute[];
 
   nodes: TreeNode[] = [];
   selectedAttribute: { label: string, group: string, attribute: SearchAttribute };
+  public onNodeSelect$ = new EventEmitter<TreeNode>();
 
   constructor(private searchService: SearchService,
-    private nodeService: NodeService,
-    private treeService: SearchattributeTreeService) { }
+    private nodeService: NodeService) { }
 
-  ngOnInit() {
-    if (this.environments && this.environments.length > 0) {
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['searchAttributes'] && this.environments && this.environments.length > 0) {
       this.nodes = this.environments.map(n => this.mapRootNode(n));
-    } else {
-      this.nodeService.getNodes().subscribe(nodes => this.nodes = nodes.map(n => this.mapRootNode(n)));
+    }
+
+    if (changes['environments'] && this.environments && this.environments.length > 0) {
+      this.nodes = this.environments.map(n => this.mapRootNode(n));
     }
   }
 
@@ -78,7 +79,7 @@ export class SearchattributeTreeComponent implements OnInit {
         .sort((a, b) => a.boType.localeCompare(b.boType))
         .map(g => this.mapType(g));
     } else if (node.type === 'group') {
-      return (<SearchAttribute[]>node.data)
+      return (<SearchAttribute[]> node.data)
         .sort((a, b) => a.attrName.localeCompare(b.attrName))
         .map(a => this.mapAttribute(a));
     } else {
@@ -89,13 +90,13 @@ export class SearchattributeTreeComponent implements OnInit {
   getSearchableGroups(env: string): { boType: string, attributes: SearchAttribute[] }[] {
     let distinctGroupArray: { boType: string, attributes: SearchAttribute[] }[] = [];
 
-    let attributesPerEnv = this.searchService.groupByEnv(this.searchableFields.map(sf => sf.attribute));
+    let attributesPerEnv = this.searchService.groupByEnv(this.searchAttributes);
     attributesPerEnv[env].forEach(attribute => {
-      let item = distinctGroupArray.find(p => p.boType == attribute.boType);
-      if (item) {
+      let item = distinctGroupArray.find(p => p.boType === attribute.boType);
+      if (item && item.attributes.every(a => a.attrName !== attribute.attrName)) {
         item.attributes.push(attribute);
-      } else {
-        distinctGroupArray.push({ boType: attribute.boType, attributes: [attribute]})
+      } else if (!item) {
+        distinctGroupArray.push({ boType: attribute.boType, attributes: [attribute]});
       }
     });
 
@@ -103,7 +104,6 @@ export class SearchattributeTreeComponent implements OnInit {
   }
 
   nodeSelect(event) {
-    this.treeService.fireOnNodeSelect(event.node);
+    this.onNodeSelect$.emit(event.node);
   }
-
 }

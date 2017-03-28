@@ -1,18 +1,14 @@
 .navigator {
   display: inline-block !important;
-  position: absolute !important;
+  position: fixed !important;
   width: 20em;
   margin: 0 1em;
-  bottom: 6em;
-  top: 5em;
+  bottom: 0;
+  top: 3em;
 }
 
 .navigator-content {
   margin-left: 22em;
-}
-
-.navbar {
-  margin-bottom: 18px;
 }
 
 .panel-body {

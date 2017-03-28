@@ -10,23 +10,15 @@
   ******************************************************************************* -->
 <nav class="navbar navbar-default">
   <div class="container-fluid">
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-mdm-detail-navbar" aria-expaned="false">
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-    <a class="navbar-brand">{{brand}}</a>
+    <div class="collapse navbar-collapse" id="bs-mdm-detail-navbar">
+      <ul class="nav navbar-nav">
+        <li [routerLinkActive]="['active']"><a routerLink="general" style="cursor:pointer;"> General</a></li>
+        <li [routerLinkActive]="['active']"><a routerLink="te" style="cursor:pointer;"> Test Equipment</a></li>
+        <li [routerLinkActive]="['active']"><a routerLink="uut" style="cursor:pointer;"> Unit Under Test</a></li>
+        <li [routerLinkActive]="['active']"><a routerLink="ts" style="cursor:pointer;"> Test Sequence</a></li>
+      </ul>
+    </div>
   </div>
-  <div class="collapse navbar-collapse" id="bs-mdm-detail-navbar">
-    <ul class="nav navbar-nav">
-      <li [routerLinkActive]="['active']"><a routerLink="general" style="cursor:pointer;"> General</a></li>
-      <li [routerLinkActive]="['active']"><a routerLink="te" style="cursor:pointer;"> Test Equipment</a></li>
-      <li [routerLinkActive]="['active']"><a routerLink="uut" style="cursor:pointer;"> Unit Under Test</a></li>
-      <li [routerLinkActive]="['active']"><a routerLink="ts" style="cursor:pointer;"> Test Sequence</a></li>
-    </ul>
-  </div>
-</div>
 </nav>
 
 <router-outlet></router-outlet>

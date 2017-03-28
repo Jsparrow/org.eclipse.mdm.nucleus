@@ -1,9 +1,8 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit} from '@angular/core';
 
 import {SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
 import {FilterService, SearchFilter, Condition, Operator} from './filter.service';
 import {NodeService} from '../navigator/node.service';
-import {SearchattributeTreeService} from '../searchattribute-tree/searchattribute-tree.service';
 
 import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
@@ -14,6 +13,7 @@ import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 import {ModalDirective} from 'ng2-bootstrap';
 import {TreeNode} from 'primeng/primeng';
 import {MDMNotificationService} from '../core/mdm-notification.service';
+import {classToClass} from 'class-transformer';
 
 export class SearchField {
   group: string;
@@ -33,12 +33,14 @@ export class SearchField {
   selector: 'edit-searchFields',
   templateUrl: 'edit-searchFields.component.html',
 })
-export class EditSearchFieldsComponent {
+export class EditSearchFieldsComponent implements OnChanges, OnInit {
 
   @ViewChild('lgEditSearchFieldsModal') public childModal: ModalDirective;
+  @ViewChild(SearchattributeTreeComponent) tree: SearchattributeTreeComponent;
 
   @Input() environments: Node[];
-  @Input() searchableFields: { label: string, group: string, attribute: SearchAttribute }[] = [];
+  @Input() searchAttributes: SearchAttribute[] = [];
+  typeAheadValues: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
   @Output()
   conditionsSubmitted = new EventEmitter<Condition[]>();
@@ -46,25 +48,38 @@ export class EditSearchFieldsComponent {
   conditions: Condition[] = [];
   selectedSearchAttribute: SearchAttribute;
 
+  subscription: any;
+
   constructor(private filterService: FilterService,
-              private treeService: SearchattributeTreeService,
-              private notificationService: MDMNotificationService) { }
+    private notificationService: MDMNotificationService) { }
+
+  ngOnInit() {
+      this.tree.onNodeSelect$.subscribe(node => this.nodeSelect(node));
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['searchAttributes']) {
+      let ar = [this.searchAttributes.map(sa => {
+        return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa };
+      })];
+      this.typeAheadValues = ar.map(sa => this.uniqueBy(sa, p => p.label))[0];
+    }
+  }
 
   show(conditions?: Condition[]) {
     if (conditions) {
-      this.conditions = conditions;
+      this.conditions = classToClass(conditions);
     } else {
       this.conditions = [];
     }
-    this.treeService.onNodeSelect$.subscribe(node => this.nodeSelect(node));
     this.childModal.show();
     return this.conditionsSubmitted;
   }
 
   nodeSelect(node: TreeNode) {
-    if (node.type === 'attribute') {
+    if (node && node.type === 'attribute') {
       let sa = <SearchAttribute>node.data;
-      this.pushSearchField(new Condition(sa.boType, sa.attrName, Operator.EQUALS, [], sa.valueType));
+      this.pushCondition(new Condition(sa.boType, sa.attrName, Operator.EQUALS, [], sa.valueType));
     }
   }
 
@@ -79,15 +94,24 @@ export class EditSearchFieldsComponent {
   }
 
   public typeaheadOnSelect(match: TypeaheadMatch) {
-    this.pushSearchField(new Condition(match.item.attribute.boType, match.item.attribute.attrName, Operator.EQUALS, [], match.item.attribute.valueType));
+    this.pushCondition(new Condition(match.item.attribute.boType,
+      match.item.attribute.attrName, Operator.EQUALS, [], match.item.attribute.valueType));
     this.selectedSearchAttribute = undefined;
   }
 
-  pushSearchField(condition: Condition) {
+  pushCondition(condition: Condition) {
     if (this.conditions.find(c => condition.type === c.type && condition.attribute === c.attribute)) {
       this.notificationService.notifyInfo('Das Suchfeld wurde bereits ausgewählt!', 'Info');
     } else {
       this.conditions.push(condition);
     }
+  }
+
+  private uniqueBy<T>(a: T[], key: (T) => any) {
+    let seen = {};
+    return a.filter(function(item) {
+      let k = key(item);
+      return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+    });
   }
 }

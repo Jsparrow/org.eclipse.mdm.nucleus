@@ -76,7 +76,8 @@ export class NodeService {
 
   getRootNodes() {
     return this.http.get(this._nodeUrl)
-      .map(res => plainToClass(Node, res.json().data));
+      .map(res => plainToClass(Node, res.json().data))
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
   }
 
   getNodeFromItem(mdmItem: MDMItem) {

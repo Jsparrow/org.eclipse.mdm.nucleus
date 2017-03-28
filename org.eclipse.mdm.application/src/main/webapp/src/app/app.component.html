@@ -1,13 +1,5 @@
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
   <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-mdm-navbar" aria-expaned="false">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand">{{brand}}</a>
-    </div>
     <div class="collapse navbar-collapse" id="bs-mdm-navbar">
       <ul class="nav navbar-nav">
         <li *ngFor="let m of links" [routerLinkActive]="['active']"><a routerLink="{{m.path}}" style="cursor:pointer;"> {{m.name}}</a></li>
