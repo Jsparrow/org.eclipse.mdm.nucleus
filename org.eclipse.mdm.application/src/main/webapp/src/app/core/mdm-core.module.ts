@@ -11,7 +11,6 @@ import { PositioningService } from 'ng2-bootstrap/positioning';
 import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
 
 import { DropdownMultiselectModule } from 'ng2-dropdown-multiselect';
-import { RlTagInputModule } from 'angular2-tag-input';
 import { TreeModule, DataTableModule, SharedModule, ContextMenuModule, GrowlModule } from 'primeng/primeng';
 import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
@@ -28,7 +27,6 @@ import { MDMNotificationComponent } from './mdm-notification.component';
     TypeaheadModule.forRoot(),
     DatepickerModule.forRoot(),
     DropdownMultiselectModule,
-    RlTagInputModule,
     TreeModule,
     DataTableModule,
     SharedModule,
@@ -43,7 +41,6 @@ import { MDMNotificationComponent } from './mdm-notification.component';
     FormsModule,
     Ng2BootstrapModule,
     DropdownMultiselectModule,
-    RlTagInputModule,
     TreeModule,
     DataTableModule,
     SharedModule,

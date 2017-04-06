@@ -1,12 +1,12 @@
 /*******************************************************************************
-  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * Copyright (c) 2017 Peak Solution GmbH
   * All rights reserved. This program and the accompanying materials
   * are made available under the terms of the Eclipse Public License v1.0
   * which accompanies this distribution, and is available at
   * http://www.eclipse.org/legal/epl-v10.html
   *
   * Contributors:
-  * Sebastian Dirsch - initial implementation
+  * Matthias Koller - initial implementation
   *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
@@ -31,8 +31,8 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
- * TestService Bean implementation with available {@link Pool} operations
- * @author jst, Peak Solution
+ * PoolService Bean implementation with available {@link Pool} operations
+ * @author Matthias Koller, Peak Solution GmbH
  *
  */
 @Stateless
@@ -47,8 +47,6 @@ public class PoolService {
 	@EJB
 	private NavigationActivity navigationActivity;
 	
-	
-
 	/**
 	 * returns the matching {@link Pool}s using the given filter or all {@link Pool}s 
 	 * if no filter is available
@@ -103,8 +101,6 @@ public class PoolService {
 		}
 	}
 	
-	
-	
 	/**
 	 * returns localized {@link Pool} attributes
 	 * @param sourceName name of the source (MDM {@link Environment} name)
@@ -113,8 +109,6 @@ public class PoolService {
 	public Map<Attribute, String> localizeAttributes(String sourceName) {		
 		return this.i18nActivity.localizeAttributes(sourceName, Pool.class);
 	}	
-	
-	
 	
 	/**
 	 * returns the localized {@link Pool} type name

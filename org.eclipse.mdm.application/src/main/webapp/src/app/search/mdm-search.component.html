@@ -117,7 +117,12 @@
                   <col style="width: 58%;">
                   <col style="width: 3%;">
                 </colgroup>
-                <tr search-condition class="condition" *ngFor="let condition of layout.getConditions(env)" [env]="env" [condition]="condition" [disabled]="!isBoxChecked" (onRemove)="removeCondition($event)">
+                <tr search-condition class="condition" *ngFor="let condition of layout.getConditions(env)"
+                    [env]="env"
+                    [condition]="condition"
+                    [disabled]="!isBoxChecked"
+                    [selectedEnvs]="selectedEnvironments"
+                    (onRemove)="removeCondition($event)">
                 </tr>
               </table>
             </div>

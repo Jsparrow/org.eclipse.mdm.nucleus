@@ -1,3 +1,13 @@
+/*******************************************************************************
+  * Copyright (c) 2017 Peak Solution GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Matthias Koller - initial implementation
+  *******************************************************************************/
 package org.eclipse.mdm.query.boundary;
 
 import java.util.ArrayList;
@@ -26,8 +36,14 @@ import org.eclipse.mdm.property.GlobalProperty;
 import org.eclipse.mdm.query.entity.QueryRequest;
 import org.eclipse.mdm.query.entity.Row;
 import org.eclipse.mdm.query.entity.SourceFilter;
+import org.eclipse.mdm.query.entity.SuggestionRequest;
 import org.eclipse.mdm.query.util.Util;
 
+/**
+ * 
+ * @author Matthias Koller, Peak Solution GmbH
+ *
+ */
 @Stateless
 public class QueryService {
 	
@@ -51,6 +67,30 @@ public class QueryService {
 		return rows;
 	}
 
+	public <T> List<T> getSuggestions(SuggestionRequest suggestionRequest) {
+		
+		String type = suggestionRequest.getType();
+		String attrName = suggestionRequest.getAttrName();
+		
+		List<T> res = new ArrayList<>();
+		for (String envName: suggestionRequest.getEnvironments()) {
+			ModelManager modelManager = getModelManager(this.connectorService.getEntityManagerByName(envName));
+			EntityType entityType = modelManager.getEntityType(type);
+			Attribute attr = entityType.getAttribute(attrName);
+
+			try {
+				List<Result> results = modelManager.createQuery()
+					.select(attr)
+					.group(attr)
+					.fetch();
+				results.forEach(r -> res.add(r.getValue(attr).extract()));
+			} catch (DataAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return res;
+	}
+	
 	List<Row> queryRowsForSource(EntityManager em, String resultEntity, List<String> columns, String filterString, String searchString) {
 		try {
 			ModelManager modelManager = getModelManager(em);

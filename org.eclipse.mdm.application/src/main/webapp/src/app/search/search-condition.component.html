@@ -13,21 +13,19 @@
   </div>
 </td>
 <td [ngSwitch]="condition.valueType">
-  <rl-tag-input *ngSwitchCase="'string'"
-    [addOnBlur]="true"
-    [addOnSpace]="false"
-    [addOnPaste]="false"
-    [addOnComma]="false"
-    [autocomplete]="true"
-    [autocompleteMustMatch]="false"
-    [autocompleteItems]="values"
+  <p-autoComplete *ngSwitchCase="'string'"
     [(ngModel)]="condition.value"
+    [suggestions]="displayedSuggestions"
+    (completeMethod)="updateSuggestions($event)"
+    [multiple]="true"
+    [delay]="0"
+    [size]="500"
+    [scrollHeight]="'50vh'"
     placeholder="Add search value"
-    [disabled]="disabled">
-  </rl-tag-input>
-
-  <div search-datepicker *ngSwitchCase="'date'" (onSetValue)="setValue($event)" style="width: 100%"></div>
-
+    [disabled]="disabled"
+    (keyup.enter)="onEnter($event)">
+  </p-autoComplete>
+  <div search-datepicker *ngSwitchCase="'date'" (onSetValue)="setValue($event)" style="width: 100%" [disabled]="disabled"></div>
   <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)" [disabled]="disabled">
 </td>
 <td style="vertical-align: middle"><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()" [disabled]="disabled"></button></td>

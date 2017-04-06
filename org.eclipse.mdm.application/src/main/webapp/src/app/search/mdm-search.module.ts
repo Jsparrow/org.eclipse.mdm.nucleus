@@ -14,18 +14,20 @@ import {SearchService} from './search.service';
 import {FilterService} from './filter.service';
 
 import {SearchattributeTreeModule} from '../searchattribute-tree/searchattribute-tree.module';
+import {AutoCompleteModule} from 'primeng/primeng';
 
 @NgModule({
   imports: [
     MDMCoreModule,
     TableViewModule,
     SearchattributeTreeModule,
+    AutoCompleteModule
   ],
   declarations: [
     MDMSearchComponent,
     SearchConditionComponent,
     SearchDatepickerComponent,
-    EditSearchFieldsComponent
+    EditSearchFieldsComponent,
   ],
   exports: [
     MDMSearchComponent,

@@ -54,7 +54,7 @@ export class Row {
       return '';
     }
   }
-  
+
   equals (row: Row) {
     return this.source === row.source && this.type === row.type && this.id === row.id;
   }
@@ -108,6 +108,19 @@ export class QueryService {
     } else {
       return Observable.of(new SearchResult());
     }
+  }
+
+  suggestValues(environments: string[], type: string, attribute: string) {
+    let body = JSON.stringify({
+      'environments': environments,
+      'type': type,
+      'attrName': attribute
+    });
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    let url =  this._prop.getUrl() + '/mdm/suggestions';
+    return this.http.post(url, body, options)
+      .map(res => res.json().data);
   }
 
   private handleError(error: Response) {

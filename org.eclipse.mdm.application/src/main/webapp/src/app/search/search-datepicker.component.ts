@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter} from '@angular/core';
+import {Component, Output, Input, EventEmitter} from '@angular/core';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -7,6 +7,7 @@ import { DatePipe } from '@angular/common';
 })
 export class SearchDatepickerComponent {
   @Output() onSetValue = new EventEmitter<string>();
+  @Input() disabled = false;
 
   date: any;
   constructor(private datePipe: DatePipe) {}
