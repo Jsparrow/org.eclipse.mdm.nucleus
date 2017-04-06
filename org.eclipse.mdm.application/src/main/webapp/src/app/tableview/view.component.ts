@@ -31,11 +31,13 @@ export class ViewComponent implements OnInit {
     this.viewChanged$.emit();
   }
 
-  public editSelectedView() {
+  public editSelectedView(e: Event) {
+    e.stopPropagation();
     this.editViewComponent.showDialog(this.selectedView);
   }
 
-  public newView() {
+  public newView(e: Event) {
+    e.stopPropagation();
     this.editViewComponent.showDialog(new View());
   }
 
@@ -65,7 +67,8 @@ export class ViewComponent implements OnInit {
     }
   }
 
-  saveView() {
+  saveView(e: Event) {
+    e.stopPropagation();
     this.viewService.saveView(this.selectedView);
   }
 }

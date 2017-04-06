@@ -31,8 +31,8 @@
     </div>
   </ul>
 </div>
-<button type="button" class="btn btn-default" (click)="newView()" title="New view"><span class="glyphicon glyphicon-plus"></span></button>
-<button type="button" class="btn btn-default" (click)="editSelectedView()" title="Edit view"><span class="glyphicon glyphicon-edit"></span></button>
-<button type="button" class="btn btn-default" (click)="saveView()" title="Save view"><span class="glyphicon glyphicon-floppy-disk"></span></button>
+<button type="button" class="btn btn-default" (click)="newView($event)" title="New view"><span class="glyphicon glyphicon-plus"></span></button>
+<button type="button" class="btn btn-default" (click)="editSelectedView($event)" title="Edit view"><span class="glyphicon glyphicon-edit"></span></button>
+<button type="button" class="btn btn-default" (click)="saveView($event)" title="Save view"><span class="glyphicon glyphicon-floppy-disk"></span></button>
 
 <edit-view></edit-view>

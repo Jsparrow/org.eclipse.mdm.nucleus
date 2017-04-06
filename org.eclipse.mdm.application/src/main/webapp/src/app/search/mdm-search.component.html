@@ -13,7 +13,7 @@
     width: 200px;
   }
 
-  :host /deep/ .dropdown-toggle {
+   :host /deep/ .dropdown-toggle {
     overflow: hidden;
     padding-right: 24px/* Optional for caret */
     ;
@@ -23,7 +23,7 @@
   }
   /* Optional for caret */
 
-  :host /deep/ .dropdown-toggle .caret {
+   :host /deep/ .dropdown-toggle .caret {
     position: absolute;
     right: 12px;
     top: calc(50% - 2px);
@@ -81,25 +81,30 @@
 
 <accordion>
 
-  <accordion-group  [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isBoxChecked}">
-    <div accordion-heading><input type="checkbox" [(ngModel)]="isBoxChecked" (click)="preventToggle($event)"/> Advanced search
-      <span class="pull-right glyphicon" style="color: #333 !important;" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
-    </div>
-    <div class="container-fluid">
-      <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
-        <div class="col-xs-6">
-          <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor()" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-plus"></span></button>
-          <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor(currentFilter.conditions)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-edit"></span></button>
-          <button type="button" class="btn btn-default" (click)="showSaveModal()" title="Save search filter" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-floppy-disk"></span></button>
+  <accordion-group [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isBoxChecked}">
+    <div accordion-heading style="margin-top: -5px; margin-bottom: -5px;">
+      <div class="row">
+        <div class="col-xs-9">
+          <div class="pull-left">
+            <input type="checkbox" [(ngModel)]="isBoxChecked" (click)="preventToggle($event)" /> &nbsp;Advanced search &nbsp;&nbsp;
+            <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor($event)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-plus"></span></button>
+            <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor($event,currentFilter.conditions)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-edit"></span></button>
+            <button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="Save search filter" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-floppy-disk"></span></button>
+          </div>
         </div>
-        <div class="col-xs-6" style="text-align: right;">
-          <button type="button" class="btn btn-default" (click)="resetConditions()" title="Reset search conditions" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-erase"></span></button>
+        <div class="col-xs-3 pull-right">
+          <div class="pull-right">
+            <button type="button" class="btn btn-default" (click)="resetConditions()" title="Reset search conditions" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-erase"></span></button> &nbsp; &nbsp;
+            <span class="glyphicon" style="color: #333 !important;" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
           <div *ngIf="layout.getEnvironments().length === 0" style="text-align: center; margin-bottom: 5px;">
-              Keine Suchattribute ausgewählt
+            Keine Suchattribute ausgewählt
           </div>
           <div *ngFor="let env of layout.getEnvironments()">
             <div *ngIf="layout.getConditions(env).length > 0">
@@ -112,7 +117,7 @@
                   <col style="width: 58%;">
                   <col style="width: 3%;">
                 </colgroup>
-                <tr search-condition class="condition" *ngFor="let condition of layout.getConditions(env)" [env]="env" [condition]="condition" [disabled]="!isBoxChecked"(onRemove)="removeCondition($event)">
+                <tr search-condition class="condition" *ngFor="let condition of layout.getConditions(env)" [env]="env" [condition]="condition" [disabled]="!isBoxChecked" (onRemove)="removeCondition($event)">
                 </tr>
               </table>
             </div>
@@ -122,26 +127,31 @@
     </div>
   </accordion-group>
   <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
-    <div accordion-heading>
-      Ergebnisse
-      <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></span>
-    </div>
-    <div class="container-fluid">
-      <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
-        <div class="col-md-6">
-          <mdm-view></mdm-view>
+    <div accordion-heading style="margin-top: -5px; margin-bottom: -5px;">
+      <div class="row">
+        <div class="col-xs-9">
+          <div class="pull-left">
+            Ergebnisse &nbsp;&nbsp;
+            <mdm-view></mdm-view>
+          </div>
         </div>
-        <div class="col-md-6" style="text-align: right;">
-          <button type="button" class="btn btn-default" title="Selection to basket" (click)="selected2Basket()">
-            <span class="glyphicon glyphicon-shopping-cart" style="color:#DADADA; margin-right: -12px;"></span>
-            <span class="glyphicon glyphicon-shopping-cart" style="color:#A8A4A4; margin-right: -12px;"></span>
-            <span class="glyphicon glyphicon-shopping-cart"></span>
-          </button>
+        <div class="col-xs-3 pull-right">
+          <div class="pull-right">
+            <button type="button" class="btn btn-default" title="Selection to basket" (click)="selected2Basket($event)">
+          <span class="glyphicon glyphicon-shopping-cart" style="color:#DADADA; margin-right: -12px;"></span>
+          <span class="glyphicon glyphicon-shopping-cart" style="color:#A8A4A4; margin-right: -12px;"></span>
+          <span class="glyphicon glyphicon-shopping-cart"></span>
+        </button> &nbsp;&nbsp;
+            <span class="glyphicon" [ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></span>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="container-fluid">
       <div class="row">
-        <div class="col-md-12" style="max-width: 100%; overflow: auto; margin-bottom: 5px;">
-          <mdm-tableview [results]="results" [view]="viewComponent.selectedView" isShopable="true" [menuItems]="contextMenuItems"></mdm-tableview>
+        <div class="col-md-12" style="max-width: 100%; overflow: auto; margin-bottom: 5px; margin-top: 5px;">
+          <mdm-tableview [results]="results" [view]="viewComponent.selectedView" isShopable="true" [menuItems]="contextMenuItems">
+          </mdm-tableview>
         </div>
       </div>
     </div>

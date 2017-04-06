@@ -241,15 +241,18 @@ export class MDMSearchComponent implements OnInit {
     this.calcCurrentSearch();
   }
 
-  selected2Basket() {
+  selected2Basket(e: Event) {
+    e.stopPropagation();
     this.tableViewComponent.selectedRows.forEach(row => this.basketService.add(row.getItem()));
   }
 
-  showSaveModal() {
+  showSaveModal(e: Event) {
+    e.stopPropagation();
     this.childSaveModal.show();
   }
 
-  showSearchFieldsEditor(conditions?: Condition[]) {
+  showSearchFieldsEditor(e: Event, conditions?: Condition[]) {
+    e.stopPropagation();
     this.editSearchFieldsComponent.show(conditions).subscribe(conds => {
       this.currentFilter.conditions = conds;
       this.calcCurrentSearch();
