@@ -9,7 +9,8 @@ import { MDMDetailComponent } from './mdm-detail.component';
 import { MDMDetailViewComponent } from './mdm-detail-view.component';
 import { MDMDescriptiveDataComponent } from './mdm-detail-descriptive-data.component';
 import { DetailViewService } from './detail-view.service';
-
+import { SensorComponent } from './sensor.component';
+import { ContextService } from './context.service';
 
 @NgModule({
   imports: [
@@ -21,12 +22,14 @@ import { DetailViewService } from './detail-view.service';
     MDMDetailComponent,
     MDMDetailViewComponent,
     MDMDescriptiveDataComponent,
+    SensorComponent,
   ],
   exports: [
     MDMDetailComponent
   ],
   providers: [
-    DetailViewService
+    DetailViewService,
+    ContextService
   ]
 })
 export class MDMDetailModule {

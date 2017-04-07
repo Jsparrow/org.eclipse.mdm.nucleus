@@ -118,8 +118,16 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 
 ## Preference Service
-Preference service stores its data to a relational database. The database connection is looked up be JNDI and the JNDI name is specified in src/main/resources/META-INF/persistence.xml. The default is set to jdbc/__default which is available in glassfish per default and uses a derby database. The derby database is not started automatically with glassfish, but has to be started with following command: GLASSFISH_HOME/bin/asadmin start-database
+Preference service stores its data to a relational database. The database connection is looked up by JNDI and the JNDI name and other database relevant parameters are specified in src/main/resources/META-INF/persistence.xml. Database DDL scripts are available for PostgreSQL and Apache Derby databases in the folder `schema/org.eclipse.mdm.preferences` of the distribution.
 
+### Quickstart with Apache Derby
+
+The default datasource is set to jdbc/__default, which is available in glassfish per default and uses a derby database. 
+The derby database is not started automatically with glassfish, but has to be started with following command: 
+`GLASSFISH_HOME/bin/asadmin start-database`
+With the default parameter from persistence.xml the schema is created automatically during deployment.
+
+### available rest URLs
 * http://SERVER:POART/APPLICATIONROOT/mdm/preferences
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences
 

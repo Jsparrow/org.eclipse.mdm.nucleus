@@ -12,6 +12,7 @@ import {Component} from '@angular/core';
 
 import {MDMDetailViewComponent} from './mdm-detail-view.component';
 import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.component';
+import {SensorComponent} from './sensor.component';
 
 @Component({
   selector: 'mdm-detail',
@@ -20,5 +21,10 @@ import {MDMDescriptiveDataComponent} from './mdm-detail-descriptive-data.compone
 })
 export class MDMDetailComponent {
 
+  uut = 'Prüfling';
+  ts = 'Testablauf';
+  te = 'Messgerät';
+  s = 'Sensoren';
   brand = 'Details';
+
 }

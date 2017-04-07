@@ -120,7 +120,11 @@ export class MDMSearchComponent implements OnInit {
     this.viewComponent.viewChanged$.subscribe(() => this.search());
   }
 
-  preventToggle(event: any) {
+  onViewClick(e: Event) {
+    e.stopPropagation();
+  }
+
+  onCheckBoxClick(event: any) {
     event.stopPropagation();
     this.isBoxChecked = event.target.checked;
   }

@@ -29,7 +29,7 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
   activeNode: Node;
   closeOther = false;
   navigator = 'Navigation';
-  basket = 'Warenkorb';
+
   activeNodeprovider: any;
   _comp = 'Navigation';
   subscription: any;

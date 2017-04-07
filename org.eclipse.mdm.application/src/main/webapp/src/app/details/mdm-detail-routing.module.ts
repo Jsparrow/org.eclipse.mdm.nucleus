@@ -4,11 +4,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { MDMDetailComponent } from './mdm-detail.component';
 import { MDMDetailViewComponent } from './mdm-detail-view.component';
 import { MDMDescriptiveDataComponent } from './mdm-detail-descriptive-data.component';
+import { SensorComponent } from './sensor.component';
 
 const detailRoutes: Routes = [
   { path: '',  component: MDMDetailComponent, children: [
     { path: '', redirectTo: 'general', pathMatch: 'full' },
     { path: 'general',  component: MDMDetailViewComponent },
+    { path: 'sensors',  component: SensorComponent },
     { path: ':context', component: MDMDescriptiveDataComponent }
   ]}
 ];

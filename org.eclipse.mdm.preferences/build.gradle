@@ -4,6 +4,7 @@ version = '1.0.0'
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
+apply plugin: 'jpa-schema-generate'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -26,4 +27,37 @@ dependencies {
   testCompile 'junit:junit:4.12'
   testCompile 'org.assertj:assertj-core:3.6.1'
   testRuntime 'org.apache.derby:derby:10.13.1.1'
+}
+
+sourceSets {
+    main {
+      // set output to same directories
+      // jpa implementations always scan classes using classpath that found persistence.xml
+        output.resourcesDir = output.classesDir
+    }
+}
+
+generateSchema {
+  vendor = "eclipselink"
+  packageToScan = ["org.eclipse.mdm.preferences"]
+  scriptAction = "drop-and-create"
+  targets {
+    postgres {
+      databaseProductName = "PostgreSQL"
+      databaseMajorVersion = 9
+      databaseMinorVersion = 0
+    }
+    derby {
+      databaseProductName = "Apache Derby"
+    }
+  }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'io.github.divinespear:jpa-schema-gradle-plugin:+'
+    }
 }

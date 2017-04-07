@@ -67,6 +67,13 @@ task collectConfiguration() {
 	}
 }
 
+task copySchema(dependsOn: ':org.eclipse.mdm.preferences:generateSchema') {
+  copy {
+    from "${project.projectDir}/org.eclipse.mdm.preferences/build/generated-schema/"
+    into "${project.projectDir}/build/tmp/mdmweb/schema/org.eclipse.mdm.preferences"
+  }
+}
+
 task distribute(type: Zip) {
 	archiveName = "mdm_web.zip"
 	from "${project.projectDir}/build/tmp/mdmweb"
@@ -84,6 +91,7 @@ war {
 } 
 
 war.finalizedBy(collectConfiguration)
+war.finalizedBy(copySchema)
 war.finalizedBy(distribute)
 
 jacoco {

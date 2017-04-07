@@ -41,6 +41,7 @@ export class MDMBasketComponent implements OnInit {
 
   basketName = 'basket';
   basketContent: SearchResult = new SearchResult();
+  basket = 'Warenkorb';
 
   baskets: Basket[] = [];
   selectedBasket: Basket;
@@ -75,6 +76,10 @@ export class MDMBasketComponent implements OnInit {
     this._basketService.itemsRemoved$.subscribe(items => this.removeItems(items));
 
     this.viewComponent.viewChanged$.subscribe(() => this.setItems(this._basketService.items));
+  }
+
+  onViewClick(e: Event) {
+    e.stopPropagation();
   }
 
   setItems(items: MDMItem[]) {
@@ -121,24 +126,28 @@ export class MDMBasketComponent implements OnInit {
     this._basketService.getBaskets().subscribe(baskets => this.baskets = baskets);
   }
 
-  clearBasket() {
+  clearBasket(e: Event) {
+    e.stopPropagation();
     this.basketContent = new SearchResult();
     this._basketService.removeAll();
     this.basketName = 'basket';
   }
 
-  showLoadModal() {
+  showLoadModal(e: Event) {
+    e.stopPropagation();
     this.selectedBasket = undefined;
     this.loadBaskets();
     this.childLoadModal.show();
   }
 
-  showSaveModal() {
+  showSaveModal(e: Event) {
+    e.stopPropagation();
     this.basketName = '';
     this.childSaveModal.show();
   }
 
-  downloadBasket() {
+  downloadBasket(e: Event) {
+    e.stopPropagation();
     let downloadContent = new Basket(this.basketName, this._basketService.getItems());
     let blob = new Blob([JSON.stringify(downloadContent)], {
          type: 'application/json'
@@ -146,8 +155,12 @@ export class MDMBasketComponent implements OnInit {
     FileSaver.saveAs(blob, this.basketName + '.json');
   }
 
-  onUploadChange(event) {
+  onUploadChange(event: Event) {
     this.onUploadEvent(event.target);
+  }
+
+  onUploadClick(e: Event) {
+    e.stopPropagation();
   }
 
   toggleSelect(basket: Basket) {

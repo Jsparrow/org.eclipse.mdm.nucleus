@@ -40,17 +40,7 @@
   <!-- <div class="split-pane-content-secondary"> -->
   <div class="navigator-content" style="margin-right: 15px;">
     <router-outlet></router-outlet>
-    <div style="padding-top: 15px;">
-      <accordion [closeOthers]="closeOther" >
-        <accordion-group #basketGroup [isOpen]="false">
-          <div accordion-heading>
-            {{basket}}
-            <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': basketGroup?.isOpen, 'glyphicon-chevron-right': !basketGroup?.isOpen}"></i>
-          </div>
-          <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
-        </accordion-group>
-      </accordion>
-    </div>
-</div>
+    <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
+  </div>
   <!-- </div> -->
 <!-- </vertical-split-pane> -->

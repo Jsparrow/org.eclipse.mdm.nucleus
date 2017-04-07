@@ -23,7 +23,6 @@ import {NavigatorService} from '../navigator/navigator.service';
 @Component({
   selector: 'mdm-detail-context',
   templateUrl: 'mdm-detail-descriptive-data.component.html',
-  providers: [ContextService]
 })
 export class MDMDescriptiveDataComponent implements OnInit {
   selectedNode: Node;
@@ -36,8 +35,8 @@ export class MDMDescriptiveDataComponent implements OnInit {
   status = 'loading...';
 
   uut = 'Prüfling';
-  ts = 'Messgerät';
-  te = 'Testablauf';
+  ts = 'Testablauf';
+  te = 'Messgerät';
   s = 'Sensoren';
 
   constructor(private route: ActivatedRoute,
@@ -76,9 +75,6 @@ export class MDMDescriptiveDataComponent implements OnInit {
                 }
           },
           error => this.errorMessage = <any>error);
-        this._contextService.getSensors(node).subscribe(
-            sensors => this.sensors = sensors,
-            error => this.errorMessage = <any>error);
       } else {
         this.status = 'Keine beschreibende Daten verfügbar';
       }
