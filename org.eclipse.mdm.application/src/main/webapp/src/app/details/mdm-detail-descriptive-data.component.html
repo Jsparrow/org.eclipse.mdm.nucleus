@@ -18,7 +18,7 @@
 <div *ngIf="contexts">
 <accordion *ngIf="isUUT()">
   <accordion-group *ngFor="let template of contexts['UNITUNDERTEST']" #UUT>
-    <div accordion-heading>{{template.name}}
+    <div accordion-heading class="thinHeader">{{template.name}}
       <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': UUT?.isOpen, 'glyphicon-chevron-right': !UUT?.isOpen}"></span>
     </div>
     <table class="table table-hover">
@@ -41,7 +41,7 @@
 </accordion>
 <accordion *ngIf="isTS()">
   <accordion-group *ngFor="let template of contexts['TESTSEQUENCE']" #TS>
-    <div accordion-heading>{{template.name}}
+    <div accordion-heading class="thinHeader">{{template.name}}
       <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': TS?.isOpen, 'glyphicon-chevron-right': !TS?.isOpen}"></span>
     </div>
     <table class="table table-hover">
@@ -64,7 +64,7 @@
 </accordion>
 <accordion *ngIf="isTE()">
   <accordion-group *ngFor="let template of contexts['TESTEQUIPMENT']" #TE>
-    <div accordion-heading>{{template.name}}
+    <div accordion-heading class="thinHeader">{{template.name}}
       <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': TE?.isOpen, 'glyphicon-chevron-right': !TE?.isOpen}"></span>
     </div>
     <table class="table table-hover">

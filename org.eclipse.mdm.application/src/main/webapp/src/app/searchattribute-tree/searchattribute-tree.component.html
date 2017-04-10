@@ -1,4 +1,4 @@
-<p-tree [value]="nodes" selectionMode="single" (onNodeExpand)="loadNodes($event)" (onNodeSelect)="nodeSelect($event)">
+<p-tree [value]="nodes" selectionMode="single" (onNodeExpand)="loadNodes($event)" (onNodeSelect)="nodeSelect($event)" >
     <template let-node pTemplate="default">
         <span [title]="node.label" >{{ node.label }}</span>
     </template>

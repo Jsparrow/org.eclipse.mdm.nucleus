@@ -29,9 +29,6 @@
     top: calc(50% - 2px);
   }
 
-  .mar {
-    margin-left: 15px;
-  }
 </style>
 <form class="form-inline" style="margin-bottom: 10px; width:100% !important;">
   <div class="form-group">
@@ -82,7 +79,7 @@
 <accordion>
 
   <accordion-group [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isBoxChecked}">
-    <div accordion-heading style="margin-top: -5px; margin-bottom: -5px;">
+    <div accordion-heading class="thinHeader">
       <div class="row">
         <div class="col-xs-9">
           <div class="pull-left">
@@ -132,7 +129,7 @@
     </div>
   </accordion-group>
   <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
-    <div accordion-heading style="margin-top: -5px; margin-bottom: -5px;">
+    <div accordion-heading class="thinHeader">
       <div class="row">
         <div class="col-xs-9">
           <div class="pull-left">
@@ -154,10 +151,8 @@
     </div>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-md-12" style="max-width: 100%; overflow: auto; margin-bottom: 5px; margin-top: 5px;">
           <mdm-tableview [results]="results" [view]="viewComponent.selectedView" isShopable="true" [menuItems]="contextMenuItems">
           </mdm-tableview>
-        </div>
       </div>
     </div>
   </accordion-group>

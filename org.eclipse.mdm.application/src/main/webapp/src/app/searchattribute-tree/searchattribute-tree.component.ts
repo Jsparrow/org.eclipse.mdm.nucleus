@@ -21,6 +21,7 @@ export class SearchattributeTreeComponent implements OnChanges {
   @Input() environments: Node[];
   @Input() searchAttributes: SearchAttribute[];
 
+  lastClickTime = 0;
   nodes: TreeNode[] = [];
   selectedAttribute: { label: string, group: string, attribute: SearchAttribute };
   public onNodeSelect$ = new EventEmitter<TreeNode>();
@@ -38,6 +39,10 @@ export class SearchattributeTreeComponent implements OnChanges {
     }
   }
 
+  // onDblClick(e: any) {
+  //   let label = e.target.childNodes[0].data;
+  // }
+
   mapRootNode(node: Node) {
     let item = new MDMItem(node.sourceName, node.type, +node.id);
 
@@ -49,7 +54,7 @@ export class SearchattributeTreeComponent implements OnChanges {
     };
   }
 
-  loadNodes(event) {
+  loadNodes(event: any) {
     if (event.node) {
       event.node.children = this.getChildren(event.node);
     }
@@ -105,5 +110,12 @@ export class SearchattributeTreeComponent implements OnChanges {
 
   nodeSelect(event) {
     this.onNodeSelect$.emit(event.node);
+    if (event.originalEvent.timeStamp - this.lastClickTime < 300) {
+      if (!event.node.expanded && !event.node.children) {
+        this.loadNodes(event);
+      }
+      event.node.expanded = !event.node.expanded;
+    }
+    this.lastClickTime = event.originalEvent.timeStamp;
   }
 }

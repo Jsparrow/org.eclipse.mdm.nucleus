@@ -71,3 +71,8 @@ body .mdmtree .ui-treenode .ui-treenode-content .ui-tree-toggler { width: 1em; }
   color: #ccc !important;
   border-color: #e3e3e3 !important;
 }
+
+div .thinHeader {
+  margin-top: -5px;
+  margin-bottom: -5px;
+}
