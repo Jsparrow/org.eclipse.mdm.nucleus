@@ -48,6 +48,27 @@ public class PoolService {
 	private NavigationActivity navigationActivity;
 	
 	/**
+	 * Default no-arg constructor for EJB
+	 */
+	public PoolService() {
+		
+	}
+	
+	/**
+	 * Contructor for unit testing
+	 * @param connectorService {@link ConnectorService} to use
+	 * @param searchActivity {@link SearchActivity} to use
+	 * @param navigationActivity {@link NavigationActivity} to use
+	 * @param i18nActivity {@link I18NActivity} to use
+	 */
+	PoolService(ConnectorService connectorService, SearchActivity searchActivity, NavigationActivity navigationActivity, I18NActivity i18nActivity) {
+		this.connectorService = connectorService;
+		this.searchActivity = searchActivity;
+		this.navigationActivity = navigationActivity;
+		this.i18nActivity = i18nActivity;
+	}
+	
+	/**
 	 * returns the matching {@link Pool}s using the given filter or all {@link Pool}s 
 	 * if no filter is available
 	 * 

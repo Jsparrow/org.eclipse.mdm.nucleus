@@ -44,6 +44,25 @@ public class ProjectService {
 	private SearchActivity searchActivity;
 	
 	/**
+	 * Default no-arg constructor for EJB
+	 */
+	public ProjectService() {
+		
+	}
+	
+	/**
+	 * Contructor for unit testing
+	 * @param connectorService {@link ConnectorService} to use
+	 * @param searchActivity {@link SearchActivity} to use
+	 * @param i18nActivity {@link I18NActivity} to use
+	 */
+	ProjectService(ConnectorService connectorService, SearchActivity searchActivity, I18NActivity i18nActivity) {
+		this.connectorService = connectorService;
+		this.searchActivity = searchActivity;
+		this.i18nActivity = i18nActivity;
+	}
+
+	/**
 	 * returns the matching {@link Project}s using the given filter or all {@link Project}s 
 	 * if no filter is available
 	 * 

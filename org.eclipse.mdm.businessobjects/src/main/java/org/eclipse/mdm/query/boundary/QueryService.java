@@ -12,6 +12,7 @@ package org.eclipse.mdm.query.boundary;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,12 +33,15 @@ import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.SearchParamParser;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
+import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
 import org.eclipse.mdm.property.GlobalProperty;
 import org.eclipse.mdm.query.entity.QueryRequest;
 import org.eclipse.mdm.query.entity.Row;
 import org.eclipse.mdm.query.entity.SourceFilter;
 import org.eclipse.mdm.query.entity.SuggestionRequest;
 import org.eclipse.mdm.query.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -46,6 +50,8 @@ import org.eclipse.mdm.query.util.Util;
  */
 @Stateless
 public class QueryService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(QueryService.class); 
 	
 	@Inject
 	@GlobalProperty(value = "businessobjects.query.maxresultspersource")
@@ -59,36 +65,52 @@ public class QueryService {
 		List<Row> rows = new ArrayList<>();
 		
 		for (SourceFilter filter : request.getFilters()) {
-			EntityManager em = this.connectorService.getEntityManagerByName(filter.getSourceName());
+			try {
+				EntityManager em = this.connectorService.getEntityManagerByName(filter.getSourceName());
 			
-			rows.addAll(queryRowsForSource(em, request.getResultType(), request.getColumns(), filter.getFilter(), filter.getSearchString()));
+				rows.addAll(queryRowsForSource(em, request.getResultType(), request.getColumns(), filter.getFilter(), filter.getSearchString()));
+			}
+			catch (ConnectorServiceException e) {
+				LOG.warn("Could not retrieve EntityManager for environment '"  + filter.getSourceName() + "'!", e);
+			}
+			catch (Exception e) {
+				LOG.warn("Could not retrieve query results for environment '"  + filter.getSourceName() + "': " + e.getMessage(), e);
+			}
 		}
 			
 		return rows;
 	}
 
-	public <T> List<T> getSuggestions(SuggestionRequest suggestionRequest) {
+	public List<String> getSuggestions(SuggestionRequest suggestionRequest) {
 		
-		String type = suggestionRequest.getType();
-		String attrName = suggestionRequest.getAttrName();
+		List<String> suggestions = new ArrayList<>();
 		
-		List<T> res = new ArrayList<>();
 		for (String envName: suggestionRequest.getEnvironments()) {
-			ModelManager modelManager = getModelManager(this.connectorService.getEntityManagerByName(envName));
-			EntityType entityType = modelManager.getEntityType(type);
-			Attribute attr = entityType.getAttribute(attrName);
-
-			try {
-				List<Result> results = modelManager.createQuery()
-					.select(attr)
-					.group(attr)
-					.fetch();
-				results.forEach(r -> res.add(r.getValue(attr).extract()));
-			} catch (DataAccessException e) {
-				e.printStackTrace();
+			
+			EntityManager em = this.connectorService.getEntityManagerByName(envName);
+			Optional<ModelManager> mm = em.getModelManager();
+			
+			if (mm.isPresent()) {
+	
+				try {
+					EntityType entityType = mm.get().getEntityType(suggestionRequest.getType());
+				
+					Attribute attr = entityType.getAttribute(suggestionRequest.getAttrName());
+				
+					suggestions.addAll(mm.get().createQuery()
+						.select(attr)
+						.group(attr)
+						.fetch()
+						.stream()
+						.map(r -> Objects.toString(r.getValue(attr).extract()))
+						.collect(Collectors.toList()));
+					
+				} catch (DataAccessException | IllegalArgumentException e) {
+					LOG.warn("Cannot retreive suggestions " + suggestionRequest + " for Environment + " + envName + "!", e);
+				}
 			}
 		}
-		return res;
+		return suggestions;
 	}
 	
 	List<Row> queryRowsForSource(EntityManager em, String resultEntity, List<String> columns, String filterString, String searchString) {

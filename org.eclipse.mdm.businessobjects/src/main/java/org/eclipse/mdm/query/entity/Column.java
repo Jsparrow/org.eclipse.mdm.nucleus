@@ -10,6 +10,8 @@
   *******************************************************************************/
 package org.eclipse.mdm.query.entity;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -64,6 +66,27 @@ public class Column {
 
 	public void setUnit(String unit) {
 		this.unit = unit;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(type, attribute, value, unit);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Column other = (Column) obj;
+		return Objects.equals(this.type, other.type)
+				&& Objects.equals(this.attribute, other.attribute)
+				&& Objects.equals(this.value, other.value)
+				&& Objects.equals(this.unit, other.unit);
 	}
 	
 	@Override

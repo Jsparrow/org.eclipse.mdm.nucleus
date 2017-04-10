@@ -13,6 +13,7 @@ package org.eclipse.mdm.query.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import jersey.repackaged.com.google.common.base.MoreObjects;
 
@@ -70,8 +71,32 @@ public class Row {
 	}
 	
 	@Override
+	public int hashCode() {
+		return Objects.hash(source, type, id, columns);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Row other = (Row) obj;
+		return Objects.equals(this.source, other.source)
+				&& Objects.equals(this.type, other.type)
+				&& Objects.equals(this.id, other.id)
+				&& Objects.equals(this.columns, other.columns);
+	}
+	
+	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(Row.class)
+				.add("source", source)
+				.add("type", type)
+				.add("id", id)
 				.add("columns", columns)
 				.toString();
 	}
