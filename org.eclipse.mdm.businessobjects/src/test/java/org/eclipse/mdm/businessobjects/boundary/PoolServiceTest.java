@@ -1,3 +1,13 @@
+/*******************************************************************************
+  * Copyright (c) 2017 Peak Solution GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Matthias Koller - initial implementation
+  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
 import static org.mockito.Mockito.doThrow;
@@ -15,7 +25,6 @@ import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.ModelManager;
-import org.eclipse.mdm.api.base.query.SearchService;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.api.dflt.model.Project;
