@@ -2,16 +2,7 @@
 <ul class="nav nav-tabs">
   <li *ngFor="let m of links" [routerLinkActive]="['active']" role="presentation"><a routerLink="{{m.path}}" style="cursor:pointer;"> {{m.name}}</a></li>
 </ul>
-<!--
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="collapse navbar-collapse" id="bs-mainview-navbar">
-      <ul class="nav navbar-nav">
-        <li *ngFor="let m of links" [routerLinkActive]="['active']"><a routerLink="{{m.path}}" style="cursor:pointer;"> {{m.name}}</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>-->
+
 <div class="tab-content" style="border: 1px solid #ddd; border-top: 0; padding: 1em;">
   <div class="tab-pane active">
     <router-outlet></router-outlet>

@@ -36,7 +36,7 @@ export class PreferenceComponent implements OnInit, OnDestroy {
 
   onScopeChange(params: any) {
       this.scope = params['scope'];
-      this.preferenceService.getPreference(this.scope)
+      this.preferenceService.getPreferenceForScope(this.scope)
         .subscribe(pref => this.preferences = pref);
   }
 
@@ -69,7 +69,7 @@ export class PreferenceComponent implements OnInit, OnDestroy {
   }
 
   reloadPreference( preference: Preference ) {
-      this.preferenceService.getPreference( preference.scope, preference.key )
+      this.preferenceService.getPreferenceForScope( preference.scope, preference.key )
           .subscribe(p => this.preferences.push(p[0]));
   }
 

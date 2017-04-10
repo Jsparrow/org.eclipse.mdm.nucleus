@@ -27,8 +27,6 @@ import org.eclipse.mdm.query.entity.QueryRequest;
 import org.eclipse.mdm.query.entity.QueryResult;
 import org.eclipse.mdm.query.entity.SuggestionRequest;
 import org.eclipse.mdm.query.entity.SuggestionResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -38,8 +36,6 @@ import org.slf4j.LoggerFactory;
 @Path("/")
 public class QueryResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(QueryResource.class); 
-	
 	@EJB
 	private QueryService queryService;
 	
@@ -60,7 +56,6 @@ public class QueryResource {
 			List<String> suggestions = queryService.getSuggestions(suggestionRequest);
 			return ServiceUtils.toResponse(new SuggestionResponse(suggestions), Status.OK);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}

@@ -19,10 +19,6 @@ public class EntityId {
 	private String source;
 	private String type;
 	private long id;
-	
-	public EntityId() {
-		// TODO Auto-generated constructor stub
-	}
 
 	public String getSource() {
 		return source;

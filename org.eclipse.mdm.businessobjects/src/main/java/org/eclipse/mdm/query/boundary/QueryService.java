@@ -29,7 +29,6 @@ import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.api.base.query.SearchService;
 import org.eclipse.mdm.api.dflt.EntityManager;
-import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.SearchParamParser;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -113,31 +112,26 @@ public class QueryService {
 		return suggestions;
 	}
 	
-	List<Row> queryRowsForSource(EntityManager em, String resultEntity, List<String> columns, String filterString, String searchString) {
-		try {
-			ModelManager modelManager = getModelManager(em);
-			
-			SearchService searchService = ServiceUtils.getSearchService(em);
-			
-			Class<? extends Entity> resultType = getEntityClassByNameType(searchService, resultEntity);
+	List<Row> queryRowsForSource(EntityManager em, String resultEntity, List<String> columns, String filterString, String searchString) throws DataAccessException {
 
-			List<EntityType> searchableTypes = searchService.listEntityTypes(resultType);
-			List<Attribute> attributes = columns.stream()
-					.map(c -> getAttribute(searchableTypes, c))
-					.filter(Optional::isPresent)
-				    .map(Optional::get)
-					.collect(Collectors.toList());
+		ModelManager modelManager = getModelManager(em);
+		
+		SearchService searchService = ServiceUtils.getSearchService(em);
+		
+		Class<? extends Entity> resultType = getEntityClassByNameType(searchService, resultEntity);
 
-			Filter filter = SearchParamParser.parseFilterString(searchableTypes, filterString);
-			
-			List<Result> result = searchService.fetchResults(resultType, attributes, filter, searchString);
-	
-			
-			return Util.convertResultList(result.subList(0, Math.min(result.size(), getMaxResultsPerSource())), resultType, modelManager.getEntityType(resultType));
-			
-		} catch (DataAccessException e) {
-			throw new MDMEntityAccessException(e.getMessage(), e);
-		}
+		List<EntityType> searchableTypes = searchService.listEntityTypes(resultType);
+		List<Attribute> attributes = columns.stream()
+				.map(c -> getAttribute(searchableTypes, c))
+				.filter(Optional::isPresent)
+			    .map(Optional::get)
+				.collect(Collectors.toList());
+
+		Filter filter = SearchParamParser.parseFilterString(searchableTypes, filterString);
+		
+		List<Result> result = searchService.fetchResults(resultType, attributes, filter, searchString);
+		
+		return Util.convertResultList(result.subList(0, Math.min(result.size(), getMaxResultsPerSource())), resultType, modelManager.getEntityType(resultType));
 	}
 	
 	private ModelManager getModelManager(EntityManager em) {
@@ -179,7 +173,7 @@ public class QueryService {
 			}
 		}
 		throw new IllegalArgumentException("Invalid Entity '" + name + "'. Allowed values are: " 
-				+ s.listSearchableTypes().stream().map(c -> c.getSimpleName()).collect(Collectors.joining(", ")));
+				+ s.listSearchableTypes().stream().map(Class::getSimpleName).collect(Collectors.joining(", ")));
 	}
 	
 	private int getMaxResultsPerSource() {

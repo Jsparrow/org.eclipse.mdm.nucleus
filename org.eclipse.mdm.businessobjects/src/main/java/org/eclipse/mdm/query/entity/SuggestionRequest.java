@@ -24,9 +24,8 @@ public class SuggestionRequest {
 	private String attrName;
 	
 	public SuggestionRequest() {
-		
+		// empty no arg constructor
 	}
-	
 	public SuggestionRequest (List<String> environments, String type, String name) {
 		this.environments = environments;
 		this.type = type;

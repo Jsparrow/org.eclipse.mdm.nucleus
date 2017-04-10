@@ -23,10 +23,6 @@ public class QueryRequest {
 	private List<String> columns;
 	private String resultType;
 	
-	public QueryRequest() {
-		// TODO Auto-generated constructor stub
-	}
-	
 	public List<SourceFilter> getFilters() {
 		return filters;
 	}

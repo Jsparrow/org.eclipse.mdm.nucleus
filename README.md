@@ -244,7 +244,7 @@ Source scoped preferences are applied at any user but limited to the specified s
 The ignore attributes preference must have the exact key `ignoredAttributes`. An identifier must not be added. The preference specifies all attributes, which are supposed to be ignored in the detail view. The preference is a simple Json string holding a list of attributes in the form {"<type>.<AttributeName>"}. The placeholders <type> and <AttributeName> have to be replaced by the actual type and name of the attribute which should be ignored, respectively.
 
 **Example:
-["Test.Name"]
+["*.MimeType", "TestStep.Sortindex"]
 
 ##Create a module
 Any MDM module needs to be a valid angular2 module. An angular2 module consists of one angular2 component and one ng-module at least. In the angular2 component any content can be defined. The component must be declared in a ng-module to grant accessibility in the rest of the application. In a module additional components and services can be defined. All related files should be stored in a new subfolder in the app folder
@@ -319,11 +319,18 @@ It can be embedded as any other module described above. Register to **moduleRout
  { path: 'filerelease', component: MDMFilereleaseComponent }
 ***
 
+Add entry to **links** array in **MDMModulesComponent**: 
+***
+  { name: 'MDM Suche', path: 'search'}
+***
+
 To make the filerelease module available in the detail view it needs to be imported in the corresponding ng-module **mdm-detail.module.ts**.
 Thereafter, the MDMFilereleaseCreateComponent can be imported to the **mdm-detail-view.component.ts**. Then the following has to be added to the **mdm-detail-view.component.html** file:
 ***
   <mdm-filerelease-create [node]=selectedNode [disabled]="isReleasable()"></mdm-filerelease-create>
 ***
+
+
 
 It should be located right after the add to basket button:
 ***

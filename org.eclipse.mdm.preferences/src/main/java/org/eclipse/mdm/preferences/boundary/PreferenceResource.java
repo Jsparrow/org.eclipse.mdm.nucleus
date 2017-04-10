@@ -1,3 +1,13 @@
+/*******************************************************************************
+  * Copyright (c) 2017 Peak Solution GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Johannes Stamm - initial implementation
+  *******************************************************************************/
 package org.eclipse.mdm.preferences.boundary;
 
 import java.util.List;
@@ -12,17 +22,22 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.preferences.controller.PreferenceService;
-import org.eclipse.mdm.preferences.entity.PreferenceResponse;
-import org.eclipse.mdm.preferences.entity.PreferencesResponse;
-import org.eclipse.mdm.preferences.utils.ServiceUtils;
+import org.eclipse.mdm.preferences.entity.PreferenceMessage;
+import org.eclipse.mdm.preferences.entity.PreferenceList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author Johannes Stamm, Peak Solution GmbH
+ *
+ */
 @Path("/preferences")
 public class PreferenceResource {
 	
@@ -30,12 +45,6 @@ public class PreferenceResource {
 	
 	@EJB
 	private PreferenceService preferenceService;
-	
-	@GET
-	@Path("/ping")
-	public String ping() {
-		return "it works";
-	}
 	
 	/**
 	 * delegates the request to the {@link PreferenceService}
@@ -49,8 +58,8 @@ public class PreferenceResource {
 	public Response getPreference(@QueryParam("scope") String scope, @QueryParam("key") String key) {
 		
 		try {			
-			List<PreferenceResponse> config = this.preferenceService.getPreferences(scope, key);
-			return ServiceUtils.toResponse(new PreferencesResponse(config), Status.OK);
+			List<PreferenceMessage> config = this.preferenceService.getPreferences(scope, key);
+			return toResponse(new PreferenceList(config), Status.OK);
 		
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
@@ -58,14 +67,21 @@ public class PreferenceResource {
 		}
 	}
 
+	/**
+	 * delegates the request to the {@link PreferenceService}
+	 * 
+	 * @param source filter by source
+	 * @param key filter by key, empty loads all
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@GET
 	@Path("/source")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPreferenceBySource(@QueryParam("source") String source, @QueryParam("key") String key) {
 		
 		try {			
-			List<PreferenceResponse> config = this.preferenceService.getPreferencesBySource(source, key);
-			return ServiceUtils.toResponse(new PreferencesResponse(config), Status.OK);
+			List<PreferenceMessage> config = this.preferenceService.getPreferencesBySource(source, key);
+			return toResponse(new PreferenceList(config), Status.OK);
 		
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
@@ -81,28 +97,43 @@ public class PreferenceResource {
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response setPreference(PreferenceResponse preference) {
+	public Response setPreference(PreferenceMessage preference) {
 		
 		try {
-			return ServiceUtils.toResponse(this.preferenceService.save(preference), Status.CREATED);
+			return toResponse(this.preferenceService.save(preference), Status.CREATED);
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
+	/**
+	 * delegates the request to the {@link PreferenceService}
+	 * 
+	 * @param preference Configuration to delete
+	 * @return the result of the delegated request as {@link Response}
+	 */
 	@DELETE
 	@Path("/{ID}")
 	public Response deletePreference(@PathParam("ID") Long id){
 		
 		try {
-//			this.preferenceService.deletePreference(id);
-//			return Response.ok().build();
-			return ServiceUtils.toResponse(this.preferenceService.deletePreference(id), Status.OK);
+			return toResponse(this.preferenceService.deletePreference(id), Status.OK);
 		} catch(RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
+	/**
+	 * converts the given object to a {@link Response} with the given {@link Status}
+	 *
+	 * @param responseEntry object to convert
+	 * @param status {@link Status} of the {@link Response}
+	 * @return the created {@link Response}
+	 */
+	private Response toResponse(Object response, Status status) {
+		GenericEntity<Object> genEntity = new GenericEntity<>(response, response.getClass());
+		return Response.status(status).entity(genEntity).type(MediaType.APPLICATION_JSON).build();
+	}
 }

@@ -19,10 +19,6 @@ import java.util.List;
  */
 public class QueryResult {
 	private List<Row> rows;
-	
-	public QueryResult() {
-		// TODO Auto-generated constructor stub
-	}
 
 	public QueryResult(List<Row> rows) {
 		this.rows = rows;

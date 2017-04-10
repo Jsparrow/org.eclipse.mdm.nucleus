@@ -20,10 +20,6 @@ public class SourceFilter {
 	private String filter;
 	private String searchString;
 	
-	public SourceFilter() {
-		// TODO Auto-generated constructor stub
-	}
-
 	public String getSourceName() {
 		return sourceName;
 	}

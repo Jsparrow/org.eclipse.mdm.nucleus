@@ -47,7 +47,7 @@ public class ProjectService {
 	 * Default no-arg constructor for EJB
 	 */
 	public ProjectService() {
-		
+		// Default no-arg constructor for EJB
 	}
 	
 	/**

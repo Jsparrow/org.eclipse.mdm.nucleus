@@ -108,7 +108,7 @@ export class FilterService {
   }
 
   getFilters() {
-    return this.preferenceService.getPreference('User', 'filter.nodes.')
+    return this.preferenceService.getPreferenceForScope('User', 'filter.nodes.')
       .map(preferences => preferences.map(p => this.preferenceToFilter(p)));
   }
 

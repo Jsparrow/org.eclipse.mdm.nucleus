@@ -1,7 +1,16 @@
+/*******************************************************************************
+  * Copyright (c) 2017 Peak Solution GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Johannes Stamm - initial implementation
+  *******************************************************************************/
 package org.eclipse.mdm.preferences.entity;
 
 import java.util.Objects;
-import java.util.StringJoiner;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +21,15 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
+import com.google.common.base.MoreObjects;
+
+/**
+ * 
+ * @author Johannes Stamm, Peak Solution GmbH
+ *
+ */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"source", "username", "keyCol"})})
 public class Preference {
@@ -108,12 +126,13 @@ public class Preference {
 		}
 
 		final Preference other = (Preference) obj;
-
-		return Objects.equals(this.id, other.id)
-				&& Objects.equals(this.source, other.source)
-				&& Objects.equals(this.user, other.user)
-				&& Objects.equals(this.key, other.key)
-				&& Objects.equals(this.value, other.value);
+		return new EqualsBuilder()
+				.append(this.id, other.id)
+				.append(this.source, other.source)
+				.append(this.user, other.user)
+				.append(this.key, other.key)
+				.append(this.value, other.value)
+				.isEquals();
 	}
 	
 	@Override
@@ -123,12 +142,13 @@ public class Preference {
 	
 	@Override
 	public String toString() {
-		return new StringJoiner(", ", Preference.class.getSimpleName() + "[", "]")
-			    .add("id=" + id)
-			    .add("source=" + source)
-			    .add("user=" + user)
-			    .add("key=" + key)
-			    .add("value=" + value)
-			    .toString();
+		return MoreObjects.toStringHelper(Preference.class)
+				.add("id", id)
+				.add("source", source)
+				.add("user", user)
+				.add("key", key)
+				.add("value", value)
+				.toString();
 	}
+	
 }

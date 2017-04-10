@@ -78,7 +78,7 @@ export class BasketService {
   }
 
   getBaskets() {
-    return this._pref.getPreference('', 'basket.nodes.')
+    return this._pref.getPreferenceForScope('', 'basket.nodes.')
       .map(preferences => preferences.map(p => this.preferenceToBasket(p)));
   }
 

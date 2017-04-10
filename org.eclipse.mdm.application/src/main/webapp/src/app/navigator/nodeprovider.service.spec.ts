@@ -17,15 +17,10 @@ declare function require(path: string): any;
 const defaultNodeProvider = require('../navigator/defaultnodeprovider.json');
 
 class TestPreferenceService {
-  getPreference( scope: string, key?: string ): Observable<Preference[]> {
+  getPreferenceForScope( scope: string, key?: string ): Observable<Preference[]> {
     let p = new Preference();
     p.value = JSON.stringify(defaultNodeProvider);
     return Observable.of([p]);
-    /*new Promise(function(resolve, reject) {
-      let p = new Preference();
-      p.value = JSON.stringify(defaultNodeProvider)
-      resolve([p]);
-    });*/
   }
 }
 

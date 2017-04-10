@@ -12,9 +12,7 @@ export class MDMModulesComponent {
   brand = 'Modules';
   links = [
     { name: 'Details', path: 'details'},
-    { name: 'MDM Suche', path: 'search'},
-    { name: 'Freigabeübersicht', path: 'filerelease'},
-    // { name: 'Example Module', path: 'example'},
+    { name: 'MDM Suche', path: 'search'}
   ];
   constructor(private router: Router) {}
 }

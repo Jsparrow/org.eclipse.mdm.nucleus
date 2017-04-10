@@ -28,7 +28,7 @@ describe ( 'SearchService', () => {
         ]
       };
 
-      let conditionsPerEnv = service.group([cond1, cond2], attributes);
+      let conditionsPerEnv = service.group(attributes);
 
       expect(Object.keys(conditionsPerEnv).length)
         .toBe(3);

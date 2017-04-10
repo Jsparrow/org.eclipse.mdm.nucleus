@@ -1,6 +1,17 @@
+/*******************************************************************************
+  * Copyright (c) 2017 Peak Solution GmbH
+  * All rights reserved. This program and the accompanying materials
+  * are made available under the terms of the Eclipse Public License v1.0
+  * which accompanies this distribution, and is available at
+  * http://www.eclipse.org/legal/epl-v10.html
+  *
+  * Contributors:
+  * Johannes Stamm - initial implementation
+  *******************************************************************************/
 package org.eclipse.mdm.preferences.controller;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,34 +20,75 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
-import org.eclipse.mdm.preferences.entity.PreferenceResponse;
-import org.eclipse.mdm.preferences.entity.PreferenceResponse.Scope;
 import org.eclipse.mdm.preferences.entity.Preference;
+import org.eclipse.mdm.preferences.entity.PreferenceMessage;
+import org.eclipse.mdm.preferences.entity.PreferenceMessage.Scope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
+
+/**
+ * 
+ * @author Johannes Stamm, Peak Solution GmbH
+ *
+ */
 @Stateless
 public class PreferenceService
 {
+	private static final Logger LOG = LoggerFactory.getLogger(PreferenceService.class); 
+	
 	@PersistenceContext(unitName="preferences")
 	private EntityManager em;
 
 	@Resource
 	private SessionContext sessionContext;
 	
-	public List<PreferenceResponse> getPreferences(String scope, String key) {
-		String query = queryBuilder(scope, key);
-		return loadQuery(query, key);	
+	public PreferenceService() {
+		// public no-arg constructor
 	}
 	
-	public List<PreferenceResponse> getPreferencesBySource(String source, String key) {
-		if (key != null && key.trim().length() > 0) {
+	/**
+	 * Constructor for unit tests
+	 * @param em EntityManager to use
+	 * @param sessionContext sessionManager to use
+	 */
+	PreferenceService(EntityManager em, SessionContext sessionContext) {
+		this.em = em;
+		this.sessionContext = sessionContext;
+	}
+	
+	public List<PreferenceMessage> getPreferences(String scope, String key) {
+
+		TypedQuery<Preference> query;
+		if (scope == null || scope.trim().isEmpty()) {
+			query = em.createQuery("select p from Preference p where p.user is null or p.user = :user", Preference.class)
+					.setParameter("user", sessionContext.getCallerPrincipal().getName());
+		} else {
+			query = em.createQuery(buildQuery(scope, key), Preference.class);
+			
+			if (key != null && !key.trim().isEmpty()) {
+				query.setParameter("key", key.toLowerCase() + "%");
+			}
+		}
+		
+		return query.getResultList()
+				.stream()
+				.map(this::convert)
+				.collect(Collectors.toList());
+	}
+	
+	public List<PreferenceMessage> getPreferencesBySource(String source, String key) {
+		if (key == null || key.trim().isEmpty()) {
 			return em.createQuery("select p from Preference p where p.source = :source", Preference.class)
 				.setParameter("source", Strings.emptyToNull(source))
 				.getResultList()
 				.stream()
-				.map(p -> convert(p))
+				.map(this::convert)
 				.collect(Collectors.toList());
 		} else {
 			return em.createQuery("select p from Preference p where p.source = :source and p.key = :key", Preference.class)
@@ -44,12 +96,85 @@ public class PreferenceService
 				.setParameter("key", Strings.emptyToNull(key))
 				.getResultList()
 				.stream()
-				.map(p -> convert(p))
+				.map(this::convert)
 				.collect(Collectors.toList());
 		}
 	}
 	
-	public String queryBuilder(String scope, String key){
+	public PreferenceMessage save(PreferenceMessage preference) {
+		Principal principal = sessionContext.getCallerPrincipal();
+		List<Preference> existingPrefs = getExistingPreference(preference, principal);
+		
+		Preference pe;
+		
+		if (existingPrefs.isEmpty()) {
+			pe = convert(preference);
+		} else {
+			if (existingPrefs.size() > 1) {
+				LOG.warn("Found multiple entries for preference with scope={}, source={}, user={}, key={} where one entry was expected!", 
+						preference.getScope(), preference.getSource(), preference.getUser(), preference.getKey() );
+			}
+			pe = existingPrefs.get(0);
+			pe.setValue(preference.getValue());
+		}
+		em.persist(pe);
+		em.flush();
+		return convert(pe);
+	}
+
+	public PreferenceMessage deletePreference(Long id){
+		Preference preference = em.find(Preference.class, id);
+		em.remove(preference);
+		em.flush();
+		return convert(preference);
+	}
+
+	
+	private PreferenceMessage convert(Preference pe)
+	{
+		PreferenceMessage p = new PreferenceMessage();
+		p.setKey(pe.getKey());
+		p.setValue(pe.getValue());
+		p.setId(pe.getId());
+		
+		if (pe.getUser() == null && pe.getSource() == null) {
+			p.setSource(pe.getSource());
+			p.setScope(Scope.SYSTEM);
+		} else if (pe.getUser() != null) {
+			p.setUser(pe.getUser());
+			p.setScope(Scope.USER);
+		} else if (pe.getSource() != null) {
+			p.setSource(pe.getSource());
+			p.setScope(Scope.SOURCE);
+		} 
+		
+		return p;
+	}
+	
+	private Preference convert(PreferenceMessage p)
+	{
+		Principal principal = sessionContext.getCallerPrincipal();
+
+		Preference pe = new Preference();
+		pe.setKey(p.getKey());
+		pe.setValue(p.getValue());
+		pe.setId(p.getId());
+		
+		switch (p.getScope()) {
+			case SOURCE:
+				pe.setSource(p.getSource());
+				break;
+			case USER:
+				pe.setUser(principal.getName());
+				break;
+			case SYSTEM:
+			default:
+				break;
+		}
+		return pe;
+	}
+	
+	private String buildQuery(String scope, String key){
 		String query = "select p from Preference p";
 		String whereOrAnd = " where";
 		if(scope != null && scope.trim().length() > 0) {
@@ -68,127 +193,39 @@ public class PreferenceService
 			whereOrAnd = " and";
 		}
 		if(key != null && key.trim().length() > 0) {
-			query = query.concat(whereOrAnd).concat(" UPPER(p.key) LIKE :key");
+			query = query.concat(whereOrAnd).concat(" LOWER(p.key) LIKE :key");
 		}
 		return query;
 	}
 
-	public List<PreferenceResponse> loadQuery(String query, String key) {
-		if (key != null && key.trim().length() > 0) {
-			return em.createQuery(query, Preference.class)
-				.setParameter("key", key.toUpperCase() + "%")
-				.getResultList()
-				.stream()
-				.map(p -> convert(p))
-				.collect(Collectors.toList());
-		}
-		return em.createQuery(query, Preference.class)
-				.getResultList()
-				.stream()
-				.map(p -> convert(p))
-				.collect(Collectors.toList());
-	}
-
-	public PreferenceResponse deletePreference(Long id){
-		Preference preference = em.createQuery(
-				"select p from Preference p where p.id = :id", Preference.class)
-				.setParameter("id", id)
-				.getSingleResult();
-		em.remove(preference);
-		em.flush();
-		return convert(preference);
-	}
-
-	
-	public PreferenceResponse convert(Preference pe)
-	{
-		PreferenceResponse p = new PreferenceResponse();
-		p.setKey(pe.getKey());
-		p.setValue(pe.getValue());
-		p.setId(pe.getId());
+	private List<Preference> getExistingPreference(PreferenceMessage preference, Principal principal) {
+		Preconditions.checkNotNull(preference.getScope(), "Scope cannot be null!");
 		
-		if (pe.getUser() == null && pe.getSource() == null) {
-			p.setSource(pe.getSource());
-			p.setScope(Scope.System);
-		} else if (pe.getUser() != null) {
-			p.setUser(pe.getUser());
-			p.setScope(Scope.User);
-		} else if (pe.getSource() != null) {
-			p.setSource(pe.getSource());
-			p.setScope(Scope.Source);
-		} 
-		
-		return p;
-	}
-	
-	public Preference convert(PreferenceResponse p)
-	{
-		Principal principal = sessionContext.getCallerPrincipal();
-
-		Preference pe = new Preference();
-		pe.setKey(p.getKey());
-		pe.setValue(p.getValue());
-		pe.setId(p.getId());
-		
-		switch (p.getScope()) {
-			case Source:
-				pe.setSource(p.getSource());
-				break;
-			case User:
-				pe.setUser(principal.getName());
-				break;
-			case System:
-			default:
-				break;
-		}
-		return pe;
-	}
-	
-	public PreferenceResponse save(PreferenceResponse preference) {
-		Principal principal = sessionContext.getCallerPrincipal();
-		List<Preference> existingPrefs = getExistingPreference(preference, principal);
-		
-		if (existingPrefs.isEmpty()) {
-			Preference pe = convert(preference);
-			em.persist(pe);
-			em.flush();
-			return convert(pe);
-		} else {
-			Preference existingPref = existingPrefs.get(0);
-			existingPref.setValue(preference.getValue());
-			em.persist(existingPref);
-			return convert(existingPref);
-		}
-	}
-
-	private List<Preference> getExistingPreference(PreferenceResponse preference, Principal principal) {
-		
-		if ( preference.getId() == null) {
-			if (preference.getScope() == Scope.User) {
+		if (preference.getId() == null) {
+			switch (preference.getScope())
+			{
+			case USER:
 				return em.createQuery(
 						"select p from Preference p where p.source is null and p.user = :user and p.key = :key", Preference.class)
 						.setParameter("user", Strings.emptyToNull(principal.getName()))
 						.setParameter("key", preference.getKey())
 						.getResultList();			
-			} else if (preference.getScope() == Scope.Source) {
+			case SOURCE:
 				return em.createQuery(
 						"select p from Preference p where p.source = :source and p.user is null and p.key = :key", Preference.class)
 						.setParameter("source", Strings.emptyToNull(preference.getSource()))
 						.setParameter("key", preference.getKey())
 						.getResultList();			
-			} else if (preference.getScope() == Scope.System) {
+			case SYSTEM:
 				return em.createQuery(
 						"select p from Preference p where p.source is null and p.user is null and p.key = :key", Preference.class)
 						.setParameter("key", preference.getKey())
-						.getResultList();			
-			} else {
-				throw new RuntimeException("Unknown Scope!");
+						.getResultList();	
+			default:
+				throw new IllegalArgumentException("Unknown Scope!");
 			}
 		} else {
-			return em.createQuery(
-					"select p from Preference p where p.id = :id", Preference.class)
-					.setParameter("id", preference.getId())
-					.getResultList();
+			return Arrays.asList(em.find(Preference.class, preference.getId()));
 		}
 	}
 }

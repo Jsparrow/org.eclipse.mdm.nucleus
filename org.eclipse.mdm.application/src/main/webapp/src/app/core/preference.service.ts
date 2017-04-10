@@ -33,7 +33,7 @@ export class PreferenceService {
     this.prefEndpoint = _prop.getUrl() + '/mdm/preferences';
   }
 
-  getPreference(scope: string, key?: string) {
+  getPreferenceForScope(scope: string, key?: string) {
       if (key == null) {
           key = '';
       }
@@ -41,6 +41,13 @@ export class PreferenceService {
           .map(response => plainToClass(Preference, response.json().preferences));
   }
 
+  getPreference(key?: string) {
+      if (key == null) {
+          key = '';
+      }
+      return this.http.get(this.prefEndpoint + '?key=' + key)
+          .map(response => plainToClass(Preference, response.json().preferences));
+  }
   savePreference(preference: Preference) {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });

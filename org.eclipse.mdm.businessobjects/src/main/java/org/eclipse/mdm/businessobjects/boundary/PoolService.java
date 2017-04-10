@@ -51,7 +51,7 @@ public class PoolService {
 	 * Default no-arg constructor for EJB
 	 */
 	public PoolService() {
-		
+		// Default no-arg constructor for EJB
 	}
 	
 	/**
