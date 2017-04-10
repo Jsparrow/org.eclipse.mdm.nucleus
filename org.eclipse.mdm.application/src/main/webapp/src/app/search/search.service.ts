@@ -23,7 +23,15 @@ export class SearchLayout {
   map: { [environments: string]: Condition[] } = {};
 
   getEnvironments() {
-    return Object.keys(this.map);
+    return Object.keys(this.map).sort((s1, s2) => {
+      if (s1 === 'Global') {
+        return -1;
+      } else if ( s2 === 'Global') {
+        return 1;
+      } else {
+        return s1 > s2 ? 1 : -1;
+      }
+    });
   }
 
   getConditions(environment: string) {
@@ -83,9 +91,9 @@ export class SearchService {
 
   getDefinitionsSimple() {
     return Observable.of([
-      <SearchDefinition> {key: '1', value: 'tests', type: 'Test', label: 'Versuche'},
-      <SearchDefinition> {key: '2', value: 'teststeps', type: 'TestStep', label: 'Versuchsschritte'},
-      <SearchDefinition> {key: '3', value: 'measurements', type: 'Measurement', label: 'Messungen'}
+      <SearchDefinition>{ key: '1', value: 'tests', type: 'Test', label: 'Versuche' },
+      <SearchDefinition>{ key: '2', value: 'teststeps', type: 'TestStep', label: 'Versuchsschritte' },
+      <SearchDefinition>{ key: '3', value: 'measurements', type: 'Measurement', label: 'Messungen' }
     ]);
   }
 
@@ -108,7 +116,7 @@ export class SearchService {
     return attributesPerEnv;
   }
 
-  group(conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
+  group(attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
     let attribute2Envs: { [attribute: string]: string[] } = {};
 
     Object.keys(attributesPerEnv).forEach(env =>
@@ -129,7 +137,7 @@ export class SearchService {
 
   createSearchLayout(envs: string[], conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
     let result = new SearchLayout();
-    let attribute2Envs = this.group(conditions, attributesPerEnv);
+    let attribute2Envs = this.group(attributesPerEnv);
     let globalEnv = 'Global';
     Object.keys(attribute2Envs).forEach(attr => {
       let c = conditions.find(cond => cond.type + '.' + cond.attribute === attr);
