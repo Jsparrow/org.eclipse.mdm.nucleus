@@ -1,21 +1,23 @@
 <style>
-:host /deep/ .dropdown {
-  width: 200px;
-}
-:host /deep/ .dropdown-toggle {
+   :host /deep/ .dropdown {
+    width: 200px;
+  }
+
+   :host /deep/ .dropdown-toggle {
     overflow: hidden;
-    padding-right: 24px /* Optional for caret */;
+    padding-right: 24px/* Optional for caret */
+    ;
     text-align: left;
     text-overflow: ellipsis;
     width: 100%;
-}
+  }
+  /* Optional for caret */
 
-/* Optional for caret */
-:host /deep/ .dropdown-toggle .caret {
+   :host /deep/ .dropdown-toggle .caret {
     position: absolute;
     right: 12px;
     top: calc(50% - 2px);
-}
+  }
 </style>
 
 <div class="btn-group" dropdown>
@@ -23,7 +25,7 @@
     {{selectedView?.name}} <span class="caret"></span>
   </button>
   <ul class="dropdown-menu scrollable-menu" style="height: auto; max-height: 200px; overflow-x: hidden;" dropdownMenu>
-  <div *ngFor="let groupedView of groupedViews" class="container-fluid">
+    <div *ngFor="let groupedView of groupedViews" class="container-fluid">
       <li class="dropdown-header" style="padding-left: 0pt;"> {{groupedView.scope}} </li>
       <li *ngFor="let view of groupedView.view">
         <a class="dropdown-item" style="color:black; cursor: pointer;" (click)="selectView(view)">{{view.name}}</a>
@@ -33,6 +35,36 @@
 </div>
 <button type="button" class="btn btn-default" (click)="newView($event)" title="New view"><span class="glyphicon glyphicon-plus"></span></button>
 <button type="button" class="btn btn-default" (click)="editSelectedView($event)" title="Edit view"><span class="glyphicon glyphicon-edit"></span></button>
-<button type="button" class="btn btn-default" (click)="saveView($event)" title="Save view"><span class="glyphicon glyphicon-floppy-disk"></span></button>
+<button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="Save view"><span class="glyphicon glyphicon-floppy-disk"></span></button>
 
 <edit-view></edit-view>
+<overwrite-dialog></overwrite-dialog>
+
+<div bsModal #lgSaveModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="childSaveModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Ansicht speichern unter:</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <form class="form-inline">
+            <div class="row">
+              <input type="text" class="form-control" placeholder="Ansicht-Name" [value]="viewName" (input)="viewName = $event.target.value" (keyup.enter)="saveView($event)" required>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+              <div class="col-md-12">
+                <button type="button" class="btn btn-default pull-right" (click)="saveView($event)" [disabled]="!viewName" title="{{viewName? '' : 'Name nicht gesetzt!'}}">
+                  <span class="glyphicon glyphicon-floppy-disk"></span> Speichern
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

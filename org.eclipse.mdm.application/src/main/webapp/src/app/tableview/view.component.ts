@@ -4,6 +4,8 @@ import { PreferenceView, View, ViewService} from './tableview.service';
 import { EditViewComponent } from './editview.component';
 
 import {classToClass} from 'class-transformer';
+import { ModalDirective } from 'ng2-bootstrap';
+import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
 
 @Component({
   selector: 'mdm-view',
@@ -14,9 +16,16 @@ export class ViewComponent implements OnInit {
   public selectedView: View;
   public groupedViews: {scope: string, view: View[]}[] = [];
   public viewChanged$ = new EventEmitter();
+  public viewName = '';
 
   @ViewChild(EditViewComponent)
   private editViewComponent: EditViewComponent;
+
+  @ViewChild('lgSaveModal')
+  childSaveModal: ModalDirective;
+
+  @ViewChild(OverwriteDialogComponent)
+  private overwriteDialogComponent: OverwriteDialogComponent;
 
   constructor(private viewService: ViewService) {
   }
@@ -33,12 +42,12 @@ export class ViewComponent implements OnInit {
 
   public editSelectedView(e: Event) {
     e.stopPropagation();
-    this.editViewComponent.showDialog(this.selectedView);
+    this.editViewComponent.showDialog(this.selectedView).subscribe( v => this.selectedView = v);
   }
 
   public newView(e: Event) {
     e.stopPropagation();
-    this.editViewComponent.showDialog(new View());
+    this.editViewComponent.showDialog(new View()).subscribe( v => this.selectedView = v);
   }
 
   private onViewsChanged(view: View) {
@@ -69,6 +78,27 @@ export class ViewComponent implements OnInit {
 
   saveView(e: Event) {
     e.stopPropagation();
-    this.viewService.saveView(this.selectedView);
+    if (this.groupedViews.find(gv => gv.view.find(v => v.name === this.viewName) !== undefined)) {
+      this.childSaveModal.hide();
+      this.overwriteDialogComponent.showOverwriteModal('eine Ansicht').subscribe(ovw => this.saveView2(ovw));
+    } else {
+      this.saveView2(true);
+    }
+  }
+
+  saveView2(save: boolean) {
+    if (save) {
+      this.selectedView.name = this.viewName;
+      this.viewService.saveView(this.selectedView);
+      this.childSaveModal.hide();
+    } else {
+      this.childSaveModal.show();
+    }
+  }
+
+  showSaveModal(e: Event) {
+    e.stopPropagation();
+    this.viewName = this.selectedView.name === 'Neue Ansicht' ? '' : this.selectedView.name;
+    this.childSaveModal.show();
   }
 }

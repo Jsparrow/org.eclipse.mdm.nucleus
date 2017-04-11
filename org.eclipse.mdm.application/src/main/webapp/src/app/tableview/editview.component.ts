@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, OnInit, OnDestroy} from '@angular/core';
+import {Component, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
 
 import {View, ViewColumn, ViewService} from './tableview.service';
 import {NodeService} from '../navigator/node.service';
@@ -29,6 +29,9 @@ export class EditViewComponent implements OnInit {
   typeAheadValues: {label: string, group: string, attribute: SearchAttribute }[] = [];
 
   selectedAttribute: SearchAttribute;
+
+  @Output()
+  coloumnsSubmitted = new EventEmitter<View>();
 
   constructor(private nodeService: NodeService,
     private viewService: ViewService,
@@ -65,15 +68,11 @@ export class EditViewComponent implements OnInit {
     this.currentView = classToClass(currentView);
     this.isNameReadOnly();
     this.childModal.show();
+    return this.coloumnsSubmitted;
   }
 
   closeDialog() {
     this.childModal.hide();
-  }
-
-  save() {
-      this.viewService.saveView(this.currentView);
-      this.closeDialog();
   }
 
   remove(col: ViewColumn) {
@@ -133,11 +132,11 @@ export class EditViewComponent implements OnInit {
 
   toggleSort(col: ViewColumn) {
     if (col.sortOrder === null) {
-      col.sortOrder = 1;
+      this.currentView.setSortOrder(col.type, col.name, 1);
     } else if (col.sortOrder === 1) {
-      col.sortOrder = -1;
+      this.currentView.setSortOrder(col.type, col.name, -1);
     } else if (col.sortOrder === -1) {
-      col.sortOrder = null;
+      this.currentView.setSortOrder(col.type, col.name, null);
     }
   }
 
@@ -156,5 +155,10 @@ export class EditViewComponent implements OnInit {
 
   private isNameReadOnly() {
     return this.isReadOnly = (this.currentView.name === '') ? false : true;
+  }
+
+  applyChanges() {
+    this.coloumnsSubmitted.emit(this.currentView);
+    this.closeDialog();
   }
 }

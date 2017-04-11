@@ -10,7 +10,7 @@ export class View {
   columns: ViewColumn[] = [];
 
   constructor(name?: string, cols?: ViewColumn[]) {
-    this.name = name || '';
+    this.name = name || 'Neue Ansicht';
     this.columns = cols || [];
   }
 

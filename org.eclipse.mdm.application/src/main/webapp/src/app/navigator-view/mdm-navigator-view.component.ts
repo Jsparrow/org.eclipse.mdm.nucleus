@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, ViewEncapsulation, OnInit, OnDestroy} from '@angular/core';
+import {Component, ViewEncapsulation, OnInit, OnDestroy, Injectable} from '@angular/core';
 
 import { DropdownModule, AccordionConfig, DropdownConfig } from 'ng2-bootstrap';
 
@@ -17,11 +17,22 @@ import {Node} from '../navigator/node';
 import {NodeproviderService} from '../navigator/nodeprovider.service';
 // import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 
+
+function _window(): any {
+   return window;
+}
+
+@Injectable()
+export class WindowRef {
+   get nativeWindow(): any {
+      return _window();
+   }
+}
 @Component({
   selector: 'mdm-navigator-view',
   templateUrl: 'mdm-navigator-view.component.html',
   styleUrls: [ './mdm-navigator-view.component.css' ],
-  providers: [DropdownConfig, AccordionConfig],
+  providers: [DropdownConfig, AccordionConfig, WindowRef],
   encapsulation: ViewEncapsulation.None
 })
 export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
@@ -34,7 +45,13 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
   _comp = 'Navigation';
   subscription: any;
 
-  constructor(private nodeProviderService: NodeproviderService) {}
+  constructor(private nodeProviderService: NodeproviderService,
+              public winRef: WindowRef) {
+  }
+
+  onScrollTop() {
+    this.winRef.nativeWindow.scrollTo(0, 0);
+  }
 
   updateSelectedNode(node: Node) {
     this.selectedNode = node;

@@ -42,5 +42,9 @@
     <router-outlet></router-outlet>
     <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
   </div>
+  <div *ngIf="this.winRef.nativeWindow.scrollY > 0" style="position: fixed; bottom: 15px; right: 15px;">
+    <button class="btn btn-default" (click)="onScrollTop()" style="z-index: 10000;"><span class="glyphicon glyphicon-arrow-up" style="z-index: 10000;" title="scroll up"></span></button>
+  </div>
+
   <!-- </div> -->
 <!-- </vertical-split-pane> -->

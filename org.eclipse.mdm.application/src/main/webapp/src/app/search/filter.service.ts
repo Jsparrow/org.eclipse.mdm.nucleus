@@ -94,6 +94,7 @@ export class SearchFilter {
 @Injectable()
 export class FilterService {
   public filterChanged$ = new EventEmitter<SearchFilter>();
+  public currentFilter: SearchFilter;
 
   // private searchService: SearchService;
   constructor(private http: Http,

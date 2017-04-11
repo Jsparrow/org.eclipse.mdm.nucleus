@@ -18,6 +18,7 @@ import { NavigatorService } from '../navigator/navigator.service';
 
 import {TableviewComponent} from '../tableview/tableview.component';
 import {ViewComponent} from '../tableview/view.component';
+import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
 
 import { View } from '../tableview/tableview.service';
 
@@ -39,7 +40,7 @@ export class MDMBasketComponent implements OnInit {
   @Output() onSelect = new EventEmitter<Node>();
   @Input() activeNode: Node;
 
-  basketName = 'basket';
+  basketName = '';
   basketContent: SearchResult = new SearchResult();
   basket = 'Warenkorb';
 
@@ -58,6 +59,8 @@ export class MDMBasketComponent implements OnInit {
   childLoadModal: ModalDirective;
   @ViewChild('lgSaveModal')
   childSaveModal: ModalDirective;
+  @ViewChild(OverwriteDialogComponent)
+  private overwriteDialogComponent: OverwriteDialogComponent;
 
   constructor(private _basketService: BasketService,
               private queryService: QueryService,
@@ -103,10 +106,29 @@ export class MDMBasketComponent implements OnInit {
   setView(view: View) {
     console.log('setView', view);
   }
+  //
+  // saveBaskets() {
+  //   this._basketService.saveBasketWithName(this.basketName);
+  //   this.childSaveModal.hide();
+  // }
 
-  saveBasket() {
-    this._basketService.saveBasketWithName(this.basketName);
-    this.childSaveModal.hide();
+  saveBasket(e: Event) {
+    e.stopPropagation();
+    if (this.baskets.find(f => f.name === this.basketName) !== undefined) {
+      this.childSaveModal.hide();
+      this.overwriteDialogComponent.showOverwriteModal('ein Warenkorb').subscribe(ovw => this.saveBasket2(ovw));
+    } else {
+      this.saveBasket2(true);
+    }
+  }
+
+  saveBasket2(save: boolean) {
+    if (save) {
+      this._basketService.saveBasketWithName(this.basketName);
+      this.childSaveModal.hide();
+    } else {
+      this.childSaveModal.show();
+    }
   }
 
   loadBasket(basket?: Basket) {
@@ -130,7 +152,7 @@ export class MDMBasketComponent implements OnInit {
     e.stopPropagation();
     this.basketContent = new SearchResult();
     this._basketService.removeAll();
-    this.basketName = 'basket';
+    this.basketName = '';
   }
 
   showLoadModal(e: Event) {
@@ -142,7 +164,7 @@ export class MDMBasketComponent implements OnInit {
 
   showSaveModal(e: Event) {
     e.stopPropagation();
-    this.basketName = '';
+    this.basketName = this.selectedBasket ? this.selectedBasket.name : '';
     this.childSaveModal.show();
   }
 
@@ -177,7 +199,7 @@ export class MDMBasketComponent implements OnInit {
     reader.onloadend = (event) => {
       let upload = JSON.parse(reader.result);
       this.loadBasket(upload);
-      fileInput.value = "";
+      fileInput.value = '';
     };
     reader.readAsText(file);
   }

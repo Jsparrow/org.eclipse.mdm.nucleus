@@ -55,7 +55,9 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   nodeSelect(event) {
-    this.navigatorService.setSelectedItem(event.node.data);
+    if (event.node.data) {
+      this.navigatorService.setSelectedItem(event.node.data);
+    }
     if (event.originalEvent.timeStamp - this.lastClickTime < 300) {
       if (!event.node.expanded && !event.node.children) {
         this.loadNode(event);

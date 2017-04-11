@@ -1,8 +1,4 @@
 <style>
-  .modal-body >>> .dropup .dropdown-menu {
-    margin-bottom: 38px !important;
-  }
-
   .modal-body >>> .ui-tree .ui-tree-container {
     margin: 0 0 4px 0 !important;
     width: 100%;
@@ -19,8 +15,13 @@
     padding-right: .75em;
   }
 
+  .modal-body {
+    font-size: 14px;
+  }
+
   >>> .ui-growl {z-index: 999999 !important;}
 </style>
+
 <div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -32,40 +33,50 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid">
-          <div class="row" style="padding: 15px;">
-            <input [(ngModel)]="selectedAttribute"
-                  [typeahead]="typeAheadValues"
-                  (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                  typeaheadOptionField="label"
-                  typeaheadGroupField="group"
-                  typeaheadOptionsLimit="15"
-                  placeholder="Suchtext eingeben"
-                  class="form-control"  >
-          </div>
           <div class="row">
-            <div class="col-md-4" style="min-height: 50vh; max-height: 72vh; padding-right: 15px;">
+            <div class="col-md-4" style="min-height: 50vh; max-height: 72vh;">
+                <input [(ngModel)]="selectedAttribute"
+                      [typeahead]="typeAheadValues"
+                      (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                      typeaheadOptionField="label"
+                      typeaheadGroupField="group"
+                      typeaheadOptionsLimit="15"
+                      placeholder="Suchtext eingeben"
+                      class="form-control"
+                      style="margin-bottom: 15px;">
               <searchattribute-tree [searchAttributes]="searchAttributes" [environments]="envs"></searchattribute-tree>
             </div>
-            <div class="col-md-8" style="min-height: 50vh; max-height: 72vh; padding-right: 15px; overflow-y:auto;">
-            <ul  class="list-group">
-              <li class="list-group-item" style="border-bottom: 1px solid #ddd;" *ngFor="let col of currentView.columns">
-                <span class="pull-right glyphicon glyphicon-remove" [ngClass]="" style="cursor: pointer; margin: 0px 5px;" (click)="remove(col)"></span>
-                <span class="pull-right glyphicon" [ngClass]="{'glyphicon-sort': isNone(col), 'glyphicon-sort-by-alphabet-alt': isDesc(col), 'glyphicon-sort-by-alphabet': isAsc(col)}" style="cursor: pointer; margin: 0px 5px;" (click)="toggleSort(col)"></span>
-                <span class="pull-right glyphicon glyphicon-menu-down" [ngStyle]="{'visibility': isLast(col)? 'hidden': 'visible'}" style="cursor: pointer; margin: 0px 5px;" (click)="moveDown(col)"></span>
-                <span class="pull-right glyphicon glyphicon-menu-up" [ngStyle]="{'visibility': isFirst(col) ? 'hidden': 'visible'}" style="cursor: pointer; margin: 0px 5px;" (click)="moveUp(col)"></span>
-                {{col.type}}.{{col.name}}
-              </li>
-            </ul>
+            <div class="col-md-8" style="min-height: 50vh; max-height: 72vh; overflow-y:auto;">
+            <label for="search-source" class="control-label">Ausgewählte Attribute</label>
+            <table class="table table-bordered" style="padding: 0; overflow-y:auto; table-layout: fixed;">
+              <tr *ngFor="let col of currentView.columns">
+                <td width=50% >
+                  {{col.type}}
+                </td>
+                <td width=50%>
+                   {{col.name}}
+                </td>
+                <td width="30px" style="text-align: center; vertical-align: middle;">
+                  <span class="glyphicon glyphicon-menu-up" [ngStyle]="{'visibility': isFirst(col) ? 'hidden': 'visible'}" style="cursor: pointer; margin-bottom: 0;" (click)="moveUp(col)"></span>
+                </td>
+                <td width="30px" style="text-align: center; vertical-align: middle;">
+                  <span class="glyphicon glyphicon-menu-down" [ngStyle]="{'visibility': isLast(col)? 'hidden': 'visible'}" style="cursor: pointer;" (click)="moveDown(col)"></span>
+                </td>
+                <td width="30px" style="text-align: center; vertical-align: middle;">
+                  <span class="glyphicon" [ngClass]="{'glyphicon-sort': isNone(col), 'glyphicon-sort-by-alphabet-alt': isDesc(col), 'glyphicon-sort-by-alphabet': isAsc(col)}" style="cursor: pointer;" (click)="toggleSort(col)"></span>
+                </td>
+                <td width="30px" style="text-align: center; vertical-align: middle;">
+                  <span class="glyphicon glyphicon-remove" [ngClass]="" style="cursor: pointer;" (click)="remove(col)"></span>
+                </td>
+              </tr>
+            </table>
             </div>
           </div>
-          <div class="row" style="margin-top: 20px;">
-            <div class="col-md-12">
-              <form class="form-inline">
-                <input type="text" class="form-control" placeholder="View-Name" [value]="currentView.name" (input) = "currentView.name = $event.target.value" (keyup.enter)="save()" [readonly]="isReadOnly">
-                <button type="button" class="btn btn-default pull-right" (click)="save()" [disabled]="!currentView.name" title="{{currentView.name? '' : 'Name nicht gesetzt!'}}" >
-                  <span class="glyphicon glyphicon-floppy-disk"></span> Speichern
-                </button>
-              </form>
+          <div class="row" style="margin-top: 15px;">
+            <div class="col-lg-12">
+              <button type="button" class="btn btn-default pull-right" (click)="applyChanges()">
+                <span class="glyphicon glyphicon-ok"></span> Änderungen anwenden
+              </button>
             </div>
           </div>
         </div>

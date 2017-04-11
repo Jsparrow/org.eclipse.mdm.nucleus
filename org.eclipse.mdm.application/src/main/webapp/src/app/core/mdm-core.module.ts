@@ -16,6 +16,7 @@ import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
 
 import { MDMNotificationComponent } from './mdm-notification.component';
+import { OverwriteDialogComponent } from './overwrite-dialog.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { MDMNotificationComponent } from './mdm-notification.component';
     GrowlModule
   ],
   declarations: [
-    MDMNotificationComponent
+    MDMNotificationComponent,
+    OverwriteDialogComponent
   ],
   exports: [
     CommonModule,
@@ -46,7 +48,8 @@ import { MDMNotificationComponent } from './mdm-notification.component';
     SharedModule,
     ContextMenuModule,
     GrowlModule,
-    MDMNotificationComponent
+    MDMNotificationComponent,
+    OverwriteDialogComponent
   ],
   providers: [
       PositioningService,

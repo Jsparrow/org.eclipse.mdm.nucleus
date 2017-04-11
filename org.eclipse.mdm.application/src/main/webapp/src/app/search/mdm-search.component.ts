@@ -8,7 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, ViewChild, OnInit, Input} from '@angular/core';
+import {Component, ViewChild, OnInit, Input, OnDestroy} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
@@ -37,18 +37,20 @@ import {ModalDirective} from 'ng2-bootstrap';
 
 import {TreeModule, TreeNode, MenuItem} from 'primeng/primeng';
 import {EditSearchFieldsComponent} from './edit-searchFields.component';
+import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
+
 import {classToClass} from 'class-transformer';
 
 @Component({
   selector: 'mdm-search',
   templateUrl: 'mdm-search.component.html',
 })
-export class MDMSearchComponent implements OnInit {
+export class MDMSearchComponent implements OnInit, OnDestroy {
 
   maxResults = 100;
 
   filters: SearchFilter[] = [];
-  currentFilter: SearchFilter = new SearchFilter('No filter selected', [], 'Test', '', []);
+  currentFilter: SearchFilter;
   filterName = '';
 
   environments: Node[];
@@ -88,7 +90,8 @@ export class MDMSearchComponent implements OnInit {
   @ViewChild(EditSearchFieldsComponent)
   private editSearchFieldsComponent: EditSearchFieldsComponent;
 
-
+  @ViewChild(OverwriteDialogComponent)
+  private overwriteDialogComponent: OverwriteDialogComponent;
 
   constructor(private searchService: SearchService,
     private queryService: QueryService,
@@ -118,6 +121,12 @@ export class MDMSearchComponent implements OnInit {
 
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.viewChanged$.subscribe(() => this.search());
+
+     this.currentFilter = this.filterService.currentFilter || new SearchFilter('No filter selected', [], 'Test', '', []);
+  }
+
+  ngOnDestroy() {
+     this.filterService.currentFilter = this.currentFilter;
   }
 
   onViewClick(e: Event) {
@@ -230,12 +239,34 @@ export class MDMSearchComponent implements OnInit {
     this.onFilterChanged(this.currentFilter);
   }
 
-  saveFilter() {
-    let filter = this.currentFilter;
-    filter.name = this.filterName;
-    this.filterService.saveFilter(filter).subscribe();
-    this.loadFilters(filter.name);
-    this.childSaveModal.hide();
+  // saveFilter() {
+  //   let filter = this.currentFilter;
+  //   filter.name = this.filterName;
+  //   this.filterService.saveFilter(filter).subscribe();
+  //   this.loadFilters(filter.name);
+  //   this.childSaveModal.hide();
+  // }
+
+  saveFilter(e: Event) {
+    e.stopPropagation();
+    if (this.filters.find(f => f.name === this.filterName) !== undefined) {
+      this.childSaveModal.hide();
+      this.overwriteDialogComponent.showOverwriteModal('ein Filter').subscribe(ovw => this.saveFilter2(ovw));
+    } else {
+      this.saveFilter2(true);
+    }
+  }
+
+  saveFilter2(save: boolean) {
+    if (save) {
+      let filter = this.currentFilter;
+      filter.name = this.filterName;
+      this.filterService.saveFilter(filter).subscribe();
+      this.loadFilters(filter.name);
+      this.childSaveModal.hide();
+    } else {
+      this.childSaveModal.show();
+    }
   }
 
   removeCondition(condition: Condition) {
@@ -252,6 +283,11 @@ export class MDMSearchComponent implements OnInit {
 
   showSaveModal(e: Event) {
     e.stopPropagation();
+    if (this.currentFilter.name === 'No filter selected') {
+      this.filterName = '';
+    } else {
+      this.filterName = this.currentFilter.name;
+    }
     this.childSaveModal.show();
   }
 
