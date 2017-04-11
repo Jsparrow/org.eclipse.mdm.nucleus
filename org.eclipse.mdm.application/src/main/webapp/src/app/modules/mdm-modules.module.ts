@@ -7,7 +7,7 @@ import { MDMCoreModule } from '../core/mdm-core.module';
 import { MDMDetailModule } from '../details/mdm-detail.module';
 import { MDMSearchModule } from '../search/mdm-search.module';
 import { MDMFilereleaseModule } from '../filerelease/mdm-filerelease.module';
-import { MDMExampleModule } from '../example-module/mdm-example.module';
+// import { MDMExampleModule } from '../example-module/mdm-example.module';
 
 @NgModule({
   imports: [
@@ -16,7 +16,7 @@ import { MDMExampleModule } from '../example-module/mdm-example.module';
     MDMDetailModule,
     MDMSearchModule,
     MDMFilereleaseModule,
-    MDMExampleModule
+    // MDMExampleModule
   ],
   declarations: [
     MDMModulesComponent

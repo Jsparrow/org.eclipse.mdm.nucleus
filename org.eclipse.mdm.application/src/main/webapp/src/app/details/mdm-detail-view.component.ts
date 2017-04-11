@@ -8,10 +8,7 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-
-import {Input, Component, OnInit, ViewChild, OnDestroy} from '@angular/core';
-
-import { ModalDirective } from 'ng2-bootstrap';
+import {Input, Component, OnInit, OnDestroy} from '@angular/core';
 
 import {MDMItem} from '../core/mdm-item';
 import {Node, Attribute} from '../navigator/node';
@@ -22,7 +19,7 @@ import {Release, FilereleaseService} from '../filerelease/filerelease.service';
 import {Localization} from '../localization/localization';
 import {LocalizationService} from '../localization/localization.service';
 
-import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
+// import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
 import {NavigatorService} from '../navigator/navigator.service';
 
 import { DetailViewService } from './detail-view.service';
@@ -37,9 +34,6 @@ export class MDMDetailViewComponent implements OnInit, OnDestroy {
 
   locals: Localization[] = [];
   subscription: any;
-
-  @ViewChild('lgModal')
-  lgModal: ModalDirective;
 
   constructor(private localService: LocalizationService,
               private basketService: BasketService,

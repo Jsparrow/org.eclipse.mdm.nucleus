@@ -14,7 +14,7 @@ export class MDMModulesComponent {
     { name: 'Details', path: 'details'},
     { name: 'MDM Suche', path: 'search'},
     { name: 'Freigabeübersicht', path: 'filerelease'},
-    { name: 'Example Module', path: 'example'},
+    // { name: 'Example Module', path: 'example'},
   ];
   constructor(private router: Router) {}
 }

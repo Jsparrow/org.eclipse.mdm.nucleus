@@ -8,7 +8,8 @@
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
 //   *******************************************************************************
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import { ModalDirective } from 'ng2-bootstrap';
 import {Release, FilereleaseService} from './filerelease.service';
 import {Node} from '../navigator/node';
 
@@ -18,12 +19,16 @@ import {Node} from '../navigator/node';
 })
 export class MDMFilereleaseCreateComponent {
 
+  @Input() disabled: boolean;
   @Input() node: Node;
   @Output() onSubmit = new EventEmitter<boolean>();
   release: Release = new Release;
   errorMessage: string;
   options = ['PAK2RAW', 'PAK2ATFX'];
   expire = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  @ViewChild('lgModal')
+  lgModal: ModalDirective;
 
   constructor(private service: FilereleaseService) {}
 
@@ -49,6 +54,7 @@ export class MDMFilereleaseCreateComponent {
       error => this.errorMessage = <any>error);
     this.clear();
     this.onSubmit.emit(true);
+    this.lgModal.hide();
   }
 
   clear() {

@@ -1,32 +1,51 @@
-<form (ngSubmit)="createRelease()" #request="ngForm">
-  <div class="form-group">
-    <div [ngClass]="validity.valid ? 'has-success' : 'has-error'">
-      <label class="control-label col-sm-2" for="validity">Gültigkeit(Tage):</label>
-      <div class="col-sm-10">
-        <select name="validity" [(ngModel)]="release.validity" ngControl="validity" #validity="ngModel" class="form-control" required>
-          <option *ngFor="let opt of expire" [ngValue]="opt">{{opt}}</option>
-        </select>
+<button type="button" class="btn btn-default" (click)="lgModal.show()" [disabled]="disabled" style="border-bottom-left-radius: 0; border-top-left-radius: 0;">Freigabeanfrage</button>
+
+<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="lgModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Freigabe</h4>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="createRelease()" #request="ngForm">
+          <div class="form-group">
+            <div [ngClass]="validity.valid ? 'has-success' : 'has-error'">
+              <label class="control-label col-sm-2" for="validity">Gültigkeit(Tage):</label>
+              <div class="col-sm-10">
+                <select name="validity" [(ngModel)]="release.validity" ngControl="validity" #validity="ngModel" class="form-control" required>
+                  <option *ngFor="let opt of expire" [ngValue]="opt">{{opt}}</option>
+                </select>
+              </div>
+            </div>
+
+            <div [ngClass]="format.valid ? 'has-success' : 'has-error'">
+              <label class="control-label col-sm-2" for="format">Format:</label>
+              <div class="col-sm-10">
+                <select name="format" [(ngModel)]="release.format" ngControl="format" #format="ngModel" class="form-control" required>
+                  <option *ngFor="let opt of options" [ngValue]="opt">{{getFormat(opt)}}</option>
+                </select>
+              </div>
+            </div>
+
+            <div [ngClass]="orderMessage.valid ? 'has-success' : 'has-error'">
+              <label class="control-label col-sm-2" for="orderMessage">Begründung:</label>
+              <div class="col-sm-10">
+                <textarea name="orderMessage" [(ngModel)]="release.orderMessage" ngControl="orderMessage" #orderMessage="ngModel" cols="35" rows="4" class="form-control" required></textarea>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xs-12" style="margin-top: 15px; margin-bottom:-15px; padding-right: 30px; text-align: right;">
+                <div class="btn-group">
+                  <button type="submit" class="btn btn-default" [disabled]=!request.form.valid>Senden</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
-
-    <div [ngClass]="format.valid ? 'has-success' : 'has-error'">
-      <label class="control-label col-sm-2" for="format">Format:</label>
-      <div class="col-sm-10">
-        <select name="format" [(ngModel)]="release.format" ngControl="format" #format="ngModel" class="form-control" required>
-          <option *ngFor="let opt of options" [ngValue]="opt">{{getFormat(opt)}}</option>
-        </select>
-      </div>
-    </div>
-
-    <div [ngClass]="orderMessage.valid ? 'has-success' : 'has-error'">
-      <label class="control-label col-sm-2" for="orderMessage">Begründung:</label>
-      <div class="col-sm-10">
-        <textarea name="orderMessage" [(ngModel)]="release.orderMessage" ngControl="orderMessage" #orderMessage="ngModel" cols="35" rows="4" class="form-control" required></textarea>
-      </div>
-    </div>
-
   </div>
-  <div class="btn-group">
-    <button type="submit" class="btn btn-default" [disabled]=!request.form.valid>Senden</button>
-  </div>
-</form>
+</div>

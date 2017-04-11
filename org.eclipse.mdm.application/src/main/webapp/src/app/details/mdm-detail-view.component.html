@@ -11,7 +11,7 @@
 <div>
   <div class="btn-group pull-right" role="group">
     <button type="button" class="btn btn-default" (click)="add2Basket()" [disabled]="isShopable()">In den Warenkorb</button>
-    <button type="button" class="btn btn-default" (click)="lgModal.show()" [disabled]="isReleasable()">Freigabeanfrage</button>
+    <!-- <mdm-filerelease-create [node]=selectedNode [disabled]="isReleasable()"></mdm-filerelease-create> -->
   </div>
   <h3 *ngIf="selectedNode" style="margin: 5px;" class="icon" [ngClass]="selectedNode.getClass()">
     {{getTrans(selectedNode.type)}}
@@ -33,19 +33,3 @@
     </tr>
   </tbody>
 </table>
-
-<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" (click)="lgModal.hide()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title">Freigabe</h4>
-      </div>
-      <div class="modal-body">
-        <mdm-filerelease-create [node]=selectedNode (onSubmit)="lgModal.hide()"></mdm-filerelease-create>
-      </div>
-    </div>
-  </div>
-</div>

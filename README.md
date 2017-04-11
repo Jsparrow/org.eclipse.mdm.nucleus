@@ -122,8 +122,8 @@ Preference service stores its data to a relational database. The database connec
 
 ### Quickstart with Apache Derby
 
-The default datasource is set to jdbc/__default, which is available in glassfish per default and uses a derby database. 
-The derby database is not started automatically with glassfish, but has to be started with following command: 
+The default datasource is set to jdbc/__default, which is available in glassfish per default and uses a derby database.
+The derby database is not started automatically with glassfish, but has to be started with following command:
 `GLASSFISH_HOME/bin/asadmin start-database`
 With the default parameter from persistence.xml the schema is created automatically during deployment.
 
@@ -245,3 +245,90 @@ The ignore attributes preference must have the exact key `ignoredAttributes`. An
 
 **Example:
 ["Test.Name"]
+
+##Create a module
+Any MDM module needs to be a valid angular2 module. An angular2 module consists of one angular2 component and one ng-module at least. In the angular2 component any content can be defined. The component must be declared in a ng-module to grant accessibility in the rest of the application. In a module additional components and services can be defined. All related files should be stored in a new subfolder in the app folder
+* ..\org.eclipse.mdm.nucleus\org.eclipse.mdm.application\src\main\webapp\src\app.
+
+###Angular2 components (see example 1)
+A component is defined in a typescript file starting with the @Component() identifier. Any html content can be provided here in an inline template or via a link to an external html resource. Thereafter the component itself, which is supposed to hold any logic needed, is defined and exported.
+
+###Ng-module (see example 2)
+ On one hand the ng-module provides other MDM modules of the application, and thereby all the services and components declared within them, in this MDM module. The 'imports' array holds all modules from the application needed in this MDM module. It should always hold the MDMCoreModule, which provides basic functionalities. On the other hand a ng-module grants accessibility of components of this module in other directives (including the html template) within the module (in a 'declaration' array) or even in other parts of the application (in an 'export' array). For more details see *https://angular.io/docs/ts/latest/guide/ngmodule.html.
+
+ ** Minimal example
+ First create a new folder
+ * ..\org.eclipse.mdm.nucleus\org.eclipse.mdm.application\src\main\webapp\src\app\new-module
+
+ 1) Minimal angular2 component
+ Add a new typescript file named 'mdm-new.component.ts' with the following content:
+
+ import {Component} from '@angular/core';
+ @Component({template: '<h1>Example Module</h1>'})
+ export class MDMNewComponent {}
+
+ 2) Minimal ng-module
+ Add a new typescript file named 'mdm-new.module.ts' with the following content:
+
+ import { NgModule } from '@angular/core';
+ import { MDMCoreModule } from '../core/mdm-core.module';
+ import { MDMNewComponent } from './mdm-new.component';
+ @NgModule({imports: [MDMCoreModule], declarations: [MDMNewComponent]})
+ export class MDMNewModule {}
+
+###Embedding a module (no lazy loading)
+To embed this new module in MDM you have to register this module in the MDMModules Module.
+This is done by registering the component to **moduleRoutes** in **modules-routing.module.ts**:
+***
+ { path: 'new', component: MDMNewComponent}
+***
+
+Furthermore you have to define a display name for the registered route in the array returned by **getLinks** in  **modules.component.ts**:
+***
+{ path: 'new', name: 'New Module' }
+***
+
+For further information refer to the Angular 2 documentation for modules & router:
+* https://angular.io/docs/ts/latest/guide/ngmodule.html
+* https://angular.io/docs/ts/latest/guide/router.html
+
+
+ ###Lazy loading and routing module
+ For lazy-loading (recommended in case there is a high number of modules) embedding of the module is slightly different.
+ ***
+  { path: 'example', loadChildren: '../example-module/mdm-example.module#MDMExampleModule'}
+ ***
+
+ Additionally, a ng-module, the so called routing module, is needed to provide the routes to this modules components.
+ ***
+  const moduleRoutes: Routes = [{ path: '', component: MDMExampleComponent }];
+  @NgModule({imports: [RouterModule.forChild(moduleRoutes)], exports: [RouterModule]})
+  export class MDMExampleRoutingModule {}
+ ***   
+
+ The routing module needs to be declared in the ng-module of this module as well. A full example is provided in
+  * ..\org.eclipse.mdm.nucleus\org.eclipse.mdm.application\src\main\webapp\src\app\example-module
+
+
+ ###Filerelease module
+ The filerelease module is stored in the following folder:
+*..\org.eclipse.mdm.nucleus\org.eclipse.mdm.application\src\main\webapp\src\app\filerelease
+
+It can be embedded as any other module described above. Register to **moduleRoutes** in **modules-routing.module.ts**:
+***
+ { path: 'filerelease', component: MDMFilereleaseComponent }
+***
+
+To make the filerelease module available in the detail view it needs to be imported in the corresponding ng-module **mdm-detail.module.ts**.
+Thereafter, the MDMFilereleaseCreateComponent can be imported to the **mdm-detail-view.component.ts**. Then the following has to be added to the **mdm-detail-view.component.html** file:
+***
+  <mdm-filerelease-create [node]=selectedNode [disabled]="isReleasable()"></mdm-filerelease-create>
+***
+
+It should be located right after the add to basket button:
+***
+<div class="btn-group pull-right" role="group">
+  <button type="button" class="btn btn-default" (click)="add2Basket()" [disabled]="isShopable()">In den Warenkorb</button>
+  <mdm-filerelease-create [node]=selectedNode [disabled]="isReleasable()"></mdm-filerelease-create>
+</div>
+***
