@@ -12,6 +12,7 @@ package org.eclipse.mdm.preferences.entity;
 
 import java.util.Objects;
 
+import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -27,9 +28,12 @@ import com.google.common.base.MoreObjects;
 public class PreferenceMessage {
 
 	public enum Scope {
+		@XmlEnumValue("System") 
 		SYSTEM,
+		@XmlEnumValue("Source") 
 		SOURCE,
-		USER
+		@XmlEnumValue("User") 
+		USER;
 	}
 	
 	private Scope scope;

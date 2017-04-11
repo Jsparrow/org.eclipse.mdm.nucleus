@@ -1,3 +1,15 @@
+/*******************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*******************************************************************************/
+
 import { Injectable, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
@@ -75,7 +87,9 @@ export class ViewColumn {
 
 @Injectable()
 export class ViewService {
-  public viewsChanged$ = new EventEmitter<View>();
+  public viewSaved$ = new EventEmitter<View>();
+  public viewDeleted$ = new EventEmitter();
+
   readonly preferencePrefix = 'tableview.view.';
   private views: View[] = [];
 
@@ -85,7 +99,7 @@ export class ViewService {
   }
 
   getViews() {
-    return this.prefService.getPreferenceForScope('', this.preferencePrefix)
+    return this.prefService.getPreference(this.preferencePrefix)
         .map(preferences => preferences.map(p => new PreferenceView(p.scope, deserialize(View, p.value))))
         .filter(prefViews => !(prefViews === undefined || prefViews.length === 0))
         .defaultIfEmpty(this.defaultPrefViews);
@@ -96,6 +110,10 @@ export class ViewService {
     pref.value = serialize(view);
     pref.key = this.preferencePrefix + view.name;
     pref.scope = 'User';
-    this.prefService.savePreference(pref).subscribe(saved => this.viewsChanged$.emit(view));
+    this.prefService.savePreference(pref).subscribe(saved => this.viewSaved$.emit(view));
+  }
+
+  deleteView(name: string) {
+    return this.prefService.deletePreferenceByScopeAndKey('User', 'tableview.view.' + name);
   }
 }

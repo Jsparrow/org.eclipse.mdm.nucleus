@@ -1,13 +1,17 @@
-// *******************************************************************************
-//   * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-//   * All rights reserved. This program and the accompanying materials
-//   * are made available under the terms of the Eclipse Public License v1.0
-//   * which accompanies this distribution, and is available at
-//   * http://www.eclipse.org/legal/epl-v10.html
-//   *
-//   * Contributors:
-//   * Dennis Schroeder - initial implementation
-//   *******************************************************************************
+/*******************************************************************************
+*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
+*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Dennis Schroeder - initial implementation                                   *
+*  Matthias Koller, Johannes Stamm - additional client functionality           *
+*******************************************************************************/
+
 import {Component, ViewEncapsulation, OnInit, OnDestroy, Injectable} from '@angular/core';
 
 import { DropdownModule, AccordionConfig, DropdownConfig } from 'ng2-bootstrap';
@@ -16,7 +20,6 @@ import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
 import {NodeproviderService} from '../navigator/nodeprovider.service';
 // import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
-
 
 function _window(): any {
    return window;

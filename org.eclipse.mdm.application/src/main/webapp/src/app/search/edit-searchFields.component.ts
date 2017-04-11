@@ -1,3 +1,15 @@
+/*******************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*******************************************************************************/
+
 import {Component, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit} from '@angular/core';
 
 import {SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
@@ -39,12 +51,13 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
   @ViewChild(SearchattributeTreeComponent) tree: SearchattributeTreeComponent;
 
   @Input() environments: Node[];
-  @Input() searchAttributes: SearchAttribute[] = [];
+  @Input() searchAttributes: { [env: string]: SearchAttribute[] } = {};
   typeAheadValues: { label: string, group: string, attribute: SearchAttribute }[] = [];
 
   @Output()
   conditionsSubmitted = new EventEmitter<Condition[]>();
 
+  layout: SearchLayout = new SearchLayout;
   conditions: Condition[] = [];
   selectedSearchAttribute: SearchAttribute;
 
@@ -58,11 +71,16 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['searchAttributes']) {
-      let ar = [this.searchAttributes.map(sa => {
-        return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa };
-      })];
-      this.typeAheadValues = ar.map(sa => this.uniqueBy(sa, p => p.label))[0];
+    if (changes['searchAttributes'] || changes['environments']) {
+      let ar = Object.keys(this.searchAttributes)
+          .map(env => this.searchAttributes[env])
+          .reduce((acc, value) => acc.concat(value), <SearchAttribute[]> [])
+          .map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; });
+
+      this.typeAheadValues = this.uniqueBy(ar, p => p.label);
+    }
+    if (changes['environments']) {
+      this.conditionUpdated();
     }
   }
 
@@ -72,20 +90,28 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
     } else {
       this.conditions = [];
     }
+    this.conditionUpdated();
     this.childModal.show();
     return this.conditionsSubmitted;
+  }
+
+  conditionUpdated() {
+    let envs = (this.environments || []).map(node => node.sourceName);
+    this.layout = SearchLayout.createSearchLayout(envs, this.searchAttributes, this.conditions);
   }
 
   nodeSelect(node: TreeNode) {
     if (node && node.type === 'attribute') {
       let sa = <SearchAttribute>node.data;
       this.pushCondition(new Condition(sa.boType, sa.attrName, Operator.EQUALS, [], sa.valueType));
+      this.conditionUpdated();
     }
   }
 
   removeCondition(condition: Condition) {
     let index = this.conditions.findIndex(c => condition.type === c.type && condition.attribute === c.attribute);
     this.conditions.splice(index, 1);
+    this.conditionUpdated();
   }
 
   addSearchFields() {
@@ -96,6 +122,7 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
   public typeaheadOnSelect(match: TypeaheadMatch) {
     this.pushCondition(new Condition(match.item.attribute.boType,
       match.item.attribute.attrName, Operator.EQUALS, [], match.item.attribute.valueType));
+    this.conditionUpdated();
     this.selectedSearchAttribute = undefined;
   }
 
@@ -104,6 +131,7 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
       this.notificationService.notifyInfo('Das Suchfeld wurde bereits ausgewählt!', 'Info');
     } else {
       this.conditions.push(condition);
+      this.conditionUpdated();
     }
   }
 

@@ -1,3 +1,15 @@
+/*******************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*******************************************************************************/
+
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
@@ -57,8 +69,13 @@ export class PreferenceService {
   }
 
   deletePreference(id: number) {
-    return this.http.delete(this.prefEndpoint + '/' + id)
-      .catch(this.handleError);
+    return this.http.delete(this.prefEndpoint + '/' + id);
+  }
+
+  deletePreferenceByScopeAndKey(scope: string, key: string) {
+    return this.getPreferenceForScope(scope, key).flatMap(p => this.deletePreference(p[0].id));
+
+    // this.getPreferenceForScope(scope, key).subscribe( p => this.deletePreference(p[0].id).subscribe());
   }
 
   private handleError(error: Response) {

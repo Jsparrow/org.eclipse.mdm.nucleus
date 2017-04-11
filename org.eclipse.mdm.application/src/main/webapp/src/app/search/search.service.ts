@@ -1,19 +1,24 @@
-// *******************************************************************************
-//   * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-//   * All rights reserved. This program and the accompanying materials
-//   * are made available under the terms of the Eclipse Public License v1.0
-//   * which accompanies this distribution, and is available at
-//   * http://www.eclipse.org/legal/epl-v10.html
-//   *
-//   * Contributors:
-//   * Dennis Schroeder - initial implementation
-//   *******************************************************************************
+/*******************************************************************************
+*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
+*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Dennis Schroeder - initial implementation                                   *
+*  Matthias Koller, Johannes Stamm - additional client functionality           *
+*******************************************************************************/
+
 import {Injectable} from '@angular/core';
 import {Http, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
 import {PropertyService} from '../core/property.service';
 import {LocalizationService} from '../localization/localization.service';
+import { Preference, PreferenceService } from '../core/preference.service';
 
 import {SearchFilter, Condition, Operator, OperatorUtil} from './filter.service';
 import {Query, Filter} from '../tableview/query.service';
@@ -21,6 +26,50 @@ import {View} from '../tableview/tableview.service';
 
 export class SearchLayout {
   map: { [environments: string]: Condition[] } = {};
+
+  public static createSearchLayout(envs: string[], attributesPerEnv: { [env: string]: SearchAttribute[] }, conditions: Condition[]) {
+    let result = new SearchLayout();
+    let attribute2Envs = SearchLayout.mapAttribute2Environments(envs, attributesPerEnv);
+    let globalEnv = 'Global';
+    Object.keys(attribute2Envs).forEach(attr => {
+      let c = conditions.find(cond => cond.type + '.' + cond.attribute === attr);
+      if (c) {
+        if (attribute2Envs[attr].length === envs.length) {
+          result.add(globalEnv, c);
+        } else {
+          attribute2Envs[attr].forEach(e => result.add(e, c));
+        }
+      }
+    });
+    return result;
+  }
+
+  public static groupByEnv(attrs: SearchAttribute[]) {
+    let attributesPerEnv: { [environment: string]: SearchAttribute[] } = {};
+
+    attrs.forEach(attr => {
+      attributesPerEnv[attr.source] = attributesPerEnv[attr.source] || [];
+      attributesPerEnv[attr.source].push(attr);
+    });
+    return attributesPerEnv;
+  }
+
+  private static mapAttribute2Environments(envs: string[], attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
+    let attribute2Envs: { [attribute: string]: string[] } = {};
+
+    Object.keys(attributesPerEnv)
+      .filter(env => envs.find(e => e === env))
+      .forEach(env =>
+        attributesPerEnv[env].forEach(sa => {
+          let attr = sa.boType + '.' + sa.attrName;
+
+          attribute2Envs[attr] = attribute2Envs[attr] || [];
+          attribute2Envs[attr].push(env);
+        })
+      );
+
+    return attribute2Envs;
+  }
 
   getEnvironments() {
     return Object.keys(this.map).sort((s1, s2) => {
@@ -41,6 +90,7 @@ export class SearchLayout {
   set(environment: string, conditions: Condition[]) {
     this.map[environment] = conditions;
   }
+
   add(environment: string, condition: Condition) {
     this.map[environment] = this.map[environment] || [];
     this.map[environment].push(condition);
@@ -77,16 +127,21 @@ export class SearchService {
   private errorMessage: string;
 
   private defs: SearchAttribute[];
+  ignoreAttributesPrefs: Preference[] = [];
 
   constructor(private http: Http,
     private localService: LocalizationService,
-    private _prop: PropertyService) {
-  }
+    private _prop: PropertyService,
+    private preferenceService: PreferenceService) {
+          this.preferenceService.getPreference('ignoredAttributes')
+              .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
+    }
 
   loadSearchAttributes(type: string, env: string) {
     return this.http.get(this._prop.getUrl() + '/mdm/environments/' + env + '/' + type + '/searchattributes')
       .map(response => <SearchAttribute[]>response.json().data)
-      .map(sas => sas.map(sa => { sa.source = env; return sa; }));
+      .map(sas => sas.map(sa => { sa.source = env; return sa; }))
+      .do( sas => sas.filter(sa => !this.isIgnored(env, sa)));
   }
 
   getDefinitionsSimple() {
@@ -98,7 +153,6 @@ export class SearchService {
   }
 
   getSearchAttributesPerEnvs(envs: string[], type: string) {
-
     return Observable.forkJoin(envs.map(env => this.loadSearchAttributes(type, env)
       .map(sas => sas.map(sa => { sa.source = env; return sa; }))))
       .map(x => x.reduce(function(explored, toExplore) {
@@ -106,51 +160,9 @@ export class SearchService {
       }, []));
   }
 
-  groupByEnv(attrs: SearchAttribute[]) {
-    let attributesPerEnv: { [environment: string]: SearchAttribute[] } = {};
-
-    attrs.forEach(attr => {
-      attributesPerEnv[attr.source] = attributesPerEnv[attr.source] || [];
-      attributesPerEnv[attr.source].push(attr);
-    });
-    return attributesPerEnv;
-  }
-
-  group(attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
-    let attribute2Envs: { [attribute: string]: string[] } = {};
-
-    Object.keys(attributesPerEnv).forEach(env =>
-      attributesPerEnv[env].forEach(sa => {
-        let attr = sa.boType + '.' + sa.attrName;
-
-        attribute2Envs[attr] = attribute2Envs[attr] || [];
-        attribute2Envs[attr].push(env);
-      }));
-
-    return attribute2Envs;
-  }
-
   getSearchLayout(envs: string[], conditions: Condition[], type: string) {
     return this.getSearchAttributesPerEnvs(envs, type)
-      .map(attrs => this.createSearchLayout(envs, conditions, this.groupByEnv(attrs)));
-  }
-
-  createSearchLayout(envs: string[], conditions: Condition[], attributesPerEnv: { [environment: string]: SearchAttribute[] }) {
-    let result = new SearchLayout();
-    let attribute2Envs = this.group(attributesPerEnv);
-    let globalEnv = 'Global';
-    Object.keys(attribute2Envs).forEach(attr => {
-      let c = conditions.find(cond => cond.type + '.' + cond.attribute === attr);
-      if (c) {
-        if (attribute2Envs[attr].length === envs.length) {
-          result.add(globalEnv, c);
-        } else {
-          attribute2Envs[attr].forEach(e => result.add(e, c));
-        }
-      }
-    });
-
-    return result;
+      .map(attrs => SearchLayout.createSearchLayout(envs, SearchLayout.groupByEnv(attrs), conditions));
   }
 
   convertToQuery(searchFilter: SearchFilter, attr: SearchAttribute[], view: View) {
@@ -181,5 +193,40 @@ export class SearchService {
   private handleError(error: Response) {
     console.error(error);
     return Observable.throw(error.json().error || 'Server error');
+  }
+
+  isIgnored(env: string, sa: SearchAttribute) {
+    this.getFilters(env).forEach( f => {
+      let x = f.split('.', 2);
+      let fType = x[0];
+      let fName = x[1];
+      if ( ((fType === sa.boType || fType === '*') && (fName === sa.attrName || fName === '*'))) {
+        return true;
+      }
+    });
+    return false;
+  }
+
+  getFilters(source: string): string[] {
+    return this.ignoreAttributesPrefs
+      .filter(p => p.scope !== 'Source' || p.source === source)
+      .sort(this.sortByScope)
+      .map(p => this.parsePreference(p))
+      .reduce((acc, value) => acc.concat(value), []);
+  }
+
+  private parsePreference(pref: Preference) {
+    try {
+        return <string[]> JSON.parse(pref.value);
+    } catch (e) {
+        console.log('Preference for ignored attributes is corrupted.\n', pref, e);
+        return [];
+    }
+  }
+  private sortByScope(p1: Preference, p2: Preference) {
+    let priority = { System: 1, Source: 2, User: 3 };
+    let one = priority[p1.scope] || 4;
+    let two = priority[p2.scope] || 4;
+    return one - two;
   }
 }

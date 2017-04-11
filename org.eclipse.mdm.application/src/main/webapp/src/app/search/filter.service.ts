@@ -1,3 +1,15 @@
+/*******************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*******************************************************************************/
+
 import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
@@ -127,5 +139,9 @@ export class FilterService {
     pref.key = 'filter.nodes.' + filter.name;
     pref.scope = 'User';
     return pref;
+  }
+
+  deleteFilter(name: string) {
+    return this.preferenceService.deletePreferenceByScopeAndKey('User', 'filter.nodes.' + name);
   }
 }

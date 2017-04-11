@@ -1,3 +1,15 @@
+<!-- ***************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+**************************************************************************** -->
+
 <style>
   .modal-body >>> .dropup .dropdown-menu {
     margin-bottom: 38px !important;
@@ -30,39 +42,44 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid">
-          <div class="col-lg-4" style="min-height: 50vh; max-height: 77vh; padding-right: 12px;">
-            <searchattribute-tree [searchAttributes]="searchAttributes" [environments]="environments"></searchattribute-tree>
-          </div>
-          <div class="col-lg-8" style="min-height: 50vh; max-height: 77vh; padding-right: 12px; overflow-y:auto;">
-            <label for="search-source" class="control-label">Ausgewählte Suchfelder</label>
-            <table class="table table-bordered" style="padding: 0; overflow-y:auto; table-layout: fixed;">
-              <tr *ngFor="let condition of conditions">
-                <td width=48% >
-                  {{condition.type}}
-                </td>
-                <td width=48%>
-                   {{condition.attribute}}
-                </td>
-                <td width="30px" style="text-align: center; vertical-align: middle;">
-                  <span class="glyphicon glyphicon-remove" style="cursor: pointer" title="Remove" (click)="removeCondition(condition)"></span>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div class="row" style="margin: 15px 15px 0px 15px;">
-          <div class="col-lg-4" style="padding-right: 12px;">
-            <div class="dropup">
+          <div class="row">
+            <div class="col-md-4" style="min-height: 50vh; max-height: 77vh;">
               <input [(ngModel)]="selectedSearchAttribute" [typeahead]="typeAheadValues"
-                    (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                    typeaheadOptionField="label"
-                    typeaheadGroupField="group"
-                    typeaheadOptionsLimit="15"
-                    placeholder="Suchtext eingeben"
-                    class="form-control"  >
+                  (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                  typeaheadOptionField="label"
+                  typeaheadGroupField="group"
+                  typeaheadOptionsLimit="15"
+                  placeholder="Suchtext eingeben"
+                  class="form-control"
+                  style="margin-bottom: 15px;">
+              <searchattribute-tree [searchAttributes]="searchAttributes" [environments]="environments"></searchattribute-tree>
+            </div>
+            <div class="col-md-8" style="min-height: 50vh; max-height: 77vh; overflow-y:auto;">
+              <label for="search-source" class="control-label" style="padding: 8px 0 15px 0;">Ausgewählte Suchattribute</label>
+              <div *ngIf="layout.getEnvironments().length === 0" style="text-align: center;">
+                Keine Suchattribute ausgewählt
+              </div>
+              <div *ngFor="let env of layout.getEnvironments()">
+              <div *ngIf="layout.getConditions(env).length > 0">
+                <span style="font-weight: bold;">{{env}}</span>
+                <table class="table table-bordered searchdefinition">
+                  <colgroup>
+                    <col style="width: 48%;">
+                    <col style="width: 48%;">
+                    <col style="width: 4%;">
+                  </colgroup>
+                  <tr *ngFor="let condition of layout.getConditions(env)">
+                    <td>{{condition?.type}}</td>
+                    <td>{{condition?.attribute}}</td>
+                    <td style="text-align: center;"><span class="glyphicon glyphicon-remove" style="cursor: pointer" title="Remove" (click)="removeCondition(condition)"></span></td>
+                  </tr>
+                </table>
+              </div>
             </div>
           </div>
-          <div class="col-lg-8">
+        </div>
+        <div class="row" style="margin-top: 15px;">
+          <div class="col-md-12">
             <button type="button" class="btn btn-default pull-right" (click)="addSearchFields()" [disabled]="conditions.length === 0">
               <span class="glyphicon glyphicon-ok"></span> Änderungen anwenden
             </button>

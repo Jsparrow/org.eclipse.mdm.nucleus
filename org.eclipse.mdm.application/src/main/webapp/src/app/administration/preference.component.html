@@ -1,3 +1,15 @@
+<!-- ***************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+**************************************************************************** -->
+
 <table class="table table-bordered" style="table-layout: fixed;">
   <tr>
     <th class="col-lg-5">Key</th>
@@ -6,26 +18,26 @@
     <th width="60px"></th>
   </tr>
   <tr *ngFor="let preference of preferences">
-    <td> 
+    <td>
       <div id="truncateLongTexts">
         {{preference.key}}
       </div>
     </td>
-    <td> 
+    <td>
       <div id="truncateLongTexts">
         {{preference.value}}
       </div>
     </td>
     <td>
       <button type="button" class="btn btn-default" (click)="editPreference(preference)" title="edit">
-		<span class="glyphicon glyphicon-edit"></span>
-	  </button>
-	</td>
+		      <span class="glyphicon glyphicon-edit"></span>
+	    </button>
+    </td>
     <td>
       <button type="button" class="btn btn-default" (click)="removePreference(preference)" title="delete">
-		<span class="glyphicon glyphicon-remove"></span>
-	  </button>
-	</td>
+		    <span class="glyphicon glyphicon-remove"></span>
+	    </button>
+    </td>
   </tr>
 </table>
 <div class="col-lg-12">
@@ -34,4 +46,3 @@
   </button>
 </div>
 <edit-preference [scope]="scope"></edit-preference>
-

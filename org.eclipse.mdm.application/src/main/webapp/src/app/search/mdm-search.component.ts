@@ -1,14 +1,18 @@
-// *******************************************************************************
-//   * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-//   * All rights reserved. This program and the accompanying materials
-//   * are made available under the terms of the Eclipse Public License v1.0
-//   * which accompanies this distribution, and is available at
-//   * http://www.eclipse.org/legal/epl-v10.html
-//   *
-//   * Contributors:
-//   * Dennis Schroeder - initial implementation
-//   *******************************************************************************
-import {Component, ViewChild, OnInit, Input, OnDestroy} from '@angular/core';
+/*******************************************************************************
+*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
+*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Dennis Schroeder - initial implementation                                   *
+*  Matthias Koller, Johannes Stamm - additional client functionality           *
+*******************************************************************************/
+
+import {Component, ViewChild, OnInit, Input, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from './search.service';
@@ -48,6 +52,7 @@ import {classToClass} from 'class-transformer';
 export class MDMSearchComponent implements OnInit, OnDestroy {
 
   maxResults = 100;
+  private readonly NO_FILTER_NAME = 'No filter selected';
 
   filters: SearchFilter[] = [];
   currentFilter: SearchFilter;
@@ -60,7 +65,8 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   results: SearchResult;
   searchAttributes: SearchAttribute[];
-  allSearchAttributes: SearchAttribute[] = [];
+  allSearchAttributes: { [type: string]: { [env: string]: SearchAttribute[] }} = {};
+  allSearchAttributesForCurrentResultType: { [env: string]: SearchAttribute[] } = {};
 
   isAdvancedSearchOpen = false;
   isSearchResultsOpen = false;
@@ -122,7 +128,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.viewChanged$.subscribe(() => this.search());
 
-     this.currentFilter = this.filterService.currentFilter || new SearchFilter('No filter selected', [], 'Test', '', []);
+    this.currentFilter = this.filterService.currentFilter || new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
   }
 
   ngOnDestroy() {
@@ -151,7 +157,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.filterService.getFilters()
       .defaultIfEmpty([this.currentFilter])
       .subscribe(filters => {
-        this.filters = filters;
+        this.filters = [new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []), ...filters];
         this.selectFilterByName(defaultFilterName);
       }
       );
@@ -168,15 +174,25 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   selectResultType(type: any) {
     this.currentFilter.resultType = type.type;
+    this.updateSearchAttributesForCurrentResultType();
+  }
+
+  updateSearchAttributesForCurrentResultType() {
+    if (this.allSearchAttributes.hasOwnProperty(this.getSelectedDefinition().value)) {
+      this.allSearchAttributesForCurrentResultType = this.allSearchAttributes[this.getSelectedDefinition().value];
+    }
   }
 
   getSearchDefinition(type: string) {
     return this.definitions.find(def => def.type === type);
   }
 
+  getSelectedDefinition() {
+    return this.getSearchDefinition(this.currentFilter.resultType);
+  }
+
   onSearch() {
-    let type = this.getSearchDefinition(this.currentFilter.resultType).value;
-    this.searchService.getSearchAttributesPerEnvs(this.currentFilter.environments, type)
+    this.searchService.getSearchAttributesPerEnvs(this.currentFilter.environments, this.getSelectedDefinition().value)
       .subscribe(attrs => {
         this.searchAttributes = attrs;
         this.search();
@@ -219,33 +235,43 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     let environments = this.currentFilter.environments;
     let conditions = this.currentFilter.conditions;
     let type = this.getSearchDefinition(this.currentFilter.resultType).value;
-
     this.searchService.getSearchLayout(environments, conditions, type)
       .subscribe(l => this.layout = l);
   }
 
   onFilterChanged(filter: SearchFilter) {
     this.currentFilter = classToClass(filter);
+
     this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
+    this.selectedEnvironmentsChanged(this.dropdownModel);
     this.calcCurrentSearch();
   }
 
   selectFilter(filter: SearchFilter) {
-    this.filterService.setSelectedFilter(filter);
+      this.filterService.setSelectedFilter(filter);
   }
 
-  resetConditions() {
+  resetConditions(e: Event) {
+    e.stopPropagation();
     this.currentFilter.conditions.forEach(cond => cond.value = []);
     this.onFilterChanged(this.currentFilter);
   }
 
-  // saveFilter() {
-  //   let filter = this.currentFilter;
-  //   filter.name = this.filterName;
-  //   this.filterService.saveFilter(filter).subscribe();
-  //   this.loadFilters(filter.name);
-  //   this.childSaveModal.hide();
-  // }
+  deleteFilter(e: Event) {
+    e.stopPropagation();
+    if (this.currentFilter.name === this.NO_FILTER_NAME) {
+      this.notificationService
+        .notifyInfo('Kein Filter ausgewählt.',
+        'Der Vorgang konnte nicht durchgeführt werden, da kein Filter zum Löschen ausgewählt wurde.');
+    } else {
+      this.layout = new SearchLayout;
+      this.filterService.deleteFilter(this.currentFilter.name).subscribe(
+        () => this.loadFilters(this.NO_FILTER_NAME),
+        () => this.notificationService
+          .notifyError('Server Error.', 'Der Vorgang konnte nicht durchgeführt werden, da ein Serverfehler aufgetreten ist.')
+      );
+    }
+  }
 
   saveFilter(e: Event) {
     e.stopPropagation();
@@ -261,8 +287,9 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     if (save) {
       let filter = this.currentFilter;
       filter.name = this.filterName;
-      this.filterService.saveFilter(filter).subscribe();
-      this.loadFilters(filter.name);
+      this.filterService.saveFilter(filter).subscribe(
+        () => this.loadFilters(filter.name)
+      );
       this.childSaveModal.hide();
     } else {
       this.childSaveModal.show();
@@ -283,7 +310,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   showSaveModal(e: Event) {
     e.stopPropagation();
-    if (this.currentFilter.name === 'No filter selected') {
+    if (this.currentFilter.name === this.NO_FILTER_NAME) {
       this.filterName = '';
     } else {
       this.filterName = this.currentFilter.name;
@@ -304,24 +331,31 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   }
 
   private loadSearchAttributes(environments: string[]) {
-    let searchDef = this.getSearchDefinition(this.currentFilter.resultType);
-    if (searchDef === undefined) {
-      return;
-    }
-
-    let types = ['tests', 'teststeps', 'measurements'];
-    let crossProd: { envName: string, type: string }[] = [];
-
-    for (let i = 0; i < environments.length; ++i) {
-      for (let j = 0; j < types.length; ++j) {
-        crossProd.push({ envName: environments[i], type: types[j] });
-      }
-    }
-
-    Observable.forkJoin(crossProd.map(kr => this.searchService.loadSearchAttributes(kr.type, kr.envName)))
-      .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
-      // .map(attrs => attrs.map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; }))
-      // .map(sa => this.uniqueBy(sa, p => p.boType + '.' + p.attrName))
-      .subscribe(attrs => this.allSearchAttributes = this.allSearchAttributes.concat(attrs));
+    let types = this.searchService.getDefinitionsSimple()
+      .map(defs => defs.map(d => d.value))
+      .flatMap(defs => this.loadSearchAttributesForAllDefs(defs, environments))
+      .subscribe(attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); });
   }
+
+  private loadSearchAttributesForAllDefs(types: string[], environments: string[]) {
+    return Observable.forkJoin(types.map(type => this.loadSearchAttributesForDef(type, environments)))
+      .map(type2AttributesPerEnv =>
+        type2AttributesPerEnv.reduce(
+          function(acc, value) {
+            acc[value.type] = value.attributesPerEnv;
+            return acc; },
+          <{ [type: string]: { [env: string]: SearchAttribute[] }}> {})
+        );
+  }
+
+  private loadSearchAttributesForDef(type: string, environments: string[]) {
+    return Observable.forkJoin(environments.map(env => this.searchService.loadSearchAttributes(type, env)
+      .map(attrs => { return { 'env': env, 'attributes': attrs}; })))
+      .map(attrsPerEnv => attrsPerEnv.reduce(
+        function(acc, value) {acc[value.env] = value.attributes; return acc; },
+         <{ [env: string]: SearchAttribute[] }> {})
+       )
+      .map(attrsPerEnv => { return { 'type': type, 'attributesPerEnv': attrsPerEnv}; });
+  }
+
 }

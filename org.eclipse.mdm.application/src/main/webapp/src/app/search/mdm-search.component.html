@@ -1,13 +1,17 @@
-<!-- *******************************************************************************
-  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-  * All rights reserved. This program and the accompanying materials
-  * are made available under the terms of the Eclipse Public License v1.0
-  * which accompanies this distribution, and is available at
-  * http://www.eclipse.org/legal/epl-v10.html
-  *
-  * Contributors:
-  * Dennis Schroeder - initial implementation
-  ******************************************************************************* -->
+<!--****************************************************************************
+*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
+*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Dennis Schroeder - initial implementation                                   *
+*  Matthias Koller, Johannes Stamm - additional client functionality           *
+*****************************************************************************-->
+
 <style>
    :host /deep/ .dropdown {
     width: 200px;
@@ -91,8 +95,9 @@
         </div>
         <div class="col-xs-3 pull-right">
           <div class="pull-right">
-            <button type="button" class="btn btn-default" (click)="resetConditions()" title="Reset search conditions" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-erase"></span></button> &nbsp; &nbsp;
-            <span class="glyphicon" style="color: #333 !important;" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
+            <button type="button" class="btn btn-default" (click)="resetConditions($event)" title="Reset search conditions" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-erase"></span></button>
+            <button type="button" class="btn btn-default" (click)="deleteFilter($event)" title="Filter löschen"><span class="glyphicon glyphicon-remove"></span></button>
+            <span class="glyphicon" style="color: #333 !important; padding-left: 15px;" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
           </div>
         </div>
       </div>
@@ -140,11 +145,11 @@
         <div class="col-xs-3 pull-right">
           <div class="pull-right">
             <button type="button" class="btn btn-default" title="Selection to basket" (click)="selected2Basket($event)">
-          <span class="glyphicon glyphicon-shopping-cart" style="color:#DADADA; margin-right: -12px;"></span>
-          <span class="glyphicon glyphicon-shopping-cart" style="color:#A8A4A4; margin-right: -12px;"></span>
-          <span class="glyphicon glyphicon-shopping-cart"></span>
-        </button> &nbsp;&nbsp;
-            <span class="glyphicon" [ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}"></span>
+              <span class="glyphicon glyphicon-shopping-cart" style="color:#DADADA; margin-right: -12px;"></span>
+              <span class="glyphicon glyphicon-shopping-cart" style="color:#A8A4A4; margin-right: -12px;"></span>
+              <span class="glyphicon glyphicon-shopping-cart"></span>
+            </button>
+            <span class="glyphicon" [ngClass]="{'glyphicon-chevron-down': searchResults?.isOpen, 'glyphicon-chevron-right': !searchResults?.isOpen}" style="padding-left: 15px;"></span>
           </div>
         </div>
       </div>
@@ -187,5 +192,5 @@
   </div>
 </div>
 
-<edit-searchFields [searchAttributes]="allSearchAttributes" [environments]="selectedEnvironments"></edit-searchFields>
+<edit-searchFields [searchAttributes]="allSearchAttributesForCurrentResultType" [environments]="selectedEnvironments"></edit-searchFields>
 <overwrite-dialog></overwrite-dialog>

@@ -76,7 +76,8 @@ public class PreferenceServiceTest
 		initData(new Preference(null, null, "testGetPreferences", "myValue1"),
 				new Preference("MDMTEST", null, "testGetPreferences", "myValue2"),
 				new Preference(null, "testUser", "testGetPreferences", "myValue3"),
-				new Preference(null, "otherUser", "testGetPreferences", "myValue4"));
+				new Preference(null, "otherUser", "testGetPreferences", "myValue4"),
+				new Preference(null, null, "otherKey", "myValue5"));
 		
 		
 		assertThat(service.getPreferences(null, "testGetPreferences"))

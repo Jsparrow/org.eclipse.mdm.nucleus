@@ -66,8 +66,9 @@ public class PreferenceService
 
 		TypedQuery<Preference> query;
 		if (scope == null || scope.trim().isEmpty()) {
-			query = em.createQuery("select p from Preference p where p.user is null or p.user = :user", Preference.class)
-					.setParameter("user", sessionContext.getCallerPrincipal().getName());
+			query = em.createQuery("select p from Preference p where (p.user is null or p.user = :user) and LOWER(p.key) like :key", Preference.class)
+				.setParameter("user", sessionContext.getCallerPrincipal().getName())
+				.setParameter("key", key.toLowerCase() + "%");
 		} else {
 			query = em.createQuery(buildQuery(scope, key), Preference.class);
 			

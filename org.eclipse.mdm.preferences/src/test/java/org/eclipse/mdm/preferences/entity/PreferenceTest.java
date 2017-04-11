@@ -34,6 +34,12 @@ public class PreferenceTest
     public void init() {
 		factory = Persistence.createEntityManagerFactory("preferenceTest", 
 				ImmutableMap.of(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, "META-INF/persistence-test.xml"));
+		
+		EntityManager em = factory.createEntityManager();
+		em.getTransaction().begin();
+		em.createQuery("delete from Preference").executeUpdate();
+		em.getTransaction().commit();
+		em.close();
     }
 
     @After

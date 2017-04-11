@@ -1,3 +1,15 @@
+/*******************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*******************************************************************************/
+
 import { Component, ViewChild, OnInit, EventEmitter} from '@angular/core';
 
 import { PreferenceView, View, ViewService} from './tableview.service';
@@ -5,7 +17,9 @@ import { EditViewComponent } from './editview.component';
 
 import {classToClass} from 'class-transformer';
 import { ModalDirective } from 'ng2-bootstrap';
+
 import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
+import { MDMNotificationService } from '../core/mdm-notification.service';
 
 @Component({
   selector: 'mdm-view',
@@ -14,7 +28,7 @@ import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
 export class ViewComponent implements OnInit {
 
   public selectedView: View;
-  public groupedViews: {scope: string, view: View[]}[] = [];
+  public groupedViews: { scope: string, view: View[] }[] = [];
   public viewChanged$ = new EventEmitter();
   public viewName = '';
 
@@ -27,12 +41,14 @@ export class ViewComponent implements OnInit {
   @ViewChild(OverwriteDialogComponent)
   private overwriteDialogComponent: OverwriteDialogComponent;
 
-  constructor(private viewService: ViewService) {
+  constructor(private viewService: ViewService,
+    private notificationService: MDMNotificationService) {
   }
 
   ngOnInit() {
     this.viewService.getViews().subscribe(views => this.setViews(views));
-    this.viewService.viewsChanged$.subscribe(view => this.onViewsChanged(view));
+    this.viewService.viewSaved$.subscribe(view => this.onViewSaved(view));
+    this.viewService.viewDeleted$.subscribe(() => this.onDeleteView());
   }
 
   selectView(view: View) {
@@ -42,19 +58,28 @@ export class ViewComponent implements OnInit {
 
   public editSelectedView(e: Event) {
     e.stopPropagation();
-    this.editViewComponent.showDialog(this.selectedView).subscribe( v => this.selectedView = v);
+    this.editViewComponent.showDialog(this.selectedView).subscribe(v => this.selectedView = v);
   }
 
   public newView(e: Event) {
     e.stopPropagation();
-    this.editViewComponent.showDialog(new View()).subscribe( v => this.selectedView = v);
+    this.editViewComponent.showDialog(new View()).subscribe(v => this.selectedView = v);
   }
 
-  private onViewsChanged(view: View) {
-    this.viewService.getViews().subscribe(prefViews => this.getGroupedView(prefViews));
-    if (this.selectedView.name === view.name) {
-      this.selectView(classToClass(view));
-    }
+  private onDeleteView() {
+    this.viewService.getViews().subscribe(prefViews => {
+      this.getGroupedView(prefViews);
+      if (prefViews.find(pv => pv.view.name === this.selectedView.name) === undefined) {
+        this.selectView(prefViews[0].view);
+      }
+    });
+  }
+
+ private onViewSaved(view: View) {
+   this.viewService.getViews().subscribe(prefViews => this.getGroupedView(prefViews));
+    // if (this.selectedView.name === view.name) {
+    //   this.selectView(classToClass(view));
+    // }
   }
 
   private setViews(prefViews: PreferenceView[]) {
@@ -72,7 +97,7 @@ export class ViewComponent implements OnInit {
           pushed = true;
         }
       }
-      if (pushed === false) { this.groupedViews.push({scope: prefViews[i].scope, view: [prefViews[i].view]}); }
+      if (pushed === false) { this.groupedViews.push({ scope: prefViews[i].scope, view: [prefViews[i].view] }); }
     }
   }
 
@@ -88,9 +113,11 @@ export class ViewComponent implements OnInit {
 
   saveView2(save: boolean) {
     if (save) {
-      this.selectedView.name = this.viewName;
-      this.viewService.saveView(this.selectedView);
+      let view = classToClass(this.selectedView);
+      view.name = this.viewName;
+      this.viewService.saveView(view);
       this.childSaveModal.hide();
+      this.selectView(classToClass(view));
     } else {
       this.childSaveModal.show();
     }
@@ -100,5 +127,23 @@ export class ViewComponent implements OnInit {
     e.stopPropagation();
     this.viewName = this.selectedView.name === 'Neue Ansicht' ? '' : this.selectedView.name;
     this.childSaveModal.show();
+  }
+
+  deleteView(e: Event) {
+    e.stopPropagation();
+    let userGroup = this.groupedViews.find(gv => gv.scope === 'User');
+    if (userGroup && userGroup.view.length > 0) {
+      this.viewService.deleteView(this.selectedView.name).subscribe(() =>
+        this.viewService.getViews().subscribe(views => {
+          this.setViews(views);
+          this.viewService.viewDeleted$.emit();
+        },
+          () => this.notificationService.notifyError('Server Error.',
+            'Die Ansicht konnte auf Grund eine Server Fehlers nicht gelöscht werden!'))
+      );
+    } else {
+      this.notificationService.notifyError('Forbidden.',
+        'System Einstellungen können nicht aus der Anwendung geändert werden. Sollten sie entsprechende Zugriffsrechte besitzen, können Sie diese Einstellungen über den Administrationsbereich bearbeiten');
+    }
   }
 }

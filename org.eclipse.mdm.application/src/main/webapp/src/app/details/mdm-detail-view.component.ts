@@ -1,14 +1,18 @@
-// *******************************************************************************
-//   * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-//   * All rights reserved. This program and the accompanying materials
-//   * are made available under the terms of the Eclipse Public License v1.0
-//   * which accompanies this distribution, and is available at
-//   * http://www.eclipse.org/legal/epl-v10.html
-//   *
-//   * Contributors:
-//   * Dennis Schroeder - initial implementation
-//   *******************************************************************************
-import {Input, Component, OnInit, OnDestroy} from '@angular/core';
+/*******************************************************************************
+*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
+*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Dennis Schroeder - initial implementation                                   *
+*  Matthias Koller, Johannes Stamm - additional client functionality           *
+*******************************************************************************/
+
+import {Component, OnInit, OnDestroy} from '@angular/core';
 
 import {MDMItem} from '../core/mdm-item';
 import {Node, Attribute} from '../navigator/node';
@@ -30,7 +34,7 @@ import { DetailViewService } from './detail-view.service';
 })
 export class MDMDetailViewComponent implements OnInit, OnDestroy {
   selectedNode: Node;
-  @Input() displayAttributes: Attribute[];
+  displayAttributes: Attribute[];
 
   locals: Localization[] = [];
   subscription: any;
