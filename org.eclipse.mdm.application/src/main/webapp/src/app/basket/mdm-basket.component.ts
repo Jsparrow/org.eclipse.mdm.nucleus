@@ -171,12 +171,13 @@ export class MDMBasketComponent implements OnInit {
     return this.basketContent.rows.length <= 0;
   }
 
-  private onUploadEvent(inputValue: any) {
-    let file = inputValue.files[0];
+  private onUploadEvent(fileInput: any) {
+    let file = fileInput.files[0];
     let reader = new FileReader();
-    reader.onloadend = (obj) => {
+    reader.onloadend = (event) => {
       let upload = JSON.parse(reader.result);
       this.loadBasket(upload);
+      fileInput.value = "";
     };
     reader.readAsText(file);
   }
