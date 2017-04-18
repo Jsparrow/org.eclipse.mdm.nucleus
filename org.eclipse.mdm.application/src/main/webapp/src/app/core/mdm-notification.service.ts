@@ -21,6 +21,7 @@ export class MDMNotificationService {
 
   notify(severity: Severities, summary: string, detail: string) {
     this.notificationChange.emit({ severity, summary, detail });
+    console.log(severity, summary, detail);
   }
 
   notifyError(summary: string, detail: string) {

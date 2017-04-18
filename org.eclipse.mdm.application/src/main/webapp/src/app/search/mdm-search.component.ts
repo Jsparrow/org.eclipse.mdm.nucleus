@@ -52,7 +52,6 @@ import {classToClass} from 'class-transformer';
 export class MDMSearchComponent implements OnInit, OnDestroy {
 
   maxResults = 100;
-  private readonly NO_FILTER_NAME = 'No filter selected';
 
   filters: SearchFilter[] = [];
   currentFilter: SearchFilter;
@@ -79,6 +78,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   subscription: any;
   isBoxChecked = true;
+  searchExecuted = false;
 
   contextMenuItems: MenuItem[] = [
     { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
@@ -125,10 +125,9 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
     this.loadFilters('Standard');
 
+    this.onFilterChanged(this.filterService.currentFilter);
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
-    this.viewComponent.viewChanged$.subscribe(() => this.search());
-
-    this.currentFilter = this.filterService.currentFilter || new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
+    this.viewComponent.viewChanged$.subscribe(() => this.onViewChanged());
   }
 
   ngOnDestroy() {
@@ -144,6 +143,12 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.isBoxChecked = event.target.checked;
   }
 
+  onViewChanged() {
+    if (this.searchExecuted) {
+      this.onSearch();
+      this.searchExecuted = true;
+    }
+  }
   selectedEnvironmentsChanged(items: IDropdownItem[]) {
     this.currentFilter.environments = items.filter(item => item.selected).map(item => item.id);
     if (this.environments) {
@@ -157,7 +162,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.filterService.getFilters()
       .defaultIfEmpty([this.currentFilter])
       .subscribe(filters => {
-        this.filters = [new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []), ...filters];
+        this.filters = filters;
         this.selectFilterByName(defaultFilterName);
       }
       );
@@ -178,8 +183,8 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   }
 
   updateSearchAttributesForCurrentResultType() {
-    if (this.allSearchAttributes.hasOwnProperty(this.getSelectedDefinition().value)) {
-      this.allSearchAttributesForCurrentResultType = this.allSearchAttributes[this.getSelectedDefinition().value];
+    if (this.allSearchAttributes.hasOwnProperty(this.getSelectedDefinition())) {
+      this.allSearchAttributesForCurrentResultType = this.allSearchAttributes[this.getSelectedDefinition()];
     }
   }
 
@@ -188,25 +193,20 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   }
 
   getSelectedDefinition() {
-    return this.getSearchDefinition(this.currentFilter.resultType);
+    let def = this.getSearchDefinition(this.currentFilter.resultType);
+    if (def) {
+      return def.value;
+    }
   }
 
   onSearch() {
-    this.searchService.getSearchAttributesPerEnvs(this.currentFilter.environments, this.getSelectedDefinition().value)
-      .subscribe(attrs => {
-        this.searchAttributes = attrs;
-        this.search();
-      });
-  }
-
-  search() {
     let query;
     if (this.isBoxChecked) {
-      query = this.searchService.convertToQuery(this.currentFilter, this.searchAttributes, this.viewComponent.selectedView);
+      query = this.searchService.convertToQuery(this.currentFilter, this.allSearchAttributes, this.viewComponent.selectedView);
     } else {
       let filter = classToClass(this.currentFilter);
       filter.conditions = [];
-      query = this.searchService.convertToQuery(filter, this.searchAttributes, this.viewComponent.selectedView);
+      query = this.searchService.convertToQuery(filter, this.allSearchAttributes, this.viewComponent.selectedView);
     }
     this.queryService.query(query)
       .do(result => this.generateWarningsIfMaxResultsReached(result))
@@ -259,14 +259,14 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   deleteFilter(e: Event) {
     e.stopPropagation();
-    if (this.currentFilter.name === this.NO_FILTER_NAME) {
+    if (this.currentFilter.name === this.filterService.NO_FILTER_NAME) {
       this.notificationService
         .notifyInfo('Kein Filter ausgewählt.',
         'Der Vorgang konnte nicht durchgeführt werden, da kein Filter zum Löschen ausgewählt wurde.');
     } else {
       this.layout = new SearchLayout;
       this.filterService.deleteFilter(this.currentFilter.name).subscribe(
-        () => this.loadFilters(this.NO_FILTER_NAME),
+        () => this.loadFilters(this.filterService.NO_FILTER_NAME),
         () => this.notificationService
           .notifyError('Server Error.', 'Der Vorgang konnte nicht durchgeführt werden, da ein Serverfehler aufgetreten ist.')
       );
@@ -310,7 +310,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   showSaveModal(e: Event) {
     e.stopPropagation();
-    if (this.currentFilter.name === this.NO_FILTER_NAME) {
+    if (this.currentFilter.name === this.filterService.NO_FILTER_NAME) {
       this.filterName = '';
     } else {
       this.filterName = this.currentFilter.name;
@@ -331,31 +331,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   }
 
   private loadSearchAttributes(environments: string[]) {
-    let types = this.searchService.getDefinitionsSimple()
-      .map(defs => defs.map(d => d.value))
-      .flatMap(defs => this.loadSearchAttributesForAllDefs(defs, environments))
+    this.searchService.loadSearchAttributesStructured(environments)
       .subscribe(attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); });
   }
-
-  private loadSearchAttributesForAllDefs(types: string[], environments: string[]) {
-    return Observable.forkJoin(types.map(type => this.loadSearchAttributesForDef(type, environments)))
-      .map(type2AttributesPerEnv =>
-        type2AttributesPerEnv.reduce(
-          function(acc, value) {
-            acc[value.type] = value.attributesPerEnv;
-            return acc; },
-          <{ [type: string]: { [env: string]: SearchAttribute[] }}> {})
-        );
-  }
-
-  private loadSearchAttributesForDef(type: string, environments: string[]) {
-    return Observable.forkJoin(environments.map(env => this.searchService.loadSearchAttributes(type, env)
-      .map(attrs => { return { 'env': env, 'attributes': attrs}; })))
-      .map(attrsPerEnv => attrsPerEnv.reduce(
-        function(acc, value) {acc[value.env] = value.attributes; return acc; },
-         <{ [env: string]: SearchAttribute[] }> {})
-       )
-      .map(attrsPerEnv => { return { 'type': type, 'attributesPerEnv': attrsPerEnv}; });
-  }
-
 }

@@ -13,8 +13,7 @@
 import {Component, OnInit, Input, OnChanges, SimpleChanges, EventEmitter} from '@angular/core';
 
 import {SearchService, SearchDefinition, SearchAttribute, SearchLayout} from '../search/search.service';
-import { Preference, PreferenceService } from '../core/preference.service';
-import {NodeService} from '../navigator/node.service';
+import {Preference, PreferenceService} from '../core/preference.service';
 import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
 
@@ -27,49 +26,22 @@ import {TreeModule, TreeNode} from 'primeng/primeng';
   selector: 'searchattribute-tree',
   templateUrl: './searchattribute-tree.component.html'
 })
-export class SearchattributeTreeComponent implements OnChanges, OnInit {
+export class SearchattributeTreeComponent implements OnChanges {
 
   @Input() environments: Node[];
   @Input() searchAttributes: { [env: string]: SearchAttribute[] } = {};
-  ignoreAttributesPrefs: Preference[] = [];
 
   lastClickTime = 0;
   nodes: TreeNode[] = [];
   selectedAttribute: { label: string, group: string, attribute: SearchAttribute };
   public onNodeSelect$ = new EventEmitter<TreeNode>();
 
-  constructor(private searchService: SearchService,
-    private nodeService: NodeService,
-    private preferenceService: PreferenceService) {}
-
-  ngOnInit() {
-      this.preferenceService.getPreference('ignoredAttributes')
-          .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
-  }
+  constructor(private searchService: SearchService) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['searchAttributes'] && this.environments && this.environments.length > 0) {
-      this.nodes = this.environments.map(n => this.mapRootNode(n));
-      // this.filterAttributes();
-    }
-
-    if (changes['environments'] && this.environments && this.environments.length > 0) {
+    if ((changes['searchAttributes'] || changes['environments']) && this.environments && this.environments.length > 0) {
       this.nodes = this.environments.map(n => this.mapRootNode(n));
     }
-  }
-
-  filterAttributes() {
-    this.environments.forEach( env => {
-      if (this.searchAttributes[env.sourceName]) {
-      this.getFilters(env.sourceName).forEach( f => {
-        let x = f.split('.', 2);
-        let fType = x[0];
-        let fName = x[1];
-        this.searchAttributes[env.sourceName] = this.searchAttributes[env.sourceName].filter( sa =>
-          !((fType === sa.boType || fType === '*') && (fName === sa.attrName || fName === '*'))
-        );
-      });
-    }});
   }
 
   mapRootNode(node: Node) {
@@ -146,30 +118,6 @@ export class SearchattributeTreeComponent implements OnChanges, OnInit {
       event.node.expanded = !event.node.expanded;
     }
     this.lastClickTime = event.originalEvent.timeStamp;
-  }
-
-  getFilters(source: string): string[] {
-
-    return this.ignoreAttributesPrefs
-      .filter(p => p.scope !== 'Source' || p.source === source)
-      .sort(this.sortByScope)
-      .map(p => this.parsePreference(p))
-      .reduce((acc, value) => acc.concat(value), []);
-  }
-
-  private parsePreference(pref: Preference) {
-    try {
-        return <string[]> JSON.parse(pref.value);
-    } catch (e) {
-        console.log('Preference for ignored attributes is corrupted.\n', pref, e);
-        return [];
-    }
-  }
-  private sortByScope(p1: Preference, p2: Preference) {
-    let priority = { System: 1, Source: 2, User: 3 };
-    let one = priority[p1.scope] || 4;
-    let two = priority[p2.scope] || 4;
-    return one - two;
   }
 
 }

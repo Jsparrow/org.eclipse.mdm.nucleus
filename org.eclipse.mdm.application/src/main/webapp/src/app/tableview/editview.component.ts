@@ -10,7 +10,7 @@
 *  Matthias Koller, Johannes Stamm - initial implementation                    *
 *******************************************************************************/
 
-import {Component, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
+import {Component, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 
 import {View, ViewColumn, ViewService} from './tableview.service';
 import {NodeService} from '../navigator/node.service';
@@ -34,10 +34,10 @@ export class EditViewComponent implements OnInit {
   @ViewChild('lgModal') public childModal: ModalDirective;
   @ViewChild(SearchattributeTreeComponent) tree: SearchattributeTreeComponent;
 
-  envs: Node[] = [];
+  environments: Node[] = [];
   isReadOnly = false;
   currentView: View = new View();
-  searchAttributes: SearchAttribute[] = [];
+  searchAttributes: { [env: string]: SearchAttribute[] } = {};
   typeAheadValues: {label: string, group: string, attribute: SearchAttribute }[] = [];
 
   selectedAttribute: SearchAttribute;
@@ -52,28 +52,25 @@ export class EditViewComponent implements OnInit {
 
   ngOnInit() {
     this.tree.onNodeSelect$.subscribe(node => this.selectNode(node));
-    this.nodeService.getNodes().subscribe(
-      envs => {
-        this.envs = envs;
-        let types = ['tests', 'teststeps', 'measurements'];
-        let mapedEnvs = this.envs.map(env => env.sourceName);
-        let crossProd: {envName: string, type: string}[] = [];
 
-        for (let i = 0; i < this.envs.length; ++i) {
-          for (let j = 0; j < types.length; ++j) {
-            crossProd.push({envName: mapedEnvs[i], type: types[j]});
-          }
-        }
-
-        Observable.forkJoin(crossProd.map(kr => this.searchService.loadSearchAttributes(kr.type, kr.envName)))
-            .map(attrs => <SearchAttribute[]>[].concat.apply([], attrs))
-            .subscribe(attrs => {
-              this.searchAttributes = this.searchAttributes.concat(attrs);
-              this.typeAheadValues = [this.searchAttributes.map(
-                sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; })]
-                .map(sa => this.uniqueBy(sa, p => p.label))[0];
-            });
+    this.nodeService.getNodes()
+      .subscribe(
+        envs => {
+          this.searchService.loadSearchAttributesStructured(envs.map(e => e.sourceName))
+            .map(attrs => attrs['measurements'])
+            .subscribe(attrs => { this.searchAttributes = attrs; this.environments = envs; });
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['searchAttributes'] || changes['environments']) {
+      let ar = Object.keys(this.searchAttributes)
+          .map(env => this.searchAttributes[env])
+          .reduce((acc, value) => acc.concat(value), <SearchAttribute[]> [])
+          .map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; });
+
+      this.typeAheadValues = this.uniqueBy(ar, p => p.label);
+    }
   }
 
   showDialog(currentView: View) {

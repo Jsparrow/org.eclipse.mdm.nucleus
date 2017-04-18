@@ -105,10 +105,10 @@ export class SearchFilter {
 
 @Injectable()
 export class FilterService {
+  public readonly NO_FILTER_NAME = 'No filter selected';
+  public currentFilter = new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
   public filterChanged$ = new EventEmitter<SearchFilter>();
-  public currentFilter: SearchFilter;
-
-  // private searchService: SearchService;
+  
   constructor(private http: Http,
               private _prop: PropertyService,
               private preferenceService: PreferenceService) {

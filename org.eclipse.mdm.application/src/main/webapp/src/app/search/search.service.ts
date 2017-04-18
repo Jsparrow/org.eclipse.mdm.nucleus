@@ -129,6 +129,8 @@ export class SearchService {
   private defs: SearchAttribute[];
   ignoreAttributesPrefs: Preference[] = [];
 
+  private cachedAttributes: Observable<any>;
+
   constructor(private http: Http,
     private localService: LocalizationService,
     private _prop: PropertyService,
@@ -141,7 +143,7 @@ export class SearchService {
     return this.http.get(this._prop.getUrl() + '/mdm/environments/' + env + '/' + type + '/searchattributes')
       .map(response => <SearchAttribute[]>response.json().data)
       .map(sas => sas.map(sa => { sa.source = env; return sa; }))
-      .do( sas => sas.filter(sa => !this.isIgnored(env, sa)));
+      .map(sas => sas.filter(sa => !this.isIgnored(env, sa)));
   }
 
   getDefinitionsSimple() {
@@ -160,24 +162,61 @@ export class SearchService {
       }, []));
   }
 
+  loadSearchAttributesStructured(environments: string[]) {
+    if (!this.cachedAttributes) {
+      this.cachedAttributes = this.getDefinitionsSimple()
+        .map(defs => defs.map(d => d.value))
+        .flatMap(defs => this.loadSearchAttributesForAllDefs(defs, environments))
+        .publishReplay(1)
+        .refCount();
+    }
+    return this.cachedAttributes;
+  }
+
+  loadSearchAttributesForAllDefs(types: string[], environments: string[]) {
+    return Observable.forkJoin(types.map(type => this.loadSearchAttributesForDef(type, environments)))
+      .map(type2AttributesPerEnv =>
+        type2AttributesPerEnv.reduce(
+          function(acc, value) {
+            acc[value.type] = value.attributesPerEnv;
+            return acc; },
+          <{ [type: string]: { [env: string]: SearchAttribute[] }}> {})
+        );
+  }
+
+  loadSearchAttributesForDef(type: string, environments: string[]) {
+    return Observable.forkJoin(environments.map(env => this.loadSearchAttributes(type, env)
+      .map(attrs => { return { 'env': env, 'attributes': attrs}; })))
+      .map(attrsPerEnv => attrsPerEnv.reduce(
+        function(acc, value) {acc[value.env] = value.attributes; return acc; },
+         <{ [env: string]: SearchAttribute[] }> {})
+       )
+      .map(attrsPerEnv => { return { 'type': type, 'attributesPerEnv': attrsPerEnv}; });
+  }
+
+
   getSearchLayout(envs: string[], conditions: Condition[], type: string) {
     return this.getSearchAttributesPerEnvs(envs, type)
       .map(attrs => SearchLayout.createSearchLayout(envs, SearchLayout.groupByEnv(attrs), conditions));
   }
 
-  convertToQuery(searchFilter: SearchFilter, attr: SearchAttribute[], view: View) {
+  convertToQuery(searchFilter: SearchFilter, attr: { [type: string]: { [env: string]: SearchAttribute[] }}, view: View) {
     let q = new Query();
+
     q.resultType = searchFilter.resultType;
-    q.filters = this.convert(searchFilter.environments, searchFilter.conditions, attr, searchFilter.fulltextQuery); // TODO
+    if (attr['tests']) {
+      q.filters = this.convert(searchFilter.environments, searchFilter.conditions, attr['tests'], searchFilter.fulltextQuery); // TODO
+    }
     q.columns = view.columns.map(c => c.type + '.' + c.name);
     console.log('Query', q);
 
     return q;
   }
 
-  convert(envs: string[], conditions: Condition[], attr: SearchAttribute[], fullTextQuery: string): Filter[] {
-    return envs
-      .map(e => this.convertEnv(e, conditions, attr, fullTextQuery));
+  convert(envs: string[], conditions: Condition[], attr: { [env: string]: SearchAttribute[] }, fullTextQuery: string): Filter[] {
+
+    console.log(envs, attr);
+    return envs.map(e => this.convertEnv(e, conditions, attr[e], fullTextQuery));
   }
 
   convertEnv(env: string, conditions: Condition[], attrs: SearchAttribute[], fullTextQuery: string): Filter {
@@ -196,15 +235,14 @@ export class SearchService {
   }
 
   isIgnored(env: string, sa: SearchAttribute) {
-    this.getFilters(env).forEach( f => {
-      let x = f.split('.', 2);
-      let fType = x[0];
-      let fName = x[1];
-      if ( ((fType === sa.boType || fType === '*') && (fName === sa.attrName || fName === '*'))) {
-        return true;
-      }
-    });
-    return false;
+    return this.getFilters(env).reduce((acc, value) => acc ? acc : this.isAttributeIgnored(value, sa), false);
+  }
+
+  isAttributeIgnored(attributeName: string, sa: SearchAttribute) {
+    let x = attributeName.split('.', 2);
+    let fType = x[0];
+    let fName = x[1];
+    return ((fType === sa.boType || fType === '*') && (fName === sa.attrName || fName === '*'));
   }
 
   getFilters(source: string): string[] {
