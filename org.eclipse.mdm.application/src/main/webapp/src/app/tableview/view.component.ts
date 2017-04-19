@@ -20,7 +20,7 @@ import { ModalDirective } from 'ng2-bootstrap';
 
 import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
 import { MDMNotificationService } from '../core/mdm-notification.service';
-
+import { Scope } from '../core/preference.service';
 @Component({
   selector: 'mdm-view',
   templateUrl: 'view.component.html'
@@ -28,7 +28,7 @@ import { MDMNotificationService } from '../core/mdm-notification.service';
 export class ViewComponent implements OnInit {
 
   public selectedView: View;
-  public groupedViews: { scope: string, view: View[] }[] = [];
+  public groupedViews: { scope: string, view: View[], label: string }[] = [];
   public viewChanged$ = new EventEmitter();
   public viewName = '';
 
@@ -69,7 +69,8 @@ export class ViewComponent implements OnInit {
   private onDeleteView() {
     this.viewService.getViews().subscribe(prefViews => {
       this.getGroupedView(prefViews);
-      if (prefViews.find(pv => pv.view.name === this.selectedView.name) === undefined) {
+      if (prefViews.find(pv => pv.view.name === this.selectedView.name) === undefined
+          && this.viewService.defaultPrefViews.find(pv => pv.view.name === this.selectedView.name) === undefined) {
         this.selectView(prefViews[0].view);
       }
     });
@@ -97,7 +98,11 @@ export class ViewComponent implements OnInit {
           pushed = true;
         }
       }
-      if (pushed === false) { this.groupedViews.push({ scope: prefViews[i].scope, view: [prefViews[i].view] }); }
+      if (pushed === false) { this.groupedViews.push({
+        scope: prefViews[i].scope,
+        view: [prefViews[i].view],
+        label: Scope.toLabel(prefViews[i].scope)
+      }); }
     }
   }
 
@@ -131,7 +136,7 @@ export class ViewComponent implements OnInit {
 
   deleteView(e: Event) {
     e.stopPropagation();
-    let userGroup = this.groupedViews.find(gv => gv.scope === 'User');
+    let userGroup = this.groupedViews.find(gv => gv.scope === Scope.USER);
     if (userGroup && userGroup.view.length > 0) {
       this.viewService.deleteView(this.selectedView.name).subscribe(() =>
         this.viewService.getViews().subscribe(views => {
@@ -143,7 +148,9 @@ export class ViewComponent implements OnInit {
       );
     } else {
       this.notificationService.notifyError('Forbidden.',
-        'System Einstellungen können nicht aus der Anwendung geändert werden. Sollten sie entsprechende Zugriffsrechte besitzen, können Sie diese Einstellungen über den Administrationsbereich bearbeiten');
+        'System Einstellungen können nicht aus der Anwendung geändert werden.'
+        + ' Sollten sie entsprechende Zugriffsrechte besitzen,'
+        + ' können Sie diese Einstellungen über den Administrationsbereich bearbeiten');
     }
   }
 }

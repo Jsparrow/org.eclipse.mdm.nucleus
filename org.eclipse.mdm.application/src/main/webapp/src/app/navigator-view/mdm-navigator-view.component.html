@@ -24,7 +24,7 @@
             <li [ngClass]="isDropActive('Dropdown')" dropdown>
               <a (click)="activate('Dropdown')" class="dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" style="cursor:pointer;">
                   {{activeNodeprovider.name}}
-                <b class="caret" ></b>
+                <em class="caret" ></em>
               </a>
               <ul class="dropdown-menu" dropdownMenu>
                 <li *ngFor="let np of getNodeproviders()">

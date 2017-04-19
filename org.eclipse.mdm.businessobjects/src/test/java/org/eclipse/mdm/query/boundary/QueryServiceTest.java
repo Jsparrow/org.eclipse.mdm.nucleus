@@ -16,8 +16,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.groups.Tuple;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.base.query.Attribute;
@@ -187,8 +189,20 @@ public class QueryServiceTest {
 				new Column("Pool", "Name", "Pool-Name", null)
 				));
 		
-		assertThat(queryService.queryRows(request))
-			.containsOnly(expectedRowEnv1, expectedRowEnv2);
+		List<Row> list = queryService.queryRows(request);
+		
+		assertThat(list)
+			.extracting("source", "type", "id")
+			.containsOnly(
+					new Tuple("env1", "Test", 1L), 
+					new Tuple("env2", "Test", 1L));
+			
+		assertThat(list.get(0).getColumns())
+			.containsOnlyElementsOf(expectedRowEnv1.getColumns());
+		
+		assertThat(list.get(1).getColumns())
+			.containsOnlyElementsOf(expectedRowEnv2.getColumns());
+	
 	}
 
 	private EntityType mockEntity(String sourceName, String name) {

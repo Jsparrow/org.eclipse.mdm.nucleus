@@ -28,11 +28,8 @@ import com.google.common.base.MoreObjects;
 public class PreferenceMessage {
 
 	public enum Scope {
-		@XmlEnumValue("System") 
 		SYSTEM,
-		@XmlEnumValue("Source") 
 		SOURCE,
-		@XmlEnumValue("User") 
 		USER;
 	}
 	

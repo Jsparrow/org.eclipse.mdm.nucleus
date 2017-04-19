@@ -20,7 +20,7 @@ import { HttpModule } from '@angular/http';
 import { PropertyService } from '../core/property.service';
 import { NodeproviderService } from './nodeprovider.service';
 import {NodeService} from '../navigator/node.service';
-import {PreferenceService, Preference} from '../core/preference.service';
+import {PreferenceService, Preference, Scope} from '../core/preference.service';
 
 import { QueryService } from '../tableview/query.service';
 import {MDMItem} from '../core/mdm-item';

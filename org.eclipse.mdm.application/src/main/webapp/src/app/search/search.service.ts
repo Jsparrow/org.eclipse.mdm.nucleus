@@ -18,7 +18,7 @@ import {Observable} from 'rxjs/Observable';
 
 import {PropertyService} from '../core/property.service';
 import {LocalizationService} from '../localization/localization.service';
-import { Preference, PreferenceService } from '../core/preference.service';
+import { Preference, PreferenceService, Scope } from '../core/preference.service';
 
 import {SearchFilter, Condition, Operator, OperatorUtil} from './filter.service';
 import {Query, Filter} from '../tableview/query.service';
@@ -127,6 +127,7 @@ export class SearchService {
   private errorMessage: string;
 
   private defs: SearchAttribute[];
+
   ignoreAttributesPrefs: Preference[] = [];
 
   private cachedAttributes: Observable<any>;
@@ -143,7 +144,7 @@ export class SearchService {
     return this.http.get(this._prop.getUrl() + '/mdm/environments/' + env + '/' + type + '/searchattributes')
       .map(response => <SearchAttribute[]>response.json().data)
       .map(sas => sas.map(sa => { sa.source = env; return sa; }))
-      .map(sas => sas.filter(sa => !this.isIgnored(env, sa)));
+      .map(sas => this.filterIgnoredAttributes(env, sas));
   }
 
   getDefinitionsSimple() {
@@ -214,8 +215,6 @@ export class SearchService {
   }
 
   convert(envs: string[], conditions: Condition[], attr: { [env: string]: SearchAttribute[] }, fullTextQuery: string): Filter[] {
-
-    console.log(envs, attr);
     return envs.map(e => this.convertEnv(e, conditions, attr[e], fullTextQuery));
   }
 
@@ -245,10 +244,18 @@ export class SearchService {
     return ((fType === sa.boType || fType === '*') && (fName === sa.attrName || fName === '*'));
   }
 
+  private filterIgnoredAttributes(environment: string, searchAttributes: SearchAttribute[]) {
+    let filters = this.getFilters(environment);
+    filters.forEach(f =>
+      searchAttributes = searchAttributes.filter(sa => !this.isAttributeIgnored(f, sa))
+    );
+    return searchAttributes;
+  }
+
   getFilters(source: string): string[] {
     return this.ignoreAttributesPrefs
-      .filter(p => p.scope !== 'Source' || p.source === source)
-      .sort(this.sortByScope)
+      .filter(p => p.scope !== Scope.SOURCE || p.source === source)
+      .sort(Preference.sortByScope)
       .map(p => this.parsePreference(p))
       .reduce((acc, value) => acc.concat(value), []);
   }
@@ -261,10 +268,5 @@ export class SearchService {
         return [];
     }
   }
-  private sortByScope(p1: Preference, p2: Preference) {
-    let priority = { System: 1, Source: 2, User: 3 };
-    let one = priority[p1.scope] || 4;
-    let two = priority[p2.scope] || 4;
-    return one - two;
-  }
+
 }

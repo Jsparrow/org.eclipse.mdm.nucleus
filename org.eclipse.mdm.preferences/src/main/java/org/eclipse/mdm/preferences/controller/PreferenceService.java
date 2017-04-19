@@ -84,22 +84,21 @@ public class PreferenceService
 	}
 	
 	public List<PreferenceMessage> getPreferencesBySource(String source, String key) {
+		TypedQuery<Preference> query;
+		
 		if (key == null || key.trim().isEmpty()) {
-			return em.createQuery("select p from Preference p where p.source = :source", Preference.class)
-				.setParameter("source", Strings.emptyToNull(source))
-				.getResultList()
-				.stream()
-				.map(this::convert)
-				.collect(Collectors.toList());
+			query = em.createQuery("select p from Preference p where p.source = :source", Preference.class)
+				.setParameter("source", Strings.emptyToNull(source));
+				
 		} else {
-			return em.createQuery("select p from Preference p where p.source = :source and p.key = :key", Preference.class)
+			query = em.createQuery("select p from Preference p where p.source = :source and p.key = :key", Preference.class)
 				.setParameter("source", Strings.emptyToNull(source))
-				.setParameter("key", Strings.emptyToNull(key))
-				.getResultList()
+				.setParameter("key", Strings.emptyToNull(key));
+		}
+		return query.getResultList()
 				.stream()
 				.map(this::convert)
 				.collect(Collectors.toList());
-		}
 	}
 	
 	public PreferenceMessage save(PreferenceMessage preference) {

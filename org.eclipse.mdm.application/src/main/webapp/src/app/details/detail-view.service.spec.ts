@@ -15,7 +15,7 @@ import { BaseRequestOptions, Http, HttpModule, Response, ResponseOptions, Reques
 import { MockBackend } from '@angular/http/testing';
 import { Observable } from 'rxjs/Observable';
 
-import {PreferenceService, Preference} from '../core/preference.service';
+import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import {PropertyService} from '../core/property.service';
 import {DetailViewService} from './detail-view.service';
 
@@ -25,28 +25,28 @@ class TestPreferenceService {
     {
       id: 1,
       key: 'ignoredAttributes',
-      scope: 'User',
+      scope: Scope.USER,
       source: null,
       user: 'testUser',
       value: '[\"*.MimeType\", \"TestStep.Sortindex\"]'
     }, {
       id: 2,
       key: 'ignoredAttributes',
-      scope: 'System',
+      scope: Scope.SYSTEM,
       source: null,
       user: null,
       value: '[\"Project.*\"]'
     }, {
       id: 3,
       key: 'ignoredAttributes',
-      scope: 'Source',
+      scope: Scope.SOURCE,
       source: 'MDMTEST',
       user: null,
       value: '[\"*.Id\"]'
     }, {
       id: 4,
       key: 'ignoredAttributes',
-      scope: 'Source',
+      scope: Scope.SOURCE,
       source: 'MDM_OTHER',
       user: null,
       value: '[\"Pool.*\"]'
@@ -74,6 +74,7 @@ describe('DetailViewService', () => {
     it('should return filtered attributes', async(inject([DetailViewService], (detailViewService) => {
 
       expect(detailViewService.getFilters('MDMTEST')).toEqual(['Project.*', '*.Id', '*.MimeType', 'TestStep.Sortindex']);
+
     })));
   });
 });

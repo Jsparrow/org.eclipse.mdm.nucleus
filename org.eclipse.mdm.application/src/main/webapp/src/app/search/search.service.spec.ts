@@ -18,7 +18,7 @@ import { ComponentFixture, async, TestBed, inject } from '@angular/core/testing'
 import { MockBackend } from '@angular/http/testing';
 
 import {SearchService, SearchAttribute, SearchLayout} from './search.service';
-import {PreferenceService, Preference} from '../core/preference.service';
+import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import {PropertyService} from '../core/property.service';
 import {LocalizationService} from '../localization/localization.service';
 import {NodeService} from '../navigator/node.service';
@@ -32,7 +32,7 @@ class TestPreferenceService {
     {
       id: 1,
       key: 'ignoredAttributes',
-      scope: 'User',
+      scope: Scope.USER,
       source: null,
       user: 'testUser',
       value: '[\"*.MimeType\", \"TestStep.Sortindex\"]'

@@ -18,6 +18,15 @@ import { PropertyService } from './property.service';
 
 import {Type, Exclude, plainToClass, serialize, deserializeArray} from 'class-transformer';
 
+export class Scope {
+   public static readonly SYSTEM = 'SYSTEM';
+   public static readonly SOURCE = 'SOURCE';
+   public static readonly USER = 'USER';
+
+   static toLabel(scope: string) {
+     return scope.charAt(0).toUpperCase() + scope.slice(1).toLowerCase();
+   }
+}
 
 export class Preference {
 
@@ -29,10 +38,20 @@ export class Preference {
     id: number;
 
     constructor() {
-        this.scope = '';
         this.key = '';
     }
 
+    static sortByScope(p1: Preference, p2: Preference) {
+      let getPriority = (scope: string) => {
+        switch (scope) {
+          case Scope.SYSTEM: return 1;
+          case Scope.SOURCE: return 2;
+          case Scope.USER: return 3;
+          default: return 4;
+        }
+      };
+      return getPriority(p1.scope) - getPriority(p2.scope);
+   }
 }
 
 @Injectable()

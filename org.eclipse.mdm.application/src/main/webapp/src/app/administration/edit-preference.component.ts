@@ -15,7 +15,7 @@ import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@ang
 
 import { ModalDirective } from 'ng2-bootstrap';
 
-import { PreferenceService, Preference } from '../core/preference.service';
+import { PreferenceService, Preference, Scope } from '../core/preference.service';
 import { NodeService } from '../navigator/node.service';
 import { Node } from '../navigator/node';
 
@@ -30,7 +30,6 @@ export class EditPreferenceComponent implements OnInit {
     showSource: boolean;
     showUser: boolean;
     isKeyEmpty: boolean;
-    isScopeEmpty: boolean;
     isUserEmpty: boolean;
     preferenceForm: FormGroup;
     needSave = false;
@@ -67,17 +66,16 @@ export class EditPreferenceComponent implements OnInit {
     setOptions(preference: Preference) {
         this.needSave = false;
         this.isKeyEmpty = preference.key === '';
-        this.isScopeEmpty = preference.scope === '';
-        switch ( this.scope.toLowerCase() ) {
-        case 'system':
+        switch ( this.scope ) {
+        case Scope.SYSTEM:
             this.showSource = false;
             this.showUser = false;
             break;
-        case 'source':
+        case Scope.SOURCE:
             this.showSource = true;
             this.showUser = false;
             break;
-        case 'user':
+        case Scope.USER:
             this.showSource = false;
             this.showUser = true;
             break;
@@ -87,8 +85,8 @@ export class EditPreferenceComponent implements OnInit {
     showDialog( preference?: Preference) {
         if (preference == null) {
             preference = new Preference();
-            preference.scope = this.scope.charAt(0).toUpperCase() + this.scope.slice(1);
-            if (this.scope.toLowerCase() === 'source') {
+            preference.scope = this.scope;
+            if (this.scope === Scope.SOURCE) {
                 preference.source = this.envs[0].sourceName;
             }
         }

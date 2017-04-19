@@ -19,7 +19,7 @@ import { MockBackend } from '@angular/http/testing';
 
 import { ViewService } from './tableview.service';
 import { PropertyService } from '../core/property.service';
-import { PreferenceService } from '../core/preference.service';
+import { PreferenceService, Scope } from '../core/preference.service';
 
 describe ( 'TableviewService', () => {
 
@@ -49,7 +49,7 @@ describe ( 'TableviewService', () => {
           {
             id: 22,
             key: 'tableview.view.Test',
-            scope: 'User',
+            scope: Scope.USER,
             source: null,
             user: 'sa',
             value: '{"columns":[{"type":"Test","name":"Name"},{"type":"TestStep","name":"Name"}],"name":"Test"}'
@@ -60,7 +60,7 @@ describe ( 'TableviewService', () => {
 
       tableviewService.getViews().subscribe(prefViews => {
         expect(prefViews.length).toBe(1);
-        expect(prefViews[0].scope).toBe('User');
+        expect(prefViews[0].scope).toBe(Scope.USER);
         expect(prefViews[0].view.columns.length).toBe(2);
       });
     })));
@@ -75,7 +75,7 @@ describe ( 'TableviewService', () => {
 
       tableviewService.getViews().subscribe(prefViews => {
         expect(prefViews.length).toBe(1);
-        expect(prefViews[0].scope).toBe('System');
+        expect(prefViews[0].scope).toBe(Scope.SYSTEM);
         expect(prefViews[0].view.columns.length).toBe(1);
       });
     })));

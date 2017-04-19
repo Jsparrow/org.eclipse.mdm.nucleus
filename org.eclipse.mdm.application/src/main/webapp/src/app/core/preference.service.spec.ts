@@ -14,7 +14,7 @@ import { ComponentFixture, async, TestBed, inject } from '@angular/core/testing'
 import { BaseRequestOptions, Http, HttpModule, Response, ResponseOptions, RequestMethod } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
 
-import {PreferenceService, Preference} from './preference.service';
+import {PreferenceService, Preference, Scope} from './preference.service';
 import {PropertyService} from './property.service';
 
 describe('PreferenceService', () => {
@@ -48,7 +48,7 @@ describe('PreferenceService', () => {
           {
             id: 2,
             key: 'preference.prefix.',
-            scope: 'System',
+            scope: Scope.SYSTEM,
             source: null,
             user: null,
             value: 'Test'
@@ -57,9 +57,9 @@ describe('PreferenceService', () => {
         conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
       });
 
-      prefService.getPreference('System', 'preference.prefix.').subscribe(prefs => {
+      prefService.getPreference(Scope.SYSTEM, 'preference.prefix.').subscribe(prefs => {
         expect(prefs.length).toBe(1);
-        expect(prefs[0].scope).toBe('System');
+        expect(prefs[0].scope).toBe(Scope.SYSTEM);
         expect(prefs[0].value).toBe('Test');
       });
     })));
@@ -71,7 +71,7 @@ describe('PreferenceService', () => {
         conn.mockRespond(new Response(new ResponseOptions({ body: { preferences: [] } })));
       });
 
-      prefService.getPreference('System', 'preference.prefix.').subscribe(prefs => {
+      prefService.getPreference(Scope.SYSTEM, 'preference.prefix.').subscribe(prefs => {
         expect(prefs.length).toBe(0);
       });
     })));
@@ -86,7 +86,7 @@ describe('PreferenceService', () => {
         }
       });
       let newPref = new Preference();
-      newPref.scope = 'System';
+      newPref.scope = Scope.SYSTEM;
       newPref.key = 'prefix.';
       newPref.value = 'testValue';
 

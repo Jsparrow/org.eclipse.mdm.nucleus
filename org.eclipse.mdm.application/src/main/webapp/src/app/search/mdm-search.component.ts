@@ -241,14 +241,13 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   onFilterChanged(filter: SearchFilter) {
     this.currentFilter = classToClass(filter);
-
     this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
     this.selectedEnvironmentsChanged(this.dropdownModel);
     this.calcCurrentSearch();
   }
 
   selectFilter(filter: SearchFilter) {
-      this.filterService.setSelectedFilter(filter);
+    this.filterService.setSelectedFilter(filter);
   }
 
   resetConditions(e: Event) {
@@ -259,10 +258,11 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   deleteFilter(e: Event) {
     e.stopPropagation();
-    if (this.currentFilter.name === this.filterService.NO_FILTER_NAME) {
+    if (this.currentFilter.name === this.filterService.NO_FILTER_NAME
+          || this.currentFilter.name === this.filterService.NEW_FILTER_NAME) {
       this.notificationService
         .notifyInfo('Kein Filter ausgewählt.',
-        'Der Vorgang konnte nicht durchgeführt werden, da kein Filter zum Löschen ausgewählt wurde.');
+        'Der Vorgang konnte nicht durchgeführt werden, da kein gespeicherter Filter zum Löschen ausgewählt wurde.');
     } else {
       this.layout = new SearchLayout;
       this.filterService.deleteFilter(this.currentFilter.name).subscribe(
@@ -310,7 +310,8 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   showSaveModal(e: Event) {
     e.stopPropagation();
-    if (this.currentFilter.name === this.filterService.NO_FILTER_NAME) {
+    if (this.currentFilter.name === this.filterService.NO_FILTER_NAME
+          	|| this.currentFilter.name === this.filterService.NEW_FILTER_NAME) {
       this.filterName = '';
     } else {
       this.filterName = this.currentFilter.name;
@@ -321,6 +322,10 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   showSearchFieldsEditor(e: Event, conditions?: Condition[]) {
     e.stopPropagation();
     this.editSearchFieldsComponent.show(conditions).subscribe(conds => {
+      if (!conditions) {
+        let filter = new SearchFilter(this.filterService.NEW_FILTER_NAME, this.currentFilter.environments, 'Test', '', conds);
+        this.selectFilter(filter);
+      }
       this.currentFilter.conditions = conds;
       this.calcCurrentSearch();
     });

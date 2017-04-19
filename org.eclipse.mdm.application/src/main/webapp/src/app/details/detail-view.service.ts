@@ -11,7 +11,7 @@
 *******************************************************************************/
 
 import { Injectable} from '@angular/core';
-import { Preference, PreferenceService } from '../core/preference.service';
+import { Preference, PreferenceService, Scope } from '../core/preference.service';
 
 import { Node, Attribute } from '../navigator/node';
 
@@ -35,12 +35,15 @@ export class DetailViewService {
     }
 
     getFilters(source: string): string[] {
-
+      if (this.ignoreAttributesPrefs.length > 0) {
       return this.ignoreAttributesPrefs
-        .filter(p => p.scope !== 'Source' || p.source === source)
-        .sort(this.sortByScope)
+        .filter(p => p.scope !== Scope.SOURCE || p.source === source)
+        .sort(Preference.sortByScope)
         .map(p => this.parsePreference(p))
         .reduce((acc, value) => acc.concat(value), []);
+      } else {
+        return [];
+      }
     }
 
     private parsePreference(pref: Preference) {
@@ -50,12 +53,6 @@ export class DetailViewService {
           console.log('Preference for ignored attributes is corrupted.\n', pref, e);
           return [];
       }
-    }
-    private sortByScope(p1: Preference, p2: Preference) {
-      let priority = { System: 1, Source: 2, User: 3 };
-      let one = priority[p1.scope] || 4;
-      let two = priority[p2.scope] || 4;
-      return one - two;
     }
 
     private processFilter(prefList: string[], type: string) {

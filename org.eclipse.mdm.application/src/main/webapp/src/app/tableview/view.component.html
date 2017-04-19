@@ -38,7 +38,7 @@
   </button>
   <ul class="dropdown-menu scrollable-menu" style="height: auto; max-height: 200px; overflow-x: hidden;" dropdownMenu>
     <div *ngFor="let groupedView of groupedViews" class="container-fluid">
-      <li class="dropdown-header" style="padding-left: 0pt;"> {{groupedView.scope}} </li>
+      <li class="dropdown-header" style="padding-left: 0pt;"> {{groupedView.label}} </li>
       <li *ngFor="let view of groupedView.view">
         <a class="dropdown-item" style="color:black; cursor: pointer;" (click)="selectView(view)">{{view.name}}</a>
       </li>

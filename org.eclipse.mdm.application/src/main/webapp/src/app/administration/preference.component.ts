@@ -14,7 +14,7 @@ import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { PreferenceService, Preference } from '../core/preference.service';
+import { PreferenceService, Preference, Scope } from '../core/preference.service';
 import { EditPreferenceComponent } from './edit-preference.component';
 
 
@@ -47,7 +47,7 @@ export class PreferenceComponent implements OnInit, OnDestroy {
   }
 
   onScopeChange(params: any) {
-      this.scope = params['scope'];
+      this.scope = params['scope'].toUpperCase();
       this.preferenceService.getPreferenceForScope(this.scope)
         .subscribe(pref => this.preferences = pref);
   }

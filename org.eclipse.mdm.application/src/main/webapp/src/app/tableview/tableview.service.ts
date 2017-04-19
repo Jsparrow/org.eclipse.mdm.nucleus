@@ -13,7 +13,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { PreferenceService, Preference } from '../core/preference.service';
+import { PreferenceService, Preference, Scope } from '../core/preference.service';
 import { Type, Exclude, plainToClass, serialize, deserialize } from 'class-transformer';
 
 export class View {
@@ -56,8 +56,8 @@ export class PreferenceView {
   @Type(() => View)
   view: View;
 
-  constructor(scope?: string, view?: View) {
-    this.scope = scope || '';
+  constructor(scope: string, view?: View) {
+    this.scope = scope;
     this.view = view || new View();
   }
 }
@@ -93,7 +93,7 @@ export class ViewService {
   readonly preferencePrefix = 'tableview.view.';
   private views: View[] = [];
 
-  private defaultPrefViews =  [ new PreferenceView('System', new View('Standard', [new ViewColumn('Test', 'Name')])) ];
+  defaultPrefViews =  [ new PreferenceView(Scope.SYSTEM, new View('Standard', [new ViewColumn('Test', 'Name')])) ];
 
   constructor(private prefService: PreferenceService) {
   }
@@ -109,11 +109,12 @@ export class ViewService {
     const pref = new Preference();
     pref.value = serialize(view);
     pref.key = this.preferencePrefix + view.name;
-    pref.scope = 'User';
+    pref.scope = Scope.USER;
     this.prefService.savePreference(pref).subscribe(saved => this.viewSaved$.emit(view));
   }
 
   deleteView(name: string) {
-    return this.prefService.deletePreferenceByScopeAndKey('User', 'tableview.view.' + name);
+    return this.prefService.deletePreferenceByScopeAndKey(Scope.USER, 'tableview.view.' + name);
   }
+
 }

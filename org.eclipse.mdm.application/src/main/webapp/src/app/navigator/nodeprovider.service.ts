@@ -14,7 +14,7 @@ import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
-import {PreferenceService, Preference} from '../core/preference.service';
+import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import {QueryService, Query} from '../tableview/query.service';
 import {PropertyService} from '../core/property.service';
 import {MDMItem} from '../core/mdm-item';
@@ -51,7 +51,7 @@ export class NodeproviderService {
   }
 
   loadNodeproviders() {
-    this.preferenceService.getPreferenceForScope('system', 'nodeprovider.')
+    this.preferenceService.getPreferenceForScope(Scope.SYSTEM, 'nodeprovider.')
       .subscribe( preferences => preferences.forEach(p => {
           try {
               this.nodeproviders.push(JSON.parse(p.value));

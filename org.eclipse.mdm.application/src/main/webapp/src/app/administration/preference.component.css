@@ -1,3 +1,5 @@
+@CHARSET "ISO-8859-1";
+
 /*******************************************************************************
 *  Copyright (c) 2017 Peak Solution GmbH                                       *
 *                                                                              *
@@ -9,8 +11,6 @@
 *  Contributors:                                                               *
 *  Matthias Koller, Johannes Stamm - initial implementation                    *
 *******************************************************************************/
-
-@CHARSET "ISO-8859-1";
 
 .form-group {
     margin-bottom: 0px;

@@ -24,7 +24,7 @@ import {Node} from '../navigator/node';
 import {SearchAttribute} from './search.service';
 import {QueryService, Query, SearchResult, Filter} from '../tableview/query.service';
 import {View} from '../tableview/tableview.service';
-import {PreferenceService, Preference} from '../core/preference.service';
+import {PreferenceService, Preference, Scope} from '../core/preference.service';
 
 export enum Operator {
   EQUALS,
@@ -105,10 +105,11 @@ export class SearchFilter {
 
 @Injectable()
 export class FilterService {
-  public readonly NO_FILTER_NAME = 'No filter selected';
+  public readonly NO_FILTER_NAME = 'Kein Filter ausgewählt';
+  public readonly NEW_FILTER_NAME = 'Neuer Filter';
   public currentFilter = new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
   public filterChanged$ = new EventEmitter<SearchFilter>();
-  
+
   constructor(private http: Http,
               private _prop: PropertyService,
               private preferenceService: PreferenceService) {
@@ -117,11 +118,13 @@ export class FilterService {
   setSelectedFilter(filter: SearchFilter) {
     if (filter) {
       this.filterChanged$.emit(filter);
+    } else {
+      this.filterChanged$.emit(new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []));
     }
   }
 
   getFilters() {
-    return this.preferenceService.getPreferenceForScope('User', 'filter.nodes.')
+    return this.preferenceService.getPreferenceForScope(Scope.USER, 'filter.nodes.')
       .map(preferences => preferences.map(p => this.preferenceToFilter(p)));
   }
 
@@ -137,11 +140,11 @@ export class FilterService {
     let pref = new Preference();
     pref.value = JSON.stringify(filter);
     pref.key = 'filter.nodes.' + filter.name;
-    pref.scope = 'User';
+    pref.scope = Scope.USER;
     return pref;
   }
 
   deleteFilter(name: string) {
-    return this.preferenceService.deletePreferenceByScopeAndKey('User', 'filter.nodes.' + name);
+    return this.preferenceService.deletePreferenceByScopeAndKey(Scope.USER, 'filter.nodes.' + name);
   }
 }
