@@ -12,8 +12,8 @@
 *  Matthias Koller, Johannes Stamm - additional client functionality           *
 *****************************************************************************-->
 
-<!-- <vertical-split-pane primary-component-minsize="{{minWidthLeft()}}" secondary-component-minsize="{{minWidthRight()}}" primary-component-initialratio="{{initRatio()}}"> -->
-  <!-- <div class="split-pane-content-primary"> -->
+<vertical-split-pane primary-component-minsize="{{minWidthLeft()}}" secondary-component-minsize="{{minWidthRight()}}" primary-component-initialratio="{{initRatio()}}">
+  <div class="split-pane-content-primary">
     <nav class="navigator">
       <div class="navbar navbar-default container-fluid">
         <div class="navbar-header">
@@ -39,15 +39,14 @@
       </div>
       <mdm-navigator></mdm-navigator>
     </nav>
-  <!-- </div> -->
-  <!-- <div class="split-pane-content-secondary"> -->
-  <div class="navigator-content" style="margin-right: 15px;">
-    <router-outlet></router-outlet>
-    <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
   </div>
-  <div *ngIf="this.winRef.nativeWindow.scrollY > 0" style="position: fixed; bottom: 15px; right: 15px;">
-    <button class="btn btn-default" (click)="onScrollTop()" style="z-index: 10000;"><span class="glyphicon glyphicon-arrow-up" style="z-index: 10000;" title="scroll up"></span></button>
+  <div class="split-pane-content-secondary">
+    <div class="navigator-content">
+      <router-outlet></router-outlet>
+      <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
+    </div>
+    <div *ngIf="this.winRef.nativeWindow.scrollY > 0" style="position: fixed; bottom: 15px; right: 15px;">
+      <button class="btn btn-default" (click)="onScrollTop()" style="z-index: 10000;"><span class="glyphicon glyphicon-arrow-up" style="z-index: 10000;" title="scroll up"></span></button>
+    </div>
   </div>
-
-  <!-- </div> -->
-<!-- </vertical-split-pane> -->
+</vertical-split-pane>

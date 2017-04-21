@@ -21,8 +21,7 @@ import { MDMNavigatorViewComponent } from './mdm-navigator-view.component';
 import { MDMNavigatorModule } from '../navigator/mdm-navigator.module';
 import { MDMModulesModule } from '../modules/mdm-modules.module';
 import { MDMBasketModule } from '../basket/mdm-basket.module';
-
-// import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
+import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 
 @NgModule({
   imports: [
@@ -31,7 +30,7 @@ import { MDMBasketModule } from '../basket/mdm-basket.module';
     MDMNavigatorModule,
     MDMModulesModule,
     MDMBasketModule,
-    // SplitPaneModule
+    SplitPaneModule
   ],
   declarations: [
     MDMNavigatorViewComponent

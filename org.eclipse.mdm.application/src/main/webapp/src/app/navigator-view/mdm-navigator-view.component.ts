@@ -19,7 +19,7 @@ import { DropdownModule, AccordionConfig, DropdownConfig } from 'ng2-bootstrap';
 import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
 import {NodeproviderService} from '../navigator/nodeprovider.service';
-// import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
+ import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 
 function _window(): any {
    return window;
@@ -96,11 +96,15 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ***************************************************************************
-  // Logic for SplitPaneModule:
-  //
-  // minWidthLeft() { return 180; }
-  // minWidthRight() { return window.innerWidth < 1204 ? Math.max(35, window.innerWidth - 400) : 804; }
-  // initRatio() { return Math.max(230 / window.innerWidth, 0.19); }
-  // ***************************************************************************
+   minWidthLeft() {
+     return 180;
+   }
+
+   minWidthRight() {
+     return 0.20 * window.innerWidth
+   }
+
+   initRatio() {
+     return Math.max(250 / window.innerWidth, 0.20);
+   }
 }

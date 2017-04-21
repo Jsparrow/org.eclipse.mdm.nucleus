@@ -10,19 +10,6 @@
 *  Matthias Koller, Johannes Stamm - initial implementation                    *
 *******************************************************************************/
 
-.navigator {
-  display: inline-block !important;
-  position: fixed !important;
-  width: 20em;
-  margin: 0 1em;
-  bottom: 0;
-  top: 3em;
-}
-
-.navigator-content {
-  margin-left: 22em;
-}
-
 .panel-body {
   padding: 0px;
 }
@@ -42,15 +29,13 @@
   border-bottom-style: none;
 }
 
-/*******************************************************************************
-Add for split-pane styling:
 
-.navigator {                        (replace!)
+.navigator {
   position: relative;
-  margin: 0 1em;
+  margin: 0;
 }
 
-.navigator-content {                (replace!)
+.navigator-content {
   margin-left: 8px;
   min-height: 100%;
   max-height: calc(100vh - 85px);
@@ -70,6 +55,6 @@ Add for split-pane styling:
 }
 
 vertical-split-separator {
-  height: calc(100vh - 85px);
+  margin: 0;
+  border: none !important;
 }
-*******************************************************************************/
