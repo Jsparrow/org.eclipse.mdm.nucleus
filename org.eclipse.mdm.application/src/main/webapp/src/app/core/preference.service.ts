@@ -61,7 +61,7 @@ export class PreferenceService {
 
   constructor(private http: Http,
               private _prop: PropertyService) {
-    this.prefEndpoint = _prop.getUrl() + '/mdm/preferences';
+    this.prefEndpoint = _prop.getUrl('/mdm/preferences');
   }
 
   getPreferenceForScope(scope: string, key?: string) {

@@ -87,7 +87,7 @@ export class QueryService {
 
   constructor(private http: Http,
               private _prop: PropertyService) {
-    this.queryUrl = _prop.getUrl() + '/mdm/query';
+    this.queryUrl = _prop.getUrl('/mdm/query');
   }
 
   query(query: Query): Observable<SearchResult> {
@@ -130,7 +130,7 @@ export class QueryService {
     });
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
-    let url =  this._prop.getUrl() + '/mdm/suggestions';
+    let url =  this._prop.getUrl('/mdm/suggestions');
     return this.http.post(url, body, options)
       .map(res => res.json().data);
   }

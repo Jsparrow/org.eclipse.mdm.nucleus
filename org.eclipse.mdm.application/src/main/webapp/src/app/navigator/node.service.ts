@@ -32,7 +32,7 @@ export class NodeService {
               private _prop: PropertyService,
               private queryService: QueryService,
               private preferenceService: PreferenceService) {
-      this._nodeUrl = _prop.getUrl() + '/mdm/environments';
+      this._nodeUrl = _prop.getUrl('/mdm/environments');
   }
 
   searchNodes(query, env, type) {

@@ -12,20 +12,16 @@ import {Injectable} from '@angular/core';
 
 @Injectable()
 export class PropertyService {
-  private api_host: string;
-  private api_port: string;
-  private api_prefix: string;
-
-  constructor() {
-    this.api_host = 'localhost';
-    this.api_port = '8080';
-    this.api_prefix = '/org.eclipse.mdm.nucleus';
-  }
+  api_host: string = '/org.eclipse.mdm.nucleus';
+  data_host: string ='http://localhost:8080/';
 
   getDataHost(): string {
-      return 'http://' + this.api_host + ':' + this.api_port;
+      return this.data_host;
   }
-  getUrl(): string {
-    return this.getDataHost() + this.api_prefix;
+
+  getUrl(restUrl: string): string {
+    if (this.api_host) {
+      return this.api_host + restUrl;
+    }
   }
 }

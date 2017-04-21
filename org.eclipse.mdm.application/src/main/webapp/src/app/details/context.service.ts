@@ -32,7 +32,7 @@ export class ContextService {
 
   constructor(private http: Http,
               private _prop: PropertyService) {
-    this._contextUrl = _prop.getUrl() + '/mdm/environments';
+    this._contextUrl = _prop.getUrl('/mdm/environments');
   }
 
   getContext(node: Node) {

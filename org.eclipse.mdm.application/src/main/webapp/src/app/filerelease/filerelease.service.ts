@@ -28,7 +28,7 @@ export class FilereleaseService {
   constructor(private http: Http,
               private prop: PropertyService) {
 
-    this.url = prop.getUrl() + '/mdm/filereleases';
+    this.url = prop.getUrl('/mdm/filereleases');
 
     this.formatMap['PAK2RAW'] = 'original Daten';
     this.formatMap['PAK2ATFX'] = 'ATFX';

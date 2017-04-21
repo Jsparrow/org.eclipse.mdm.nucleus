@@ -32,7 +32,7 @@ export class LocalizationService implements OnInit {
               private _prop: PropertyService,
               private _node: NodeService) {
 
-    this._nodeUrl = _prop.getUrl() + '/mdm/environments';
+    this._nodeUrl = _prop.getUrl('/mdm/environments');
   }
 
   ngOnInit() {

@@ -143,7 +143,7 @@ export class SearchService {
     }
 
   loadSearchAttributes(type: string, env: string) {
-    return this.http.get(this._prop.getUrl() + '/mdm/environments/' + env + '/' + type + '/searchattributes')
+    return this.http.get(this._prop.getUrl('/mdm/environments/' + env + '/' + type + '/searchattributes'))
       .map(response => <SearchAttribute[]>response.json().data)
       .map(sas => sas.map(sa => { sa.source = env; return sa; }))
       .map(sas => this.filterIgnoredAttributes(env, sas));
