@@ -106,7 +106,7 @@ describe ( 'SearchService', () => {
 
       let searchLayout = SearchLayout.createSearchLayout(['env1', 'env2'], attributes, [cond1, cond2]);
 
-      expect(searchLayout.getEnvironments())
+      expect(searchLayout.getSourceNames())
         .toEqual(['Global', 'env1']);
 
       expect(searchLayout.getConditions('Global'))

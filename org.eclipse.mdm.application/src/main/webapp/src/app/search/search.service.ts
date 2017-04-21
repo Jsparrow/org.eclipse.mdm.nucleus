@@ -25,7 +25,7 @@ import {Query, Filter} from '../tableview/query.service';
 import {View} from '../tableview/tableview.service';
 
 export class SearchLayout {
-  map: { [environments: string]: Condition[] } = {};
+  map: { [sourceNames: string]: Condition[] } = {};
 
   public static createSearchLayout(envs: string[], attributesPerEnv: { [env: string]: SearchAttribute[] }, conditions: Condition[]) {
     let result = new SearchLayout();
@@ -71,29 +71,31 @@ export class SearchLayout {
     return attribute2Envs;
   }
 
-  getEnvironments() {
+  getSourceNames() {
     return Object.keys(this.map).sort((s1, s2) => {
       if (s1 === 'Global') {
         return -1;
       } else if ( s2 === 'Global') {
         return 1;
+      } else if (s1) {
+        return s1.localeCompare(s2);
       } else {
-        return s1 > s2 ? 1 : -1;
+        return -1;
       }
     });
   }
 
-  getConditions(environment: string) {
-    return this.map[environment] || [];
+  getConditions(sourceName: string) {
+    return this.map[sourceName] || [];
   }
 
-  set(environment: string, conditions: Condition[]) {
-    this.map[environment] = conditions;
+  set(sourceName: string, conditions: Condition[]) {
+    this.map[sourceName] = conditions;
   }
 
-  add(environment: string, condition: Condition) {
-    this.map[environment] = this.map[environment] || [];
-    this.map[environment].push(condition);
+  add(sourceName: string, condition: Condition) {
+    this.map[sourceName] = this.map[sourceName] || [];
+    this.map[sourceName].push(condition);
   }
 }
 

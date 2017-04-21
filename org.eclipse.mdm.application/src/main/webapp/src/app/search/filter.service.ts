@@ -25,6 +25,7 @@ import {SearchAttribute} from './search.service';
 import {QueryService, Query, SearchResult, Filter} from '../tableview/query.service';
 import {View} from '../tableview/tableview.service';
 import {PreferenceService, Preference, Scope} from '../core/preference.service';
+import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
 
 export enum Operator {
   EQUALS,
@@ -105,7 +106,7 @@ export class SearchFilter {
 
 @Injectable()
 export class FilterService {
-  public readonly NO_FILTER_NAME = 'Kein Filter ausgewählt';
+  public readonly NO_FILTER_NAME = 'Kein Filter ausgewÃ¤hlt';
   public readonly NEW_FILTER_NAME = 'Neuer Filter';
   public currentFilter = new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
   public filterChanged$ = new EventEmitter<SearchFilter>();
@@ -133,13 +134,13 @@ export class FilterService {
   }
 
   private preferenceToFilter(pref: Preference) {
-    return <SearchFilter> JSON.parse(pref.value);
+    return deserialize(SearchFilter, pref.value);
   }
 
   private filterToPreference(filter: SearchFilter) {
     let pref = new Preference();
-    pref.value = JSON.stringify(filter);
-    pref.key = 'filter.nodes.' + filter.name;
+    pref.value = serialize(filter);
+    pref.key = filter ? 'filter.nodes.' + filter.name : 'filter.nodes.';
     pref.scope = Scope.USER;
     return pref;
   }

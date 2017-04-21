@@ -105,12 +105,12 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
-          <div *ngIf="layout.getEnvironments().length === 0" style="text-align: center; margin-bottom: 5px;">
+          <div *ngIf="layout.getSourceNames().length === 0" style="text-align: center; margin-bottom: 5px;">
             Keine Suchattribute ausgewählt
           </div>
-          <div *ngFor="let env of layout.getEnvironments()">
+          <div *ngFor="let env of layout.getSourceNames()">
             <div *ngIf="layout.getConditions(env).length > 0">
-              <span style="font-weight: bold;">{{env}}</span>
+              <span style="font-weight: bold;">{{mapSourceNameToName(env)}}</span>
               <table class="table table-bordered searchdefinition">
                 <colgroup>
                   <col style="width: 17%;">

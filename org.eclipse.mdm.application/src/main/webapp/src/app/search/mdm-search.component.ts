@@ -41,7 +41,7 @@ import {ModalDirective} from 'ng2-bootstrap';
 
 import {TreeModule, TreeNode, MenuItem} from 'primeng/primeng';
 import {EditSearchFieldsComponent} from './edit-searchFields.component';
-import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
+import {OverwriteDialogComponent} from '../core/overwrite-dialog.component';
 
 import {classToClass} from 'class-transformer';
 
@@ -335,6 +335,10 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.basketService.addAll(this.tableViewComponent.selectedRows.map(row => row.getItem()));
   }
 
+  mapSourceNameToName(sourceName: string) {
+    return NodeService.mapSourceNameToName(this.environments, sourceName);
+  }
+  
   private loadSearchAttributes(environments: string[]) {
     this.searchService.loadSearchAttributesStructured(environments)
       .subscribe(attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); });

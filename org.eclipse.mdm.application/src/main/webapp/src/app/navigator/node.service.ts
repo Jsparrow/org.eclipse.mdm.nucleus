@@ -124,6 +124,11 @@ export class NodeService {
       .map(res => plainToClass(Node, res.json().data));
   }
 
+  static mapSourceNameToName(environments: Node[], sourceName: string) {
+    let env = environments.find(n => n.sourceName === sourceName);
+    return env ? env.name : sourceName;
+  }
+
   private getUrl(node: Node) {
     return this._nodeUrl + '/' + node.sourceName + '/' + node.type + '/' + node.id;
   }
