@@ -7,13 +7,14 @@
 //   *
 //   * Contributors:
 //   * Dennis Schroeder - initial implementation
+//   * Matthias Koller, Johannes Stamm - additional client functionality
 //   *******************************************************************************
 import {Injectable} from '@angular/core';
 
 @Injectable()
 export class PropertyService {
-  api_host: string = '/org.eclipse.mdm.nucleus';
-  data_host: string ='http://localhost:8080/';
+  api_host = '/org.eclipse.mdm.nucleus';
+  data_host = 'http://localhost:8080/';
 
   getDataHost(): string {
       return this.data_host;

@@ -65,7 +65,9 @@ export class SearchConditionComponent implements OnChanges {
   }
 
   setAutoCompleteValues() {
-    this.queryService.suggestValues(this.env === 'Global' ? this.selectedEnvs.map(env => env.sourceName) : [this.env], this.condition.type, this.condition.attribute)
+    this.queryService.suggestValues(this.env === 'Global' ?
+        this.selectedEnvs.map(env => env.sourceName) :
+        [this.env], this.condition.type, this.condition.attribute)
       .subscribe(values => this.suggestions = Array.from(new Set<string>(values)));
   }
 

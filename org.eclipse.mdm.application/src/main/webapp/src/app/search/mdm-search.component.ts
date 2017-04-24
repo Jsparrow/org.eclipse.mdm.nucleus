@@ -338,7 +338,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   mapSourceNameToName(sourceName: string) {
     return NodeService.mapSourceNameToName(this.environments, sourceName);
   }
-  
+
   private loadSearchAttributes(environments: string[]) {
     this.searchService.loadSearchAttributesStructured(environments)
       .subscribe(attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); });

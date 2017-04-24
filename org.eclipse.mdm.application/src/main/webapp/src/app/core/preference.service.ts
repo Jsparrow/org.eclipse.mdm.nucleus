@@ -29,29 +29,28 @@ export class Scope {
 }
 
 export class Preference {
+  scope: string;
+  source?: string;
+  user?: string;
+  key: string;
+  value: string;
+  id: number;
 
-    scope: string;
-    source?: string;
-    user?: string;
-    key: string;
-    value: string;
-    id: number;
+  static sortByScope(p1: Preference, p2: Preference) {
+    let getPriority = (scope: string) => {
+      switch (scope) {
+        case Scope.SYSTEM: return 1;
+        case Scope.SOURCE: return 2;
+        case Scope.USER: return 3;
+        default: return 4;
+      }
+    };
+    return getPriority(p1.scope) - getPriority(p2.scope);
+  }
 
-    constructor() {
-        this.key = '';
-    }
-
-    static sortByScope(p1: Preference, p2: Preference) {
-      let getPriority = (scope: string) => {
-        switch (scope) {
-          case Scope.SYSTEM: return 1;
-          case Scope.SOURCE: return 2;
-          case Scope.USER: return 3;
-          default: return 4;
-        }
-      };
-      return getPriority(p1.scope) - getPriority(p2.scope);
-   }
+  constructor() {
+      this.key = '';
+  }
 }
 
 @Injectable()

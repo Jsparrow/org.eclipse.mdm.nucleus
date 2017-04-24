@@ -30,7 +30,7 @@ import {classToClass} from 'class-transformer';
   templateUrl: './editview.component.html',
   styles: ['.remove {color:black; cursor: pointer; float: right}', '.icon { cursor: pointer; margin: 0px 5px; }']
 })
-export class EditViewComponent implements OnInit {
+export class EditViewComponent implements OnInit, OnChanges {
   @ViewChild('lgModal') public childModal: ModalDirective;
   @ViewChild(SearchattributeTreeComponent) tree: SearchattributeTreeComponent;
 

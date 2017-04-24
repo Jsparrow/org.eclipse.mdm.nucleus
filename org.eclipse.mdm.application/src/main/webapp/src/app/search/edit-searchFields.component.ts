@@ -138,7 +138,7 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
   mapSourceNameToName(sourceName: string) {
     return NodeService.mapSourceNameToName(this.environments, sourceName);
   }
-  
+
   private uniqueBy<T>(a: T[], key: (T) => any) {
     let seen = {};
     return a.filter(function(item) {

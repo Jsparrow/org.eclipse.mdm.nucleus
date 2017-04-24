@@ -101,7 +101,7 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
    }
 
    minWidthRight() {
-     return 0.20 * window.innerWidth
+     return 0.20 * window.innerWidth;
    }
 
    initRatio() {

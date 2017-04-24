@@ -29,7 +29,8 @@ import {Observable} from 'rxjs/Observable';
   selector: 'mdm-navigator',
   templateUrl: './mdm-navigator.component.html',
   styles: [
-    '>>>.ui-tree { overflow: auto; max-height: calc(100vh - 7em); min-height: calc(100vh - 7em); padding: .25em .25em .5em .25em !important; }',
+    '>>>.ui-tree { overflow: auto; max-height: calc(100vh - 7em); min-height: calc(100vh - 7em); '
+    + 'padding: .25em .25em .5em .25em !important; }',
     '>>>.ui-tree .ui-tree-container { overflow: visible; }'
   ]
 })

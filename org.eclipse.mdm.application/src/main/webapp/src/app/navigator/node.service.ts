@@ -28,6 +28,11 @@ export class NodeService {
 
   private _nodeUrl: string;
 
+  static mapSourceNameToName(environments: Node[], sourceName: string) {
+    let env = environments.find(n => n.sourceName === sourceName);
+    return env ? env.name : sourceName;
+  }
+
   constructor(private http: Http,
               private _prop: PropertyService,
               private queryService: QueryService,
@@ -122,11 +127,6 @@ export class NodeService {
   getNodesByUrl(url: string) {
     return this.http.get(this._nodeUrl + url)
       .map(res => plainToClass(Node, res.json().data));
-  }
-
-  static mapSourceNameToName(environments: Node[], sourceName: string) {
-    let env = environments.find(n => n.sourceName === sourceName);
-    return env ? env.name : sourceName;
   }
 
   private getUrl(node: Node) {

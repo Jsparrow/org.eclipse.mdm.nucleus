@@ -201,7 +201,7 @@ describe ( 'SearchService', () => {
         new SearchAttribute('TestEnv', 'TestStep', 'MimeType', 'STRING', '*'),
       ];
       searchService.loadSearchAttributes('', 'TestEnv').subscribe(sas => {
-        expect(sas).toEqual(ans)
+        expect(sas).toEqual(ans);
       });
     })));
   });
