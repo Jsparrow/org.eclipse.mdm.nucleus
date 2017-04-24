@@ -35,7 +35,8 @@ class TestPreferenceService {
       scope: Scope.USER,
       source: null,
       user: 'testUser',
-      value: '[\"*.MimeType\", \"TestStep.Sortindex\"]'
+      value: '[\"*.Name\", \"TestStep.Id\", \"Measurement.*\"]'
+      // value: '[\"*.MimeType\", \"TestStep.Sortindex\"]'
     }
   ]);
   }
@@ -136,6 +137,173 @@ describe ( 'SearchService', () => {
       expect(filter.filter).toEqual('Test.Name lk PBN* and Vehicle.Name eq car');
       expect(filter.searchString).toEqual('test');
 
+    })));
+  });
+
+  describe('loadSearchAttributes()', () => {
+    it('should return filtered search attributes for env',
+      async(inject([SearchService, MockBackend],
+        (searchService, mockBackend) => {
+      mockBackend.connections.subscribe(conn => {
+        let mockResponse = {
+          data: [
+            {
+              boType: 'Test',
+              attrName: 'Name',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'Test',
+              attrName: 'Id',
+              valueType: 'LONG',
+              criteria: '*'
+            },
+            {
+              boType: 'TestStep',
+              attrName: 'Name',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'TestStep',
+              attrName: 'MimeType',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'TestStep',
+              attrName: 'Id',
+              valueType: 'LONG',
+              criteria: '*'
+            },
+            {
+              boType: 'Measurement',
+              attrName: 'Name',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'Measurement',
+              attrName: 'Id',
+              valueType: 'LONG',
+              criteria: '*'
+            }
+        ]};
+        if (conn.request.url === searchService._prop.getUrl() + '/mdm/environments/TestEnv//searchattributes') {
+          conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
+        } else if (conn.request.url === searchService._prop.getUrl() + '/mdm/environments/' + 'TestEnv2' + '/' + '/searchattributes') {
+          conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
+        }
+      });
+      let ans = [
+        new SearchAttribute('TestEnv', 'Test', 'Id', 'LONG', '*'),
+        new SearchAttribute('TestEnv', 'TestStep', 'MimeType', 'STRING', '*'),
+      ];
+      searchService.loadSearchAttributes('', 'TestEnv').subscribe(sas => {
+        expect(sas).toEqual(ans)
+      });
+    })));
+  });
+
+  describe('getFilters()', () => {
+    it('should retrun ignoredAttributes in a string array',
+      async(inject([SearchService],
+        (searchService) => {
+      expect(searchService.getFilters(undefined)).toEqual(['*.Name', 'TestStep.Id', 'Measurement.*']);
+    })));
+  });
+
+  describe('filterIgnoredAttributes', () => {
+    it('should return searchAttributes without the ignored ones',
+      async(inject([SearchService], (searchService) => {
+
+    let input = [
+      new SearchAttribute('TestEnv', 'Test', 'Name', 'STRING'),
+      new SearchAttribute('TestEnv', 'Test', 'MimeType', 'STRING'),
+      new SearchAttribute('TestEnv', 'Test', 'Id', 'LONG'),
+      new SearchAttribute('TestEnv', 'TestStep', 'Name', 'STRING'),
+      new SearchAttribute('TestEnv', 'TestStep', 'MimeType', 'STRING'),
+      new SearchAttribute('TestEnv', 'TestStep', 'Id', 'LONG'),
+      new SearchAttribute('TestEnv', 'Measurement', 'Name', 'STRING'),
+      new SearchAttribute('TestEnv', 'Measurement', 'MimeType', 'STRING'),
+      new SearchAttribute('TestEnv', 'Measurement', 'Id', 'LONG')
+    ];
+
+  let ans = [
+    new SearchAttribute('TestEnv', 'Test', 'MimeType', 'STRING'),
+    new SearchAttribute('TestEnv', 'Test', 'Id', 'LONG'),
+    new SearchAttribute('TestEnv', 'TestStep', 'MimeType', 'STRING')
+  ];
+
+  expect(searchService.filterIgnoredAttributes(undefined, input)).toEqual(ans);
+    })));
+  });
+
+  describe('getSearchAttributes()', () => {
+    it('should return filtered search attributes for env',
+      async(inject([SearchService, MockBackend],
+        (searchService, mockBackend) => {
+      mockBackend.connections.subscribe(conn => {
+        let mockResponse = {
+          data: [
+            {
+              boType: 'Test',
+              attrName: 'Name',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'Test',
+              attrName: 'Id',
+              valueType: 'LONG',
+              criteria: '*'
+            },
+            {
+              boType: 'TestStep',
+              attrName: 'Name',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'TestStep',
+              attrName: 'MimeType',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'TestStep',
+              attrName: 'Id',
+              valueType: 'LONG',
+              criteria: '*'
+            },
+            {
+              boType: 'Measurement',
+              attrName: 'Name',
+              valueType: 'STRING',
+              criteria: '*'
+            },
+            {
+              boType: 'Measurement',
+              attrName: 'Id',
+              valueType: 'LONG',
+              criteria: '*'
+            }
+        ]};
+        if (conn.request.url === searchService._prop.getUrl() + '/mdm/environments/TestEnv//searchattributes') {
+          conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
+        } else if (conn.request.url === searchService._prop.getUrl() + '/mdm/environments/TestEnv2//searchattributes') {
+          conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
+        }
+      });
+      let ans = [
+        new SearchAttribute('TestEnv', 'Test', 'Id', 'LONG', '*'),
+        new SearchAttribute('TestEnv', 'TestStep', 'MimeType', 'STRING', '*'),
+        new SearchAttribute('TestEnv2', 'Test', 'Id', 'LONG', '*'),
+        new SearchAttribute('TestEnv2', 'TestStep', 'MimeType', 'STRING', '*'),
+      ];
+
+      searchService.getSearchAttributesPerEnvs(['TestEnv', 'TestEnv2'], '').subscribe(sas => expect(sas).toEqual(ans));
     })));
   });
 });

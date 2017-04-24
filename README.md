@@ -117,8 +117,20 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools/123_
 
 
+**Query endpoint**
+
+* http://SERVER:PORT/APPLICATIONROOT/mdm/query
+
+  _example:  
+`curl -POST -H "Content-Type: application/json" -d '{"resultType": "test", "columns": ["Test.Name", "TestStep.Name"], "filters": { "sourceName": "SOURCENAME", "filter": "Test.Id gt 1", "searchString": ""}}'http://sa:sa@localhost:8080/org.eclipse.mdm.nucleus/mdm/query`
+* http://SERVER:PORT/APPLICATIONROOT/mdm/suggestions
+
+  _example:  `curl -POST -H "Content-Type: application/json" -d '{"sourceNames": ["SOURCENAME"], "type": "Test", "attrName": "Name"}' http://sa:sa@localhost:8080/org.eclipse.mdm.nucleus/mdm/suggestions`
+
+
+
 ## Preference Service
-Preference service stores its data to a relational database. The database connection is looked up by JNDI and the JNDI name and other database relevant parameters are specified in src/main/resources/META-INF/persistence.xml. Database DDL scripts are available for PostgreSQL and Apache Derby databases in the folder `schema/org.eclipse.mdm.preferences` of the distribution.
+Preference service stores its data to a relational database. The database connection is looked up by JNDI and the JNDI name and other database relevant parameters are specified in src/main/resources/META-INF/persistence.xml. Database DDL scripts are available for PostgreSQL and Apache Derby databases in the folder `schema/org.eclipse.mdm.preferences` of the distribution. Other databases are configured by specifying the JNDI name, username and password in the persistence.xml.
 
 ### Quickstart with Apache Derby
 

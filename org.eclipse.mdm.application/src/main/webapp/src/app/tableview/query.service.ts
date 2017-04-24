@@ -124,7 +124,7 @@ export class QueryService {
 
   suggestValues(environments: string[], type: string, attribute: string) {
     let body = JSON.stringify({
-      'environments': environments,
+      'sourceNames': environments,
       'type': type,
       'attrName': attribute
     });

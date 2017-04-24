@@ -19,6 +19,7 @@ import {Observable} from 'rxjs/Observable';
 import {PropertyService} from '../core/property.service';
 import {LocalizationService} from '../localization/localization.service';
 import { Preference, PreferenceService, Scope } from '../core/preference.service';
+import {deserializeArray, plainToClass} from 'class-transformer';
 
 import {SearchFilter, Condition, Operator, OperatorUtil} from './filter.service';
 import {Query, Filter} from '../tableview/query.service';
@@ -228,15 +229,6 @@ export class SearchService {
       .join(' and ');
 
     return new Filter(env, filterString, fullTextQuery);
-  }
-
-  private handleError(error: Response) {
-    console.error(error);
-    return Observable.throw(error.json().error || 'Server error');
-  }
-
-  isIgnored(env: string, sa: SearchAttribute) {
-    return this.getFilters(env).reduce((acc, value) => acc ? acc : this.isAttributeIgnored(value, sa), false);
   }
 
   isAttributeIgnored(attributeName: string, sa: SearchAttribute) {

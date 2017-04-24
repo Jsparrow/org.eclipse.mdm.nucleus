@@ -47,7 +47,7 @@ public class Preference {
 	@Column(name="keyCol")
 	private String key;
 	
-	@Column(name="valueCol", columnDefinition="CLOB NOT NULL")
+	@Column(name="valueCol", nullable=false)
 	@Lob
 	private String value;
 

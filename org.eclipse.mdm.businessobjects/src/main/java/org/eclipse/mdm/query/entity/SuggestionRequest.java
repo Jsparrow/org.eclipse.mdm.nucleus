@@ -19,22 +19,22 @@ import java.util.List;
  */
 public class SuggestionRequest {
 	
-	private List<String> environments;
+	private List<String> sourceNames;
 	private String type;
 	private String attrName;
 	
 	public SuggestionRequest() {
 		// empty no arg constructor
 	}
-	public SuggestionRequest (List<String> environments, String type, String name) {
-		this.environments = environments;
+	public SuggestionRequest (List<String> sourceNames, String type, String name) {
+		this.sourceNames = sourceNames;
 		this.type = type;
 		this.attrName = name;
 	}
 
 	
 	public void setEnvironments(List<String> environments) {
-		this.environments = environments;
+		this.sourceNames = environments;
 	}
 
 	public void setType(String type) {
@@ -46,7 +46,7 @@ public class SuggestionRequest {
 	}
 
 	public List<String> getEnvironments() {
-		return environments;
+		return sourceNames;
 	}
 
 	public String getType() {
