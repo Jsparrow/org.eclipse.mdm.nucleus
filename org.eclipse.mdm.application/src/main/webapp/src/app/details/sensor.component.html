@@ -17,7 +17,7 @@
 </div>
 <accordion *ngIf="sensors">
   <accordion-group *ngFor="let node of sensors" #s>
-    <div accordion-heading class="thinHeader">{{node.name}}
+    <div accordion-heading class="thinheader">{{node.name}}
       <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': s?.isOpen, 'glyphicon-chevron-right': !s?.isOpen}"></span>
     </div>
     <table class="table table-hover">

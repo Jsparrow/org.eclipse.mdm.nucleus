@@ -36,7 +36,7 @@ public class SuggestionResponse {
 	 * @param searchDefinitions list of {@link Suggestion}s to transfer
 	 */
 	public SuggestionResponse(List<String> suggestions) {
-		this.data = new ArrayList<String>(suggestions);
+		this.data = new ArrayList<>(suggestions);
 	}
 	
 	public SuggestionResponse() {

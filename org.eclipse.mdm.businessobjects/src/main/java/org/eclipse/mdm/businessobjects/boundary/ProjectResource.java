@@ -67,7 +67,7 @@ public class ProjectResource {
 			return ServiceUtils.toResponse(new MDMEntityResponse(Project.class, projects), Status.OK);
 
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load Projects!", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -87,7 +87,7 @@ public class ProjectResource {
 			List<SearchAttribute> searchAttributes = this.projectService.getSearchAttributes(sourceName);
 			return ServiceUtils.toResponse(new SearchAttributeResponse(searchAttributes), Status.OK);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load search attributes", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -104,12 +104,12 @@ public class ProjectResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{PROJECT_ID}")
-	public Response getTest(@PathParam("SOURCENAME") String sourceName, @PathParam("PROJECT_ID") long projectId) {
+	public Response getProject(@PathParam("SOURCENAME") String sourceName, @PathParam("PROJECT_ID") long projectId) {
 		try {
 			Project project = this.projectService.getProject(sourceName, projectId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Project.class, project), Status.OK);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load project!", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -132,7 +132,7 @@ public class ProjectResource {
 			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
 
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load localizations!", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}

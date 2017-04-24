@@ -65,22 +65,22 @@
             </div>
             <table class="table table-bordered" style="padding: 0; overflow-y:auto; table-layout: fixed;">
               <tr *ngFor="let col of currentView.columns">
-                <td width=50% >
+                <td style="width: 50%;" >
                   {{col.type}}
                 </td>
-                <td width=50%>
+                <td style="width: 50%;" >
                    {{col.name}}
                 </td>
-                <td width="30px" style="text-align: center; vertical-align: middle;">
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
                   <span class="glyphicon glyphicon-menu-up" [ngStyle]="{'visibility': isFirst(col) ? 'hidden': 'visible'}" style="cursor: pointer; margin-bottom: 0;" (click)="moveUp(col)"></span>
                 </td>
-                <td width="30px" style="text-align: center; vertical-align: middle;">
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
                   <span class="glyphicon glyphicon-menu-down" [ngStyle]="{'visibility': isLast(col)? 'hidden': 'visible'}" style="cursor: pointer;" (click)="moveDown(col)"></span>
                 </td>
-                <td width="30px" style="text-align: center; vertical-align: middle;">
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
                   <span class="glyphicon" [ngClass]="{'glyphicon-sort': isNone(col), 'glyphicon-sort-by-alphabet-alt': isDesc(col), 'glyphicon-sort-by-alphabet': isAsc(col)}" style="cursor: pointer;" (click)="toggleSort(col)"></span>
                 </td>
-                <td width="30px" style="text-align: center; vertical-align: middle;">
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
                   <span class="glyphicon glyphicon-remove" [ngClass]="" style="cursor: pointer;" (click)="remove(col)"></span>
                 </td>
               </tr>

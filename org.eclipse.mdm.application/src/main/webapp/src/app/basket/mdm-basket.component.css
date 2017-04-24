@@ -1,4 +1,4 @@
-@CHARSET "ISO-8859-1";
+@charset "ISO-8859-1";
 
 /*******************************************************************************
 * Copyright (c) 2017 Peak Solution GmbH
@@ -12,17 +12,17 @@
 *******************************************************************************/
 
 .remove {
-	color:black;
-	cursor: pointer;
-	float: right
+  color: black;
+  cursor: pointer;
+  float: right;
 }
 
-.fileUpload {
+.fileupload {
   overflow: hidden;
   position: relative;
 }
 
-.fileUpload input.upload {
+.fileupload input.upload {
   float: right;
   position: absolute;
   top: 0;
@@ -36,11 +36,11 @@
 }
 
 a.disabled {
-	pointer-events: none;
-	cursor: not-allowed;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .badge{
-	margin: 0 0 2px 6px;
-	float: none;
+  margin: 0 0 2px 6px;
+  float: none;
 }

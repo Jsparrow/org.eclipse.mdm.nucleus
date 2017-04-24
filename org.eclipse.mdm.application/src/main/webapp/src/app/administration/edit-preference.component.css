@@ -1,4 +1,4 @@
-@CHARSET "ISO-8859-1";
+@charset "ISO-8859-1";
 
 ul {
   list-style-type: none;
@@ -8,8 +8,8 @@ textarea {
 }
 
 .input-group-addon {
-    min-width:100px;
-    text-align:left;
+    min-width: 100px;
+    text-align: left;
     font-weight: 600;
 }
 

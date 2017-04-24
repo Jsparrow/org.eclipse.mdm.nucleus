@@ -12,7 +12,6 @@ package org.eclipse.mdm.preferences.entity;
 
 import java.util.Objects;
 
-import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;

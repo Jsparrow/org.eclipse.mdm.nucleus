@@ -68,7 +68,7 @@ public class PoolResource {
 			return ServiceUtils.toResponse(new MDMEntityResponse(Pool.class, pools), Status.OK);
 
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load pools!", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -88,7 +88,7 @@ public class PoolResource {
 			List<SearchAttribute> searchAttributes = this.poolService.getSearchAttributes(sourceName);
 			return ServiceUtils.toResponse(new SearchAttributeResponse(searchAttributes), Status.OK);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load search attributes!", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -110,7 +110,7 @@ public class PoolResource {
 			Pool pool = this.poolService.getPool(sourceName, poolId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Pool.class, pool), Status.OK);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load pools!", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -133,7 +133,7 @@ public class PoolResource {
 			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
 
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error("Cannot load localizations!", e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}

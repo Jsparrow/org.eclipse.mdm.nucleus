@@ -33,6 +33,10 @@ import com.google.common.base.Strings;
  */
 public class Util {
 
+	private Util() {
+		
+	}
+	
 	public static List<Row> convertResultList(Collection<Result> results, Class<? extends Entity> resultEntityClass, EntityType type) {
 		List<Row> rows = new ArrayList<>();
 		results.forEach(row -> rows.add(convertResult(row, resultEntityClass, type)));

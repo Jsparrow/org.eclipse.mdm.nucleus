@@ -15,7 +15,7 @@
 <div style="padding-top: 15px;">
   <accordion>
     <accordion-group #basketGroup [isOpen]="false">
-      <div accordion-heading class="thinHeader">
+      <div accordion-heading class="thinheader">
         <div class="row">
           <div class="col-xs-7">
             <div class="pull-left">
@@ -27,7 +27,7 @@
             <div class="pull-right">
               <button type="submit" class="btn btn-default" (click)="clearBasket($event)" title="Clear shopping basket"><span class="glyphicon glyphicon-erase"></span></button>
               <button type="submit" class="btn btn-default" (click)="downloadBasket($event)" title="Download shopping basket" [disabled]="isDownloadDisabled()"><span class="glyphicon glyphicon-download"></span></button>
-              <div class="fileUpload btn btn-default" title="Upload" (click)=onUploadClick($event)>
+              <div class="fileupload btn btn-default" title="Upload" (click)=onUploadClick($event)>
                 <span class="glyphicon glyphicon-upload"></span>
                 <input title="Upload shopping basket" class="upload" name="datei" type="file" accept=".json, application/json" id="fileInput" (change)="onUploadChange($event)">
               </div>
