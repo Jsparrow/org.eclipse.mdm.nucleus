@@ -30,8 +30,8 @@ dependencies {
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.default:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.connector:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.property:1.0.0'
+	compile project(':org.eclipse.mdm.connector')
+	compile project(':org.eclipse.mdm.property')
 	
 	providedCompile 'javax:javaee-api:7.0'
 

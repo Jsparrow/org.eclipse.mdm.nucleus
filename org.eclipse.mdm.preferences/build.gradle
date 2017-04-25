@@ -31,8 +31,8 @@ dependencies {
   runtime  'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.8.1'
   runtime  'javax:javaee-api:7.0'
   
-  compile 'org.eclipse.mdm:org.eclipse.mdm.connector:1.0.0'
-  compile 'org.eclipse.mdm:org.eclipse.mdm.property:1.0.0' 
+  compile project(':org.eclipse.mdm.connector')
+  compile project(':org.eclipse.mdm.property')
 
   testCompile  'org.eclipse.persistence:eclipselink:2.6.4'
   testCompile 'junit:junit:4.12'
