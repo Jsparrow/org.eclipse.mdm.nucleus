@@ -14,23 +14,13 @@
 <persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
 	version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
-	<persistence-unit name="preferences" transaction-type="JTA">
-
-    <!-- change to JNDI name of datasource configured in Glassfish -->
-		<jta-data-source>jdbc/__default</jta-data-source>
+	<persistence-unit name="openMDM" transaction-type="JTA">
+		<jta-data-source>jdbc/openMDM</jta-data-source>
 		<class>org.eclipse.mdm.preferences.entity.Preference</class>
-
 		<properties>
-			<property name="javax.persistence.jdbc.user" value="mdm" />
-			<property name="javax.persistence.jdbc.password" value="mdm" />
-
 			<property name="eclipselink.logging.logger" value="ServerLogger" />
-			<property name="eclipselink.logging.level" value="FINE" />
-			
-			<!-- EclipseLink should create and update the database schema automatically. Useful for testing but should be handled with care in production environment -->
-      <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-      <property name="eclipselink.ddl-generation.output-mode" value="database" />
+			<property name="eclipselink.logging.level" value="INFO" />
+			<property name="eclipselink.ddl-generation" value="none" />
 		</properties>
-
 	</persistence-unit>
 </persistence>	

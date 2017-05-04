@@ -42,7 +42,7 @@ public class PreferenceService
 {
 	private static final Logger LOG = LoggerFactory.getLogger(PreferenceService.class); 
 	
-	@PersistenceContext(unitName="preferences")
+	@PersistenceContext(unitName="openMDM")
 	private EntityManager em;
 
 	@Resource

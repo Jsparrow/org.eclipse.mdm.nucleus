@@ -130,18 +130,16 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 
 ## Preference Service
-Preference service stores its data to a relational database. The database connection is looked up by JNDI and the JNDI name and other database relevant parameters are specified in src/main/resources/META-INF/persistence.xml. Database DDL scripts are available for PostgreSQL and Apache Derby databases in the folder `schema/org.eclipse.mdm.preferences` of the distribution. Other databases are configured by specifying the JNDI name, username and password in the persistence.xml.
+Preference service stores its data to a relational database. The database connection is looked up by JNDI and the JNDI name and other database relevant parameters are specified in src/main/resources/META-INF/persistence.xml. The default JNDI name for the JDBC resource is set to jdbc/openMDM. This JDBC resource and its dependent JDBC Connection Pool has to be created and configured within the glassfish web administration console or through asadmin command line tool.
 
-### Quickstart with Apache Derby
-
-The default datasource is set to jdbc/__default, which is available in glassfish per default and uses a derby database.
-The derby database is not started automatically with glassfish, but has to be started with following command:
-`GLASSFISH_HOME/bin/asadmin start-database`
-With the default parameter from persistence.xml the schema is created automatically during deployment.
+Furthermore the schema has to be created in the configured database. Therefore database DDL scripts are available for PostgreSQL and Apache Derby databases in the folder `schema/org.eclipse.mdm.preferences` of the distribution. Other databases supported by EclipseLink may also work, but is up to the user to adapt the DDL scripts.
 
 ### available rest URLs
 * http://SERVER:POART/APPLICATIONROOT/mdm/preferences
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences
+* example: `curl -GET -H "Content-Type: application/json" http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences?scope=SYSTEM&key=ignoredAttributes`
+* example: `curl -PUT -H "Content-Type: application/json" -d '{"scope": "SYSTEM", "key": "ignoredAttributes", "value": "[\"*.MimeType\"]"}' http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences`
+* example: `curl -DELETE http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences/ID`
+
 
 ## FreeTextSearch
 ### Configuration
@@ -154,9 +152,11 @@ The Indexing is completely independent from the searching. So the Indexer can be
 
 
 ##Known issues:
-If you run into "java.lang.ClassNotFoundException: javax.xml.parsers.ParserConfigurationException not found by org.eclipse.persistence.moxy" this is a bug described in https://bugs.eclipse.org/bugs/show_bug.cgi?id=463169.
+If you run into "java.lang.ClassNotFoundException: javax.xml.parsers.ParserConfigurationException not found by org.eclipse.persistence.moxy" this is a bug described in https://bugs.eclipse.org/bugs/show_bug.cgi?id=463169 and https://java.net/jira/browse/GLASSFISH-21440.
 This solution is to replace GLASSFISH_HOME/glassfish/modules/org.eclipse.persistence.moxy.jar with this: http://central.maven.org/maven2/org/eclipse/persistence/org.eclipse.persistence.moxy/2.6.1/org.eclipse.persistence.moxy-2.6.1.jar
 
+
+If you run into "java.lang.ClassNotFoundException: com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector not found by com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" you have to download http://central.maven.org/maven2/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.5.1/jackson-module-jaxb-annotations-2.5.1.jar and put it under GLASSFISH_HOME/glassfish/domains/domain1/autodeploy/bundles
 
 ## Client preferences
 
