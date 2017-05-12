@@ -41,6 +41,19 @@ export class MDMBasketComponent implements OnInit {
   @Output() onSelect = new EventEmitter<Node>();
   @Input() activeNode: Node;
 
+  readonly LblBasket = 'Warenkorb';
+  readonly LblLoad = 'Laden';
+  readonly LblLoadBasket = 'Warenkorb laden';
+  readonly LblSave = 'Speichern';
+  readonly LblSaveBasketAs = 'Warenkorb speichern als';
+  readonly TtlClearShoppingBasket = 'Warenkorb leeren';
+  readonly TtlClose = 'Schließen';
+  readonly TtlDownloadShoppingBasket = 'Warenkorb herunterladen';
+  readonly TtlLoadShoppingBasket = 'Warenkorb laden';
+  readonly TtlNoNameSet = 'Kein Name ausgewählt';
+  readonly TtlSaveShoppingBasket = 'Warenkorb speichern';
+  readonly TtlUploadShoppingBasket = 'Warenkorb hochladen';
+
   basketName = '';
   basketContent: SearchResult = new SearchResult();
   basket = 'Warenkorb';
@@ -168,7 +181,11 @@ export class MDMBasketComponent implements OnInit {
     let blob = new Blob([JSON.stringify(downloadContent)], {
          type: 'application/json'
      });
-    FileSaver.saveAs(blob, this.basketName + '.json');
+    if (this.basketName && this.basketName.trim().length !== 0) {
+      FileSaver.saveAs(blob, this.basketName + '.json');
+    } else {
+      FileSaver.saveAs(blob, 'warenkorb.json');
+    }
   }
 
   onUploadChange(event: Event) {
@@ -185,6 +202,10 @@ export class MDMBasketComponent implements OnInit {
 
   isDownloadDisabled() {
     return this.basketContent.rows.length <= 0;
+  }
+
+  getSaveBtnTitle() {
+    return this.basketName ? this.TtlSaveShoppingBasket : this.TtlNoNameSet;
   }
 
   private onUploadEvent(fileInput: any) {

@@ -41,7 +41,7 @@
         <button type="button" class="close" (click)="closeDialog()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">View editeren</h4>
+        <h4 class="modal-title">{{LblViewEditor}}</h4>
       </div>
       <div class="modal-body">
         <div class="container-fluid">
@@ -59,9 +59,9 @@
               <searchattribute-tree [searchAttributes]="searchAttributes" [environments]="environments"></searchattribute-tree>
             </div>
             <div class="col-md-8" style="min-height: 50vh; max-height: 72vh; overflow-y:auto;">
-            <label for="search-source" class="control-label" style="padding: 8px 0 15px 0;">Ausgewählte Attribute</label>
+            <label for="search-source" class="control-label" style="padding: 8px 0 15px 0;">{{LblSelectedAttributes}}</label>
             <div *ngIf="currentView.columns.length === 0" style="text-align: center;">
-              Keine Attribute ausgewählt
+              Keine Attribute ausgewählt.
             </div>
             <table class="table table-bordered" style="padding: 0; overflow-y:auto; table-layout: fixed;">
               <tr *ngFor="let col of currentView.columns">
@@ -90,7 +90,7 @@
           <div class="row" style="margin-top: 15px;">
             <div class="col-md-12">
               <button type="button" class="btn btn-default pull-right" (click)="applyChanges()">
-                <span class="glyphicon glyphicon-ok"></span> Änderungen anwenden
+                <span class="glyphicon glyphicon-ok"></span> {{LblApplyChanges}}
               </button>
             </div>
           </div>

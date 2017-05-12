@@ -12,11 +12,17 @@ package org.eclipse.mdm.query.entity;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * 
  * @author Matthias Koller, Peak Solution GmbH
  *
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SuggestionRequest {
 	
 	private List<String> sourceNames;

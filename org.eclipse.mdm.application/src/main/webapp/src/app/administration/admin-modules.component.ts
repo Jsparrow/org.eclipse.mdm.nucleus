@@ -20,11 +20,11 @@ import {Router} from '@angular/router';
 })
 export class AdminModulesComponent {
 
-  brand = 'Scope';
+  readonly brand = 'Geltungsbereich';
   links = [
     { name: 'System', path: 'system'},
-    { name: 'Source', path: 'source'},
-    { name: 'User', path: 'user'}
+    { name: 'Quelle', path: 'source'},
+    { name: 'Benutzer', path: 'user'}
   ];
   constructor(private router: Router) {}
 }

@@ -16,6 +16,7 @@ import {Injectable} from '@angular/core';
 import {Http, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
 import {PropertyService} from '../core/property.service';
 import {LocalizationService} from '../localization/localization.service';
 import { Preference, PreferenceService, Scope } from '../core/preference.service';
@@ -138,7 +139,8 @@ export class SearchService {
   constructor(private http: Http,
     private localService: LocalizationService,
     private _prop: PropertyService,
-    private preferenceService: PreferenceService) {
+    private preferenceService: PreferenceService,
+    private notificationService: MDMNotificationService) {
           this.preferenceService.getPreference('ignoredAttributes')
               .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
     }
@@ -258,7 +260,7 @@ export class SearchService {
     try {
         return <string[]> JSON.parse(pref.value);
     } catch (e) {
-        console.log('Preference for ignored attributes is corrupted.\n', pref, e);
+        this.notificationService.notifyError('Einstellung für zu ignorierende Attribute ist fehlerhaft.', e);
         return [];
     }
   }

@@ -14,7 +14,7 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class PropertyService {
   api_host = '/org.eclipse.mdm.nucleus';
-  data_host = 'http://localhost:8080/';
+  data_host = 'http://sa:sa@localhost:9090/';
 
   getDataHost(): string {
       return this.data_host;

@@ -39,10 +39,14 @@ export class WindowRef {
   encapsulation: ViewEncapsulation.None
 })
 export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
+
+  readonly LblNavigator = 'Navigator';
+  readonly TtlScrollUp = 'Zum Seitenanfang';
+  readonly TtlSelectNodeprovider = 'Baumansicht auswählen';
+
   selectedNode = new Node;
   activeNode: Node;
   closeOther = false;
-  navigator = 'Navigation';
 
   activeNodeprovider: any;
   _comp = 'Navigation';

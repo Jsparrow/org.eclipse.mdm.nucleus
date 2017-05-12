@@ -47,6 +47,12 @@ export class SearchField {
 })
 export class EditSearchFieldsComponent implements OnChanges, OnInit {
 
+  readonly LblApplyChanges = 'Änderungen übernehmen';
+  readonly LblSearchFieldEditor = 'Suchfeld Editor';
+  readonly LblSelectedSearchAttributes = 'Ausgewählte Suchattribute';
+  readonly TtlClose = 'Schließen';
+  readonly TtlRemove = 'Entfernen';
+
   @ViewChild('lgEditSearchFieldsModal') public childModal: ModalDirective;
   @ViewChild(SearchattributeTreeComponent) tree: SearchattributeTreeComponent;
 

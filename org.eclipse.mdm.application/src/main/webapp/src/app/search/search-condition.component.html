@@ -14,7 +14,7 @@
 <td style="vertical-align: middle">{{condition.attribute}}</td>
 <td style="vertical-align: middle">
   <div class="btn-group" dropdown style="width: 66px;">
-    <button id="operator" type="button" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" [disabled]="disabled">
+    <button id="operator" type="button" title="{{TtlSelectSearchOperator}}" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" [disabled]="disabled">
       {{getOperatorName(condition.operator)}} <span class="caret"></span>
     </button>
     <ul class="dropdown-menu" dropdownMenu>
@@ -33,7 +33,7 @@
     [delay]="0"
     [size]="500"
     [scrollHeight]="'50vh'"
-    placeholder="Add search value"
+    placeholder="Suchkriterium"
     [disabled]="disabled"
     (keyup.enter)="onEnter($event)">
   </p-autoComplete>

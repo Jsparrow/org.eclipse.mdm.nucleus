@@ -18,6 +18,9 @@ import { DatePipe } from '@angular/common';
   templateUrl: 'search-datepicker.component.html'
 })
 export class SearchDatepickerComponent {
+
+  readonly TtlSelectDate = 'Datum auswählen';
+
   @Output() onSetValue = new EventEmitter<string>();
   @Input() disabled = false;
 

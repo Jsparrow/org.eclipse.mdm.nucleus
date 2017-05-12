@@ -12,6 +12,7 @@
 
 import { Injectable} from '@angular/core';
 import { Preference, PreferenceService, Scope } from '../core/preference.service';
+import { MDMNotificationService } from '../core/mdm-notification.service';
 
 import { Node, Attribute } from '../navigator/node';
 
@@ -20,7 +21,8 @@ export class DetailViewService {
 
     ignoreAttributesPrefs: Preference[] = [];
 
-    constructor (private preferenceService: PreferenceService) {
+    constructor (private preferenceService: PreferenceService,
+                 private notificationService: MDMNotificationService) {
       this.preferenceService.getPreference('ignoredAttributes')
           .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
     }
@@ -50,7 +52,7 @@ export class DetailViewService {
       try {
           return <string[]> JSON.parse(pref.value);
       } catch (e) {
-          console.log('Preference for ignored attributes is corrupted.\n', pref, e);
+          this.notificationService.notifyError('Einstellungen für die zu ignorierenden Attribute ist fehlerhaft.', e);
           return [];
       }
     }

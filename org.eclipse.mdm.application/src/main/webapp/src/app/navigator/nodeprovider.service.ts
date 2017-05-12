@@ -14,6 +14,7 @@ import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
 import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import {QueryService, Query} from '../tableview/query.service';
 import {PropertyService} from '../core/property.service';
@@ -33,7 +34,8 @@ export class NodeproviderService {
   constructor(private http: Http,
               private _prop: PropertyService,
               private queryService: QueryService,
-              private preferenceService: PreferenceService) {
+              private preferenceService: PreferenceService,
+              private notificationService: MDMNotificationService) {
       this.loadNodeproviders();
   }
 
@@ -56,7 +58,7 @@ export class NodeproviderService {
           try {
               this.nodeproviders.push(JSON.parse(p.value));
           } catch (e) {
-              console.error('Nodeprovider preferences are corrupted.', p, e);
+            this.notificationService.notifyError('Die Einstellungen des Nodeproviders sind fehlerhaft.', e);
           }
       }));
   }
@@ -83,7 +85,7 @@ replace(query: string, item: MDMItem) {
     return '/' + item.source + query.replace(/{(\w+)\.(\w+)}/g, function(match, type, attr) {
 
       if (type !== item.type) {
-        console.warn('Type ' + type + ' not supported! Use type ' + type);
+        this.notificationService.notifyWarn('Typ ' + type + ' wird nicht unterstützt! Es sollte Typ ' + item.type + ' verwendet werden.');
       }
 
       if (attr === 'Id') {

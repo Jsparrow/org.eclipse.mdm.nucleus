@@ -36,12 +36,14 @@ import {Observable} from 'rxjs/Observable';
 })
 export class MDMNavigatorComponent implements OnInit {
 
+  readonly AlrtItemTypeNotSupported = 'Dieser Knotentyp wird von der aktuellen Ansicht nicht angezeigt!';
+
   selectedNodes: TreeNode[] = [];
   nodes: TreeNode[] = [];
   lastClickTime = 0;
 
   loadingNode = <TreeNode>{
-    label: 'Loading children',
+    label: 'Unterpunkte werden geladen.',
     leaf: true,
     icon: 'fa fa-spinner fa-pulse fa-3x fa-fw'
   };
@@ -148,7 +150,7 @@ export class MDMNavigatorComponent implements OnInit {
     items.forEach(item => {
       let pathTypes = this.nodeproviderService.getPathTypes(item.type);
       if (pathTypes.length === 0) {
-        alert('Items of this type are not displayed in the current Tree!');
+        alert(this.AlrtItemTypeNotSupported);
       } else {
         let env = this.nodes.find(e => item.source === e.data.source);
         env.expanded = true;

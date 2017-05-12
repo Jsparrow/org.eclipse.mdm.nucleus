@@ -20,7 +20,6 @@ import {Router} from '@angular/router';
 })
 export class MDMModulesComponent {
 
-  brand = 'Modules';
   links = [
     { name: 'Details', path: 'details'},
     { name: 'MDM Suche', path: 'search'}

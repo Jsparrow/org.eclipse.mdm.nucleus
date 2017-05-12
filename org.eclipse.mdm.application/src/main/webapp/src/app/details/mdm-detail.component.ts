@@ -25,10 +25,12 @@ import {SensorComponent} from './sensor.component';
 })
 export class MDMDetailComponent {
 
-  uut = 'Prüfling';
-  ts = 'Testablauf';
-  te = 'Messgerät';
-  s = 'Sensoren';
-  brand = 'Details';
+  readonly uut = 'Prüfling';
+  readonly ts = 'Testablauf';
+  readonly te = 'Messgerät';
+  readonly s = 'Sensoren';
+  readonly brand = 'Details';
+  readonly LblGeneral = 'General';
+  readonly LblSensors = 'Sensoren';
 
 }

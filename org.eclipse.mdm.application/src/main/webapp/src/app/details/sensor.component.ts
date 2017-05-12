@@ -28,6 +28,13 @@ import {NavigatorService} from '../navigator/navigator.service';
 })
 export class SensorComponent implements OnInit {
 
+  readonly LblMeasured = 'Gemessen';
+  readonly LblName = 'Name';
+  readonly LblOrdered = 'Beauftragt';
+  readonly StatusLoading = 'Lädt..';
+  readonly StatusNoNodes = 'Keine Knoten verfügbar.';
+  readonly StatusNoDescriptiveData = 'Keine beschreibenden Daten verfügbar.';
+
   selectedNode: Node;
   context: String;
 
@@ -35,7 +42,7 @@ export class SensorComponent implements OnInit {
   contexts: Context[];
   sensors: Sensor[];
   errorMessage: string;
-  status = 'loading...';
+  status: string;
 
   uut = 'Prüfling';
   ts = 'Testablauf';
@@ -48,6 +55,7 @@ export class SensorComponent implements OnInit {
               private navigatorService: NavigatorService) {}
 
   ngOnInit() {
+    this.status = this.StatusLoading;
     this.route.params
         .subscribe(params => this.setContext(params['context'])
     );
@@ -66,15 +74,15 @@ export class SensorComponent implements OnInit {
       this.selectedNode = node;
       this.contexts = undefined;
       if (node.name !== undefined && (node.type.toLowerCase() === 'measurement' || node.type.toLowerCase() === 'teststep')) {
-        this.status = 'loading...';
+        this.status = this.StatusLoading;
         this._contextService.getSensors(node).subscribe(
             sensors => this.sensors = sensors,
             error => this.errorMessage = <any>error);
       } else {
-        this.status = 'Keine beschreibende Daten verfügbar';
+        this.status = this.StatusNoDescriptiveData;
       }
     } else {
-      this.status = 'Kein Knoten ausgewählt';
+      this.status = this.StatusNoNodes;
     }
   }
 

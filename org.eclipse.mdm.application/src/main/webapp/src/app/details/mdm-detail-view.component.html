@@ -14,7 +14,7 @@
 
 <div>
   <div class="btn-group pull-right" role="group">
-    <button type="button" class="btn btn-default" (click)="add2Basket()" [disabled]="isShopable()">In den Warenkorb</button>
+    <button type="button" class="btn btn-default" (click)="add2Basket()" [disabled]="isShopable()">{{LblToBasket}}</button>
     <!-- <mdm-filerelease-create [node]=selectedNode [disabled]="isReleasable()"></mdm-filerelease-create> -->
   </div>
   <h3 *ngIf="selectedNode" style="margin: 5px;" class="icon" [ngClass]="selectedNode.getClass()">
@@ -24,9 +24,9 @@
 <table class="table table-hover" style="margin-bottom: 0;">
   <thead>
     <tr>
-      <th>Attribut</th>
-      <th>Wert</th>
-      <th>Einheit</th>
+      <th>{{LblAttribute}}</th>
+      <th>{{LblValue}}</th>
+      <th>{{LblUnit}}</th>
     </tr>
   </thead>
   <tbody *ngIf="selectedNode">

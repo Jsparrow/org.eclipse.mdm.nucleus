@@ -51,6 +51,27 @@ import {classToClass} from 'class-transformer';
 })
 export class MDMSearchComponent implements OnInit, OnDestroy {
 
+
+  readonly LblAdvancedSearch = 'Erweiterte Suche';
+  readonly LblFilter = 'Filter';
+  readonly LblResultType = 'Ergebnistyp';
+  readonly LblResults = 'Ergebnisse';
+  readonly LblSave = 'Speichern';
+  readonly LblSaveFilterAs = 'Filter speichern als';
+  readonly LblSearch = 'Suche';
+  readonly LblSource = 'Quelle';
+  readonly TtlDeleteFilter = 'Filter löschen';
+  readonly TtlDisableAdvancedSearch = 'Erweiterte Suche deaktivieren';
+  readonly TtlEditSearchFields = 'Suchfilter bearbeiten';
+  readonly TtlEnableAdvancedSearch = 'Erweiterte Suche aktivieren';
+  readonly TtlNewSearchFields = 'Neuen Suchfilter anlegen';
+  readonly TtlNoNameSet = 'Name nicht gesetzt!';
+  readonly TtlResetSearchConditions = 'Suchkriterien zurücksetzen';
+  readonly TtlSaveFilter = 'Filter speichern';
+  readonly TtlSaveSearchFilter = 'Suchfilter speichern';
+  readonly TtlSelectionToBasket = 'Auswahl zum Warenkorb hinzufügen';
+
+
   maxResults = 100;
 
   filters: SearchFilter[] = [];
@@ -123,11 +144,13 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.searchService.getDefinitionsSimple()
       .subscribe(defs => this.definitions = defs);
 
-    this.loadFilters('Standard');
-
-    this.onFilterChanged(this.filterService.currentFilter);
+    if ( this.filterService.currentFilter.name === this.filterService.NO_FILTER_NAME ) {
+      this.loadFilters('Standard');
+    }
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.viewChanged$.subscribe(() => this.onViewChanged());
+
+    this.selectFilter(this.filterService.currentFilter);
   }
 
   ngOnDestroy() {
@@ -241,6 +264,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   onFilterChanged(filter: SearchFilter) {
     this.currentFilter = classToClass(filter);
+    console.log(this.currentFilter);
     this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
     this.selectedEnvironmentsChanged(this.dropdownModel);
     this.calcCurrentSearch();
@@ -337,6 +361,14 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   mapSourceNameToName(sourceName: string) {
     return NodeService.mapSourceNameToName(this.environments, sourceName);
+  }
+
+  getSaveFilterBtnTitle () {
+    return this.filterName ? this.TtlSaveFilter : this.TtlNoNameSet;
+  }
+
+  getAdvancedSearchCbxTitle() {
+    return this.isBoxChecked ? this.TtlDisableAdvancedSearch : this.TtlEnableAdvancedSearch;
   }
 
   private loadSearchAttributes(environments: string[]) {

@@ -32,6 +32,10 @@ export class TableviewComponent implements OnInit, OnChanges {
   public static readonly pageSize = 5;
   readonly buttonColumns = 3;
 
+  readonly TtlAddToBasket = 'Zum Warenkorb hinzufügen';
+  readonly TtlOpenInTree = 'Öffnen in';
+  readonly TtlRemoveFromBasket = 'Aus dem Warenkorb entfernen';
+
   @Input() view: View;
   @Input() results: SearchResult;
   @Input() isShopable = false;
@@ -133,9 +137,12 @@ export class TableviewComponent implements OnInit, OnChanges {
   }
 
   getRowTitle(row: Row) {
-    return [row.source, row.type, row.id].join('/');
+    return this.TtlOpenInTree + ': ' + [row.source, row.type, row.id].join('/');
   }
 
+  getIconTitle() {
+    return this.isShopable ? this.TtlAddToBasket : this.TtlRemoveFromBasket;
+  }
   onRowClick(e: any) {
     let row: Row = e.data;
     let event: MouseEvent = e.originalEvent;

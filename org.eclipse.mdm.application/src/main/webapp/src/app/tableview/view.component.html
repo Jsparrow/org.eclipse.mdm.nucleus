@@ -33,7 +33,7 @@
 </style>
 
 <div class="btn-group" dropdown>
-  <button id="view" title="Select View" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
+  <button id="view" title="{{TtlSelectView}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
     {{selectedView?.name}} <span class="caret"></span>
   </button>
   <ul class="dropdown-menu scrollable-menu" style="height: auto; max-height: 200px; overflow-x: hidden;" dropdownMenu>
@@ -45,10 +45,10 @@
     </div>
   </ul>
 </div>
-<button type="button" class="btn btn-default" (click)="newView($event)" title="Neue Ansicht"><span class="glyphicon glyphicon-plus"></span></button>
-<button type="button" class="btn btn-default" (click)="editSelectedView($event)" title="Ansichtt editieren"><span class="glyphicon glyphicon-edit"></span></button>
-<button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="Ansicht speichern"><span class="fa fa-floppy-o"></span></button>
-<button type="button" class="btn btn-default" (click)="deleteView($event)" title="Ansicht löschen"><span class="glyphicon glyphicon-remove"></span></button>
+<button type="button" class="btn btn-default" (click)="newView($event)" title="{{TtlNewView}}"><span class="glyphicon glyphicon-plus"></span></button>
+<button type="button" class="btn btn-default" (click)="editSelectedView($event)" title="{{TtlEditView}}"><span class="glyphicon glyphicon-edit"></span></button>
+<button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="{{TtlSaveView}}"><span class="fa fa-floppy-o"></span></button>
+<button type="button" class="btn btn-default" (click)="deleteView($event)" title="{{TtlDeleteView}}"><span class="glyphicon glyphicon-remove"></span></button>
 
 <edit-view></edit-view>
 <overwrite-dialog></overwrite-dialog>
@@ -60,7 +60,7 @@
         <button type="button" class="close" (click)="childSaveModal.hide()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Ansicht speichern unter:</h4>
+        <h4 class="modal-title">{{LblSaveViewAs}}:</h4>
       </div>
       <div class="modal-body">
         <div class="container-fluid">
@@ -70,8 +70,8 @@
             </div>
             <div class="row" style="margin-top: 10px;">
               <div class="col-md-12">
-                <button type="button" class="btn btn-default pull-right" (click)="saveView($event)" [disabled]="!viewName" title="{{viewName? '' : 'Name nicht gesetzt!'}}">
-                  <span class="fa fa-floppy-o"></span> Speichern
+                <button type="button" class="btn btn-default pull-right" (click)="saveView($event)" [disabled]="!viewName" title="{{getSaveBtnTitle()}}">
+                  <span class="fa fa-floppy-o"></span> {{LblSave}}
                 </button>
               </div>
             </div>

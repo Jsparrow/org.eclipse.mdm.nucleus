@@ -19,6 +19,9 @@ import { ModalDirective } from 'ng2-bootstrap';
 })
 export class OverwriteDialogComponent {
 
+  readonly LblCancel = 'Abbrechen';
+  readonly LblOverwrite = 'Überschreiben';
+
   label: string;
   overwriteEvent = new EventEmitter<boolean>();
 

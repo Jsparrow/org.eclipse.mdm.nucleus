@@ -26,6 +26,16 @@ import { Node } from '../navigator/node';
 })
 export class EditPreferenceComponent implements OnInit {
 
+    readonly LblCancel = 'Abbrechen';
+    readonly LblKey = 'Schlüssel';
+    readonly LblPreferenceEditor = 'Einstellungseditor';
+    readonly LblSave = 'Speichern';
+    readonly LblScope = 'Geltungsbereich';
+    readonly LblSource = 'Quelle';
+    readonly LblUser = 'Benutzer';
+    readonly LblValue = 'Wert';
+    readonly TtlClose = 'Schließen';
+
     @Input() scope: string;
     showSource: boolean;
     showUser: boolean;
@@ -34,7 +44,7 @@ export class EditPreferenceComponent implements OnInit {
     preferenceForm: FormGroup;
     needSave = false;
     envs: Node[];
-    errorMessage = 'Could not load environments.';
+    errorMessage = 'Environment konnte nicht geladen werden.';
 
     @ViewChild( 'lgModal' ) public childModal: ModalDirective;
 

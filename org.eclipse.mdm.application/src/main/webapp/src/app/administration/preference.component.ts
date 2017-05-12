@@ -25,7 +25,12 @@ import { EditPreferenceComponent } from './edit-preference.component';
 })
 export class PreferenceComponent implements OnInit, OnDestroy {
 
-  brand = 'Scope';
+  readonly LblAddPreference = 'Einstellung hinzufügen';
+  readonly LblKey = 'Schlüssel';
+  readonly LblValue = 'Wert';
+  readonly TtlEdit = 'Bearbeiten';
+  readonly TtlDelete = 'Entfernen';
+
   @Input() preferences: Preference[];
   scope: string;
   subscription: any;

@@ -27,6 +27,15 @@ import { Scope } from '../core/preference.service';
 })
 export class ViewComponent implements OnInit {
 
+  readonly LblSave = 'Speichern';
+  readonly LblSaveViewAs = 'Ansicht speichern unter';
+  readonly TtlDeleteView = 'Ansicht löschen';
+  readonly TtlEditView = 'Ansicht bearbeiten';
+  readonly TtlNewView = 'Neue Ansicht erstellen';
+  readonly TtlNoNameSet = 'Name nicht gesetzt!';
+  readonly TtlSaveView = 'Ansicht speichern';
+  readonly TtlSelectView = 'Ansicht auswählen';
+
   public selectedView: View;
   public groupedViews: { scope: string, view: View[], label: string }[] = [];
   public viewChanged$ = new EventEmitter();
@@ -152,5 +161,9 @@ export class ViewComponent implements OnInit {
         + ' Sollten sie entsprechende Zugriffsrechte besitzen,'
         + ' können Sie diese Einstellungen über den Administrationsbereich bearbeiten');
     }
+  }
+
+  getSaveBtnTitle() {
+    return this.viewName ? this.TtlSaveView : this.TtlNoNameSet;
   }
 }

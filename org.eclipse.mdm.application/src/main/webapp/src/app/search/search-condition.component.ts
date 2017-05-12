@@ -28,6 +28,9 @@ import {AutoComplete} from 'primeng/primeng';
   styleUrls: ['search-condition.component.css'],
 })
 export class SearchConditionComponent implements OnChanges {
+
+  readonly TtlSelectSearchOperator = 'Suchoperator auswählen';
+
   @Input() env: string;
   @Input() condition: Condition;
   @Input() form: FormGroup;

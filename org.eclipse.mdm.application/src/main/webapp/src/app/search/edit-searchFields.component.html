@@ -35,10 +35,10 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" (click)="childModal.hide()" aria-label="Close">
+        <button type="button" title="{{TtlClose}}" class="close" (click)="childModal.hide()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Suchfeld Editor</h4>
+        <h4 class="modal-title">{{LblSearchFieldEditor}}</h4>
       </div>
       <div class="modal-body">
         <div class="container-fluid">
@@ -55,9 +55,9 @@
               <searchattribute-tree [searchAttributes]="searchAttributes" [environments]="environments"></searchattribute-tree>
             </div>
             <div class="col-md-8" style="min-height: 50vh; max-height: 77vh; overflow-y:auto;">
-              <label for="search-source" class="control-label" style="padding: 8px 0 15px 0;">Ausgewählte Suchattribute</label>
+              <label for="search-source" class="control-label" style="padding: 8px 0 15px 0;">{{LblSelectedSearchAttributes}}</label>
               <div *ngIf="layout.getSourceNames().length === 0" style="text-align: center;">
-                Keine Suchattribute ausgewählt
+                Keine Suchattribute ausgewählt.
               </div>
               <div *ngFor="let env of layout.getSourceNames()">
               <div *ngIf="layout.getConditions(env).length > 0">
@@ -71,7 +71,7 @@
                   <tr *ngFor="let condition of layout.getConditions(env)">
                     <td>{{condition?.type}}</td>
                     <td>{{condition?.attribute}}</td>
-                    <td style="text-align: center;"><span class="glyphicon glyphicon-remove" style="cursor: pointer" title="Remove" (click)="removeCondition(condition)"></span></td>
+                    <td style="text-align: center;"><span class="glyphicon glyphicon-remove" style="cursor: pointer" title="{{TtlRemove}}" (click)="removeCondition(condition)"></span></td>
                   </tr>
                 </table>
               </div>
@@ -81,7 +81,7 @@
         <div class="row" style="margin-top: 15px;">
           <div class="col-md-12">
             <button type="button" class="btn btn-default pull-right" (click)="addSearchFields()" [disabled]="conditions.length === 0">
-              <span class="glyphicon glyphicon-ok"></span> Änderungen anwenden
+              <span class="glyphicon glyphicon-ok"></span> {{LblApplyChanges}}
             </button>
           </div>
         </div>

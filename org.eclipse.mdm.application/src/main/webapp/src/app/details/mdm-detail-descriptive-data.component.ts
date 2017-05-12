@@ -28,7 +28,17 @@ import {NavigatorService} from '../navigator/navigator.service';
   selector: 'mdm-detail-context',
   templateUrl: 'mdm-detail-descriptive-data.component.html',
 })
+
 export class MDMDescriptiveDataComponent implements OnInit {
+
+  readonly LblMeasured = 'Gemessen';
+  readonly LblName = 'Name';
+  readonly LblOrdered = 'Beauftragt';
+
+  readonly StatusLoading = 'Lädt..';
+  readonly StatusNoNodes = 'Keine Knoten verfügbar.';
+  readonly StatusNoDescriptiveData = 'Keine beschreibenden Daten verfügbar.';
+
   selectedNode: Node;
   context: String;
 
@@ -36,7 +46,7 @@ export class MDMDescriptiveDataComponent implements OnInit {
   contexts: Context[];
   sensors: Sensor[];
   errorMessage: string;
-  status = 'loading...';
+  status: string = this.StatusLoading;
 
   uut = 'Prüfling';
   ts = 'Testablauf';
@@ -49,6 +59,7 @@ export class MDMDescriptiveDataComponent implements OnInit {
               private navigatorService: NavigatorService) {}
 
   ngOnInit() {
+    this.status = this.StatusLoading;
     this.route.params
         .subscribe(params => this.setContext(params['context'])
     );
@@ -67,7 +78,7 @@ export class MDMDescriptiveDataComponent implements OnInit {
       this.selectedNode = node;
       this.contexts = undefined;
       if (node.name !== undefined && (node.type.toLowerCase() === 'measurement' || node.type.toLowerCase() === 'teststep')) {
-        this.status = 'loading...';
+        this.status = this.StatusLoading;
         this._contextService.getContext(node).subscribe(
           contexts => {
             if (contexts.hasOwnProperty('UNITUNDERTEST')
@@ -75,15 +86,15 @@ export class MDMDescriptiveDataComponent implements OnInit {
                 || contexts.hasOwnProperty('TESTSEQUENCE')) {
                   this.contexts = contexts;
                 } else {
-                  this.status = 'Keine beschreibende Daten verfügbar';
+                  this.status = this.StatusNoDescriptiveData;
                 }
           },
           error => this.errorMessage = <any>error);
       } else {
-        this.status = 'Keine beschreibende Daten verfügbar';
+        this.status = this.StatusNoDescriptiveData;
       }
     } else {
-      this.status = 'Kein Knoten ausgewählt';
+      this.status = this.StatusNoNodes;
     }
   }
 

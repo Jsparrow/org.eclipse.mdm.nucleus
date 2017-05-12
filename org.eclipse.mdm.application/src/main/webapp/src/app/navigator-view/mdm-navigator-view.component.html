@@ -17,11 +17,11 @@
     <nav class="navigator">
       <div class="navbar navbar-default container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" (click)="activate('Navigation')" style="cursor:pointer;">Navigator</a>
+          <a class="navbar-brand" (click)="activate('Navigation')" style="cursor:pointer;">{{LblNavigator}}</a>
         </div>
         <div>
           <ul class="nav navbar-nav navbar-right">
-            <li [ngClass]="isDropActive('Dropdown')" dropdown>
+            <li [ngClass]="isDropActive('Dropdown')" title="{{TtlSelectNodeprovider}}" dropdown>
               <a (click)="activate('Dropdown')" class="dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" style="cursor:pointer;">
                   {{activeNodeprovider.name}}
                 <em class="caret" ></em>
@@ -46,7 +46,7 @@
       <mdm-basket (onSelect)="updateSelectedNode($event)" [activeNode]=activeNode (onActive)="updateActiveNode($event)"></mdm-basket>
     </div>
     <div *ngIf="this.winRef.nativeWindow.scrollY > 0" style="position: fixed; bottom: 15px; right: 15px;">
-      <button class="btn btn-default" (click)="onScrollTop()" style="z-index: 10000;"><span class="glyphicon glyphicon-arrow-up" style="z-index: 10000;" title="scroll up"></span></button>
+      <button class="btn btn-default" (click)="onScrollTop()" style="z-index: 10000;"><span class="glyphicon glyphicon-arrow-up" style="z-index: 10000;" title="{{TtlScrollUp}}"></span></button>
     </div>
   </div>
 </vertical-split-pane>

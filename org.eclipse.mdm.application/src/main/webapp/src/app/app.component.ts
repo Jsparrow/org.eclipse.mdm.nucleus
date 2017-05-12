@@ -17,7 +17,8 @@ import { Component } from '@angular/core';
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  brand = 'openMDM5 Web';
+
+  readonly TtlLogout = 'Logout';
   links = [
       { name: 'Navigator', path: '/navigator' },
       { name: 'Administration', path: '/administration' }

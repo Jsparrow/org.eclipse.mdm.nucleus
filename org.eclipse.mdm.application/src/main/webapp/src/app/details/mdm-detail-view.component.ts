@@ -33,6 +33,12 @@ import { DetailViewService } from './detail-view.service';
   templateUrl: 'mdm-detail-view.component.html'
 })
 export class MDMDetailViewComponent implements OnInit, OnDestroy {
+
+  readonly LblAttribute = 'Attribut';
+  readonly LblToBasket = 'In den Warenkorb';
+  readonly LblUnit = 'Einheit';
+  readonly LblValue = 'Wert';
+
   selectedNode: Node;
   displayAttributes: Attribute[];
 

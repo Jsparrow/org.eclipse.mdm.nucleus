@@ -10,7 +10,7 @@
 *  Matthias Koller, Johannes Stamm - initial implementation                    *
 *******************************************************************************/
 
-import {Component, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, Input, ViewChild, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
 
 import {View, ViewColumn, ViewService} from './tableview.service';
 import {NodeService} from '../navigator/node.service';
@@ -30,7 +30,12 @@ import {classToClass} from 'class-transformer';
   templateUrl: './editview.component.html',
   styles: ['.remove {color:black; cursor: pointer; float: right}', '.icon { cursor: pointer; margin: 0px 5px; }']
 })
-export class EditViewComponent implements OnInit, OnChanges {
+export class EditViewComponent implements OnInit {
+
+  readonly LblApplyChanges = 'Änderungen anwenden';
+  readonly LblViewEditor = 'Ansichtseditor';
+  readonly LblSelectedAttributes = 'Ausgewählte Attribute';
+
   @ViewChild('lgModal') public childModal: ModalDirective;
   @ViewChild(SearchattributeTreeComponent) tree: SearchattributeTreeComponent;
 
@@ -58,19 +63,21 @@ export class EditViewComponent implements OnInit, OnChanges {
         envs => {
           this.searchService.loadSearchAttributesStructured(envs.map(e => e.sourceName))
             .map(attrs => attrs['measurements'])
-            .subscribe(attrs => { this.searchAttributes = attrs; this.environments = envs; });
+            .subscribe(attrs => this.refreshTypeAheadValues(attrs, envs));
       });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['searchAttributes'] || changes['environments']) {
-      let ar = Object.keys(this.searchAttributes)
-          .map(env => this.searchAttributes[env])
-          .reduce((acc, value) => acc.concat(value), <SearchAttribute[]> [])
-          .map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; });
+  refreshTypeAheadValues(searchAttributes: { [env: string]: SearchAttribute[] }, environments: Node[]) {
 
-      this.typeAheadValues = this.uniqueBy(ar, p => p.label);
-    }
+    this.searchAttributes = searchAttributes;
+    this.environments = environments;
+
+    let ar = Object.keys(this.searchAttributes)
+        .map(env => this.searchAttributes[env])
+        .reduce((acc, value) => acc.concat(value), <SearchAttribute[]> [])
+        .map(sa => { return { 'label': sa.boType + '.' + sa.attrName, 'group': sa.boType, 'attribute': sa }; });
+
+    this.typeAheadValues = this.uniqueBy(ar, p => p.label);
   }
 
   showDialog(currentView: View) {

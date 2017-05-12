@@ -14,37 +14,37 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" (click)="closeDialog()" aria-label="Close">
+        <button type="button" title={{TtlClose}} class="close" (click)="closeDialog()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Preference Editor</h4>
+        <h4 class="modal-title">{{LblPreferenceEditor}}</h4>
       </div>
       <div class="modal-body">
         <form [formGroup]="preferenceForm" novalidate>
           <ul class="list-group">
             <li>
               <div class="block">
-                <label>Key: </label>
+                <label>{{LblKey}}: </label>
                 <input type="text" class="form-control" formControlName="key" [readonly]="!isKeyEmpty">
               </div>
             </li>
             <li>
-              <label>Scope: </label>
+              <label>{{LblScope}}: </label>
               <input type="text" class="form-control" formControlName="scope" [readonly]="true">
             </li>
             <li *ngIf="showSource">
-              <label>Source: </label>
+              <label>{{LblSource}}: </label>
               <select class="form-control" formControlName="source">
                 <option *ngFor="let env of envs">{{env.sourceName}}</option>
               </select>
             </li>
             <li *ngIf="showUser">
-              <label>User: </label>
+              <label>{{LblUser}}: </label>
               <input type="text" class="form-control" formControlName="user" [readonly]=true placeholder="auto-generated">
             </li>
             <li>
               <div class="form-group">
-                <label for="comment">Value:</label>
+                <label for="comment">{{LblValue}}:</label>
                 <textarea class="form-control" formControlName="value" rows="5" id="value"></textarea>
               </div>
             </li>
@@ -52,10 +52,10 @@
           <div class="row" style="margin-top: 20px;">
             <div class="col-md-12">
               <button type="button" class="btn btn-default" (click)="closeDialog()">
-                <span class="glyphicon glyphicon-remove"></span> Cancel
+                <span class="glyphicon glyphicon-remove"></span> {{LblCancel}}
               </button>
               <button type="button" class="btn btn-default pull-right" (click)="onSave()" [disabled]="!preferenceForm.valid">
-                <span class="glyphicon glyphicon-save"></span> Save
+                <span class="glyphicon glyphicon-save"></span> {{LblSave}}
               </button>
             </div>
           </div>
