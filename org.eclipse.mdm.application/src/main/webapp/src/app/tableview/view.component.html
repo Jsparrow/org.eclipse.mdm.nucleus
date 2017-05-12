@@ -47,7 +47,7 @@
 </div>
 <button type="button" class="btn btn-default" (click)="newView($event)" title="Neue Ansicht"><span class="glyphicon glyphicon-plus"></span></button>
 <button type="button" class="btn btn-default" (click)="editSelectedView($event)" title="Ansichtt editieren"><span class="glyphicon glyphicon-edit"></span></button>
-<button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="Ansicht speichern"><span class="glyphicon glyphicon-floppy-disk"></span></button>
+<button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="Ansicht speichern"><span class="fa fa-floppy-o"></span></button>
 <button type="button" class="btn btn-default" (click)="deleteView($event)" title="Ansicht löschen"><span class="glyphicon glyphicon-remove"></span></button>
 
 <edit-view></edit-view>
@@ -71,7 +71,7 @@
             <div class="row" style="margin-top: 10px;">
               <div class="col-md-12">
                 <button type="button" class="btn btn-default pull-right" (click)="saveView($event)" [disabled]="!viewName" title="{{viewName? '' : 'Name nicht gesetzt!'}}">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> Speichern
+                  <span class="fa fa-floppy-o"></span> Speichern
                 </button>
               </div>
             </div>

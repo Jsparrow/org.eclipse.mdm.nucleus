@@ -18,7 +18,7 @@ import { MDMSearchComponent } from '../search/mdm-search.component';
 
 const moduleRoutes: Routes = [
   { path: '', component: MDMModulesComponent, children: [
-    { path: '', redirectTo: 'details', pathMatch: 'full' },
+    { path: '', redirectTo: 'search', pathMatch: 'full' },
     { path: 'details', loadChildren: '../details/mdm-detail.module#MDMDetailModule'},
     { path: 'search', component: MDMSearchComponent },
   ]}

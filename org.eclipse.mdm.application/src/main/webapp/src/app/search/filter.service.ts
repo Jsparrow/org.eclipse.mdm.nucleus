@@ -106,7 +106,7 @@ export class SearchFilter {
 
 @Injectable()
 export class FilterService {
-  public readonly NO_FILTER_NAME = 'Kein Filter ausgewÃ¤hlt';
+  public readonly NO_FILTER_NAME = 'Kein Filter ausgewählt';
   public readonly NEW_FILTER_NAME = 'Neuer Filter';
   public currentFilter = new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
   public filterChanged$ = new EventEmitter<SearchFilter>();

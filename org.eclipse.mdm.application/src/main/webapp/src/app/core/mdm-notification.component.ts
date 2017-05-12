@@ -17,7 +17,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'mdm-notifications',
-  template: '<p-growl [value]="msgs"></p-growl>'
+  template: '<p-growl [value]="msgs" sticky="true"></p-growl>'
 })
 export class MDMNotificationComponent implements OnInit, OnDestroy {
   msgs: Message[] = [];

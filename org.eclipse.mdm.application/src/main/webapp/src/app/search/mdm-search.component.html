@@ -33,6 +33,11 @@
     top: calc(50% - 2px);
   }
 
+  #searchtext .form-control, #searchtext .btn {
+      border-color: #000000;
+      outline: 0;
+      box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(0, 0, 0,.6);
+  }
 </style>
 <form class="form-inline" style="margin-bottom: 10px; width:100% !important;">
   <div class="form-group">
@@ -70,7 +75,7 @@
 <div class="row" style="margin-bottom: 10px;">
   <div class="col-lg-2"></div>
   <div class="col-lg-8">
-    <div class="input-group input-group">
+    <div class="input-group" id="searchtext" >
       <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="currentFilter.fulltextQuery" (keyup.enter)="onSearch()" aria-describedby="basic-addon1" style="width:100%">
       <span class="input-group-btn">
         <button type="button" class="btn btn-default" (click)="onSearch()">Suchen</button>
@@ -90,7 +95,7 @@
             <input type="checkbox" [(ngModel)]="isBoxChecked" (click)="onCheckBoxClick($event)" /> &nbsp;Advanced search &nbsp;&nbsp;
             <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor($event)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-plus"></span></button>
             <button type="button" class="btn btn-default" (click)="showSearchFieldsEditor($event,currentFilter.conditions)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-edit"></span></button>
-            <button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="Save search filter" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-floppy-disk"></span></button>
+            <button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="Save search filter" [disabled]=!isBoxChecked><span class="fa fa-floppy-o"></span></button>
           </div>
         </div>
         <div class="col-xs-3 pull-right">
@@ -181,7 +186,7 @@
             <div class="col-md-12">
               <form class="form-inline">
                 <button type="button" class="btn btn-default pull-right" (click)="saveFilter($event)" [disabled]="!filterName" title="{{filterName? '' : 'Name nicht gesetzt!'}}">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> Speichern
+                  <span class="fa fa-floppy-o"></span> Speichern
                 </button>
               </form>
             </div>
