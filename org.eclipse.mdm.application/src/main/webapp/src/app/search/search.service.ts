@@ -209,18 +209,13 @@ export class SearchService {
 
   loadSearchAttributesForDef(type: string, environments: string[]) {
     return Observable.forkJoin(environments.map(env => this.loadSearchAttributes(type, env)
+      .catch(error => { console.log("Could not load search attributes for type " + type + " in environment " + env); return Observable.of(<SearchAttribute[]> []); })
       .map(attrs => { return { 'env': env, 'attributes': attrs}; })))
       .map(attrsPerEnv => attrsPerEnv.reduce(
         function(acc, value) {acc[value.env] = value.attributes; return acc; },
          <{ [env: string]: SearchAttribute[] }> {})
        )
       .map(attrsPerEnv => { return { 'type': type, 'attributesPerEnv': attrsPerEnv}; });
-  }
-
-
-  getSearchLayout(envs: string[], conditions: Condition[], type: string) {
-    return this.getSearchAttributesPerEnvs(envs, type)
-      .map(attrs => SearchLayout.createSearchLayout(envs, SearchLayout.groupByEnv(attrs), conditions));
   }
 
   convertToQuery(searchFilter: SearchFilter, attr: { [type: string]: { [env: string]: SearchAttribute[] }}, view: View) {

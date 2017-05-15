@@ -263,8 +263,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     let environments = this.currentFilter.environments;
     let conditions = this.currentFilter.conditions;
     let type = this.getSearchDefinition(this.currentFilter.resultType).value;
-    this.searchService.getSearchLayout(environments, conditions, type)
-      .subscribe(l => this.layout = l);
+    this.layout = SearchLayout.createSearchLayout(environments, this.allSearchAttributesForCurrentResultType, conditions);
   }
 
   onFilterChanged(filter: SearchFilter) {
@@ -382,7 +381,9 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   private loadSearchAttributes(environments: string[]) {
     this.searchService.loadSearchAttributesStructured(environments)
-      .subscribe(attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); });
+      .subscribe(
+        attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); },
+        error => this.notificationService.notifyError('Attribute konnten nicht geladen werden!', error));
   }
 
   onRowSelect(e: any) {
