@@ -88,7 +88,24 @@ export class SearchLayout {
   }
 
   getConditions(sourceName: string) {
-    return this.map[sourceName] || [];
+    return this.map[sourceName].sort((c1, c2) => c1.sortIndex - c2.sortIndex) || [];
+  }
+
+  getSourceName(condition: Condition) {
+    if (condition) {
+      let sourceName;
+
+      Object.keys(this.map)
+        .forEach(env => {
+            if(this.map[env].find(c => c.type === condition.type && c.attribute === condition.attribute))
+            {
+              sourceName = env;
+            }
+          }
+        );
+
+      return sourceName;
+    }
   }
 
   set(sourceName: string, conditions: Condition[]) {

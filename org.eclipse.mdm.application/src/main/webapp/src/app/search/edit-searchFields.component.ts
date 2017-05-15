@@ -103,7 +103,7 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
 
   conditionUpdated() {
     let envs = (this.environments || []).map(node => node.sourceName);
-    this.layout = SearchLayout.createSearchLayout(envs, this.searchAttributes, this.conditions);
+    this.layout = SearchLayout.createSearchLayout(envs, this.searchAttributes, this.conditions.map((c, i) => { c.sortIndex = i; return c; }));
   }
 
   nodeSelect(node: TreeNode) {
@@ -143,6 +143,58 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
 
   mapSourceNameToName(sourceName: string) {
     return NodeService.mapSourceNameToName(this.environments, sourceName);
+  }
+
+  isLast(col: Condition) {
+    let sourceName = this.layout.getSourceName(col);
+    if (sourceName) {
+      let conditionsInSameSource = this.layout.getConditions(sourceName);
+      return conditionsInSameSource.indexOf(col) === conditionsInSameSource.length - 1;
+    }
+  }
+
+  isFirst(col: Condition) {
+    let sourceName = this.layout.getSourceName(col);
+    if (sourceName) {
+      let conditionsInSameSource = this.layout.getConditions(sourceName);
+      return conditionsInSameSource.indexOf(col) === 0;
+    }
+  }
+
+  moveUp(condition: Condition) {
+    if (!this.isFirst(condition)) {
+      let sourceName = this.layout.getSourceName(condition);
+      if (sourceName) {
+        let conditionsInSameSource = this.layout.getConditions(sourceName);
+
+        let oldIndex = conditionsInSameSource.indexOf(condition);
+        let otherCondition = conditionsInSameSource[oldIndex - 1];
+        this.swap(condition, otherCondition);
+      }
+    }
+  }
+
+  moveDown(condition: Condition) {
+    if (!this.isLast(condition)) {
+      let sourceName = this.layout.getSourceName(condition);
+      if (sourceName) {
+        let conditionsInSameSource = this.layout.getConditions(sourceName);
+
+        let oldIndex = conditionsInSameSource.indexOf(condition);
+        let otherCondition = conditionsInSameSource[oldIndex + 1];
+        this.swap(condition, otherCondition);
+      }
+    }
+  }
+
+  private swap(condition1: Condition, condition2: Condition) {
+    let index1 = this.conditions.findIndex(c => c.type === condition1.type && c.attribute === condition1.attribute);
+    let index2 = this.conditions.findIndex(c => c.type === condition2.type && c.attribute === condition2.attribute);
+
+    let tmp = this.conditions[index1];
+    this.conditions[index1] = this.conditions[index2];
+    this.conditions[index2] = tmp;
+    this.conditionUpdated();
   }
 
   private uniqueBy<T>(a: T[], key: (T) => any) {

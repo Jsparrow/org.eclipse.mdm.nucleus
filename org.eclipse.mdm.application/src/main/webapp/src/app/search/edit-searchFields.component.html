@@ -64,13 +64,21 @@
                 <span style="font-weight: bold;">{{mapSourceNameToName(env)}}</span>
                 <table class="table table-bordered searchdefinition">
                   <colgroup>
-                    <col style="width: 48%;">
-                    <col style="width: 48%;">
+                    <col style="width: 44%;">
+                    <col style="width: 44%;">
+                    <col style="width: 4%;">
+                    <col style="width: 4%;">
                     <col style="width: 4%;">
                   </colgroup>
                   <tr *ngFor="let condition of layout.getConditions(env)">
                     <td>{{condition?.type}}</td>
                     <td>{{condition?.attribute}}</td>
+                    <td style="width: 30px; text-align: center; vertical-align: middle;">
+                      <span class="glyphicon glyphicon-menu-up" [ngStyle]="{'visibility': isFirst(condition) ? 'hidden': 'visible'}" style="cursor: pointer; margin-bottom: 0;" (click)="moveUp(condition)"></span>
+                    </td>
+                    <td style="width: 30px; text-align: center; vertical-align: middle;">
+                      <span class="glyphicon glyphicon-menu-down" [ngStyle]="{'visibility': isLast(condition)? 'hidden': 'visible'}" style="cursor: pointer;" (click)="moveDown(condition)"></span>
+                    </td>
                     <td style="text-align: center;"><span class="glyphicon glyphicon-remove" style="cursor: pointer" title="{{TtlRemove}}" (click)="removeCondition(condition)"></span></td>
                   </tr>
                 </table>

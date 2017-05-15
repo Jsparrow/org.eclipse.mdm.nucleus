@@ -75,6 +75,9 @@ export class Condition {
   value: string[];
   valueType: string;
 
+  @Exclude()
+  sortIndex: number;
+
   constructor(type: string, attribute: string, operator: Operator, value: string[], valueType?: string) {
     this.type = type;
     this.attribute = attribute;
