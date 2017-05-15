@@ -37,9 +37,9 @@
 
 .navigator-content {
   margin-left: 8px;
-  min-height: calc(100vh - 45px);
-  max-height: calc(100vh - 45px);
-  overflow: visible;
+  min-height: calc(100vh - 53px);
+  max-height: calc(100vh - 53px);
+  overflow: auto;
 }
 
 .navigator .navbar-right {
