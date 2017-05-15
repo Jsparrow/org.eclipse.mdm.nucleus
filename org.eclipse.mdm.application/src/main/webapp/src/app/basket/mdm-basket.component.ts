@@ -42,6 +42,7 @@ export class MDMBasketComponent implements OnInit {
   @Input() activeNode: Node;
 
   readonly LblBasket = 'Warenkorb';
+  readonly LblExistingBasketNames = 'Vorhandene Warenkörbe';
   readonly LblLoad = 'Laden';
   readonly LblLoadBasket = 'Warenkorb laden';
   readonly LblSave = 'Speichern';
@@ -60,6 +61,9 @@ export class MDMBasketComponent implements OnInit {
 
   baskets: Basket[] = [];
   selectedBasket: Basket;
+
+  public selectedRow: string;
+  public lazySelectedRow: string;
 
   contextMenuItems: MenuItem[] = [
       {label: 'Selektion aus Warenkorb entfernen', icon: 'glyphicon glyphicon-remove', command: (event) => this.removeSelected() }
@@ -171,6 +175,7 @@ export class MDMBasketComponent implements OnInit {
 
   showSaveModal(e: Event) {
     e.stopPropagation();
+    this.loadBaskets();
     this.basketName = this.selectedBasket ? this.selectedBasket.name : '';
     this.childSaveModal.show();
   }
@@ -225,5 +230,16 @@ export class MDMBasketComponent implements OnInit {
       'field': this.tableViewComponent.view.getSortField(),
       'order': this.tableViewComponent.view.getSortOrder()
     });
+  }
+
+  onRowSelect(e: any) {
+    if (this.lazySelectedRow !== e.data) {
+      this.selectedRow = e.data;
+      this.basketName = e.data.name;
+    } else {
+      this.selectedRow = undefined;
+      this.basketName = '';
+    }
+    this.lazySelectedRow = this.selectedRow;
   }
 }

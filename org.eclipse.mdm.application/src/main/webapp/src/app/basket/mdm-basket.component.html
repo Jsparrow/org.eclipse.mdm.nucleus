@@ -84,7 +84,7 @@
 </div>
 
 <div bsModal #lgSaveModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" title="{{TtlClose}}" class="close" (click)="childSaveModal.hide()" aria-label="Close">
@@ -94,18 +94,36 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid">
-          <form class="form-inline">
-            <div class="row">
+          <div class="row" *ngIf="baskets.length > 0">
+            <p-dataTable
+              [value]="baskets"
+              resizableColumns="false"
+              [reorderableColumns]="false"
+              [rows]="10"
+              [paginator]="true"
+              [pageLinks]="3"
+              [rowsPerPageOptions]="[10,20,50]"
+              [(selection)]="selectedRow"
+              (onRowClick)="onRowSelect($event)"
+              (onRowSelect)="onRowSelect($event)">
+              <p-column [style]="{'width':'30px'}" selectionMode="single"></p-column>
+              <p-column header="{{LblExistingBasketNames}}">
+                <template pTemplate="body" let-col let-row="rowData" >
+                  {{row.name}}
+                </template>
+              </p-column>
+            </p-dataTable>
+          </div>
+          <div class="row" style="margin-top: 15px;">
+            <div class="col-md-10" style="padding-left: 0;">
               <input type="text" class="form-control" placeholder="Warenkorb-Name" [value]="basketName" (input)="basketName = $event.target.value" (keyup.enter)="saveBasket($event)" required>
             </div>
-            <div class="row" style="margin-top: 10px;">
-              <div class="col-md-12">
-                <button type="button" class="btn btn-default pull-right" (click)="saveBasket($event)" [disabled]="!basketName" title="{{getSaveBtnTitle()}}">
-                  <span class="fa fa-floppy-o"></span> {{LblSave}}
-                </button>
-              </div>
+            <div class="col-md-2" style="padding: 0;">
+              <button type="button" class="btn btn-default pull-right" (click)="saveBasket($event)" [disabled]="!basketName" title="{{getSaveBtnTitle()}}">
+                <span class="fa fa-floppy-o"></span> {{LblSave}}
+              </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

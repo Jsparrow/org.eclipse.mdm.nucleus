@@ -39,11 +39,12 @@ import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 
 import {ModalDirective} from 'ng2-bootstrap';
 
-import {TreeModule, TreeNode, MenuItem} from 'primeng/primeng';
+import {TreeModule, TreeNode, DataTableModule, SharedModule, ContextMenuModule, MenuItem} from 'primeng/primeng';
 import {EditSearchFieldsComponent} from './edit-searchFields.component';
 import {OverwriteDialogComponent} from '../core/overwrite-dialog.component';
 
 import {classToClass} from 'class-transformer';
+
 
 @Component({
   selector: 'mdm-search',
@@ -53,11 +54,12 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
 
   readonly LblAdvancedSearch = 'Erweiterte Suche';
+  readonly LblExistingFilterNames = 'Vorhandene Filter';
   readonly LblFilter = 'Filter';
   readonly LblResultType = 'Ergebnistyp';
   readonly LblResults = 'Ergebnisse';
   readonly LblSave = 'Speichern';
-  readonly LblSaveFilterAs = 'Filter speichern als';
+  readonly LblSaveFilterAs = 'Filter speichern unter';
   readonly LblSearch = 'Suche';
   readonly LblSource = 'Quelle';
   readonly TtlDeleteFilter = 'Filter löschen';
@@ -83,7 +85,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   definitions: SearchDefinition[];
 
-  results: SearchResult;
+  results: SearchResult = new SearchResult();
   searchAttributes: SearchAttribute[];
   allSearchAttributes: { [type: string]: { [env: string]: SearchAttribute[] }} = {};
   allSearchAttributesForCurrentResultType: { [env: string]: SearchAttribute[] } = {};
@@ -100,6 +102,9 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   subscription: any;
   isBoxChecked = true;
   searchExecuted = false;
+
+  selectedRow: SearchFilter;
+  lazySelectedRow: SearchFilter;
 
   contextMenuItems: MenuItem[] = [
     { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
@@ -378,5 +383,16 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   private loadSearchAttributes(environments: string[]) {
     this.searchService.loadSearchAttributesStructured(environments)
       .subscribe(attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); });
+  }
+
+  onRowSelect(e: any) {
+    if (this.lazySelectedRow !== e.data) {
+      this.selectedRow = e.data;
+      this.filterName = e.data.name;
+    } else {
+      this.selectedRow = undefined;
+      this.filterName = '';
+    }
+    this.lazySelectedRow = this.selectedRow;
   }
 }

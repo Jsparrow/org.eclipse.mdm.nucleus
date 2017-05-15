@@ -29,6 +29,7 @@ export class ViewComponent implements OnInit {
 
   readonly LblSave = 'Speichern';
   readonly LblSaveViewAs = 'Ansicht speichern unter';
+  readonly LblExistingUserNames = 'Vorhandene Ansichtsnamen';
   readonly TtlDeleteView = 'Ansicht löschen';
   readonly TtlEditView = 'Ansicht bearbeiten';
   readonly TtlNewView = 'Neue Ansicht erstellen';
@@ -40,6 +41,9 @@ export class ViewComponent implements OnInit {
   public groupedViews: { scope: string, view: View[], label: string }[] = [];
   public viewChanged$ = new EventEmitter();
   public viewName = '';
+  public userViewNames: string[];
+  public selectedRow: string;
+  public lazySelectedRow: string;
 
   @ViewChild(EditViewComponent)
   private editViewComponent: EditViewComponent;
@@ -113,6 +117,13 @@ export class ViewComponent implements OnInit {
         label: Scope.toLabel(prefViews[i].scope)
       }); }
     }
+    this.updateUserViewNames();
+  }
+
+  private updateUserViewNames() {
+    this.viewService.getViews().subscribe(prefViews =>
+      this.userViewNames = prefViews.filter(pv => pv.scope === Scope.USER).map(pv => pv.view.name)
+    );
   }
 
   saveView(e: Event) {
@@ -165,5 +176,16 @@ export class ViewComponent implements OnInit {
 
   getSaveBtnTitle() {
     return this.viewName ? this.TtlSaveView : this.TtlNoNameSet;
+  }
+
+  onRowSelect(e: any) {
+    if (this.lazySelectedRow !== e.data) {
+      this.selectedRow = e.data;
+      this.viewName = e.data;
+    } else {
+      this.selectedRow = undefined;
+      this.viewName = '';
+    }
+    this.lazySelectedRow = this.selectedRow;
   }
 }
