@@ -150,7 +150,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.viewChanged$.subscribe(() => this.onViewChanged());
 
-    this.currentFilter = this.filterService.currentFilter;
+    this.selectFilter(this.filterService.currentFilter);
   }
 
   ngOnDestroy() {

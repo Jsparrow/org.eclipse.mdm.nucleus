@@ -76,7 +76,17 @@
   <div class="col-lg-2"></div>
   <div class="col-lg-8">
     <div class="input-group" id="searchtext" >
-      <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="currentFilter.fulltextQuery" (keyup.enter)="onSearch()" aria-describedby="basic-addon1" style="width:100%">
+      <input type="text" class="form-control" name="searchText" placeholder="Suchtext eingeben" [(ngModel)]="currentFilter.fulltextQuery" (keyup.enter)="onSearch()" aria-describedby="basic-addon1" style="width:100%"
+      title="M&ouml;gliche Operatoren:
+        + steht f&uuml;r einen UND Operator
+        | steht f&uuml;r einen ODER Operator
+        - negiert einen einzelnen Term
+        &quot; fasst einen Menge von Termen zu eine Phrase zusammen
+        * am Ende eines Suchterms beschreibt eine Pr&auml;fixsuche
+        ( und ) beschreibt die Operatorpr&auml;ferenz
+        ~N nach einem Wort beschreibt den Editierabstand (Unsch&auml;rfe)
+        ~N nach einer Phrase beschreibt den Wortabstand
+Wenn nach einem der Spezialsymbol gesucht werden soll, m&uuml;ssen dieses mit \ escaped werden.">
       <span class="input-group-btn">
         <button type="button" class="btn btn-default" (click)="onSearch()">{{LblSearch}}</button>
       </span>
