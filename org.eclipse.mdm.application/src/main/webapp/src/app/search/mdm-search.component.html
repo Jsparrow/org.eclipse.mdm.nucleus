@@ -115,7 +115,12 @@
           </div>
           <div *ngFor="let env of layout.getSourceNames()">
             <div *ngIf="layout.getConditions(env).length > 0">
-              <span style="font-weight: bold;">{{mapSourceNameToName(env)}}</span>
+              <div style="font-weight: bold;" *ngIf="mapSourceNameToName(env) === 'Global'" title="Globale Suchattribute sind Attribute, die in allen ausgewählten Datenquellen vorhanden sind. Global Suchattribute werden nur einmal dargestellt und die definierte Bedingung wird in allen Datenquellen angewendet.">
+                Globale Suchattribute
+              </div>
+              <div style="font-weight: bold;" *ngIf="mapSourceNameToName(env) !== 'Global'"  title="Suchattribute, die nicht in allen Datenquellen verfügbar sind, sondern nur in der aktuellen Datenquelle.">
+                Suchattribute aus {{mapSourceNameToName(env)}}
+              </div>
               <table class="table table-bordered searchdefinition">
                 <colgroup>
                   <col style="width: 17%;">

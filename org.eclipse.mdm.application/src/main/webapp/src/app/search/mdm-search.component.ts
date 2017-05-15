@@ -150,7 +150,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.viewChanged$.subscribe(() => this.onViewChanged());
 
-    this.selectFilter(this.filterService.currentFilter);
+    this.currentFilter = this.filterService.currentFilter;
   }
 
   ngOnDestroy() {
@@ -264,7 +264,6 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   onFilterChanged(filter: SearchFilter) {
     this.currentFilter = classToClass(filter);
-    console.log(this.currentFilter);
     this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
     this.selectedEnvironmentsChanged(this.dropdownModel);
     this.calcCurrentSearch();

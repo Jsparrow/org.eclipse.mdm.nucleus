@@ -90,8 +90,6 @@ replace(query: string, item: MDMItem) {
 
       if (attr === 'Id') {
         return '' + item.id;
-      } else {
-        // TODO support for other filters
       }
     });
 }
@@ -108,80 +106,4 @@ replace(query: string, item: MDMItem) {
    }
     return [];
   }
-
-/*
-  getParentNodes(node: Node) {
-    return Observable.forkJoin(
-            this.getParentNodesUrl(node).map(n => this.getNode(n.url).do(o => console.log(o)).map(nodes => nodes[0])));
-  }
-
-  private getUrl(node: Node) {
-    let url = this._nodeUrl + '/' + node.sourceName;
-    let current = this.activeNodeprovider;
-
-    do {
-      if (current.type === node.type) {
-        return url + current.children.query.replace(/{(\w+)\.(\w+)}/g, function(match, type, attr) {
-
-          if (type !== current.type) {
-            console.warn('Type ' + type + ' not supported! Use type ' + current.type);
-          }
-
-          if (attr === 'Id') {
-            return '' + node.id;
-          } else if (attr === 'Name') {
-            return node.name;
-          } else {
-            return node.attributes.filter(a => a.name === attr)[0].name;
-          }
-        });
-      } else {
-        current = current.children;
-      }
-    }
-    while (current);
-
-    return;
-  }
-
-  private getParentNodesUrl(mdmItem: Node): {type: string, url: string}[] {
-    let current = this.activeNodeprovider;
-    let url = this._nodeUrl + '/' + mdmItem.sourceName;
-    let i = 0;
-    let currentParents: any[] = [];
-    let parentList: any[] = [];
-    do {
-      currentParents[i] = current;
-      if (current.type === 'Environment') {
-        parentList.push({type: current.type, url: this._nodeUrl});
-        i = i + 1;
-      } else if (current.type === 'Project') {
-        let itemUrl = url + current.query + '?filter=' + mdmItem.sourceType + '.Id eq ' + mdmItem.id;
-        parentList.push({type: current.type, url: itemUrl});
-        i = i + 1;
-      } else if (current.type === 'Test') {
-        let itemUrl = url + '/tests?filter=' + mdmItem.sourceType + '.Id eq ' + mdmItem.id;
-        parentList.push({type: current.type, url: itemUrl});
-        i = i + 1;
-      } else if (current.type === 'ChannelGroup') {
-        let itemUrl = url + '/channelgroups?filter=' + mdmItem.sourceType + '.Id eq ' + mdmItem.id;
-        parentList.push({type: current.type, url: itemUrl});
-          i = i + 1;
-      } else {
-        let transientUrl = url + current.query.replace(/{(\w+)\.(\w+)}/g, function(match, type, attr) {
-          if (type !== current.type) {
-            console.warn('Type ' + type + ' not supported! Use type ' + current.type);
-          }
-          if (attr === 'Id') { return '' + mdmItem.id; }
-        });
-        let itemUrl = transientUrl.replace(currentParents[i - 1].type, mdmItem.sourceType);
-        parentList.push({type: current.type, url: itemUrl});
-        i = i + 1;
-      }
-      if (current.type === mdmItem.type) { break; }
-      current = current.children;
-    }
-    while (current);
-    return parentList;
-  }*/
 }
