@@ -96,12 +96,12 @@
             <button type="button" title="{{TtlNewSearchFields}}" class="btn btn-default" (click)="showSearchFieldsEditor($event)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-plus"></span></button>
             <button type="button" title="{{TtlEditSearchFields}}" class="btn btn-default" (click)="showSearchFieldsEditor($event,currentFilter.conditions)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-edit"></span></button>
             <button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="{{TtlSaveSearchFilter}}" [disabled]=!isBoxChecked><span class="fa fa-floppy-o"></span></button>
+            <button type="button" class="btn btn-default" (click)="deleteFilter($event)" title="{{TtlDeleteFilter}}"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
         </div>
         <div class="col-xs-3 pull-right">
           <div class="pull-right">
             <button type="button" class="btn btn-default" (click)="resetConditions($event)" title="{{TtlResetSearchConditions}}" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-erase"></span></button>
-            <button type="button" class="btn btn-default" (click)="deleteFilter($event)" title="{{TtlDeleteFilter}}"><span class="glyphicon glyphicon-remove"></span></button>
             <span class="glyphicon" style="color: #333 !important; padding-left: 15px;" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
           </div>
         </div>
@@ -149,6 +149,7 @@
         </div>
         <div class="col-xs-3 pull-right">
           <div class="pull-right">
+            <button type="button" class="btn btn-default" (click)="clearResultlist($event)" title="{{TtlClearSearchResults}}"><span class="glyphicon glyphicon-erase"></span></button>
             <button type="button" class="btn btn-default" title="{{TtlSelectionToBasket}}" (click)="selected2Basket($event)">
               <span class="glyphicon glyphicon-shopping-cart" style="color:#DADADA; margin-right: -12px;"></span>
               <span class="glyphicon glyphicon-shopping-cart" style="color:#A8A4A4; margin-right: -12px;"></span>

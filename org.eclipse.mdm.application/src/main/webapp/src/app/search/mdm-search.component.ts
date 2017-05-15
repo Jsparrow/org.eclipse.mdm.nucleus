@@ -70,7 +70,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   readonly TtlSaveFilter = 'Filter speichern';
   readonly TtlSaveSearchFilter = 'Suchfilter speichern';
   readonly TtlSelectionToBasket = 'Auswahl zum Warenkorb hinzufügen';
-
+  readonly TtlClearSearchResults = 'Suchergebnisliste leeren';
 
   maxResults = 100;
 
@@ -278,6 +278,11 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     e.stopPropagation();
     this.currentFilter.conditions.forEach(cond => cond.value = []);
     this.onFilterChanged(this.currentFilter);
+  }
+
+  clearResultlist(e: Event) {
+    e.stopPropagation();
+    this.results = new SearchResult();
   }
 
   deleteFilter(e: Event) {
