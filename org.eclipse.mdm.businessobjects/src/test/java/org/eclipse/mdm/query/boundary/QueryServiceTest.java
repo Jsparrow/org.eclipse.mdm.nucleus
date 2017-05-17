@@ -281,7 +281,7 @@ public class QueryServiceTest {
 		queryService.connectorService = connectorService;
 		
 		SuggestionRequest request = new SuggestionRequest();
-		request.setEnvironments(Arrays.asList("env1"));
+		request.setSourceNames(Arrays.asList("env1"));
 		request.setType("Test");
 		request.setAttrName("Name");
 		

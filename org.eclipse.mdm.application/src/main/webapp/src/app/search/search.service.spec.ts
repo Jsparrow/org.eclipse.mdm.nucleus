@@ -23,6 +23,7 @@ import {PropertyService} from '../core/property.service';
 import {LocalizationService} from '../localization/localization.service';
 import {NodeService} from '../navigator/node.service';
 import {QueryService} from '../tableview/query.service';
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 import {Condition, Operator} from './filter.service';
 
@@ -55,6 +56,7 @@ describe ( 'SearchService', () => {
           useClass: TestPreferenceService
         },
         SearchService,
+        MDMNotificationService,
         NodeService,
         QueryService,
         MockBackend,

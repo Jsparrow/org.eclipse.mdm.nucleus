@@ -33,11 +33,11 @@
     [delay]="0"
     [size]="500"
     [scrollHeight]="'50vh'"
-    placeholder="Suchkriterium"
+    placeholder="Wert"
     [disabled]="disabled"
     (keyup.enter)="onEnter($event)">
   </p-autoComplete>
-  <div search-datepicker *ngSwitchCase="'date'" (onSetValue)="setValue($event)" style="width: 100%" [disabled]="disabled"></div>
+  <div search-datepicker *ngSwitchCase="'date'" (onSetValue)="setValue($event)" style="width: 100%" [disabled]="disabled" [initialValue]="condition.value"></div>
   <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)" [disabled]="disabled">
 </td>
 <td style="vertical-align: middle"><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()" [disabled]="disabled"></button></td>

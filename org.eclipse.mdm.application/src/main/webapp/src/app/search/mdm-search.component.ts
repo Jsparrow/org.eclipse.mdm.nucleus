@@ -54,24 +54,27 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
 
   readonly LblAdvancedSearch = 'Erweiterte Suche';
-  readonly LblExistingFilterNames = 'Vorhandene Filter';
-  readonly LblFilter = 'Filter';
+  readonly LblExistingFilterNames = 'Vorhandene Suchfilter';
+  readonly LblFilter = 'Suchfilter';
   readonly LblResultType = 'Ergebnistyp';
   readonly LblResults = 'Ergebnisse';
   readonly LblSave = 'Speichern';
-  readonly LblSaveFilterAs = 'Filter speichern unter';
+  readonly LblSaveFilterAs = 'Suchfilter speichern unter';
   readonly LblSearch = 'Suche';
   readonly LblSource = 'Quelle';
-  readonly TtlDeleteFilter = 'Filter löschen';
+  readonly TtlDeleteFilter = 'Suchfilter löschen';
   readonly TtlDisableAdvancedSearch = 'Erweiterte Suche deaktivieren';
   readonly TtlEditSearchFields = 'Suchfilter bearbeiten';
   readonly TtlEnableAdvancedSearch = 'Erweiterte Suche aktivieren';
   readonly TtlNewSearchFields = 'Neuen Suchfilter anlegen';
   readonly TtlNoNameSet = 'Name nicht gesetzt!';
   readonly TtlResetSearchConditions = 'Suchkriterien zurücksetzen';
-  readonly TtlSaveFilter = 'Filter speichern';
+  readonly TtlSaveFilter = 'Suchfilter speichern';
   readonly TtlSaveSearchFilter = 'Suchfilter speichern';
   readonly TtlSelectionToBasket = 'Auswahl zum Warenkorb hinzufügen';
+  readonly TtlSelectFilter = 'Suchfilter auswählen';
+  readonly TtlSelectResultType = 'Ergebnisstyp auswählen';
+  readonly TtlSelectSource = 'Quellen auswählen';
   readonly TtlClearSearchResults = 'Suchergebnisliste leeren';
 
   maxResults = 100;
@@ -86,7 +89,6 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   definitions: SearchDefinition[];
 
   results: SearchResult = new SearchResult();
-  searchAttributes: SearchAttribute[];
   allSearchAttributes: { [type: string]: { [env: string]: SearchAttribute[] }} = {};
   allSearchAttributesForCurrentResultType: { [env: string]: SearchAttribute[] } = {};
 
@@ -150,7 +152,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
       .subscribe(defs => this.definitions = defs);
 
     if ( this.filterService.currentFilter.name === this.filterService.NO_FILTER_NAME ) {
-      this.loadFilters('Standard');
+      this.loadFilters(this.filterService.NO_FILTER_NAME);
     }
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.viewChanged$.subscribe(() => this.onViewChanged());
@@ -174,7 +176,6 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   onViewChanged() {
     if (this.searchExecuted) {
       this.onSearch();
-      this.searchExecuted = true;
     }
   }
   selectedEnvironmentsChanged(items: IDropdownItem[]) {
@@ -241,6 +242,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
       .subscribe(result => {
         this.results = result;
         this.isSearchResultsOpen = true;
+        this.searchExecuted = true;
       },
       error => this.notificationService.notifyError('Suchanfrage konnte nicht bearbeitet werden!', error)
       );

@@ -71,6 +71,7 @@ export class ViewColumn {
   name: string;
   @Type(() => Style)
   style: Style;
+  hidden = false;
   sortOrder: number;
 
   constructor(type: string, name: string, style?: Style, sortOrder?: number) {

@@ -84,7 +84,7 @@ public class QueryService {
 		
 		List<String> suggestions = new ArrayList<>();
 		
-		for (String envName: suggestionRequest.getEnvironments()) {
+		for (String envName: suggestionRequest.getSourceNames()) {
 			
 			EntityManager em = this.connectorService.getEntityManagerByName(envName);
 			Optional<ModelManager> mm = em.getModelManager();

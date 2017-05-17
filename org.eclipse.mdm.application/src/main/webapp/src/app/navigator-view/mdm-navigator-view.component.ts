@@ -42,7 +42,7 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
 
   readonly LblNavigator = 'Navigator';
   readonly TtlScrollUp = 'Zum Seitenanfang';
-  readonly TtlSelectNodeprovider = 'Baumansicht auswählen';
+  readonly TtlSelectNodeprovider = 'Baumdarstellung auswählen';
 
   selectedNode = new Node;
   activeNode: Node;

@@ -10,22 +10,30 @@
 *  Matthias Koller, Johannes Stamm - initial implementation                    *
 *******************************************************************************/
 
-import {Component, Output, Input, EventEmitter} from '@angular/core';
+import {Component, OnInit, Output, Input, EventEmitter} from '@angular/core';
 import { DatePipe } from '@angular/common';
 
 @Component({
   selector: '[search-datepicker]',
   templateUrl: 'search-datepicker.component.html'
 })
-export class SearchDatepickerComponent {
+export class SearchDatepickerComponent implements OnInit {
 
   readonly TtlSelectDate = 'Datum auswählen';
 
   @Output() onSetValue = new EventEmitter<string>();
   @Input() disabled = false;
+  @Input() initialValue: string[];
 
   date: any;
   constructor(private datePipe: DatePipe) {}
+
+  ngOnInit() {
+    if (this.initialValue.length > 0) {
+      this.date = this.initialValue[0];
+      this.setDate(this.initialValue[0]);
+    }
+  }
 
   setDate(inputDate: string) {
     let dateString = inputDate.split(' ')[0];

@@ -21,7 +21,7 @@ import { PropertyService } from '../core/property.service';
 import { NodeproviderService } from './nodeprovider.service';
 import {NodeService} from '../navigator/node.service';
 import {PreferenceService, Preference, Scope} from '../core/preference.service';
-
+import {MDMNotificationService} from '../core/mdm-notification.service';
 import { QueryService } from '../tableview/query.service';
 import {MDMItem} from '../core/mdm-item';
 
@@ -48,6 +48,7 @@ describe ( 'NodeproviderService', () => {
           useClass: TestPreferenceService
         },
         NodeproviderService,
+        MDMNotificationService,
         QueryService,
         NodeService]
     });

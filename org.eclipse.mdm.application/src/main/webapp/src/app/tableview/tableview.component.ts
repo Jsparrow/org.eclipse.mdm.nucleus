@@ -12,13 +12,14 @@
 
 import { Component, Input, ViewChild, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 
-import { View} from './tableview.service';
+import { View, ViewColumn} from './tableview.service';
 import { NavigatorService } from '../navigator/navigator.service';
-
+import { SearchAttribute } from '../search/search.service';
 import { BasketService} from '../basket/basket.service';
 
 import { EditViewComponent } from './editview.component';
 import { SearchResult, Row } from './query.service';
+import {Node} from '../navigator/node';
 
 import {DataTableModule, SharedModule, ContextMenuModule, MenuItem} from 'primeng/primeng';
 
@@ -41,9 +42,14 @@ export class TableviewComponent implements OnInit, OnChanges {
   @Input() isShopable = false;
   @Input() isRemovable = false;
   @Input() menuItems: MenuItem[] = [];
+  @Input() selectedEnvs: Node[];
+  @Input() searchAttributes: { [env: string]: SearchAttribute[] };
 
-  menuSelectedRow: Row;
-  selectedRows: Row[] = [];
+  public menuSelectedRow: Row;
+  public selectedRows: Row[] = [];
+  public columnsToShow: ViewColumn[];
+  public readonly buttonColStyle = {'width': '3%'};
+  public btnColHidden = false;
 
   constructor(private basketService: BasketService,
     private navigatorService: NavigatorService) {
@@ -51,7 +57,7 @@ export class TableviewComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.menuItems.push({
-      label: 'In Baum zeigen',
+      label: 'Im Baum zeigen',
       icon: 'glyphicon glyphicon-tree-conifer',
       command: (event) => this.openInTree()
     });
@@ -65,6 +71,33 @@ export class TableviewComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['results'] && this.view) {
         this.customSort({ 'field': this.view.getSortField(), 'order': this.view.getSortOrder() });
+    }
+    if (changes['selectedEnvs'] || changes['view']) {
+      this.updateColumnsToShow();
+    }
+  }
+
+  updateColumnsToShow() {
+    if (this.view && this.selectedEnvs && this.selectedEnvs.length > 0 && this.searchAttributes[this.selectedEnvs[0].sourceName]) {
+      let relevantCols: string[] = [];
+      this.selectedEnvs.forEach(env =>
+        relevantCols = relevantCols.concat(this.searchAttributes[env.sourceName].map(sa =>
+          sa.boType.toLowerCase() + sa.attrName.toLowerCase())
+        )
+      );
+      relevantCols = Array.from(new Set(relevantCols));
+
+      this.view.columns.filter(col => {
+        if (relevantCols.findIndex(ct => ct === col.type.toLowerCase() + col.name.toLowerCase()) > -1) {
+          col.hidden = false;
+        } else {
+          col.hidden = true;
+        }
+        this.btnColHidden = false;
+      });
+    } else if (this.view && this.selectedEnvs && this.selectedEnvs.length === 0) {
+      this.btnColHidden = true;
+      this.view.columns.forEach(vc => vc.hidden = true);
     }
   }
 

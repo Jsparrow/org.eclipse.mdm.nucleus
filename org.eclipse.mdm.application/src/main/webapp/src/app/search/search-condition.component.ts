@@ -75,8 +75,10 @@ export class SearchConditionComponent implements OnChanges {
   }
 
   updateSuggestions(e: any) {
+    if (this.suggestions) {
     this.displayedSuggestions =
       [...this.suggestions.filter(sug => sug.toLowerCase().indexOf(e.query.toLowerCase()) > -1).slice(0, 10)];
+    }
     this.lastQuery = e.query;
   }
 

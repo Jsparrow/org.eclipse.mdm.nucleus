@@ -18,6 +18,7 @@ import { Observable } from 'rxjs/Observable';
 import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import {PropertyService} from '../core/property.service';
 import {DetailViewService} from './detail-view.service';
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 class TestPreferenceService {
   getPreference(key?: string): Observable<Preference[]> {
@@ -64,7 +65,8 @@ describe('DetailViewService', () => {
           provide: PreferenceService,
           useClass: TestPreferenceService
         },
-        DetailViewService
+        DetailViewService,
+        MDMNotificationService
       ]
     });
   });

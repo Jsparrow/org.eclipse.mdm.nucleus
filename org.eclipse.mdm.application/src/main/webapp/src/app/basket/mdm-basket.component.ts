@@ -27,6 +27,8 @@ import { ViewComponent } from '../tableview/view.component';
 import { View } from '../tableview/tableview.service';
 import { QueryService, Query, SearchResult, Row, Filter } from '../tableview/query.service';
 
+import { serialize, deserialize } from 'class-transformer';
+
 import {MenuItem} from 'primeng/primeng';
 import * as FileSaver from 'file-saver';
 
@@ -44,13 +46,13 @@ export class MDMBasketComponent implements OnInit {
   readonly LblBasket = 'Warenkorb';
   readonly LblExistingBasketNames = 'Vorhandene Warenkörbe';
   readonly LblLoad = 'Laden';
-  readonly LblLoadBasket = 'Warenkorb laden';
+  readonly LblLoadBasket = 'Warenkorb öffnen';
   readonly LblSave = 'Speichern';
   readonly LblSaveBasketAs = 'Warenkorb speichern als';
   readonly TtlClearShoppingBasket = 'Warenkorb leeren';
   readonly TtlClose = 'Schließen';
   readonly TtlDownloadShoppingBasket = 'Warenkorb herunterladen';
-  readonly TtlLoadShoppingBasket = 'Warenkorb laden';
+  readonly TtlLoadShoppingBasket = 'Warenkorb öffnen';
   readonly TtlNoNameSet = 'Kein Name ausgewählt';
   readonly TtlSaveShoppingBasket = 'Warenkorb speichern';
   readonly TtlUploadShoppingBasket = 'Warenkorb hochladen';
@@ -64,6 +66,8 @@ export class MDMBasketComponent implements OnInit {
 
   public selectedRow: string;
   public lazySelectedRow: string;
+
+  _currentChange: any;
 
   contextMenuItems: MenuItem[] = [
       {label: 'Selektion aus Warenkorb entfernen', icon: 'glyphicon glyphicon-remove', command: (event) => this.removeSelected() }
@@ -183,7 +187,7 @@ export class MDMBasketComponent implements OnInit {
   downloadBasket(e: Event) {
     e.stopPropagation();
     let downloadContent = new Basket(this.basketName, this._basketService.getItems());
-    let blob = new Blob([JSON.stringify(downloadContent)], {
+    let blob = new Blob([serialize(downloadContent)], {
          type: 'application/json'
      });
     if (this.basketName && this.basketName.trim().length !== 0) {
@@ -194,7 +198,8 @@ export class MDMBasketComponent implements OnInit {
   }
 
   onUploadChange(event: Event) {
-    this.onUploadEvent(event.target);
+    this._currentChange = event.target;
+    this.onUploadEvent(this._currentChange);
   }
 
   onUploadClick(e: Event) {
@@ -214,14 +219,16 @@ export class MDMBasketComponent implements OnInit {
   }
 
   private onUploadEvent(fileInput: any) {
+    if(fileInput.files[0]){
     let file = fileInput.files[0];
     let reader = new FileReader();
     reader.onloadend = (event) => {
-      let upload = JSON.parse(reader.result);
+      let upload: Basket = deserialize(Basket, reader.result);
       this.loadBasket(upload);
       fileInput.value = '';
     };
     reader.readAsText(file);
+  }
   }
 
   private addData(rows: Row[]) {

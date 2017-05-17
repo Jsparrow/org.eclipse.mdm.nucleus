@@ -43,7 +43,7 @@
   <div class="form-group">
     <label for="search-source" class="control-label">{{LblFilter}}</label>
     <div class="btn-group" dropdown>
-      <button id="search-source" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
+      <button id="search-source" title="{{TtlSelectFilter}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
         {{currentFilter.name}} <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" dropdownMenu>
@@ -55,12 +55,12 @@
   </div>
   <div class="form-group">
     <label for="search-source" class="control-label">{{LblSource}}</label>
-    <dropdown-multiselect name="envs" [dropdownConfig]="dropdownConfig" [(ngModel)]="dropdownModel" (ngModelChange)="selectedEnvironmentsChanged($event)"></dropdown-multiselect>
+    <dropdown-multiselect name="envs" title="{{TtlSelectSource}}" [dropdownConfig]="dropdownConfig" [(ngModel)]="dropdownModel" (ngModelChange)="selectedEnvironmentsChanged($event)"></dropdown-multiselect>
   </div>
   <div class="form-group">
     <label for="search-resulttype" class="control-label">{{LblResultType}}</label>
     <div class="btn-group" dropdown>
-      <button id="search-resulttype" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
+      <button id="search-resulttype" title="{{TtlSelectResultType}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
         {{getSearchDefinition(currentFilter.resultType)?.label}} <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" dropdownMenu>
@@ -178,7 +178,7 @@ Wenn nach einem der Spezialsymbol gesucht werden soll, m&uuml;ssen dieses mit \ 
     </div>
     <div class="container-fluid">
       <div class="row">
-          <mdm-tableview [results]="results" [view]="viewComponent.selectedView" isShopable="true" [menuItems]="contextMenuItems">
+          <mdm-tableview [results]="results" [view]="viewComponent.selectedView" isShopable="true" [menuItems]="contextMenuItems" [selectedEnvs]="selectedEnvironments" [searchAttributes]="allSearchAttributesForCurrentResultType">
           </mdm-tableview>
       </div>
     </div>

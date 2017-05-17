@@ -39,8 +39,8 @@ public class SuggestionRequest {
 	}
 
 	
-	public void setEnvironments(List<String> environments) {
-		this.sourceNames = environments;
+	public void setSourceNames(List<String> sourceNames) {
+		this.sourceNames = sourceNames;
 	}
 
 	public void setType(String type) {
@@ -51,7 +51,7 @@ public class SuggestionRequest {
 		this.attrName = attrName;
 	}
 
-	public List<String> getEnvironments() {
+	public List<String> getSourceNames() {
 		return sourceNames;
 	}
 
