@@ -19,7 +19,8 @@ import { BasketService} from '../basket/basket.service';
 
 import { EditViewComponent } from './editview.component';
 import { SearchResult, Row } from './query.service';
-import {Node} from '../navigator/node';
+import { Node } from '../navigator/node';
+import { NodeService } from '../navigator/node.service';
 
 import {DataTableModule, SharedModule, ContextMenuModule, MenuItem} from 'primeng/primeng';
 
@@ -44,6 +45,7 @@ export class TableviewComponent implements OnInit, OnChanges {
   @Input() menuItems: MenuItem[] = [];
   @Input() selectedEnvs: Node[];
   @Input() searchAttributes: { [env: string]: SearchAttribute[] };
+  @Input() environments: Node[];
 
   public menuSelectedRow: Row;
   public selectedRows: Row[] = [];
@@ -52,7 +54,8 @@ export class TableviewComponent implements OnInit, OnChanges {
   public btnColHidden = false;
 
   constructor(private basketService: BasketService,
-    private navigatorService: NavigatorService) {
+    private navigatorService: NavigatorService,
+    private nodeService: NodeService) {
   }
 
   ngOnInit() {
@@ -170,7 +173,7 @@ export class TableviewComponent implements OnInit, OnChanges {
   }
 
   getRowTitle(row: Row) {
-    return this.TtlOpenInTree + ': ' + [row.source, row.type, row.id].join('/');
+    return this.TtlOpenInTree + ': ' + [NodeService.mapSourceNameToName(this.environments, row.source), row.type, row.id].join('/');
   }
 
   getIconTitle() {
@@ -178,6 +181,9 @@ export class TableviewComponent implements OnInit, OnChanges {
   }
   onRowClick(e: any) {
     let row: Row = e.data;
+    this.nodeService.getNodeFromItem(row.getItem()).subscribe(
+      node => this.navigatorService.fireSelectedNodeChanged(node)
+    );
     let event: MouseEvent = e.originalEvent;
     if (event.shiftKey && this.selectedRows.length > 0) {
       let lastRow = this.selectedRows[this.selectedRows.length - 1];

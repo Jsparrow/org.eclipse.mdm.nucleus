@@ -20,7 +20,7 @@ export class AppComponent {
 
   readonly TtlLogout = 'Logout';
   links = [
-      { name: 'Navigator', path: '/navigator' },
+      { name: 'openMDM5 Web', path: '/navigator' },
       { name: 'Administration', path: '/administration' }
   ];
 }

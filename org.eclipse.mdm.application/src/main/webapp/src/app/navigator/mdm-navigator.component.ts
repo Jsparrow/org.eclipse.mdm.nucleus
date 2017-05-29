@@ -178,22 +178,24 @@ export class MDMNavigatorComponent implements OnInit {
       item.source, this.typeToUrl(pathTypes[iii]))
       .subscribe(nodes => {
         expandList = nodes.map(n => n.id);
-        current.children.filter(node => expandList.findIndex(n => n === node.data.id) > -1)
-          .forEach(node => {
-            if (++iii < pathTypes.length) {
-              node.expanded = true;
-              this.openChildrenRecursive(item, node, pathTypes, iii);
-              this.scrollToSelectionPrimeNgDataTable(node);
-            } else {
-              this.selectedNodes.push(node);
-              let length = this.selectedNodes.length;
-              if (length === 1) {
-                this.nodeService.getNodeFromItem(this.selectedNodes[length - 1].data)
-                    .subscribe( n => this.navigatorService.setSelectedNode(n));
-              };
-              this.scrollToSelectionPrimeNgDataTable(node);
-            }
-          });
+        current.children.filter(node => expandList.findIndex(
+          i => node.data ? i === node.data.id : false) > -1
+        )
+        .forEach(node => {
+          if (++iii < pathTypes.length) {
+            node.expanded = true;
+            this.openChildrenRecursive(item, node, pathTypes, iii);
+            this.scrollToSelectionPrimeNgDataTable(node);
+          } else {
+            this.selectedNodes.push(node);
+            let length = this.selectedNodes.length;
+            if (length === 1) {
+              this.nodeService.getNodeFromItem(this.selectedNodes[length - 1].data)
+                  .subscribe( n => this.navigatorService.setSelectedNode(n));
+            };
+            this.scrollToSelectionPrimeNgDataTable(node);
+          }
+        });
       });
   }
 

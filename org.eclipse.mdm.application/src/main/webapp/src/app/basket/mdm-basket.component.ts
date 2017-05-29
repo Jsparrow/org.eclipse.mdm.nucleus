@@ -22,6 +22,7 @@ import { MDMItem} from '../core/mdm-item';
 import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
 import { NavigatorService } from '../navigator/navigator.service';
 import { Node} from '../navigator/node';
+import { NodeService } from '../navigator/node.service';
 import { TableviewComponent } from '../tableview/tableview.component';
 import { ViewComponent } from '../tableview/view.component';
 import { View } from '../tableview/tableview.service';
@@ -63,6 +64,7 @@ export class MDMBasketComponent implements OnInit {
 
   baskets: Basket[] = [];
   selectedBasket: Basket;
+  environments: Node[];
 
   public selectedRow: string;
   public lazySelectedRow: string;
@@ -87,7 +89,8 @@ export class MDMBasketComponent implements OnInit {
   constructor(private _basketService: BasketService,
               private queryService: QueryService,
               private navigatorService: NavigatorService,
-              private sanitizer: DomSanitizer) {
+              private sanitizer: DomSanitizer,
+              private NodeService: NodeService) {
   }
 
   removeSelected() {
@@ -95,6 +98,7 @@ export class MDMBasketComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.NodeService.getRootNodes().subscribe(envs => this.environments = envs);
     this.setItems(this._basketService.items);
     this._basketService.itemsAdded$.subscribe(items => this.addItems(items));
     this._basketService.itemsRemoved$.subscribe(items => this.removeItems(items));
@@ -219,13 +223,13 @@ export class MDMBasketComponent implements OnInit {
   }
 
   private onUploadEvent(fileInput: any) {
-    if(fileInput.files[0]){
-    let file = fileInput.files[0];
-    let reader = new FileReader();
-    reader.onloadend = (event) => {
-      let upload: Basket = deserialize(Basket, reader.result);
-      this.loadBasket(upload);
-      fileInput.value = '';
+    if (fileInput.files[0]) {
+      let file = fileInput.files[0];
+      let reader = new FileReader();
+      reader.onloadend = (event) => {
+        let upload: Basket = deserialize(Basket, reader.result);
+        this.loadBasket(upload);
+        fileInput.value = '';
     };
     reader.readAsText(file);
   }

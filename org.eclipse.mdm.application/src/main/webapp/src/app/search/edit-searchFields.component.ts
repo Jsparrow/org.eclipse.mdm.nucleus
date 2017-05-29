@@ -103,7 +103,7 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
 
   conditionUpdated() {
     let envs = (this.environments || []).map(node => node.sourceName);
-    this.layout = SearchLayout.createSearchLayout(envs, this.searchAttributes, this.conditions.map((c, i) => { c.sortIndex = i; return c; }));
+    this.layout = SearchLayout.createSearchLayout(envs, this.searchAttributes, this.conditions);
   }
 
   nodeSelect(node: TreeNode) {

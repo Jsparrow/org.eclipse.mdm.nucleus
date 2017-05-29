@@ -77,7 +77,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   readonly TtlSelectSource = 'Quellen auswählen';
   readonly TtlClearSearchResults = 'Suchergebnisliste leeren';
 
-  maxResults = 100;
+  maxResults = 1000;
 
   filters: SearchFilter[] = [];
   currentFilter: SearchFilter;
@@ -97,7 +97,12 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   layout: SearchLayout = new SearchLayout;
   public dropdownModel: IDropdownItem[] = [];
-  public dropdownConfig: IMultiselectConfig = { showCheckAll: false, showUncheckAll: false };
+  public dropdownConfig: IMultiselectConfig = {
+      showCheckAll: false,
+      showUncheckAll: false,
+      checkClasses: ['fa', 'fa-fw', 'fa-check'],
+      uncheckClasses: ['fa', 'fa-fw', 'fa-times']
+    };
 
   searchFields: { group: string, attribute: string }[] = [];
 
@@ -151,9 +156,8 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.searchService.getDefinitionsSimple()
       .subscribe(defs => this.definitions = defs);
 
-    if ( this.filterService.currentFilter.name === this.filterService.NO_FILTER_NAME ) {
-      this.loadFilters(this.filterService.NO_FILTER_NAME);
-    }
+      this.loadFilters();
+
     this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
     this.viewComponent.viewChanged$.subscribe(() => this.onViewChanged());
 
@@ -178,21 +182,28 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
       this.onSearch();
     }
   }
+
   selectedEnvironmentsChanged(items: IDropdownItem[]) {
     this.currentFilter.environments = items.filter(item => item.selected).map(item => item.id);
     if (this.environments) {
-      this.selectedEnvironments = this.environments.filter(env =>
+      let envs = this.environments.filter(env =>
         this.currentFilter.environments.find(envName => envName === env.sourceName));
+      if (envs.length === 0) {
+        this.dropdownModel.filter( item => item.id === this.selectedEnvironments[0].sourceName)[0]
+        .selected = true;
+      } else {
+        this.selectedEnvironments = envs;
+      }
     }
     this.calcCurrentSearch();
   }
 
-  loadFilters(defaultFilterName: string) {
+  loadFilters() {
+    this.filters = [];
     this.filterService.getFilters()
       .defaultIfEmpty([this.currentFilter])
       .subscribe(filters => {
-        this.filters = filters;
-        this.selectFilterByName(defaultFilterName);
+        this.filters = this.filters.concat(filters);
       }
       );
   }
@@ -300,7 +311,10 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     } else {
       this.layout = new SearchLayout;
       this.filterService.deleteFilter(this.currentFilter.name).subscribe(
-        () => this.loadFilters(this.filterService.NO_FILTER_NAME),
+        () => {
+          this.loadFilters();
+          this.selectFilter(new SearchFilter(this.filterService.NO_FILTER_NAME, [], 'Test', '', []));
+        },
         () => this.notificationService
           .notifyError('Server Error.', 'Der Vorgang konnte nicht durchgeführt werden, da ein Serverfehler aufgetreten ist.')
       );
@@ -322,7 +336,10 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
       let filter = this.currentFilter;
       filter.name = this.filterName;
       this.filterService.saveFilter(filter).subscribe(
-        () => this.loadFilters(filter.name)
+        () => {
+          this.loadFilters();
+          this.selectFilter(filter);
+        }
       );
       this.childSaveModal.hide();
     } else {

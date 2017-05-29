@@ -31,9 +31,14 @@ export class NavigatorService {
   constructor(private nodeService: NodeService) {
 
   }
+
   setSelectedNode(node: Node) {
     this.selectedNode = node;
-    this.selectedNodeChanged.emit(this.selectedNode);
+    this.fireSelectedNodeChanged(node);
+  }
+
+  fireSelectedNodeChanged(node: Node) {
+    this.selectedNodeChanged.emit(node);
   }
 
   setSelectedItem(item: MDMItem) {

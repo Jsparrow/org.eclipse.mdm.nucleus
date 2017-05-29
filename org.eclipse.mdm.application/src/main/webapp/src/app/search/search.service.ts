@@ -30,11 +30,13 @@ export class SearchLayout {
   map: { [sourceNames: string]: Condition[] } = {};
 
   public static createSearchLayout(envs: string[], attributesPerEnv: { [env: string]: SearchAttribute[] }, conditions: Condition[]) {
+    let conditionsWithSortIndex = conditions.map((c, i) => { c.sortIndex = i; return c; });
+
     let result = new SearchLayout();
     let attribute2Envs = SearchLayout.mapAttribute2Environments(envs, attributesPerEnv);
     let globalEnv = 'Global';
     Object.keys(attribute2Envs).forEach(attr => {
-      let c = conditions.find(cond => cond.type + '.' + cond.attribute === attr);
+      let c = conditionsWithSortIndex.find(cond => cond.type + '.' + cond.attribute === attr);
       if (c) {
         if (attribute2Envs[attr].length === envs.length) {
           result.add(globalEnv, c);
