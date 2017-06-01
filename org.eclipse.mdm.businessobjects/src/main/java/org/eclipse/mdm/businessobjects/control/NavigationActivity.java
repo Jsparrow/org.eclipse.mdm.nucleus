@@ -26,6 +26,8 @@ import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.dflt.model.Pool;
+import org.eclipse.mdm.api.dflt.model.Project;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
@@ -58,8 +60,21 @@ public class NavigationActivity {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-
 	
+	/**
+	 * returns all MDM {@link Project} business objects of the connected MDM system identified by the given name
+	 * 
+	 * @param sourceName Name of the MDM system
+	 * @return MDM {@link Project} business objects
+	 */
+	public List<Project> getProjects(String sourceName) {
+		try {
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			return em.loadAll(Project.class);			
+		} catch(DataAccessException e) {
+			throw new MDMEntityAccessException(e.getMessage(), e);
+		}
+	}
 	
 	/**
 	 * returns all MDM {@link Test} business objects of the connected MDM system identified by the given name
@@ -76,6 +91,29 @@ public class NavigationActivity {
 		}
 	}
 
+	/**
+	 * returns all MDM {@link Test} business object children for a MDM {@link Pool} 
+	 * identified by the given source name and {@link Pool} ID.
+	 * 
+	 * @param sourceName Name of the MDM system
+	 * @param poolID The {@code Pool} instance ID
+	 * @return MDM {@link Test} business objects
+	 */
+	public List<Test> getTests(String sourceName, Long poolID) {
+		return getChildren(sourceName, Pool.class, poolID, Test.class);
+	}
+	
+	/**
+	 * returns all MDM {@link Pool} business object children for a MDM {@link Project} 
+	 * identified by the given source name and {@link Project} ID.
+	 * 
+	 * @param sourceName Name of the MDM system
+	 * @param projectID The {@code Project} instance ID
+	 * @return MDM {@link Pool} business objects
+	 */
+	public List<Pool> getPools(String sourceName, Long projectID) {
+		return getChildren(sourceName, Project.class, projectID, Pool.class);
+	}
 	
 	/**
 	 * returns all MDM {@link TestStep} business object children for a MDM {@link Test} 

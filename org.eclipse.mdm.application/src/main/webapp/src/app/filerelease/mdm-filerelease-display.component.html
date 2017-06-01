@@ -1,0 +1,48 @@
+<!--****************************************************************************
+*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
+*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Dennis Schroeder - initial implementation                                   *
+*  Matthias Koller, Johannes Stamm - additional client functionality           *
+*****************************************************************************-->
+
+<table class="table table-bordered">
+  <tbody>
+    <tr>
+      <td>Versuchsname:</td><td>{{release.name}}</td>
+    </tr>
+    <tr>
+      <td>Fehlerbericht:</td><td>{{release.errorMessage}}</td>
+    </tr>
+    <tr>
+      <td>freigegeben bis:</td><td>{{getDate(release.expire)}}</td>
+    </tr>
+    <tr>
+      <td>Format:</td><td>{{getFormat(release.format)}}</td>
+    </tr>
+    <tr>
+      <td>Begründung für Freigabe:</td><td>{{release.orderMessage}}</td>
+    </tr>
+    <tr>
+      <td>Begründung für Ablehnung:</td><td>{{release.rejectMessage}}</td>
+    </tr>
+    <tr>
+      <td>Antragsteller:</td><td>{{release.sender}}</td>
+    </tr>
+    <tr>
+      <td>Messungsverantwortlicher:</td><td>{{release.receiver}}</td>
+    </tr>
+    <tr>
+      <td>Status:</td><td>{{getState(release.state)}}</td>
+    </tr>
+    <tr>
+      <td>Freigabedauer:</td><td>{{release.validity}} Tage</td>
+    </tr>
+  </tbody>
+</table>

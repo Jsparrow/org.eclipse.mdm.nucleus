@@ -1,0 +1,66 @@
+<!-- ***************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+**************************************************************************** -->
+
+<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" title={{TtlClose}} class="close" (click)="closeDialog()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">{{LblPreferenceEditor}}</h4>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="preferenceForm" novalidate>
+          <ul class="list-group">
+            <li>
+              <div class="block">
+                <label>{{LblKey}}: </label>
+                <input type="text" class="form-control" formControlName="key" [readonly]="!isKeyEmpty">
+              </div>
+            </li>
+            <li>
+              <label>{{LblScope}}: </label>
+              <input type="text" class="form-control" formControlName="scope" [readonly]="true">
+            </li>
+            <li *ngIf="showSource">
+              <label>{{LblSource}}: </label>
+              <select class="form-control" formControlName="source">
+                <option *ngFor="let env of envs">{{env.sourceName}}</option>
+              </select>
+            </li>
+            <li *ngIf="showUser">
+              <label>{{LblUser}}: </label>
+              <input type="text" class="form-control" formControlName="user" [readonly]=true placeholder="auto-generated">
+            </li>
+            <li>
+              <div class="form-group">
+                <label for="comment">{{LblValue}}:</label>
+                <textarea class="form-control" formControlName="value" rows="5" id="value"></textarea>
+              </div>
+            </li>
+          </ul>
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-12">
+              <button type="button" class="btn btn-default" (click)="closeDialog()">
+                <span class="glyphicon glyphicon-remove"></span> {{LblCancel}}
+              </button>
+              <button type="button" class="btn btn-default pull-right" (click)="onSave()" [disabled]="!preferenceForm.valid">
+                <span class="glyphicon glyphicon-save"></span> {{LblSave}}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<!-- ***************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+**************************************************************************** -->
+<style>
+:host >>> .fixtable { table-layout: auto;}
+</style>
+
+<div style="overflow-x: auto;">
+
+<p-contextMenu #cm [model]="menuItems" appendTo="body"></p-contextMenu>
+
+<p-dataTable
+  tableStyleClass="fixtable"
+  [value]="results?.rows"
+  resizableColumns="true"
+  columnResizeMode="expand"
+  [reorderableColumns]="true"
+  [rows]="10"
+  [paginator]="true"
+  [pageLinks]="3"
+  [rowsPerPageOptions]="[10,20,50,100,200,500,1000]"
+  [(selection)]="selectedRows"
+  [contextMenu]="cm"
+  [sortField]="view?.getSortField()"
+  [sortOrder]="view?.getSortOrder()"
+  (onRowClick)="onRowClick($event)"
+  (onColResize)="onColResize($event)"
+  (onColReorder)="onColReorder($event)"
+  (onSort)="onSort($event)"
+  (onContextMenuSelect)="onContextMenuSelect($event)">
+
+  <p-column [style]="buttonColStyle" selectionMode="multiple" [hidden]="btnColHidden"></p-column>
+  <p-column [style]="buttonColStyle" [hidden]="btnColHidden">
+    <template pTemplate="body" let-col let-row="rowData">
+      <a class="icon" [ngClass]="getNodeClass(row.type)" style="color:black; cursor: pointer;" (click)="openInTree(row, $event)" title="{{getRowTitle(row)}}"> </a>
+    </template>
+  </p-column>
+  <p-column [style]="buttonColStyle" [hidden]="btnColHidden">
+    <template pTemplate="body" let-col let-row="rowData" >
+      <span class="glyphicon" [ngClass]="{'glyphicon-shopping-cart': isShopable, 'glyphicon-remove': isRemovable}"
+        style="cursor: pointer" title="{{getIconTitle()}}" (click)="functionalityProvider(isShopable, row)"></span>
+    </template>
+  </p-column>
+  <p-column *ngFor="let col of view?.columns" [style]="col.style" header="{{col.type}}.{{col.name}}" sortable="custom" sortField="{{col.type}}.{{col.name}}" (sortFunction)="customSort($event)" [hidden]="col.hidden">
+    <template pTemplate="body" let-col let-row="rowData" >
+      {{row.getColumn(col.header)}}
+    </template>
+  </p-column>
+</p-dataTable>
+</div>

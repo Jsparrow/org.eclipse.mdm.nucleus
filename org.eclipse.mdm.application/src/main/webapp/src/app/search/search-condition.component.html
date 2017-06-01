@@ -1,0 +1,43 @@
+<!-- ***************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+**************************************************************************** -->
+
+<td style="vertical-align: middle">{{condition.type}}</td>
+<td style="vertical-align: middle">{{condition.attribute}}</td>
+<td style="vertical-align: middle">
+  <div class="btn-group" dropdown style="width: 66px;">
+    <button id="operator" type="button" title="{{TtlSelectSearchOperator}}" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" [disabled]="disabled">
+      {{getOperatorName(condition.operator)}} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" dropdownMenu>
+      <li *ngFor="let op of getOperators()">
+        <a class="dropdown-item" (click)="setOperator(op)">{{getOperatorName(op)}}</a>
+      </li>
+    </ul>
+  </div>
+</td>
+<td [ngSwitch]="condition.valueType">
+  <p-autoComplete *ngSwitchCase="'string'"
+    [(ngModel)]="condition.value"
+    [suggestions]="displayedSuggestions"
+    (completeMethod)="updateSuggestions($event)"
+    [multiple]="true"
+    [delay]="0"
+    [size]="500"
+    [scrollHeight]="'50vh'"
+    placeholder="Wert"
+    [disabled]="disabled"
+    (keyup.enter)="onEnter($event)">
+  </p-autoComplete>
+  <div search-datepicker *ngSwitchCase="'date'" (onSetValue)="setValue($event)" style="width: 100%" [disabled]="disabled" [initialValue]="condition.value"></div>
+  <input *ngSwitchDefault type="text" class="form-control input-sm" placeholder="Wert" [value]="condition.value" (input)="setValue($event.target.value)" [disabled]="disabled">
+</td>
+<td style="vertical-align: middle"><button id="remove" type="button" class="btn btn-default btn-sm glyphicon glyphicon-remove remove" (click)="remove()" [disabled]="disabled"></button></td>

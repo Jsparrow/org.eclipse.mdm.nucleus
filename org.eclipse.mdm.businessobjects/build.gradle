@@ -13,5 +13,8 @@ description = 'business object service'
 version = '1.0.0'
 
 dependencies {
-	compile project(':org.eclipse.mdm.connector')	
+  compile project(':org.eclipse.mdm.connector')	
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+
+  testCompile 'org.assertj:assertj-core:3.6.2'
 }

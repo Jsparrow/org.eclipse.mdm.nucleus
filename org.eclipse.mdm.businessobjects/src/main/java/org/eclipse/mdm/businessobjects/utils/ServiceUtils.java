@@ -53,7 +53,7 @@ public final class ServiceUtils {
 		EntityType et = mm.getEntityType(parentType);
 
 		String idAttributeName = et.getIDAttribute().getName();
-		String matcher = parentType.getSimpleName() + "." + idAttributeName + " eq (\\d+)";
+		String matcher = workaroundForTypeMapping(et) + "." + idAttributeName + " eq (\\d+)";
 		return filter.matches(matcher);
 	}
 
@@ -72,7 +72,7 @@ public final class ServiceUtils {
 		EntityType et = mm.getEntityType(parentType);
 
 		String idAttributeName = et.getIDAttribute().getName();
-		return Long.valueOf(filter.replace(parentType.getSimpleName() + "." + idAttributeName + " eq ", ""));
+		return Long.valueOf(filter.replace(workaroundForTypeMapping(et) + "." + idAttributeName + " eq ", ""));
 	}
 
 
@@ -104,5 +104,24 @@ public final class ServiceUtils {
 		}
 		return oSS.get();
 	}
-
+	
+	/**
+	 * Simple workaround for naming mismatch between Adapter and Business object names.
+	 * @param entityType entity type
+	 * @return MDM business object name
+	 */
+	public static String workaroundForTypeMapping(EntityType entityType) {
+		switch (entityType.getName()) {
+		case "StructureLevel":
+			return "Pool";
+		case "MeaResult":
+			return "Measurement";
+		case "SubMatrix":
+			return "ChannelGroup";
+		case "MeaQuantity":
+			return "Channel";
+		default: 
+			return entityType.getName();
+		}
+	}
 }

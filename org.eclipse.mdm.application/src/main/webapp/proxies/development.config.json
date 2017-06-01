@@ -1,0 +1,6 @@
+{
+  "/org.eclipse.mdm.nucleus/": {
+    "target": "http://sa:sa@localhost:8080/",
+    "secure": "false"
+  }
+}

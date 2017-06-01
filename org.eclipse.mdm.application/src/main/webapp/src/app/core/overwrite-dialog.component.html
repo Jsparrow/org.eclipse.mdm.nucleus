@@ -1,0 +1,33 @@
+<!-- ***************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+**************************************************************************** -->
+
+<div bsModal #lgOverwriteModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Es existiert bereits {{label}} mit diesem Namen!</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <button type="button" class="btn btn-default" (click)="overwrite(false)">
+            <span class="glyphicon glyphicon-remove"></span> {{LblCancel}}
+          </button>
+            <button type="button" class="btn btn-default pull-right" (click)="overwrite(true)">
+            <span class="glyphicon glyphicon-ok"></span> {{LblOverwrite}}
+          </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

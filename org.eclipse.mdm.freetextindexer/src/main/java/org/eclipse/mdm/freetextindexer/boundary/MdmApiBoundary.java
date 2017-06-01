@@ -137,8 +137,8 @@ public class MdmApiBoundary {
 				List<EntityManager> connectionList = service.connect(freetextUser, freetextPw);
 				if (connectionList.isEmpty()) {
 					String error = String.format(
-							"Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct (%s/%s)",
-							freetextUser, freetextPw);
+							"Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct (User: %s)",
+							freetextUser);
 					throw new IllegalArgumentException(error);
 				}
 

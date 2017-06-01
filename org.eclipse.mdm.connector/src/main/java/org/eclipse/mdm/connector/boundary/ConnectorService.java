@@ -14,6 +14,7 @@ package org.eclipse.mdm.connector.boundary;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,12 +26,13 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.security.auth.spi.LoginModule;
 
+import org.eclipse.mdm.api.base.BaseEntityManager;
 import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.EntityManagerFactory;
+import org.eclipse.mdm.api.base.model.BaseEntityFactory;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.EntityManager;
-import org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory;
 import org.eclipse.mdm.connector.control.ServiceConfigurationActivity;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
 import org.eclipse.mdm.property.GlobalProperty;
@@ -41,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * ConnectorServcie Bean implementation to create and close connections
  * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ * @author Canoo Engineering (removal of hardcoded ODS dependencies)
  *
  */
 @Startup
@@ -49,10 +52,9 @@ public class ConnectorService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ConnectorService.class);
 
-	private final static String ARG_ODS_NAMESERVICE = "nameservice";
-	private final static String ARG_ODS_SERVICENAME = "servicename";
-	private final static String ARG_ODS_USER = "user";
-	private final static String ARG_ODS_PASSWORD = "password";
+	private static final String CONNECTION_PARAM_USER = "user";
+	private static final String CONNECTION_PARAM_PASSWORD = "password";
+	private static final String CONNECTION_PARAM_ELASTIC_SEARCH_URL = "elasticsearch.url";
 
 	@Resource
 	private SessionContext sessionContext;
@@ -61,11 +63,9 @@ public class ConnectorService {
 
 	@Inject
 	@GlobalProperty("elasticsearch.url")
-	String host;
+	private String elasticSearchURL;
 
-	private Map<Principal, List<EntityManager>> connectionMap = new HashMap<Principal, List<EntityManager>>();
-
-	private EntityManagerFactory<EntityManager> emf;
+	private Map<Principal, List<EntityManager>> connectionMap = new HashMap<>();
 
 	/**
 	 * returns all available {@link EntityManager}s
@@ -125,7 +125,7 @@ public class ConnectorService {
 	 */
 	public List<EntityManager> connect(String user, String password) {
 
-		List<EntityManager> emList = new ArrayList<EntityManager>();
+		List<EntityManager> emList = new ArrayList<>();
 
 		List<ServiceConfiguration> serviceConfigurations = serviceConfigurationActivity.readServiceConfigurations();
 
@@ -138,7 +138,7 @@ public class ConnectorService {
 
 	/**
 	 * registers all connections for a {@link Principal} at the
-	 * {@link ConnectorBean} This method is call from a {@link LoginModule} at
+	 * {@link ConnectorService} This method is call from a {@link LoginModule} at
 	 * login phase 2.
 	 *
 	 * @param principal
@@ -184,31 +184,38 @@ public class ConnectorService {
 
 		try {
 
-			Map<String, String> connectionParameters = new HashMap<String, String>();
-			connectionParameters.put(ARG_ODS_NAMESERVICE, source.getNameService());
-			connectionParameters.put(ARG_ODS_SERVICENAME, source.getServiceName());
-			connectionParameters.put(ARG_ODS_USER, user);
-			connectionParameters.put(ARG_ODS_PASSWORD, password);
+			@SuppressWarnings("rawtypes")
+			Class<? extends EntityManagerFactory> entityManagerFactoryClass = Thread.currentThread().getContextClassLoader().loadClass(source.getEntityManagerFactoryClass()).asSubclass(EntityManagerFactory.class);
+			EntityManagerFactory<?> emf = entityManagerFactoryClass.newInstance();
 
-			if (emf == null) {
-				emf = new ODSEntityManagerFactory(host);
+			Map<String, String> staticConnectionParameters = source.getConnectionParameters();
+			Map<String, String> dynamicConnectionParameters = new LinkedHashMap<>(staticConnectionParameters.size() + 3);
+			dynamicConnectionParameters.putAll(staticConnectionParameters);
+			dynamicConnectionParameters.put(CONNECTION_PARAM_USER, user);
+			dynamicConnectionParameters.put(CONNECTION_PARAM_PASSWORD, password);
+			if (elasticSearchURL != null && !elasticSearchURL.isEmpty()) {
+				dynamicConnectionParameters.put(CONNECTION_PARAM_ELASTIC_SEARCH_URL, elasticSearchURL);
 			}
 
-			emList.add(emf.connect(connectionParameters));
+			BaseEntityManager<? extends BaseEntityFactory> em = emf.connect(dynamicConnectionParameters);
+			// The cast below is unsafe, but cannot be avoided without changing the API of this class.
+			emList.add((EntityManager)em);
 
 		} catch (ConnectionException e) {
 			LOG.warn("unable to logon user with name '" + user + "' at data source '" + source.toString()
-					+ "' (reason: " + e.getMessage() + "'");
+			+ "' (reason: " + e.getMessage() + ")");
+		} catch (Exception e) {
+			LOG.error("failed to initialize entity manager using factory '" + source.getEntityManagerFactoryClass() + "' (reason: " + e + ")", e);
 		}
 	}
 
-	private void disconnectEntityManagers(List<EntityManager> emList) {
+	private static void disconnectEntityManagers(List<EntityManager> emList) {
 		for (EntityManager em : emList) {
 			disconnectEntityManager(em);
 		}
 	}
 
-	private void disconnectEntityManager(EntityManager em) {
+	private static void disconnectEntityManager(EntityManager em) {
 		try {
 			if (em != null) {
 				em.close();

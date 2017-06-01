@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
+/*******************************************************************************
+ * Copyright (c) 2017 Peak Solution GmbH
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Matthias Koller - initial implementation
+ *******************************************************************************/
+ -->
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+	version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+	<persistence-unit name="openMDM" transaction-type="JTA">
+		<jta-data-source>jdbc/openMDM</jta-data-source>
+		<class>org.eclipse.mdm.preferences.entity.Preference</class>
+		<properties>
+			<property name="eclipselink.logging.logger" value="ServerLogger" />
+			<property name="eclipselink.logging.level" value="INFO" />
+			<property name="eclipselink.ddl-generation" value="none" />
+		</properties>
+	</persistence-unit>
+</persistence>	

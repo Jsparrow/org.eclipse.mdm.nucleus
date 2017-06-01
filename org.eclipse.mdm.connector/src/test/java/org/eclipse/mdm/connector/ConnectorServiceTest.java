@@ -11,29 +11,33 @@
 
 package org.eclipse.mdm.connector;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.ejb.SessionContext;
 
+import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.EntityManagerFactory;
 import org.eclipse.mdm.api.base.model.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
+import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
+import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
 import org.eclipse.mdm.connector.control.ServiceConfigurationActivity;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
 import org.junit.Test;
@@ -42,150 +46,190 @@ import org.mockito.Mockito;
 /**
  * JUNIT Test for {@link ConnectorService}
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
+ * @author Canoo Engineering (more tests)
  *
  */
+@SuppressWarnings("javadoc")
 public class ConnectorServiceTest {
 
-	@Test
-	public void testGetEntityManagers() throws Exception {
-		ConnectorService connectorService = createMockedconnectorService();
-		List<EntityManager> emList = connectorService.getEntityManagers();
+	private final Principal testUser = new SimplePrincipal("testUser");
+	private final Principal differentUser = new SimplePrincipal("differentUser");
+	private final String testSourceName = "testSource";
+	private final String differentSourceName = "differentSource";
+	private final EntityManager testEntityManager = createEntityManager(testSourceName);
 
-		assertNotNull("entity manager for uri should not be null", emList);
-		assertNotEquals("size of entity manager list should be grater then 0", 0, emList.size());
 
+	@Test(expected=ConnectorServiceException.class)
+	public void testGetEntityManagers_noConnectionsYet() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.getEntityManagers();
+	}
+
+
+	@Test(expected=ConnectorServiceException.class)
+	public void testGetEntityManagers_connectionForDifferentUser() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.registerConnections(differentUser, Collections.singletonList(testEntityManager));
+		connectorService.getEntityManagers();
 	}
 
 
 	@Test
-	public void testGetEntityManagerByName() throws Exception {
+	public void testGetEntityManagers_happyFlow() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.registerConnections(testUser, Collections.singletonList(testEntityManager));
+		assertEquals(Collections.singletonList(testEntityManager), connectorService.getEntityManagers());
+	}
 
-		ConnectorService connectorService = createMockedconnectorService();
-		EntityManager em = connectorService.getEntityManagerByName("MDMTest");
-		assertNotNull("entity manager for uri should not be null", em);
+
+	@Test(expected=ConnectorServiceException.class)
+	public void testGetEntityManagerByName_noConnectionsYet() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.getEntityManagerByName(testSourceName);
+	}
+
+
+	@Test(expected=ConnectorServiceException.class)
+	public void testGetEntityManagerByName_connectionForDifferentUser() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.registerConnections(differentUser, Collections.singletonList(testEntityManager));
+		connectorService.getEntityManagerByName(testSourceName);
+	}
+
+
+	@Test(expected=ConnectorServiceException.class)
+	public void testGetEntityManagerByName_differentSourceName() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.registerConnections(testUser, Collections.singletonList(testEntityManager));
+		connectorService.getEntityManagerByName(differentSourceName);
+	}
+
+
+	@Test
+	public void testGetEntityManagerByName_happyFlow() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.registerConnections(testUser, Collections.singletonList(testEntityManager));
+		assertSame(testEntityManager, connectorService.getEntityManagerByName(testSourceName));
 	}
 
 
 	@Test
 	public void testConnect() throws Exception {
-
-		Principal principal = Mockito.mock(Principal.class);
-		when(principal.toString()).thenReturn("testuser");
-
-		ConnectorService connectorService = createMockedconnectorService();
-		List<EntityManager> emList = connectorService.connect("user", "password");
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		List<EntityManager> emList = connectorService.connect("someUser", "somePassword");
 
 		assertNotNull("EntityManager list should not be null", emList);
-		assertNotEquals("EntityManager list size be grather then 0", 0, emList.size());
+		assertNotEquals("EntityManager list size should be greater than 0", 0, emList.size());
 	}
 
 
-	@Test
-	public void testRegisterConnections() throws Exception {
-
-		Principal principal = Mockito.mock(Principal.class);
-		when(principal.toString()).thenReturn("testuser");
-
-		ConnectorService connectorService = createMockedconnectorService();
-		List<EntityManager> emList = connectorService.connect("user", "password");
-
-		connectorService.registerConnections(principal, emList);
+	@Test(expected=ConnectorServiceException.class)
+	public void testRegisterConnections_emptyList() throws Exception {
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.registerConnections(testUser, Collections.emptyList());
 	}
 
 
 	@Test
 	public void testDisconnect() throws Exception {
-
-		Principal principal = Mockito.mock(Principal.class);
-		when(principal.toString()).thenReturn("testuser");
-
-		ConnectorService connectorService = createMockedconnectorService();
-		connectorService.disconnect(principal);
+		ConnectorService connectorService = createMockedConnectorService(testUser);
+		connectorService.disconnect(testUser);
 
 	}
 
 
+	private static final class SimplePrincipal implements Principal {
+		private final String name;
 
-	@SuppressWarnings("unchecked")
-	private ConnectorService createMockedconnectorService() throws Exception {
+		SimplePrincipal(String name) {
+			this.name = Objects.requireNonNull(name);
+		}
 
-		Principal principal = Mockito.mock(Principal.class);
-		when(principal.toString()).thenReturn("testuser");
+		@Override
+		public String getName() {
+			return name;
+		}
 
-		SessionContext sessionContext = Mockito.mock(SessionContext.class);
-		when(sessionContext.getCallerPrincipal()).thenReturn(principal);
+		@Override
+		public boolean equals(Object obj) {
+			return (obj instanceof SimplePrincipal && ((SimplePrincipal)obj).name.equals(name));
+		}
 
-		Environment env = createEntityMock(Environment.class, "MDMTest", "MDMTest", 1L);
+		@Override
+		public int hashCode() {
+			return name.hashCode();
+		}
 
-		EntityManager em = Mockito.mock(EntityManager.class);
-		when(em.loadEnvironment()).thenReturn(env);
+		@Override
+		public String toString() {
+			return name;
+		}
 
-		List<EntityManager> emList = new ArrayList<EntityManager>();
-		emList.add(em);
+	}
 
-		EntityManagerFactory<EntityManager> emf = Mockito.mock(EntityManagerFactory.class);
-		when(emf.connect(anyObject())).thenReturn(em);
+	private static ConnectorService createMockedConnectorService(Principal user) throws Exception {
 
-		Map<Principal, List<EntityManager>> map = new HashMap<>();
-		map.put(principal, emList);
+		SessionContext sessionContextMock = Mockito.mock(SessionContext.class);
+		when(sessionContextMock.getCallerPrincipal()).thenReturn(user);
 
-		List<ServiceConfiguration> scList = new ArrayList<>();
-		scList.add(new ServiceConfiguration("nameService", "serviceName"));
-
+		ServiceConfiguration serviceConfiguration = new ServiceConfiguration(TestEntityManagerFactory.class.getName(), Collections.emptyMap());
 		ServiceConfigurationActivity scReaderMock = Mockito.mock(ServiceConfigurationActivity.class);
-		when(scReaderMock.readServiceConfigurations()).thenReturn(scList);
-
+		when(scReaderMock.readServiceConfigurations()).thenReturn(Collections.singletonList(serviceConfiguration));
 
 		ConnectorService connectorService = new ConnectorService();
 
 		Field scField = connectorService.getClass().getDeclaredField("sessionContext");
 		scField.setAccessible(true);
-		scField.set(connectorService, sessionContext);
-		scField.setAccessible(false);
-
-		Field mapField = connectorService.getClass().getDeclaredField("connectionMap");
-		mapField.setAccessible(true);
-		mapField.set(connectorService, map);
-		mapField.setAccessible(false);
-
-		Field emfField = connectorService.getClass().getDeclaredField("emf");
-		emfField.setAccessible(true);
-		emfField.set(connectorService, emf);
-		emfField.setAccessible(false);
+		scField.set(connectorService, sessionContextMock);
 
 		Field scrField = connectorService.getClass().getDeclaredField("serviceConfigurationActivity");
 		scrField.setAccessible(true);
 		scrField.set(connectorService, scReaderMock);
-		scrField.setAccessible(false);
 
 		return connectorService;
 	}
 
 
-	private <T extends Entity> T createEntityMock(Class<T> type, String name,
-			String sourceName, Long id) throws Exception {
+	public static final class TestEntityManagerFactory implements EntityManagerFactory<EntityManager> {
 
-		boolean accessible = false;
-		Constructor<T> constructor = null;
+		@Override
+		public EntityManager connect(Map<String, String> connectionParameters) throws ConnectionException {
+			return createEntityManager("someSource");
+		}
+
+	}
+
+
+	private static EntityManager createEntityManager(String sourceName) {
+		Environment env = createEntityMock(Environment.class, "MDMTest", sourceName, 1L);
+
+		EntityManager em = Mockito.mock(EntityManager.class);
+		try {
+			when(em.loadEnvironment()).thenReturn(env);
+		} catch (@SuppressWarnings("unused") DataAccessException e) { 
+			// ignore - cannot happen
+		}
+
+		return em;
+	}
+
+
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, long id) {
+
+		Map<String, Value> entityAttributes = new HashMap<>();
+		entityAttributes.put("Name", ValueType.STRING.create("Name", name));
+
+		Core core = Mockito.mock(Core.class);
+		when(core.getSourceName()).thenReturn(sourceName);
+		when(core.getValues()).thenReturn(entityAttributes);
+		when(core.getID()).thenReturn(id);
 
 		try {
-			HashMap<String, Value> map = new HashMap<String, Value>();
-			map.put("Name", ValueType.STRING.create("Name", name));
-
-			Core core = Mockito.mock(Core.class);
-			when(core.getSourceName()).thenReturn(sourceName);
-			when(core.getValues()).thenReturn(map);
-			when(core.getID()).thenReturn(id);
-
-			constructor = type.getDeclaredConstructor(Core.class);
-			accessible = constructor.isAccessible();
+			Constructor<T> constructor = type.getDeclaredConstructor(Core.class);
 			constructor.setAccessible(true);
-			T instance = constructor.newInstance(core);
-			return instance;
-		} finally {
-			if(constructor != null) {
-				constructor.setAccessible(accessible);
-			}
+			return constructor.newInstance(core);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 

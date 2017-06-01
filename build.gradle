@@ -13,6 +13,8 @@ description = 'mdm nucleus'
 apply plugin: 'war'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
+apply plugin: 'jacoco'
+apply plugin: 'org.sonarqube'
 
 sourceCompatibility = 1.8
 
@@ -28,6 +30,8 @@ subprojects {
 	apply plugin: 'eclipse'
 	apply plugin: 'java'
 	apply plugin: 'maven'
+	apply plugin: 'jacoco'
+	
 	sourceCompatibility = 1.8
     
     repositories {
@@ -63,6 +67,13 @@ task collectConfiguration() {
 	}
 }
 
+task copySchema(dependsOn: ':org.eclipse.mdm.preferences:generateSchema') {
+  copy {
+    from "${project.projectDir}/org.eclipse.mdm.preferences/build/generated-schema/"
+    into "${project.projectDir}/build/tmp/mdmweb/schema/org.eclipse.mdm.preferences"
+  }
+}
+
 task distribute(type: Zip) {
 	archiveName = "mdm_web.zip"
 	from "${project.projectDir}/build/tmp/mdmweb"
@@ -80,5 +91,33 @@ war {
 } 
 
 war.finalizedBy(collectConfiguration)
+war.finalizedBy(copySchema)
 war.finalizedBy(distribute)
 
+jacoco {
+	toolVersion = "0.7.6.201602180812"
+    reportsDir = file("${project.buildDir}/jacoco/test.exec")
+}
+
+sonarqube {
+    properties {
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/test.exec"
+    }
+}
+tasks["sonarqube"].dependsOn "org.eclipse.mdm.application:map_tslint"
+
+buildscript {
+    repositories {
+      maven {
+        url "http://repo1.maven.org/maven2/"
+      }
+      maven {
+        url "https://plugins.gradle.org/m2/"
+      }
+      mavenLocal()
+    }
+    dependencies {
+      classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
+    }
+}

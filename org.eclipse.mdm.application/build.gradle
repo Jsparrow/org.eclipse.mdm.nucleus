@@ -16,6 +16,32 @@ apply plugin: 'com.moowork.node'
 
 System.setProperty('file.encoding', 'UTF-8')
 
+
+task map_tslint(type: Copy) {
+	File tsLintFile = file("${project.buildDir}/node/coverage/tslint_out.json")
+	File mappedTsLintFile = file("${project.buildDir}/node/coverage/tslint_out_mapped.json")
+	
+	if (tsLintFile.exists()) {
+		String contents = tsLintFile.getText('UTF-8') 
+		contents = contents.replaceAll( 'src/app', 'src/main/webapp/src/app' )
+		mappedTsLintFile.write(contents, 'UTF-8')
+	}
+}
+
+sonarqube {
+    properties {
+        property "sonar.sources", "src/main/webapp/src,src/main/java"
+        property "sonar.exclusions", "src/main/webapp/node_modules/**, src/main/webapp/coverage/**, src/main/webapp/dist/**,**/*.spec.ts, **/*.js"
+        property "sonar.tests", "src/main/webapp/src"
+		    property "sonar.test.inclusions", "**/*.spec.ts"
+		
+		    property "sonar.ts.tslint.configPath", "src/main/webapp"
+		    property "sonar.ts.tslint.projectPath", "src/main/webapp"
+        property "sonar.ts.tslint.outputPath", "${project.buildDir}/node/coverage/tslint_out_mapped.json"
+        property "sonar.ts.coverage.lcovReportpath", "${project.buildDir}/node/coverage/lcov.info"
+    }
+}
+
 dependencies {
 
 	runtime 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
@@ -25,6 +51,7 @@ dependencies {
 	compile project(':org.eclipse.mdm.filerelease')
 	compile project(':org.eclipse.mdm.property')	
 	compile project(':org.eclipse.mdm.freetextindexer')	
+	compile project(':org.eclipse.mdm.preferences')	
 }
 
 buildscript {
@@ -34,46 +61,54 @@ buildscript {
 		} 
 	}
 	dependencies { 
-		classpath "com.moowork.gradle:gradle-node-plugin:0.12" 
+		classpath "com.moowork.gradle:gradle-node-plugin:1.0.1" 
 	}
 }
 
 
 task copy_websources(type: Copy) {
 
-	from './src/main/webapp'	
+	from('./src/main/webapp') {
+		exclude 'dist'
+		exclude 'node_modules'
+	}
+	
 	into "${project.buildDir}/node"
 }
 
 
 node {
-	version = '4.3.2'
-	npmVersion = '3.9.2'
+	version = '6.9.4'
+	npmVersion = '3.10.10'
 	distBaseUrl = 'https://nodejs.org/dist'
 	download = true
 	workDir = file("${project.buildDir}/node/nodejs")
+	npmWorkDir = file("${project.buildDir}/node")
 	nodeModulesDir = file("${project.buildDir}/node")
 	if (!nodeModulesDir.isDirectory()) {
 		nodeModulesDir.mkdirs()
 	}
 }
+npm_install {
+	args = ["${project.buildDir}"]
+}
 
-task webpack(type: NodeTask) {
-  	script = file("${project.buildDir}/node/node_modules/webpack/bin/webpack.js")
-  	 args = ['--config', "${project.buildDir}/node/webpack.config.js"]
+task runBuild(type: NpmTask) {
+    args = ['run', 'ci_build']
 }
 
 task copy_loginsites(type: Copy) {
-	from 	"${project.buildDir}/node/login.jsp", 
-			"${project.buildDir}/node/login.css", 
-			"${project.buildDir}/node/error.jsp"
+	from 	"${project.buildDir}/node/src/login.jsp", 
+			"${project.buildDir}/node/src/login.css", 
+			"${project.buildDir}/node/src/error.jsp"
 			
 	into	 "${project.buildDir}/node/dist"
 }
 
 compileJava.dependsOn(copy_loginsites)
-copy_loginsites.dependsOn(webpack)
-webpack.dependsOn(npmInstall)
+map_tslint.dependsOn(runBuild)
+copy_loginsites.dependsOn(runBuild)
+runBuild.dependsOn(npmInstall)
 npmInstall.dependsOn(copy_websources)
 copy_websources.dependsOn(npmSetup)
 npmSetup.dependsOn(nodeSetup)

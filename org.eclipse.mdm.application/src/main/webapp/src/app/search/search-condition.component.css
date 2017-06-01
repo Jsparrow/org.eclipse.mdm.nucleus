@@ -1,0 +1,48 @@
+/*******************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*******************************************************************************/
+
+table.searchdefinition td { vertical-align: middle; padding: 4px 8px; }
+
+p-autoComplete >>> .ui-inputtext.ui-state-focus {
+  border: 1px solid #66afe9 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 8px rgba(102,175,233,.6) !important;
+}
+
+p-autoComplete >>> .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container {
+  padding: 2.5px 8px !important;
+  border: 1px solid #ccc;
+  color: #555;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  width: 100%;
+}
+
+p-autoComplete >>> .ui-autocomplete-multiple-container.ui-inputtext {
+  overflow: inherit !important;
+}
+
+p-autoComplete >>> .ui-autocomplete {
+  width: 100%;
+}
+
+p-autoComplete >>> .ui-widget:disabled{
+  cursor: not-allowed !important;
+  background-color: #eee;
+  color: #555 !important;
+  opacity: 1;
+}
+p-autoComplete >>> .ui-state-disabled{
+  cursor: not-allowed !important;
+  background-color: #eee !important;
+  border-color: #e3e3e3 !important;
+  opacity: 1;
+}

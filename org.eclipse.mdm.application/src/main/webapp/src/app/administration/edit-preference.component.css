@@ -1,0 +1,18 @@
+@charset "ISO-8859-1";
+
+ul {
+  list-style-type: none;
+}
+textarea {
+    resize: vertical;
+}
+
+.input-group-addon {
+    min-width: 100px;
+    text-align: left;
+    font-weight: 600;
+}
+
+input[readonly] {
+     cursor: default;
+}

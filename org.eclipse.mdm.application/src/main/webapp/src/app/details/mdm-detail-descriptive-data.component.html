@@ -1,0 +1,91 @@
+<!--****************************************************************************
+*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
+*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Dennis Schroeder - initial implementation                                   *
+*  Matthias Koller, Johannes Stamm - additional client functionality           *
+*****************************************************************************-->
+
+<div *ngIf="!contexts">
+  <div class="alert alert-info" style="margin: 0;">
+    <strong>{{status}}</strong>
+  </div>
+</div>
+
+<div *ngIf="contexts">
+<accordion *ngIf="isUUT()">
+  <accordion-group *ngFor="let template of contexts['UNITUNDERTEST']" #UUT>
+    <div accordion-heading class="thinheader">{{template.name}}
+      <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': UUT?.isOpen, 'glyphicon-chevron-right': !UUT?.isOpen}"></span>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>{{LblName}}</th>
+          <th>{{LblOrdered}}</th>
+          <th>{{LblMeasured}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let attr of template.attributes" [ngClass]="diff(attr.value[0], attr.value[1])">
+          <td>{{attr.name}}</td>
+          <td>{{attr.value[0]}}</td>
+          <td>{{attr.value[1]}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </accordion-group>
+</accordion>
+<accordion *ngIf="isTS()">
+  <accordion-group *ngFor="let template of contexts['TESTSEQUENCE']" #TS>
+    <div accordion-heading class="thinheader">{{template.name}}
+      <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': TS?.isOpen, 'glyphicon-chevron-right': !TS?.isOpen}"></span>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>{{LblName}}</th>
+          <th>{{LblOrdered}}</th>
+          <th>{{LblMeasured}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let attr of template.attributes" [ngClass]="diff(attr.value[0], attr.value[1])">
+          <td>{{attr.name}}</td>
+          <td>{{attr.value[0]}}</td>
+          <td>{{attr.value[1]}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </accordion-group>
+</accordion>
+<accordion *ngIf="isTE()">
+  <accordion-group *ngFor="let template of contexts['TESTEQUIPMENT']" #TE>
+    <div accordion-heading class="thinheader">{{template.name}}
+      <span class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': TE?.isOpen, 'glyphicon-chevron-right': !TE?.isOpen}"></span>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>{{LblName}}</th>
+          <th>{{LblOrdered}}</th>
+          <th>{{LblMeasured}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let attr of template.attributes" [ngClass]="diff(attr.value[0], attr.value[1])">
+          <td>{{attr.name}}</td>
+          <td>{{attr.value[0]}}</td>
+          <td>{{attr.value[1]}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </accordion-group>
+</accordion>
+</div>

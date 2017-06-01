@@ -85,7 +85,7 @@ public class MDMEntityResponse {
 					MDMEntity compEntity = toTransferable(comp);
 					entity.components.add(compEntity);
 					for (Entry<String, Value> entry : comp.getValues().entrySet()) {
-						compEntity.attributes.put(entry.getKey(), entry.getValue().toString());
+						compEntity.attributes.put(entry.getKey(), entry.getValue().extract().toString());
 					}
 				}
 			}

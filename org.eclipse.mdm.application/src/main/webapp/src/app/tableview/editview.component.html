@@ -1,0 +1,101 @@
+<!-- ***************************************************************************
+*  Copyright (c) 2017 Peak Solution GmbH                                       *
+*                                                                              *
+*  All rights reserved. This program and the accompanying materials            *
+*  are made available under the terms of the Eclipse Public License v1.0       *
+*  which accompanies this distribution, and is available at                    *
+*  http://www.eclipse.org/legal/epl-v10.html                                   *
+*                                                                              *
+*  Contributors:                                                               *
+*  Matthias Koller, Johannes Stamm - initial implementation                    *
+**************************************************************************** -->
+
+<style>
+  .modal-body >>> .ui-tree .ui-tree-container {
+    margin: 0 0 4px 0 !important;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .modal-body >>> .ui-tree {
+    min-height: 50vh !important;
+    max-height: 72vh !important;
+    overflow: auto;
+  }
+
+  .modal-body >>> .ui-tree .ui-treenode .ui-treenode-content .ui-treenode-label {
+    padding-right: .75em;
+  }
+
+  .modal-body {
+    font-size: 14px;
+  }
+
+  >>> .ui-growl {z-index: 999999 !important;}
+</style>
+
+<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="SelectSearchComponents" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="closeDialog()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">{{LblViewEditor}}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-4" style="min-height: 50vh; max-height: 72vh;">
+                <input [(ngModel)]="selectedAttribute"
+                      [typeahead]="typeAheadValues"
+                      (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                      typeaheadOptionField="label"
+                      typeaheadGroupField="group"
+                      typeaheadOptionsLimit="15"
+                      placeholder="Suchtext eingeben"
+                      class="form-control"
+                      style="margin-bottom: 15px;">
+              <searchattribute-tree [searchAttributes]="searchAttributes" [environments]="environments"></searchattribute-tree>
+            </div>
+            <div class="col-md-8" style="min-height: 50vh; max-height: 72vh; overflow-y:auto;">
+            <label for="search-source" class="control-label" style="padding: 8px 0 15px 0;">{{LblSelectedAttributes}}</label>
+            <div *ngIf="currentView.columns.length === 0" style="text-align: center;">
+              Keine Attribute ausgewählt.
+            </div>
+            <table class="table table-bordered" style="padding: 0; overflow-y:auto; table-layout: fixed;">
+              <tr *ngFor="let col of currentView.columns">
+                <td style="width: 50%;" >
+                  {{col.type}}
+                </td>
+                <td style="width: 50%;" >
+                   {{col.name}}
+                </td>
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
+                  <span class="glyphicon glyphicon-menu-up" [ngStyle]="{'visibility': isFirst(col) ? 'hidden': 'visible'}" style="cursor: pointer; margin-bottom: 0;" (click)="moveUp(col)"></span>
+                </td>
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
+                  <span class="glyphicon glyphicon-menu-down" [ngStyle]="{'visibility': isLast(col)? 'hidden': 'visible'}" style="cursor: pointer;" (click)="moveDown(col)"></span>
+                </td>
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
+                  <span class="glyphicon" [ngClass]="{'glyphicon-sort': isNone(col), 'glyphicon-sort-by-alphabet-alt': isDesc(col), 'glyphicon-sort-by-alphabet': isAsc(col)}" style="cursor: pointer;" (click)="toggleSort(col)"></span>
+                </td>
+                <td style="width: 30px; text-align: center; vertical-align: middle;">
+                  <span class="glyphicon glyphicon-remove" [ngClass]="" style="cursor: pointer;" (click)="remove(col)"></span>
+                </td>
+              </tr>
+            </table>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 15px;">
+            <div class="col-md-12">
+              <button type="button" class="btn btn-default pull-right" (click)="applyChanges()">
+                <span class="glyphicon glyphicon-ok"></span> {{LblApplyChanges}}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

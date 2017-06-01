@@ -79,7 +79,7 @@ public class SearchActivity {
 		for (EntityType entityType : entityTypes) {
 			for (Attribute attr : entityType.getAttributes()) {
 				searchAttributes.add(
-						new SearchAttribute(entityType.getName(), attr.getName(), attr.getValueType().toString(), "*"));
+						new SearchAttribute(ServiceUtils.workaroundForTypeMapping(entityType), attr.getName(), attr.getValueType().toString(), "*"));
 			}
 		}
 

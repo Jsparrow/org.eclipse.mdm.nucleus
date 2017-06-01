@@ -22,10 +22,13 @@ import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
+import org.eclipse.mdm.businessobjects.control.NavigationActivity;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
+import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
@@ -42,7 +45,8 @@ public class TestService {
 	private I18NActivity i18nActivity;
 	@EJB
 	private SearchActivity searchActivity;
-	
+	@EJB
+	private NavigationActivity navigationActivity;
 	
 
 	/**
@@ -62,6 +66,11 @@ public class TestService {
 				return em.loadAll(Test.class);
 			}		
 			
+			if(ServiceUtils.isParentFilter(em, filter, Pool.class)) {
+				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.class);
+				return this.navigationActivity.getTests(sourceName, id);
+			}
+	
 			return this.searchActivity.search(em, Test.class, filter);
 		} catch(DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);

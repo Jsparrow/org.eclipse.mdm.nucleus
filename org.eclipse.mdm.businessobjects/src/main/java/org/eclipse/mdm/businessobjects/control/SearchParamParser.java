@@ -11,9 +11,13 @@
 
 package org.eclipse.mdm.businessobjects.control;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import javax.mail.search.SearchException;
 
 import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.base.query.Attribute;
@@ -21,6 +25,9 @@ import org.eclipse.mdm.api.base.query.Condition;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.Operation;
+import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
+
+import com.google.common.base.Strings;
 
 /**
  * Class for parsing the filter strings.
@@ -53,6 +60,9 @@ public class SearchParamParser {
 	 */
 	public static Filter parseFilterString(List<EntityType> possibleSearchAttrs, String filterString)
 			throws IllegalArgumentException {
+		if (Strings.isNullOrEmpty(filterString)) {
+			return Filter.and();
+		}
 		SearchFilterBuilder filterBuilder = new SearchFilterBuilder();
 		while (filterString.contains(AND_DELIMITER) || filterString.contains(OR_DELIMITER)) {
 			int andIndex = filterString.indexOf(AND_DELIMITER) >= 0 ? filterString.indexOf(AND_DELIMITER)
@@ -195,7 +205,7 @@ public class SearchParamParser {
 	private static Attribute validateAttribute(String entityName, String attrName, List<EntityType> possibleSearchAttrs)
 			throws IllegalArgumentException {
 		for (EntityType entityType : possibleSearchAttrs) {
-			if (entityType.getName().equals(entityName)) {
+			if (ServiceUtils.workaroundForTypeMapping(entityType).equals(entityName)) {
 				List<Attribute> attributes = entityType.getAttributes();
 				for (Attribute attribute : attributes) {
 					if (attribute.getName().equals(attrName)) {
@@ -237,8 +247,15 @@ public class SearchParamParser {
 			ret = Integer.valueOf(valueAsString);
 		} else if (ValueType.SHORT.equals(valueType)) {
 			ret = Short.valueOf(valueAsString);
+		} else if (ValueType.DATE.equals(valueType)) {
+			try {
+				ret = LocalDateTime.parse(valueAsString);
+			} catch (DateTimeParseException e) {
+				throw new IllegalArgumentException("Unsupported value for date: '" + valueAsString 
+						+ "'. Expected format: '2007-12-03T10:15:30'");
+			}
 		} else {
-			throw new IllegalArgumentException("Unsupported value type: " + valueAsString.toString());
+			throw new IllegalArgumentException("Unsupported value type: " + valueType.toString());
 		}
 		return ret;
 	}
@@ -269,5 +286,4 @@ public class SearchParamParser {
 		}
 		return operation;
 	}
-
 }
