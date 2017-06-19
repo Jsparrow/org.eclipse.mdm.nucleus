@@ -24,8 +24,6 @@ import org.junit.Test;
 
 public class SearchActivityTest {
 
-	
-
 	@Test
 	public void testSearch() throws Exception {
 		SearchActivity activity = new SearchActivity();

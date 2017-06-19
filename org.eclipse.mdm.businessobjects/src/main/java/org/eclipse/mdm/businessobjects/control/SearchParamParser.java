@@ -251,8 +251,8 @@ public class SearchParamParser {
 			try {
 				ret = LocalDateTime.parse(valueAsString);
 			} catch (DateTimeParseException e) {
-				throw new IllegalArgumentException("Unsupported value for date: '" + valueAsString 
-						+ "'. Expected format: '2007-12-03T10:15:30'");
+				throw new IllegalArgumentException(
+						"Unsupported value for date: '" + valueAsString + "'. Expected format: '2007-12-03T10:15:30'");
 			}
 		} else {
 			throw new IllegalArgumentException("Unsupported value type: " + valueType.toString());

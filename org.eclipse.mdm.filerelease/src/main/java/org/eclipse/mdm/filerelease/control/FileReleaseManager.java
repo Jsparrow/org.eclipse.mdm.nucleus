@@ -60,11 +60,14 @@ public class FileReleaseManager {
 	private FileReleasePersistance releasePersistance;
 
 	/**
-	 * Returns the {@link FileRelease} for the given user with the given identifier.
+	 * Returns the {@link FileRelease} for the given user with the given
+	 * identifier.
 	 * 
-	 * @param userName The name of the user to locate the {@link FileRelease}
-	 * @param identifier The identifier of the {@link FileRelease}
-	 * @return The found {@link FileRelease} 
+	 * @param userName
+	 *            The name of the user to locate the {@link FileRelease}
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease}
+	 * @return The found {@link FileRelease}
 	 */
 	public FileRelease getRelease(String userName, String identifier) {
 
@@ -90,11 +93,12 @@ public class FileReleaseManager {
 	 * direction ({@link FileReleaseManager#FILE_RELEASE_DIRECTION_INCOMMING} or
 	 * ({@link FileReleaseManager#FILE_RELEASE_DIRECTION_OUTGOING}).
 	 * 
-	 * @param userName 
-	 * 				The name of the user
-	 * @param direction The direction (
-	 *            	{@link FileReleaseManager#FILE_RELEASE_DIRECTION_INCOMMING} or
-	 *            	{@link FileReleaseManager#FILE_RELEASE_DIRECTION_OUTGOING})
+	 * @param userName
+	 *            The name of the user
+	 * @param direction
+	 *            The direction (
+	 *            {@link FileReleaseManager#FILE_RELEASE_DIRECTION_INCOMMING} or
+	 *            {@link FileReleaseManager#FILE_RELEASE_DIRECTION_OUTGOING})
 	 * @return A list with the {@link FileRelease}s
 	 */
 	public List<FileRelease> getReleases(String userName, String direction) {
@@ -135,7 +139,8 @@ public class FileReleaseManager {
 	/**
 	 * Adds a new {@link FileRelease}.
 	 * 
-	 * @param fileRelease The {@link FileRelease} to add.
+	 * @param fileRelease
+	 *            The {@link FileRelease} to add.
 	 */
 	public void addFileRelease(FileRelease fileRelease) {
 		if (this.releaseMap.containsKey(fileRelease.identifier)) {
@@ -147,9 +152,10 @@ public class FileReleaseManager {
 
 	/**
 	 * 
-	 * Removes a {@link FileRelease} 
+	 * Removes a {@link FileRelease}
 	 * 
-	 * @param fileRelease The {@link FileRelease} the remove.
+	 * @param fileRelease
+	 *            The {@link FileRelease} the remove.
 	 */
 	public void removeFileRelease(FileRelease fileRelease) {
 		if (!this.releaseMap.containsKey(fileRelease.identifier)) {
@@ -163,7 +169,8 @@ public class FileReleaseManager {
 	 * 
 	 * Checks if the given file link can be deleted
 	 * 
-	 * @param fileLink The file link to check
+	 * @param fileLink
+	 *            The file link to check
 	 * @return TRUE if the file link can be deleted. Otherwise FALSE.
 	 */
 	public boolean canDeleteFileLink(String identfier, String fileLink) {
@@ -173,12 +180,12 @@ public class FileReleaseManager {
 		}
 
 		for (FileRelease fileRelease : this.releaseMap.values()) {
-			
-			//skipping fileRelease to delete
-			if(fileRelease.identifier.equalsIgnoreCase(identfier)) {
+
+			// skipping fileRelease to delete
+			if (fileRelease.identifier.equalsIgnoreCase(identfier)) {
 				continue;
 			}
-			
+
 			if (fileRelease.fileLink.equalsIgnoreCase(fileLink)) {
 				return false;
 			}

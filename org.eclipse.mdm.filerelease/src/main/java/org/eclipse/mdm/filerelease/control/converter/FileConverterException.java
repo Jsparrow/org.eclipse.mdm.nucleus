@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.filerelease.control.converter;
 
@@ -20,21 +20,24 @@ package org.eclipse.mdm.filerelease.control.converter;
 public class FileConverterException extends Exception {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * Constructor
 	 * 
-	 * @param message The error message
+	 * @param message
+	 *            The error message
 	 */
 	public FileConverterException(String message) {
 		super(message);
 	}
-	
+
 	/**
 	 * Constructor#
 	 * 
-	 * @param message The error message
-	 * @param t The {@link Throwable} that caused the exception.
+	 * @param message
+	 *            The error message
+	 * @param t
+	 *            The {@link Throwable} that caused the exception.
 	 */
 	public FileConverterException(String message, Throwable t) {
 		super(message, t);

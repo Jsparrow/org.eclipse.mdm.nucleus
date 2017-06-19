@@ -12,15 +12,15 @@
 package org.eclipse.mdm.businessobjects.control;
 
 public class MDMEntityAccessException extends RuntimeException {
-	
+
 	private static final long serialVersionUID = -4196754501456211418L;
 
 	public MDMEntityAccessException(String message) {
 		super(message);
-	}	
+	}
 
 	public MDMEntityAccessException(String message, Throwable t) {
 		super(message, t);
 	}
-	
+
 }

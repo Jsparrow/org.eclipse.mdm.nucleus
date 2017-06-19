@@ -27,31 +27,30 @@ import org.eclipse.mdm.businessobjects.control.ContextActivity;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ContextSensorResponse {
 
-	
 	/** transferable data content */
 	private List<ContextSensorCollection> data;
-	
-		
-	
+
 	/**
 	 * Constructor
-	 * @param contextMap map with context data (ordered and measured)
+	 * 
+	 * @param contextMap
+	 *            map with context data (ordered and measured)
 	 */
-	public ContextSensorResponse(Map<String, List<ContextSensor>> sensorMap) { 
+	public ContextSensorResponse(Map<String, List<ContextSensor>> sensorMap) {
 		this.data = new ArrayList<>();
 		ContextSensorCollection contextSensorData = new ContextSensorCollection();
-		if(sensorMap.containsKey(ContextActivity.CONTEXT_SENSOR_GROUP_ORDERED)) {
+		if (sensorMap.containsKey(ContextActivity.CONTEXT_SENSOR_GROUP_ORDERED)) {
 			contextSensorData.setOrderedSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_ORDERED));
 		}
-		if(sensorMap.containsKey(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED)) {
-			contextSensorData.setMeasuredSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED));	
+		if (sensorMap.containsKey(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED)) {
+			contextSensorData.setMeasuredSensorContext(sensorMap.get(ContextActivity.CONTEXT_SENSOR_GROUP_MEASURED));
 		}
 		this.data.add(contextSensorData);
 	}
-	
-	
+
 	/**
 	 * returns the {@link ContextSensor} data
+	 * 
 	 * @return the {@link ContextSensor} data
 	 */
 	public List<ContextSensorCollection> getData() {

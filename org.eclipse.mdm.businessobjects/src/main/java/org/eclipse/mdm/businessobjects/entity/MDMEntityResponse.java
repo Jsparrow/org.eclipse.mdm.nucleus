@@ -23,6 +23,7 @@ import org.eclipse.mdm.api.base.model.Entity;
 
 /**
  * EntryResponse (Container for {@link MDMEntity}s)
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -30,59 +31,54 @@ import org.eclipse.mdm.api.base.model.Entity;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MDMEntityResponse {
 
-	
-	
 	/** type of all content entries (e.g. TestStep) */
-	private final String type;	
+	private final String type;
 	/** transferable data content */
 	private final List<MDMEntity> data;
-	
-	
-	
+
 	/**
 	 * Constructor (for a list of business objects {@link MDMEntity}s)
 	 * 
-	 * @param type type of all containging {@link MDMEntity}s
-	 * @param entries list of {@link MDMEntity}
+	 * @param type
+	 *            type of all containging {@link MDMEntity}s
+	 * @param entries
+	 *            list of {@link MDMEntity}
 	 */
 	public <T extends Entity> MDMEntityResponse(Class<? extends Entity> type, List<T> businessObjects) {
 		this.type = type.getSimpleName();
 		this.data = toTransferable(businessObjects);
-	}	
-	
-	
-		
+	}
+
 	/**
 	 * Constructor (for a single business object {@link MDMEntity})
 	 * 
-	 * @param type type of the {@link MDMEntity}
-	 * @param businessObject single {@link MDMEntity}
+	 * @param type
+	 *            type of the {@link MDMEntity}
+	 * @param businessObject
+	 *            single {@link MDMEntity}
 	 */
 	public <T extends Entity> MDMEntityResponse(Class<? extends Entity> type, T businessObject) {
 		List<T> businessObjects = new ArrayList<>();
 		businessObjects.add(businessObject);
 		this.type = type.getSimpleName();
-		this.data = toTransferable(businessObjects);		
+		this.data = toTransferable(businessObjects);
 	}
-	
-	
-	
+
 	public String getType() {
 		return this.type;
 	}
-	
-	
+
 	public List<MDMEntity> getData() {
 		return Collections.unmodifiableList(this.data);
 	}
-	
+
 	private <T extends Entity> List<MDMEntity> toTransferable(List<T> businessObjects) {
 		List<MDMEntity> mdmEntityList = new ArrayList<MDMEntity>();
-		for(Entity  businessObject : businessObjects) {				
+		for (Entity businessObject : businessObjects) {
 			MDMEntity mdmEntity = new MDMEntity(businessObject);
 			mdmEntityList.add(mdmEntity);
 		}
-		return mdmEntityList;	
-	}	
+		return mdmEntityList;
+	}
 
 }

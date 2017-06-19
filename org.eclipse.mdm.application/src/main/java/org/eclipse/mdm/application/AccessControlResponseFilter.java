@@ -9,7 +9,6 @@
   * Sebastian Dirsch - initial implementation
   *******************************************************************************/
 
-
 package org.eclipse.mdm.application;
 
 import javax.annotation.Priority;
@@ -24,20 +23,20 @@ import javax.ws.rs.ext.Provider;
 @Priority(Priorities.HEADER_DECORATOR)
 public class AccessControlResponseFilter implements ContainerResponseFilter {
 
-    @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        
-    	final MultivaluedMap<String,Object> responseHeaders = responseContext.getHeaders();        
-        final MultivaluedMap<String,String> requestHeaders = requestContext.getHeaders();
-        
-        responseHeaders.add("Access-Control-Allow-Origin", "*");
-        responseHeaders.add("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type");
-        responseHeaders.add("Access-Control-Expose-Headers", "Location, Content-Disposition");
-        responseHeaders.add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE, HEAD, OPTIONS");
-        
-        requestHeaders.add("Access-Control-Allow-Origin", "*");
-        requestHeaders.add("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type");
-        requestHeaders.add("Access-Control-Expose-Headers", "Location, Content-Disposition");
-        requestHeaders.add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE, HEAD, OPTIONS");
-    }
+	@Override
+	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+
+		final MultivaluedMap<String, Object> responseHeaders = responseContext.getHeaders();
+		final MultivaluedMap<String, String> requestHeaders = requestContext.getHeaders();
+
+		responseHeaders.add("Access-Control-Allow-Origin", "*");
+		responseHeaders.add("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type");
+		responseHeaders.add("Access-Control-Expose-Headers", "Location, Content-Disposition");
+		responseHeaders.add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE, HEAD, OPTIONS");
+
+		requestHeaders.add("Access-Control-Allow-Origin", "*");
+		requestHeaders.add("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type");
+		requestHeaders.add("Access-Control-Expose-Headers", "Location, Content-Disposition");
+		requestHeaders.add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE, HEAD, OPTIONS");
+	}
 }

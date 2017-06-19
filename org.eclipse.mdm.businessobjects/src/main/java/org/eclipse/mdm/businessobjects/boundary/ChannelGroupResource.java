@@ -35,85 +35,85 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link ChannelGroup} resource 
+ * {@link ChannelGroup} resource
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Path("/environments/{SOURCENAME}/channelgroups")
 public class ChannelGroupResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ChannelGroupResource.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(ChannelGroupResource.class);
+
 	@EJB
 	private ChannelGroupService channelGroupService;
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link ChannelGroupService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the {@link ChannelGroup} result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the {@link ChannelGroup} result
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getChannelGroups(@PathParam("SOURCENAME") String sourceName, @QueryParam("filter") String filter) {
-		
-		try {			
-			List<ChannelGroup> channelGroups = this.channelGroupService.getChannelGroups(sourceName, filter);	
+
+		try {
+			List<ChannelGroup> channelGroups = this.channelGroupService.getChannelGroups(sourceName, filter);
 			return ServiceUtils.toResponse(new MDMEntityResponse(ChannelGroup.class, channelGroups), Status.OK);
-		
-		} catch(RuntimeException e) {		
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * returns a {@link ChannelGroup} identified by the given id.
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param channelId id of the {@link ChannelGroup}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param channelId
+	 *            id of the {@link ChannelGroup}
 	 * @return the matching {@link ChannelGroup}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{CHANNELGROUP_ID}") 
-	public Response getChannelGroup(@PathParam("SOURCENAME") String sourceName, 
-		@PathParam("CHANNELGROUP_ID") long channelGroupId) {
-			
-		try {			
-			ChannelGroup channelGroup = this.channelGroupService.getChannelGroup(sourceName, channelGroupId);	
+	@Path("/{CHANNELGROUP_ID}")
+	public Response getChannelGroup(@PathParam("SOURCENAME") String sourceName,
+			@PathParam("CHANNELGROUP_ID") long channelGroupId) {
+
+		try {
+			ChannelGroup channelGroup = this.channelGroupService.getChannelGroup(sourceName, channelGroupId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(ChannelGroup.class, channelGroup), Status.OK);
-			
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link ChannelGroupService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/localizations") 
+	@Path("/localizations")
 	public Response localize(@PathParam("SOURCENAME") String sourceName) {
-		
-		try {		
+
+		try {
 			Map<Attribute, String> localizedAttributeMap = this.channelGroupService.localizeAttributes(sourceName);
 			Map<EntityType, String> localizedEntityTypeMap = this.channelGroupService.localizeType(sourceName);
-			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);			
-		
-		} catch(RuntimeException e) {
+			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}

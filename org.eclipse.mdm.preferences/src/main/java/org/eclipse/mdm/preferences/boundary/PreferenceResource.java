@@ -40,28 +40,30 @@ import org.slf4j.LoggerFactory;
  */
 @Path("/preferences")
 public class PreferenceResource {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(PreferenceResource.class); 
-	
+
+	private static final Logger LOG = LoggerFactory.getLogger(PreferenceResource.class);
+
 	@EJB
 	private PreferenceService preferenceService;
-	
+
 	/**
 	 * delegates the request to the {@link PreferenceService}
 	 * 
-	 * @param scope filter by scope, empty loads all
-	 * @param key filter by key, empty loads all
+	 * @param scope
+	 *            filter by scope, empty loads all
+	 * @param key
+	 *            filter by key, empty loads all
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPreference(@QueryParam("scope") String scope, @QueryParam("key") String key) {
-		
-		try {			
+
+		try {
 			List<PreferenceMessage> config = this.preferenceService.getPreferences(scope, key);
 			return toResponse(new PreferenceList(config), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
@@ -70,66 +72,73 @@ public class PreferenceResource {
 	/**
 	 * delegates the request to the {@link PreferenceService}
 	 * 
-	 * @param source filter by source
-	 * @param key filter by key, empty loads all
+	 * @param source
+	 *            filter by source
+	 * @param key
+	 *            filter by key, empty loads all
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Path("/source")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPreferenceBySource(@QueryParam("source") String source, @QueryParam("key") String key) {
-		
-		try {			
+
+		try {
 			List<PreferenceMessage> config = this.preferenceService.getPreferencesBySource(source, key);
 			return toResponse(new PreferenceList(config), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	/**
 	 * delegates the request to the {@link PreferenceService}
 	 * 
-	 * @param preference Configuration to save
+	 * @param preference
+	 *            Configuration to save
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response setPreference(PreferenceMessage preference) {
-		
+
 		try {
 			return toResponse(this.preferenceService.save(preference), Status.CREATED);
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	/**
 	 * delegates the request to the {@link PreferenceService}
 	 * 
-	 * @param preference Configuration to delete
+	 * @param preference
+	 *            Configuration to delete
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@DELETE
 	@Path("/{ID}")
-	public Response deletePreference(@PathParam("ID") Long id){
-		
+	public Response deletePreference(@PathParam("ID") Long id) {
+
 		try {
 			return toResponse(this.preferenceService.deletePreference(id), Status.OK);
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	/**
-	 * converts the given object to a {@link Response} with the given {@link Status}
+	 * converts the given object to a {@link Response} with the given
+	 * {@link Status}
 	 *
-	 * @param responseEntry object to convert
-	 * @param status {@link Status} of the {@link Response}
+	 * @param responseEntry
+	 *            object to convert
+	 * @param status
+	 *            {@link Status} of the {@link Response}
 	 * @return the created {@link Response}
 	 */
 	private Response toResponse(Object response, Status status) {

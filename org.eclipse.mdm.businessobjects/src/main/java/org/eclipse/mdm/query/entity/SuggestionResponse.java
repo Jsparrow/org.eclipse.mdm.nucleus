@@ -27,22 +27,23 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SuggestionResponse {
 
-	
 	/** transferable data content */
 	private List<String> data;
-	
+
 	/**
 	 * Constructor
-	 * @param searchDefinitions list of {@link Suggestion}s to transfer
+	 * 
+	 * @param searchDefinitions
+	 *            list of {@link Suggestion}s to transfer
 	 */
 	public SuggestionResponse(List<String> suggestions) {
 		this.data = new ArrayList<>(suggestions);
 	}
-	
+
 	public SuggestionResponse() {
 		this.data = new ArrayList<>();
 	}
-	
+
 	public List<String> getData() {
 		return Collections.unmodifiableList(this.data);
 	}

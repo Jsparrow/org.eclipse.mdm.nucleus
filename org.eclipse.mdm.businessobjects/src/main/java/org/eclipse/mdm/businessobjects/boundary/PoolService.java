@@ -32,6 +32,7 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
  * PoolService Bean implementation with available {@link Pool} operations
+ * 
  * @author Matthias Koller, Peak Solution GmbH
  *
  */
@@ -39,101 +40,120 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 public class PoolService {
 
 	@EJB
-	private ConnectorService connectorService;	
+	private ConnectorService connectorService;
 	@EJB
 	private I18NActivity i18nActivity;
 	@EJB
 	private SearchActivity searchActivity;
 	@EJB
 	private NavigationActivity navigationActivity;
-	
+
 	/**
 	 * Default no-arg constructor for EJB
 	 */
 	public PoolService() {
 		// Default no-arg constructor for EJB
 	}
-	
+
 	/**
 	 * Contructor for unit testing
-	 * @param connectorService {@link ConnectorService} to use
-	 * @param searchActivity {@link SearchActivity} to use
-	 * @param navigationActivity {@link NavigationActivity} to use
-	 * @param i18nActivity {@link I18NActivity} to use
+	 * 
+	 * @param connectorService
+	 *            {@link ConnectorService} to use
+	 * @param searchActivity
+	 *            {@link SearchActivity} to use
+	 * @param navigationActivity
+	 *            {@link NavigationActivity} to use
+	 * @param i18nActivity
+	 *            {@link I18NActivity} to use
 	 */
-	PoolService(ConnectorService connectorService, SearchActivity searchActivity, NavigationActivity navigationActivity, I18NActivity i18nActivity) {
+	PoolService(ConnectorService connectorService, SearchActivity searchActivity, NavigationActivity navigationActivity,
+			I18NActivity i18nActivity) {
 		this.connectorService = connectorService;
 		this.searchActivity = searchActivity;
 		this.navigationActivity = navigationActivity;
 		this.i18nActivity = i18nActivity;
 	}
-	
+
 	/**
-	 * returns the matching {@link Pool}s using the given filter or all {@link Pool}s 
-	 * if no filter is available
+	 * returns the matching {@link Pool}s using the given filter or all
+	 * {@link Pool}s if no filter is available
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the {@link Pool} result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the {@link Pool} result
 	 * @return the found {@link Pool}s
 	 */
 	public List<Pool> getPools(String sourceName, String filter) {
-		
-		try {		
+
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			
-			if(filter == null || filter.trim().length() <= 0) {
+
+			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(Pool.class);
-			}		
-			
-			if(ServiceUtils.isParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT)) {
+			}
+
+			if (ServiceUtils.isParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT)) {
 				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT);
 				return this.navigationActivity.getPools(sourceName, id);
 			}
-			
+
 			return this.searchActivity.search(em, Pool.class, filter);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
+
 	/**
-	 * Returns the {@link SearchAttribute} for the entity type {@link Pool} in the given data source.
-	 * @param sourceName The name of the data source.
+	 * Returns the {@link SearchAttribute} for the entity type {@link Pool} in
+	 * the given data source.
+	 * 
+	 * @param sourceName
+	 *            The name of the data source.
 	 * @return the found {@link SearchAttribute}s
 	 */
 	public List<SearchAttribute> getSearchAttributes(String sourceName) {
 		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 		return this.searchActivity.listAvailableAttributes(em, Pool.class);
 	}
-	
+
 	/**
 	 * returns a {@link Pool} identified by the given id.
-	 * @param poolId id of the {@link Pool}
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param testStepId id of the {@link Pool}
+	 * 
+	 * @param poolId
+	 *            id of the {@link Pool}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param testStepId
+	 *            id of the {@link Pool}
 	 * @return the matching {@link Pool}
 	 */
 	public Pool getPool(String sourceName, long poolId) {
-		try {		
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.load(Pool.class, poolId);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
+
 	/**
 	 * returns localized {@link Pool} attributes
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Pool} attributes
 	 */
-	public Map<Attribute, String> localizeAttributes(String sourceName) {		
+	public Map<Attribute, String> localizeAttributes(String sourceName) {
 		return this.i18nActivity.localizeAttributes(sourceName, Pool.class);
-	}	
-	
+	}
+
 	/**
 	 * returns the localized {@link Pool} type name
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Pool} type name
 	 */
 	public Map<EntityType, String> localizeType(String sourceName) {

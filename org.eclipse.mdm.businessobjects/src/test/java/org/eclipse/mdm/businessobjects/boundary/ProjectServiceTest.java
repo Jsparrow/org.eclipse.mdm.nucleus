@@ -32,18 +32,18 @@ public class ProjectServiceTest {
 	ConnectorService connectorService = Mockito.mock(ConnectorService.class);
 	SearchActivity searchActivity = Mockito.mock(SearchActivity.class);
 	I18NActivity i18nActivity = Mockito.mock(I18NActivity.class);
-	
+
 	ProjectService service = new ProjectService(connectorService, searchActivity, i18nActivity);
-	
+
 	@Before
 	public void init() {
 		when(connectorService.getEntityManagerByName("MDMTEST")).thenReturn(em);
 	}
-	
+
 	@Test
 	public void testGetProject() throws DataAccessException {
 		service.getProject("MDMTEST", 1L);
-		
+
 		verify(em).load(Project.class, 1L);
 		verifyNoMoreInteractions(searchActivity);
 	}
@@ -51,37 +51,37 @@ public class ProjectServiceTest {
 	@Test
 	public void testGetProjectsEmptyFilter() throws DataAccessException {
 		service.getProjects("MDMTEST", "");
-		
+
 		verify(em).loadAll(Mockito.any());
 		verifyNoMoreInteractions(searchActivity);
 	}
-	
+
 	@Test
 	public void testGetProjectsNullFilter() throws DataAccessException {
 		service.getProjects("MDMTEST", null);
-		
+
 		verify(em).loadAll(Mockito.any());
 		verifyNoMoreInteractions(searchActivity);
 	}
-	
+
 	@Test(expected = MDMEntityAccessException.class)
 	public void testGetProjectsWrongEnvironment() {
 		doThrow(MDMEntityAccessException.class).when(connectorService).getEntityManagerByName("wrongEnvironment");
-		
+
 		service.getProjects("wrongEnvironment", "Project.Name eq crash");
 	}
-	
+
 	@Test
 	public void testGetProjects() {
 		service.getProjects("MDMTEST", "Project.Name eq crash");
-		
+
 		verify(searchActivity).search(em, Project.class, "Project.Name eq crash");
 	}
-	
+
 	@Test
 	public void testGetSearchAttributes() {
 		service.getSearchAttributes("MDMTEST");
-		
+
 		verify(searchActivity).listAvailableAttributes(em, Project.class);
 	}
 
@@ -90,7 +90,7 @@ public class ProjectServiceTest {
 		service.localizeAttributes("MDMTEST");
 		verify(i18nActivity).localizeAttributes("MDMTEST", Project.class);
 	}
-	
+
 	@Test
 	public void testLocalizeType() {
 		service.localizeType("MDMTEST");

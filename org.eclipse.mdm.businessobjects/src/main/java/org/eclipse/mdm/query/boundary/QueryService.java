@@ -49,117 +49,109 @@ import org.slf4j.LoggerFactory;
  */
 @Stateless
 public class QueryService {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(QueryService.class); 
-	
+
+	private static final Logger LOG = LoggerFactory.getLogger(QueryService.class);
+
 	@Inject
 	@GlobalProperty(value = "businessobjects.query.maxresultspersource")
 	private String maxResultsPerSource = "1001";
-	
+
 	@EJB
 	ConnectorService connectorService;
-	
-	
+
 	public List<Row> queryRows(QueryRequest request) {
 		List<Row> rows = new ArrayList<>();
-		
+
 		for (SourceFilter filter : request.getFilters()) {
 			try {
 				EntityManager em = this.connectorService.getEntityManagerByName(filter.getSourceName());
-			
-				rows.addAll(queryRowsForSource(em, request.getResultType(), request.getColumns(), filter.getFilter(), filter.getSearchString()));
-			}
-			catch (ConnectorServiceException e) {
-				LOG.warn("Could not retrieve EntityManager for environment '"  + filter.getSourceName() + "'!", e);
-			}
-			catch (Exception e) {
-				LOG.warn("Could not retrieve query results for environment '"  + filter.getSourceName() + "': " + e.getMessage(), e);
+
+				rows.addAll(queryRowsForSource(em, request.getResultType(), request.getColumns(), filter.getFilter(),
+						filter.getSearchString()));
+			} catch (ConnectorServiceException e) {
+				LOG.warn("Could not retrieve EntityManager for environment '" + filter.getSourceName() + "'!", e);
+			} catch (Exception e) {
+				LOG.warn("Could not retrieve query results for environment '" + filter.getSourceName() + "': "
+						+ e.getMessage(), e);
 			}
 		}
-			
+
 		return rows;
 	}
 
 	public List<String> getSuggestions(SuggestionRequest suggestionRequest) {
-		
+
 		List<String> suggestions = new ArrayList<>();
-		
-		for (String envName: suggestionRequest.getSourceNames()) {
-			
+
+		for (String envName : suggestionRequest.getSourceNames()) {
+
 			EntityManager em = this.connectorService.getEntityManagerByName(envName);
 			Optional<ModelManager> mm = em.getModelManager();
-			
+
 			if (mm.isPresent()) {
-	
+
 				try {
 					EntityType entityType = mm.get().getEntityType(suggestionRequest.getType());
-				
+
 					Attribute attr = entityType.getAttribute(suggestionRequest.getAttrName());
-				
-					suggestions.addAll(mm.get().createQuery()
-						.select(attr)
-						.group(attr)
-						.fetch()
-						.stream()
-						.map(r -> Objects.toString(r.getValue(attr).extract()))
-						.collect(Collectors.toList()));
-					
+
+					suggestions.addAll(mm.get().createQuery().select(attr).group(attr).fetch().stream()
+							.map(r -> Objects.toString(r.getValue(attr).extract())).collect(Collectors.toList()));
+
 				} catch (DataAccessException | IllegalArgumentException e) {
-					LOG.warn("Cannot retreive suggestions " + suggestionRequest + " for Environment + " + envName + "!", e);
+					LOG.warn("Cannot retreive suggestions " + suggestionRequest + " for Environment + " + envName + "!",
+							e);
 				}
 			}
 		}
 		return suggestions;
 	}
-	
-	List<Row> queryRowsForSource(EntityManager em, String resultEntity, List<String> columns, String filterString, String searchString) throws DataAccessException {
+
+	List<Row> queryRowsForSource(EntityManager em, String resultEntity, List<String> columns, String filterString,
+			String searchString) throws DataAccessException {
 
 		ModelManager modelManager = getModelManager(em);
-		
+
 		SearchService searchService = ServiceUtils.getSearchService(em);
-		
+
 		Class<? extends Entity> resultType = getEntityClassByNameType(searchService, resultEntity);
 
 		List<EntityType> searchableTypes = searchService.listEntityTypes(resultType);
-		List<Attribute> attributes = columns.stream()
-				.map(c -> getAttribute(searchableTypes, c))
-				.filter(Optional::isPresent)
-			    .map(Optional::get)
-				.collect(Collectors.toList());
+		List<Attribute> attributes = columns.stream().map(c -> getAttribute(searchableTypes, c))
+				.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
 		Filter filter = SearchParamParser.parseFilterString(searchableTypes, filterString);
-		
+
 		List<Result> result = searchService.fetchResults(resultType, attributes, filter, searchString);
-		
-		return Util.convertResultList(result.subList(0, Math.min(result.size(), getMaxResultsPerSource())), resultType, modelManager.getEntityType(resultType));
+
+		return Util.convertResultList(result.subList(0, Math.min(result.size(), getMaxResultsPerSource())), resultType,
+				modelManager.getEntityType(resultType));
 	}
-	
+
 	private ModelManager getModelManager(EntityManager em) {
 		Optional<ModelManager> mm = em.getModelManager();
-		if(!mm.isPresent()) {
+		if (!mm.isPresent()) {
 			throw new IllegalStateException("neccessary ModelManager is not available");
 		}
 		return mm.get();
 	}
-	
+
 	private Optional<Attribute> getAttribute(List<EntityType> searchableTypes, String c) {
 		String[] parts = c.split("\\.");
-		
+
 		if (parts.length != 2) {
 			throw new IllegalArgumentException("Cannot parse attribute " + c + "!");
 		}
-		
+
 		String type = parts[0];
 		String attributeName = parts[1];
-		
+
 		Optional<EntityType> entityType = searchableTypes.stream()
-				.filter(e -> ServiceUtils.workaroundForTypeMapping(e).equalsIgnoreCase(type))
-				.findFirst();
-		
+				.filter(e -> ServiceUtils.workaroundForTypeMapping(e).equalsIgnoreCase(type)).findFirst();
+
 		if (entityType.isPresent()) {
-			return entityType.get().getAttributes().stream()
-				.filter(a -> a.getName().equalsIgnoreCase(attributeName))
-				.findFirst();
+			return entityType.get().getAttributes().stream().filter(a -> a.getName().equalsIgnoreCase(attributeName))
+					.findFirst();
 		} else {
 			return Optional.empty();
 		}
@@ -172,17 +164,16 @@ public class QueryService {
 				return entityClass;
 			}
 		}
-		throw new IllegalArgumentException("Invalid Entity '" + name + "'. Allowed values are: " 
+		throw new IllegalArgumentException("Invalid Entity '" + name + "'. Allowed values are: "
 				+ s.listSearchableTypes().stream().map(Class::getSimpleName).collect(Collectors.joining(", ")));
 	}
-	
+
 	private int getMaxResultsPerSource() {
 		try {
 			return Integer.parseInt(maxResultsPerSource);
-		}
-		catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return 1001;
 		}
 	}
-	
+
 }

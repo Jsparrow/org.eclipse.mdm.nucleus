@@ -45,19 +45,19 @@ public class PoolServiceTest {
 	SearchActivity searchActivity = Mockito.mock(SearchActivity.class);
 	NavigationActivity navigationActivity = Mockito.mock(NavigationActivity.class);
 	I18NActivity i18nActivity = Mockito.mock(I18NActivity.class);
-	
+
 	PoolService service = new PoolService(connectorService, searchActivity, navigationActivity, i18nActivity);
-	
+
 	@Before
 	public void init() {
 		when(connectorService.getEntityManagerByName("MDMTEST")).thenReturn(em);
 		when(em.getModelManager()).thenReturn(Optional.of(mm));
 	}
-	
+
 	@Test
 	public void testGetPool() throws DataAccessException {
 		service.getPool("MDMTEST", 1L);
-		
+
 		verify(em).load(Pool.class, 1L);
 		verifyNoMoreInteractions(searchActivity);
 	}
@@ -65,45 +65,45 @@ public class PoolServiceTest {
 	@Test
 	public void testGetPoolsEmptyFilter() throws DataAccessException {
 		service.getPools("MDMTEST", "");
-		
+
 		verify(em).loadAll(Mockito.any());
 		verifyNoMoreInteractions(searchActivity);
 	}
-	
+
 	@Test
 	public void testGetPoolsNullFilter() throws DataAccessException {
 		service.getPools("MDMTEST", null);
-		
+
 		verify(em).loadAll(Mockito.any());
 		verifyNoMoreInteractions(searchActivity);
 	}
-	
+
 	@Test(expected = MDMEntityAccessException.class)
 	public void testGetPoolsWrongEnvironment() {
 		doThrow(MDMEntityAccessException.class).when(connectorService).getEntityManagerByName("wrongEnvironment");
-		
+
 		service.getPools("wrongEnvironment", "Pool.Name eq crash");
 	}
-	
+
 	@Test
 	public void testGetPoolsParentFilter() {
 		service.getPools("MDMTEST", "Project.Id eq 4711");
-		
+
 		verify(navigationActivity).getPools("MDMTEST", 4711L);
 		verifyZeroInteractions(searchActivity);
 	}
-	
+
 	@Test
 	public void testGetPools() {
 		service.getPools("MDMTEST", "Pool.Name eq crash");
-		
+
 		verify(searchActivity).search(em, Pool.class, "Pool.Name eq crash");
 	}
-	
+
 	@Test
 	public void testGetSearchAttributes() {
 		service.getSearchAttributes("MDMTEST");
-		
+
 		verify(searchActivity).listAvailableAttributes(em, Pool.class);
 	}
 
@@ -112,7 +112,7 @@ public class PoolServiceTest {
 		service.localizeAttributes("MDMTEST");
 		verify(i18nActivity).localizeAttributes("MDMTEST", Pool.class);
 	}
-	
+
 	@Test
 	public void testLocalizeType() {
 		service.localizeType("MDMTEST");
@@ -120,34 +120,34 @@ public class PoolServiceTest {
 	}
 
 	private ModelManager mockModelManager() {
-		
+
 		Attribute projectId = mock(Attribute.class);
 		when(projectId.getName()).thenReturn("Id");
-		
+
 		EntityType project = mock(EntityType.class);
 		when(project.getSourceName()).thenReturn("MDMTEST");
 		when(project.getName()).thenReturn("Project");
 		when(project.getAttributes()).thenReturn(Arrays.asList(projectId));
 		when(project.getIDAttribute()).thenReturn(projectId);
-		
+
 		Attribute poolId = mock(Attribute.class);
 		when(poolId.getName()).thenReturn("Id");
 		when(poolId.getValueType()).thenReturn(ValueType.LONG);
-		
+
 		Attribute poolName = mock(Attribute.class);
 		when(poolName.getName()).thenReturn("Name");
 		when(poolName.getValueType()).thenReturn(ValueType.STRING);
-		
+
 		EntityType pool = mock(EntityType.class);
 		when(pool.getSourceName()).thenReturn("MDMTEST");
 		when(pool.getName()).thenReturn("Pool");
 		when(pool.getAttributes()).thenReturn(Arrays.asList(poolId, poolName));
 		when(pool.getAttribute("Name")).thenReturn(poolName);
 		when(pool.getIDAttribute()).thenReturn(poolId);
-		
+
 		when(poolId.getEntityType()).thenReturn(pool);
 		when(poolName.getEntityType()).thenReturn(pool);
-		
+
 		ModelManager mm = mock(ModelManager.class);
 		when(mm.getEntityType(Project.class)).thenReturn(project);
 		when(mm.getEntityType("Project")).thenReturn(project);

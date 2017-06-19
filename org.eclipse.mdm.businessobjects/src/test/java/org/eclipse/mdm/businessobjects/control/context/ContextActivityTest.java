@@ -27,68 +27,60 @@ import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 import org.junit.Test;
 
-
 public class ContextActivityTest {
 
-	@Test 
+	@Test
 	public void testGetTestStepContext() throws Exception {
-		
-		ContextActivity contextActitity = createMockedActivity();
-		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.
-			getTestStepContext("MDM", 1L);
 
-		assertNotNull("context should not be null", contextMap);		
-		checkContextContent(contextMap);
-			
-	}
-		
-	
-	
-	@Test 
-	public void testGetMeasurementContext() throws Exception {
-		
 		ContextActivity contextActitity = createMockedActivity();
-		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.
-			getMeasurementContext("MDM", 1L);
+		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.getTestStepContext("MDM", 1L);
 
 		assertNotNull("context should not be null", contextMap);
-		checkContextContent(contextMap);		
+		checkContextContent(contextMap);
+
 	}
 
+	@Test
+	public void testGetMeasurementContext() throws Exception {
 
+		ContextActivity contextActitity = createMockedActivity();
+		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.getMeasurementContext("MDM", 1L);
+
+		assertNotNull("context should not be null", contextMap);
+		checkContextContent(contextMap);
+	}
 
 	private void checkContextContent(Map<String, Map<ContextType, ContextRoot>> contextMap) {
-		
+
 		Map<ContextType, ContextRoot> orderedContext = contextMap.get(ContextActivity.CONTEXT_GROUP_ORDERED);
 		Set<Entry<ContextType, ContextRoot>> orderedEntrySet = orderedContext.entrySet();
 		assertEquals("size of entry set should be 3", 3, orderedEntrySet.size());
-		
-		for(Entry<ContextType, ContextRoot> entry : orderedEntrySet) {
+
+		for (Entry<ContextType, ContextRoot> entry : orderedEntrySet) {
 			ContextRoot cr = entry.getValue();
 			List<ContextComponent> ccList = cr.getContextComponents();
 			assertEquals("size of context components should be 10", 10, ccList.size());
-			for(ContextComponent cc : ccList) {
+			for (ContextComponent cc : ccList) {
 				Map<String, Value> values = cc.getValues();
 				assertEquals("size of value map should be 10", 10, values.size());
 			}
-		}			
-		
+		}
+
 		Map<ContextType, ContextRoot> measuredContext = contextMap.get(ContextActivity.CONTEXT_GROUP_MEASURED);
 		Set<Entry<ContextType, ContextRoot>> measuredEntrySet = measuredContext.entrySet();
 		assertEquals("size of entry set should be 3", 3, measuredEntrySet.size());
-		
-		for(Entry<ContextType, ContextRoot> entry : measuredEntrySet) {
+
+		for (Entry<ContextType, ContextRoot> entry : measuredEntrySet) {
 			ContextRoot cr = entry.getValue();
 			List<ContextComponent> ccList = cr.getContextComponents();
 			assertEquals("size of context components should be 10", 10, ccList.size());
-			for(ContextComponent cc : ccList) {
+			for (ContextComponent cc : ccList) {
 				Map<String, Value> values = cc.getValues();
 				assertEquals("size of value map should be 10", 10, values.size());
 			}
 		}
 	}
-	
-	
+
 	public ContextActivity createMockedActivity() throws Exception {
 		ContextActivity contextActivity = new ContextActivity();
 		Field field = contextActivity.getClass().getDeclaredField("connectorService");

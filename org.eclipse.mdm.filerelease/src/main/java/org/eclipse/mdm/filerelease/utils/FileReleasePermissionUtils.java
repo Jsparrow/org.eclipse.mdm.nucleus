@@ -40,20 +40,20 @@ public final class FileReleasePermissionUtils {
 	 * 
 	 */
 	public static void canCreate(FileRelease newFileRelease, String userName, List<FileRelease> list) {
-		for(FileRelease fileRelease : list) {
-			
+		for (FileRelease fileRelease : list) {
+
 			boolean sourceNameEqual = fileRelease.sourceName.equals(newFileRelease.sourceName);
 			boolean typeNameEqual = fileRelease.typeName.equals(newFileRelease.typeName);
 			boolean idEqual = fileRelease.id == newFileRelease.id;
 			boolean formatEqual = fileRelease.format.equals(newFileRelease.format);
-			
-			if(sourceNameEqual && typeNameEqual && idEqual && formatEqual) {
-				throw new FileReleaseException("FileRelease for user '" + userName + "' and path'" 
-						+ fileRelease.sourceName + "/" + fileRelease.typeName + "/" 
-						+ fileRelease.id + "' (Format: '" + fileRelease.format + "') already exists!");				
+
+			if (sourceNameEqual && typeNameEqual && idEqual && formatEqual) {
+				throw new FileReleaseException("FileRelease for user '" + userName + "' and path'"
+						+ fileRelease.sourceName + "/" + fileRelease.typeName + "/" + fileRelease.id + "' (Format: '"
+						+ fileRelease.format + "') already exists!");
 			}
 		}
-		
+
 	}
 
 	/**
@@ -91,19 +91,16 @@ public final class FileReleasePermissionUtils {
 	 *             if the user is not allowed to approve the {@link FileRelease}
 	 */
 	public static void canApprove(FileRelease fileRelease, String userName) {
-		if(!fileRelease.receiver.equalsIgnoreCase(userName)) {
-			throw new FileReleaseException("user with name '" + userName + "' can't approve FileRelease with id '" 
-				+ fileRelease.identifier + "'");
+		if (!fileRelease.receiver.equalsIgnoreCase(userName)) {
+			throw new FileReleaseException("user with name '" + userName + "' can't approve FileRelease with id '"
+					+ fileRelease.identifier + "'");
 		}
-		
-		if(!fileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_ORDERED)) {
-			throw new FileReleaseException("unable to approve FileRelease in state '" 
-				+ fileRelease.state + "'");
-		}	
+
+		if (!fileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_ORDERED)) {
+			throw new FileReleaseException("unable to approve FileRelease in state '" + fileRelease.state + "'");
+		}
 	}
-	
-	
-	
+
 	/**
 	 * Checks if the user with the given name has the permission to release the
 	 * given {@link FileRelease}
@@ -116,17 +113,15 @@ public final class FileReleasePermissionUtils {
 	 *             if the user is not allowed to approve the {@link FileRelease}
 	 */
 	public static void canRelease(FileRelease fileRelease, String userName) {
-		if(!fileRelease.receiver.equalsIgnoreCase(userName)) {
-			throw new FileReleaseException("user with name '" + userName + "' can't release FileRelease with id '" 
-				+ fileRelease.identifier + "'");
+		if (!fileRelease.receiver.equalsIgnoreCase(userName)) {
+			throw new FileReleaseException("user with name '" + userName + "' can't release FileRelease with id '"
+					+ fileRelease.identifier + "'");
 		}
-		
-		if(!fileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
-			throw new FileReleaseException("unable to release FileRelease in state '" 
-				+ fileRelease.state + "'");
-		}	
+
+		if (!fileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
+			throw new FileReleaseException("unable to release FileRelease in state '" + fileRelease.state + "'");
+		}
 	}
-	
 
 	/**
 	 * Checks if the user with the given name is allowed to reject the given
@@ -149,7 +144,7 @@ public final class FileReleasePermissionUtils {
 		if (!fileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_ORDERED)) {
 			throw new FileReleaseException("unable to reject FileRelease in state '" + fileRelease.state + "'");
 		}
-		
+
 	}
 
 }

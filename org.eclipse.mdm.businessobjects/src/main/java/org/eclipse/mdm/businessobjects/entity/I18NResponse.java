@@ -28,6 +28,7 @@ import org.eclipse.mdm.api.base.query.EntityType;
 
 /**
  * I18NResponse (Container for {@link I18NLocalization}s)
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -35,11 +36,9 @@ import org.eclipse.mdm.api.base.query.EntityType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class I18NResponse {
 
-	
-	
 	/** transferable data content */
 	private final List<I18NLocalization> data;
-	
+
 	/**
 	 * 
 	 * @param localizedEntityTypeMap
@@ -48,40 +47,37 @@ public class I18NResponse {
 	public I18NResponse(Map<EntityType, String> localizedEntityTypeMap, Map<Attribute, String> localizedAttributeMap) {
 		this.data = toTransferable(localizedEntityTypeMap, localizedAttributeMap);
 	}
-	
-		
-	
+
 	public List<I18NLocalization> getData() {
 		return Collections.unmodifiableList(this.data);
 	}
-	
-	
-	private List<I18NLocalization> toTransferable(Map<EntityType, String> localizedEntityTypeMap, 
-		Map<Attribute, String> localizedAttributeMap) {
-		
+
+	private List<I18NLocalization> toTransferable(Map<EntityType, String> localizedEntityTypeMap,
+			Map<Attribute, String> localizedAttributeMap) {
+
 		List<I18NLocalization> localizationList = new ArrayList<>();
-		
+
 		Set<Entry<EntityType, String>> entityTypeSet = localizedEntityTypeMap.entrySet();
-		
-		for(Entry<EntityType, String> entry : entityTypeSet) {
-			
+
+		for (Entry<EntityType, String> entry : entityTypeSet) {
+
 			EntityType entityType = entry.getKey();
 			String key = entityType.getName();
-			
+
 			localizationList.add(new I18NLocalization(key, entry.getValue()));
 		}
-		
+
 		Set<Entry<Attribute, String>> attributeSet = localizedAttributeMap.entrySet();
-		
-		for(Entry<Attribute, String> entry : attributeSet) {
-			
-			Attribute attribute = entry.getKey();		
-			EntityType entityType = attribute.getEntityType();			
+
+		for (Entry<Attribute, String> entry : attributeSet) {
+
+			Attribute attribute = entry.getKey();
+			EntityType entityType = attribute.getEntityType();
 			String key = entityType.getName() + "." + attribute.getName();
-			
+
 			localizationList.add(new I18NLocalization(key, entry.getValue()));
 		}
-		
+
 		return localizationList;
 	}
 }

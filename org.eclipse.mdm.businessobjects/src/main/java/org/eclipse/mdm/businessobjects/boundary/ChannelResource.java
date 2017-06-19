@@ -36,85 +36,85 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link Channel} resource 
+ * {@link Channel} resource
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Path("/environments/{SOURCENAME}/channels")
 public class ChannelResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ChannelResource.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(ChannelResource.class);
+
 	@EJB
 	private ChannelService channelService;
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link ChannelService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the {@link Channel} result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the {@link Channel} result
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getChannels(@PathParam("SOURCENAME") String sourceName, @QueryParam("filter") String filter) {
-		
-		try {			
-			List<Channel> channels = this.channelService.getChannels(sourceName, filter);	
+
+		try {
+			List<Channel> channels = this.channelService.getChannels(sourceName, filter);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Channel.class, channels), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link ChannelService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param testId  id of the {@link Test}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param testId
+	 *            id of the {@link Test}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{CHANNEL_ID}") 
-	public Response getChannel(@PathParam("SOURCENAME") String sourceName, 
-		@PathParam("CHANNEL_ID") long channelGroupId) {
-		
-		try {			
-			Channel channel = this.channelService.getChannel(sourceName, channelGroupId);	
+	@Path("/{CHANNEL_ID}")
+	public Response getChannel(@PathParam("SOURCENAME") String sourceName,
+			@PathParam("CHANNEL_ID") long channelGroupId) {
+
+		try {
+			Channel channel = this.channelService.getChannel(sourceName, channelGroupId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Channel.class, channel), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-		
-	
-	
+
 	/**
 	 * delegates the request to the {@link ChannelService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/localizations") 
+	@Path("/localizations")
 	public Response localize(@PathParam("SOURCENAME") String sourceName) {
-		
-		try {		
+
+		try {
 			Map<Attribute, String> localizedAttributeMap = this.channelService.localizeAttributes(sourceName);
-			Map<EntityType, String> localizedEntityTypeMap = this.channelService.localizeType(sourceName);		
-			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);	
-		
-		} catch(RuntimeException e) {
+			Map<EntityType, String> localizedEntityTypeMap = this.channelService.localizeType(sourceName);
+			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}

@@ -52,29 +52,30 @@ public class FileConvertJobManager {
 	@Inject
 	private FileConverterPAK2ATFX fileConverterPAK2ATFX;
 
-	
 	/**
-	 * releases the given {@link FileRelease} (generates the file in the specified format)
+	 * releases the given {@link FileRelease} (generates the file in the
+	 * specified format)
 	 * 
-	 * @param fileRelease {@link FileRelease} to release
-	 * @param targetDirectory target output directory of the generated file
+	 * @param fileRelease
+	 *            {@link FileRelease} to release
+	 * @param targetDirectory
+	 *            target output directory of the generated file
 	 */
 	public void release(FileRelease fileRelease, File targetDirectory) {
 
-		
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(fileRelease.sourceName);
 			TestStep testStep = em.load(TestStep.class, fileRelease.id);
-			
+
 			IFileConverter converter = getFileConverterByFormat(fileRelease);
 			String identifier = fileRelease.identifier;
-			
-			LOG.info("starting file release process for FileRelease with identifier '" + identifier 
-				+ "' (with '" + converter.getConverterName() + "') ...");
-					
+
+			LOG.info("starting file release process for FileRelease with identifier '" + identifier + "' (with '"
+					+ converter.getConverterName() + "') ...");
+
 			Runnable runnable = new FileConvertJob(fileRelease, converter, testStep, em, targetDirectory);
 			this.executor.execute(runnable);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
 

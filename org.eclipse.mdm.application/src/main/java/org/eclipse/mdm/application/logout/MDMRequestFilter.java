@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 public class MDMRequestFilter implements Filter {
 
 	private static String SERVLET_NAME_MDMNENUE = "/navigator/";
-	
+
 	@Inject
 	private MDMSessionExpiredListener sessionExpiredListener;
 
@@ -43,18 +43,18 @@ public class MDMRequestFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {	
-		
-		if(this.sessionExpiredListener != null) {
+			throws IOException, ServletException {
+
+		if (this.sessionExpiredListener != null) {
 			this.sessionExpiredListener.update();
 		}
-		
+
 		if (request instanceof HttpServletRequest) {
-			HttpServletRequest httpRequest = (HttpServletRequest)request;
+			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			String requestedURL = httpRequest.getRequestURI().toLowerCase();
-			
-			if(requestedURL.trim().contains(SERVLET_NAME_MDMNENUE)) {
-				if(response instanceof HttpServletResponse) {
+
+			if (requestedURL.trim().contains(SERVLET_NAME_MDMNENUE)) {
+				if (response instanceof HttpServletResponse) {
 					String location = httpRequest.getContextPath();
 					((HttpServletResponse) response).sendRedirect(location);
 				}
@@ -62,8 +62,7 @@ public class MDMRequestFilter implements Filter {
 				chain.doFilter(request, response);
 			}
 		}
-		
-			
+
 	}
 
 	@Override

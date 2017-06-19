@@ -53,14 +53,14 @@ public class SearchMockHelper {
 		List<Attribute> attrList = new ArrayList<>();
 		attrList.add(Mockito.mock(Attribute.class));
 		Map<Entity, Result> mockedSearchResult = createMockedSearchRes(TestStep.class, "TestStep");
-		when(searchService.fetch(Matchers.<Class<Entity>> any(), Matchers.anyListOf(Attribute.class),
+		when(searchService.fetch(Matchers.<Class<Entity>>any(), Matchers.anyListOf(Attribute.class),
 				Matchers.any(Filter.class))).thenReturn(mockedSearchResult);
 		Optional<SearchService> ret = Optional.of(searchService);
 		return ret;
 	}
 
-	public static <T extends Entity> Map<Entity, Result> createMockedSearchRes(Class<T> clazz,
-			String entityTypeName) throws Exception {
+	public static <T extends Entity> Map<Entity, Result> createMockedSearchRes(Class<T> clazz, String entityTypeName)
+			throws Exception {
 
 		Map<Entity, Result> mockedRes = new HashMap<>();
 
@@ -99,7 +99,8 @@ public class SearchMockHelper {
 		return mockedETTest;
 	}
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id) throws Exception {
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id)
+			throws Exception {
 
 		HashMap<String, Value> map = new HashMap<String, Value>();
 		map.put("Name", ValueType.STRING.create("Name", name));

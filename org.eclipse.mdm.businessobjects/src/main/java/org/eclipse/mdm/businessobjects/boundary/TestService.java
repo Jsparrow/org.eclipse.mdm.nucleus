@@ -33,6 +33,7 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
  * TestService Bean implementation with available {@link Test} operations
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -40,85 +41,93 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 public class TestService {
 
 	@EJB
-	private ConnectorService connectorService;	
+	private ConnectorService connectorService;
 	@EJB
 	private I18NActivity i18nActivity;
 	@EJB
 	private SearchActivity searchActivity;
 	@EJB
 	private NavigationActivity navigationActivity;
-	
 
 	/**
-	 * returns the matching {@link Test}s using the given filter or all {@link Test}s 
-	 * if no filter is available
+	 * returns the matching {@link Test}s using the given filter or all
+	 * {@link Test}s if no filter is available
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the {@link Test} result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the {@link Test} result
 	 * @return the found {@link Test}s
 	 */
 	public List<Test> getTests(String sourceName, String filter) {
-		
-		try {		
+
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			
-			if(filter == null || filter.trim().length() <= 0) {
+
+			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(Test.class);
-			}		
-			
-			if(ServiceUtils.isParentFilter(em, filter, Pool.class)) {
+			}
+
+			if (ServiceUtils.isParentFilter(em, filter, Pool.class)) {
 				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.class);
 				return this.navigationActivity.getTests(sourceName, id);
 			}
-	
+
 			return this.searchActivity.search(em, Test.class, filter);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
+
 	/**
-	 * Returns the {@link SearchAttribute} for the entity type Test in the given data source.
-	 * @param sourceName The name of the data source.
+	 * Returns the {@link SearchAttribute} for the entity type Test in the given
+	 * data source.
+	 * 
+	 * @param sourceName
+	 *            The name of the data source.
 	 * @return the found {@link SearchAttribute}s
 	 */
 	public List<SearchAttribute> getSearchAttributes(String sourceName) {
 		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 		return this.searchActivity.listAvailableAttributes(em, Test.class);
 	}
-	
+
 	/**
 	 * returns a {@link Test} identified by the given id.
-	 * @param testId id of the {@link Test}
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param testStepId id of the {@link Test}
+	 * 
+	 * @param testId
+	 *            id of the {@link Test}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param testStepId
+	 *            id of the {@link Test}
 	 * @return the matching {@link Test}
 	 */
 	public Test getTest(String sourceName, long testId) {
-		try {		
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.load(Test.class, testId);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * returns localized {@link Test} attributes
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Test} attributes
 	 */
-	public Map<Attribute, String> localizeAttributes(String sourceName) {		
+	public Map<Attribute, String> localizeAttributes(String sourceName) {
 		return this.i18nActivity.localizeAttributes(sourceName, Test.class);
-	}	
-	
-	
-	
+	}
+
 	/**
 	 * returns the localized {@link Test} type name
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Test} type name
 	 */
 	public Map<EntityType, String> localizeType(String sourceName) {

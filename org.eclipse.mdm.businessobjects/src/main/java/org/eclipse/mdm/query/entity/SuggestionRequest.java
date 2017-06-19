@@ -24,21 +24,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SuggestionRequest {
-	
+
 	private List<String> sourceNames;
 	private String type;
 	private String attrName;
-	
+
 	public SuggestionRequest() {
 		// empty no arg constructor
 	}
-	public SuggestionRequest (List<String> sourceNames, String type, String name) {
+
+	public SuggestionRequest(List<String> sourceNames, String type, String name) {
 		this.sourceNames = sourceNames;
 		this.type = type;
 		this.attrName = name;
 	}
 
-	
 	public void setSourceNames(List<String> sourceNames) {
 		this.sourceNames = sourceNames;
 	}

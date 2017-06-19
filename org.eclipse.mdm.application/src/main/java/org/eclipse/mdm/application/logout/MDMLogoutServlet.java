@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.application.logout;
 
@@ -21,21 +21,20 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * MDMLogoutServlet
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
-@WebServlet(name = "MDMLogoutServlet", urlPatterns = {"/mdm/logout"})
+@WebServlet(name = "MDMLogoutServlet", urlPatterns = { "/mdm/logout" })
 public class MDMLogoutServlet extends HttpServlet {
 
-	
 	private static final long serialVersionUID = -2243639870075761399L;
-	
-	@Override	
+
+	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.logout();
-		req.getSession().invalidate();	
-		resp.sendRedirect(req.getContextPath());	
+		req.getSession().invalidate();
+		resp.sendRedirect(req.getContextPath());
 	}
 
-	
 }

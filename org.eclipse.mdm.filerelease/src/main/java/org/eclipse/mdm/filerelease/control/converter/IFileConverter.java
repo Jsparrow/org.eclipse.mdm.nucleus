@@ -39,8 +39,8 @@ public interface IFileConverter {
 	 * @throws FileConverterException
 	 *             Thrown if the file conversion fails.
 	 */
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em,
-		File targetDirectory) throws FileConverterException;
+	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em, File targetDirectory)
+			throws FileConverterException;
 
 	/**
 	 * Returns the name of the file converter

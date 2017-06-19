@@ -34,134 +34,138 @@ import org.slf4j.LoggerFactory;
 /**
  * I18NActivity Bean implementation to lookup localizations for business objects
  * attributes and types
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Stateless
 public class I18NActivity {
 
-	private static final Logger LOG = LoggerFactory.getLogger(I18NActivity.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(I18NActivity.class);
+
 	private String RESOURCE_FILE = "org/eclipse/mdm/businessobjects/control/i18n/locale/localization";
 	private ResourceBundle LOCALIZATION_RESOURCES = ResourceBundle.getBundle(RESOURCE_FILE);
 
 	@EJB
 	private ConnectorService connectorService;
-	
 
 	/**
 	 * localizes all attributes names from a type (e.g. TestStep.class)
-	 *  
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param type MDM business object type (e.g. TestStep.class)
-	 * @return a {@link Map} with localized {@link Attribute} names (key is attribute name, value is localized attribute name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param type
+	 *            MDM business object type (e.g. TestStep.class)
+	 * @return a {@link Map} with localized {@link Attribute} names (key is
+	 *         attribute name, value is localized attribute name)
 	 */
 	public Map<Attribute, String> localizeAttributes(String sourceName, Class<? extends Entity> type) {
-		
+
 		Map<Attribute, String> map = new HashMap<>();
-		
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);			
-		EntityType entityType = lookupEntityType(em, type);		
-		localizeAttributes(entityType, map);		
-		
-		return map;	
+
+		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+		EntityType entityType = lookupEntityType(em, type);
+		localizeAttributes(entityType, map);
+
+		return map;
 	}
-	
-	
+
 	/**
 	 * localizes the type name of the given type (e.g. TestStep.class)
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param type type to localize its type name
-	 * @return the localizes type name (key is the original type name, value is the localized type name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param type
+	 *            type to localize its type name
+	 * @return the localizes type name (key is the original type name, value is
+	 *         the localized type name)
 	 */
-	public Map<EntityType, String> localizeType(String sourceName, Class<? extends Entity> type)  {	
-		
-		Map<EntityType, String> map = new HashMap<>();	
-		
+	public Map<EntityType, String> localizeType(String sourceName, Class<? extends Entity> type) {
+
+		Map<EntityType, String> map = new HashMap<>();
+
 		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		EntityType entityType = lookupEntityType(em, type);		
+		EntityType entityType = lookupEntityType(em, type);
 		localizeType(entityType, map);
-		
+
 		return map;
 	}
-	
-	
+
 	/**
-	 * localizes all {@link Attribute}s of all types from the source identified by the given soureName
-	 * @param sourceName source name to identify the MDM data source
-	 * @return a {@link Map} with localized {@link Attribute} names (key is attribute name, value is localized attribute name)
+	 * localizes all {@link Attribute}s of all types from the source identified
+	 * by the given soureName
+	 * 
+	 * @param sourceName
+	 *            source name to identify the MDM data source
+	 * @return a {@link Map} with localized {@link Attribute} names (key is
+	 *         attribute name, value is localized attribute name)
 	 */
 	public Map<Attribute, String> localizeAllAttributes(String sourceName) {
-		
-		Map<Attribute, String> map = new HashMap<>();		
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);		
+
+		Map<Attribute, String> map = new HashMap<>();
+		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 		List<EntityType> list = lookupAllEntityTypes(em);
-		
-		for(EntityType entityType : list) {
+
+		for (EntityType entityType : list) {
 			localizeAttributes(entityType, map);
 		}
-		
+
 		return map;
 	}
-	
-	
+
 	/**
 	 * localizes all types form the source identified by the given sourceName
-	 * @param sourceName source name to identify the MDM data source
-	 * @return the localizes type names (key is the original type name, value is the localized type name)
+	 * 
+	 * @param sourceName
+	 *            source name to identify the MDM data source
+	 * @return the localizes type names (key is the original type name, value is
+	 *         the localized type name)
 	 */
-	public Map<EntityType, String> localizeAllTypes(String sourceName) {		
-		
-		Map<EntityType, String> map = new HashMap<>();		
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);		
+	public Map<EntityType, String> localizeAllTypes(String sourceName) {
+
+		Map<EntityType, String> map = new HashMap<>();
+		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 		List<EntityType> list = lookupAllEntityTypes(em);
-		
-		for(EntityType entityType : list) {
+
+		for (EntityType entityType : list) {
 			localizeType(entityType, map);
 		}
-		
+
 		return map;
 	}
-	
-	
-	
-	private void localizeType(EntityType entityType, Map<EntityType, String> map)  {
+
+	private void localizeType(EntityType entityType, Map<EntityType, String> map) {
 		String localization = localize(entityType.getName(), entityType.getName());
 		map.put(entityType, localization);
 	}
-	
-	
-	
+
 	private void localizeAttributes(EntityType entityType, Map<Attribute, String> map) {
-		
-		for(Attribute attribute :entityType.getAttributes()) {
+
+		for (Attribute attribute : entityType.getAttributes()) {
 			String key = entityType.getName() + "." + attribute.getName();
 			String localization = localize(key, attribute.getName());
 			map.put(attribute, localization);
-		}		
-	
+		}
+
 	}
-	
-	
+
 	private EntityType lookupEntityType(EntityManager em, Class<? extends Entity> type) {
 		ModelManager modelManager = ServiceUtils.getModelMananger(em);
 		return modelManager.getEntityType(type);
 	}
-	
-	
-	private List<EntityType> lookupAllEntityTypes(EntityManager em) {		
-		ModelManager modelManager = ServiceUtils.getModelMananger(em);		
+
+	private List<EntityType> lookupAllEntityTypes(EntityManager em) {
+		ModelManager modelManager = ServiceUtils.getModelMananger(em);
 		return modelManager.listEntityTypes();
 	}
-	
-	
+
 	private String localize(String key, String defaultValue) {
-		try { 
-			return LOCALIZATION_RESOURCES.getString(key);			
-		} catch(MissingResourceException e) {
+		try {
+			return LOCALIZATION_RESOURCES.getString(key);
+		} catch (MissingResourceException e) {
 			LOG.debug("unable to localize key '" + key + "', no translation possible!");
 			return defaultValue;
-		}		
-	}	
-	
+		}
+	}
+
 }

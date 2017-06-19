@@ -30,6 +30,7 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
  * ProjectService Bean implementation with available {@link Project} operations
+ * 
  * @author Matthias Koller, Peak Solution GmbH
  *
  */
@@ -37,24 +38,28 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 public class ProjectService {
 
 	@EJB
-	private ConnectorService connectorService;	
+	private ConnectorService connectorService;
 	@EJB
 	private I18NActivity i18nActivity;
 	@EJB
 	private SearchActivity searchActivity;
-	
+
 	/**
 	 * Default no-arg constructor for EJB
 	 */
 	public ProjectService() {
 		// Default no-arg constructor for EJB
 	}
-	
+
 	/**
 	 * Contructor for unit testing
-	 * @param connectorService {@link ConnectorService} to use
-	 * @param searchActivity {@link SearchActivity} to use
-	 * @param i18nActivity {@link I18NActivity} to use
+	 * 
+	 * @param connectorService
+	 *            {@link ConnectorService} to use
+	 * @param searchActivity
+	 *            {@link SearchActivity} to use
+	 * @param i18nActivity
+	 *            {@link I18NActivity} to use
 	 */
 	ProjectService(ConnectorService connectorService, SearchActivity searchActivity, I18NActivity i18nActivity) {
 		this.connectorService = connectorService;
@@ -63,66 +68,79 @@ public class ProjectService {
 	}
 
 	/**
-	 * returns the matching {@link Project}s using the given filter or all {@link Project}s 
-	 * if no filter is available
+	 * returns the matching {@link Project}s using the given filter or all
+	 * {@link Project}s if no filter is available
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the {@link Project} result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the {@link Project} result
 	 * @return the found {@link Project}s
 	 */
 	public List<Project> getProjects(String sourceName, String filter) {
-		
-		try {		
+
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			
-			if(filter == null || filter.trim().length() <= 0) {
+
+			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(Project.class);
-			}		
-			
+			}
+
 			return this.searchActivity.search(em, Project.class, filter);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
+
 	/**
-	 * Returns the {@link SearchAttribute} for the entity type {@link Project} in the given data source.
-	 * @param sourceName The name of the data source.
+	 * Returns the {@link SearchAttribute} for the entity type {@link Project}
+	 * in the given data source.
+	 * 
+	 * @param sourceName
+	 *            The name of the data source.
 	 * @return the found {@link SearchAttribute}s
 	 */
 	public List<SearchAttribute> getSearchAttributes(String sourceName) {
 		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 		return this.searchActivity.listAvailableAttributes(em, Project.class);
 	}
-	
+
 	/**
 	 * returns a {@link Project} identified by the given id.
-	 * @param projectId id of the {@link Project}
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param testStepId id of the {@link Project}
+	 * 
+	 * @param projectId
+	 *            id of the {@link Project}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param testStepId
+	 *            id of the {@link Project}
 	 * @return the matching {@link Project}
 	 */
 	public Project getProject(String sourceName, long projectId) {
-		try {		
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.load(Project.class, projectId);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
+
 	/**
 	 * returns localized {@link Project} attributes
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Project} attributes
 	 */
-	public Map<Attribute, String> localizeAttributes(String sourceName) {		
+	public Map<Attribute, String> localizeAttributes(String sourceName) {
 		return this.i18nActivity.localizeAttributes(sourceName, Project.class);
-	}	
-	
+	}
+
 	/**
 	 * returns the localized {@link Project} type name
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Project} type name
 	 */
 	public Map<EntityType, String> localizeType(String sourceName) {

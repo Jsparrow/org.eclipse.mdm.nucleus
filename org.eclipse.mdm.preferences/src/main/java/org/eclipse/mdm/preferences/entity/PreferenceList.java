@@ -29,7 +29,7 @@ import com.google.common.base.MoreObjects;
 public class PreferenceList {
 
 	private List<PreferenceMessage> preferences;
-	
+
 	public PreferenceList(List<PreferenceMessage> preferenceList) {
 		preferences = preferenceList;
 	}
@@ -37,7 +37,7 @@ public class PreferenceList {
 	public List<PreferenceMessage> getPreferences() {
 		return preferences;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 
@@ -52,16 +52,14 @@ public class PreferenceList {
 
 		return Objects.equals(this.preferences, other.preferences);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(preferences);
 	}
-	
+
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(PreferenceList.class)
-				.add("preferences", preferences)
-				.toString();
+		return MoreObjects.toStringHelper(PreferenceList.class).add("preferences", preferences).toString();
 	}
 }

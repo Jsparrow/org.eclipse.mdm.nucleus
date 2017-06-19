@@ -59,7 +59,7 @@ public class PoolResource {
 	 *            filter string to filter the {@link Pool} result
 	 * @return the result of the delegated request as {@link Response}
 	 */
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPools(@PathParam("SOURCENAME") String sourceName, @QueryParam("filter") String filter) {

@@ -67,7 +67,7 @@ public class FileReleaseServiceTest {
 	@Test
 	public void testCreate() throws Exception {
 		FileReleaseService fileReleaseService = createMockedService();
-		
+
 		FileRelease request1 = new FileRelease();
 		request1.sourceName = "MDMENV";
 		request1.typeName = "TestStep";
@@ -142,16 +142,16 @@ public class FileReleaseServiceTest {
 	@Test
 	public void testReject() throws Exception {
 		FileReleaseService fileReleaseService = createMockedService();
-		
+
 		FileRelease release2Reject = new FileRelease();
 		release2Reject.identifier = FileReleaseServiceMockHelper.ID_IN_PREFIX + "1";
 		release2Reject.state = FileReleaseManager.FILE_RELEASE_STATE_REJECTED;
 		release2Reject.rejectMessage = "reject message";
-		
+
 		fileReleaseService.reject(release2Reject);
-		
-		FileRelease fileRelease = fileReleaseService.getRelease(FileReleaseServiceMockHelper.ID_IN_PREFIX + "1");		
-		
+
+		FileRelease fileRelease = fileReleaseService.getRelease(FileReleaseServiceMockHelper.ID_IN_PREFIX + "1");
+
 		assertNotNull("FileRelease should not be null.", fileRelease);
 		assertEquals("FileRelease state should be " + FileReleaseManager.FILE_RELEASE_STATE_REJECTED, fileRelease.state,
 				FileReleaseManager.FILE_RELEASE_STATE_REJECTED);

@@ -42,18 +42,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link Measurement} resource 
+ * {@link Measurement} resource
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Path("/environments/{SOURCENAME}/measurements")
 public class MeasurementResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MeasurementResource.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(MeasurementResource.class);
+
 	@EJB
 	private MeasurementService measurementService;
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
@@ -73,201 +74,203 @@ public class MeasurementResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the Measurement result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the Measurement result
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getMeasurements(@PathParam("SOURCENAME") String sourceName, 
-		@QueryParam("filter") String filter) {
-		
-		try {			
-			List<Measurement> measurements = this.measurementService.getMeasurements(sourceName, filter);		
+	public Response getMeasurements(@PathParam("SOURCENAME") String sourceName, @QueryParam("filter") String filter) {
+
+		try {
+			List<Measurement> measurements = this.measurementService.getMeasurements(sourceName, filter);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Measurement.class, measurements), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param MeasurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param MeasurementId
+	 *            id of the {@link Measurement}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{MEASUREMENT_ID}") 
-	public Response getMeasurement(@PathParam("SOURCENAME") String sourceName, 
-		@PathParam("MEASUREMENT_ID") long measurementId) {
-		
-		try {			
-			Measurement measurement = this.measurementService.getMeasurement(sourceName, measurementId);		
+	@Path("/{MEASUREMENT_ID}")
+	public Response getMeasurement(@PathParam("SOURCENAME") String sourceName,
+			@PathParam("MEASUREMENT_ID") long measurementId) {
+
+		try {
+			Measurement measurement = this.measurementService.getMeasurement(sourceName, measurementId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Measurement.class, measurement), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param MeasurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param MeasurementId
+	 *            id of the {@link Measurement}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts")
-	public Response getContext(@PathParam("SOURCENAME") String sourceName, 
+	public Response getContext(@PathParam("SOURCENAME") String sourceName,
 			@PathParam("MEASUREMENT_ID") long measurementId) {
-		try {			
-			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.
-				getContext(sourceName, measurementId);		
+		try {
+			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContext(sourceName,
+					measurementId);
 			return ServiceUtils.toResponse(new ContextResponse(contextMap), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param MeasurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param MeasurementId
+	 *            id of the {@link Measurement}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/unitundertest")
-	public Response getContextUUT(@PathParam("SOURCENAME") String sourceName, 
+	public Response getContextUUT(@PathParam("SOURCENAME") String sourceName,
 			@PathParam("MEASUREMENT_ID") long measurementId) {
-		try {			
-			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.
-				getContextUUT(sourceName, measurementId);
+		try {
+			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContextUUT(sourceName,
+					measurementId);
 			return ServiceUtils.toResponse(new ContextResponse(contextMap), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param MeasurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param MeasurementId
+	 *            id of the {@link Measurement}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/testsequence")
-	public Response getContextTSQ(@PathParam("SOURCENAME") String sourceName, 
+	public Response getContextTSQ(@PathParam("SOURCENAME") String sourceName,
 			@PathParam("MEASUREMENT_ID") long measurementId) {
-		try {			
-			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.
-				getContextTSQ(sourceName, measurementId);
+		try {
+			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContextTSQ(sourceName,
+					measurementId);
 			return ServiceUtils.toResponse(new ContextResponse(contextMap), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param MeasurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param MeasurementId
+	 *            id of the {@link Measurement}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/testequipment")
-	public Response getContextTEQ(@PathParam("SOURCENAME") String sourceName, 
+	public Response getContextTEQ(@PathParam("SOURCENAME") String sourceName,
 			@PathParam("MEASUREMENT_ID") long measurementId) {
-		try {			
-			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.
-				getContextTEQ(sourceName, measurementId);
+		try {
+			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContextTEQ(sourceName,
+					measurementId);
 			return ServiceUtils.toResponse(new ContextResponse(contextMap), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param MeasurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param MeasurementId
+	 *            id of the {@link Measurement}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/testequipment/sensors")
-	public Response getContextTEQSensors(@PathParam("SOURCENAME") String sourceName, 
+	public Response getContextTEQSensors(@PathParam("SOURCENAME") String sourceName,
 			@PathParam("MEASUREMENT_ID") long measurementId) {
-		try {			
-			try {			
-				Map<String, List<ContextSensor>> sensorMap = this.measurementService.getSensors(sourceName, measurementId);
-				return ServiceUtils.toResponse(new ContextSensorResponse(sensorMap), Status.OK);			
-			} catch(RuntimeException e) {
+		try {
+			try {
+				Map<String, List<ContextSensor>> sensorMap = this.measurementService.getSensors(sourceName,
+						measurementId);
+				return ServiceUtils.toResponse(new ContextSensorResponse(sensorMap), Status.OK);
+			} catch (RuntimeException e) {
 				LOG.error(e.getMessage(), e);
 				throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 			}
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
+
 	/**
 	 * delegates the request to the {@link MeasurementService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/localizations") 
+	@Path("/localizations")
 	public Response localize(@PathParam("SOURCENAME") String sourceName) {
-		
-		try {		
+
+		try {
 			Map<Attribute, String> localizedAttributeMap = this.measurementService.localizeAttributes(sourceName);
 			Map<EntityType, String> localizedEntityTypeMap = this.measurementService.localizeType(sourceName);
-			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);	
-			
-		} catch(RuntimeException e) {
+			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}

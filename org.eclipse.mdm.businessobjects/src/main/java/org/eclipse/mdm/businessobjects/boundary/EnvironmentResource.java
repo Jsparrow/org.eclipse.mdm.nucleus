@@ -36,20 +36,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link Environment} resource 
+ * {@link Environment} resource
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @Path("/environments")
 public class EnvironmentResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EnvironmentResource.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(EnvironmentResource.class);
+
 	@EJB
 	private EnvironmentService environmentService;
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link EnvironmentService}
 	 *
@@ -58,73 +57,73 @@ public class EnvironmentResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getEnvironments() {
-		try {		
-			List<Environment> environments = this.environmentService.getEnvironments();		
-            return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environments), Status.OK);		
-		} catch(RuntimeException e) {
+		try {
+			List<Environment> environments = this.environmentService.getEnvironments();
+			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environments), Status.OK);
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link EnvironmentService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}") 
+	@Path("/{SOURCENAME}")
 	public Response getEnvironment(@PathParam("SOURCENAME") String sourceName) {
 		try {
 			Environment environment = this.environmentService.getEnvironment(sourceName);
-		    return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);		
-		} catch(RuntimeException e) {
+			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * delegates the request to the {@link EnvironmentService}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/localizations") 
+	@Path("/{SOURCENAME}/localizations")
 	public Response localize(@PathParam("SOURCENAME") String sourceName, @QueryParam("all") boolean all) {
-		
-		try {	
-			
-			if(all) {
-				Map<Attribute, String> localizedAttributeMap = this.environmentService.localizeAllAttributes(sourceName);
-				Map<EntityType, String> localizedEntityTypeMap = this.environmentService.localizeAllTypes(sourceName);			
-				return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
+
+		try {
+
+			if (all) {
+				Map<Attribute, String> localizedAttributeMap = this.environmentService
+						.localizeAllAttributes(sourceName);
+				Map<EntityType, String> localizedEntityTypeMap = this.environmentService.localizeAllTypes(sourceName);
+				return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap),
+						Status.OK);
 			}
-			
+
 			Map<Attribute, String> localizedAttributeMap = this.environmentService.localizeAttributes(sourceName);
-			Map<EntityType, String> localizedEntityTypeMap = this.environmentService.localizeType(sourceName);			
+			Map<EntityType, String> localizedEntityTypeMap = this.environmentService.localizeType(sourceName);
 			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
-		
-		} catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/search") 
+	@Path("/{SOURCENAME}/search")
 	public Response search(@PathParam("SOURCENAME") String sourceName, @QueryParam("q") String query) {
 		List<Entity> searchResults = environmentService.search(sourceName, query);
 		return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, searchResults), Status.OK);
 	}
-	
+
 }

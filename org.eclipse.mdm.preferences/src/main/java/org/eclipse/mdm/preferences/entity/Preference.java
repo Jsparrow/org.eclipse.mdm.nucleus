@@ -31,33 +31,31 @@ import com.google.common.base.MoreObjects;
  *
  */
 @Entity
-@Table(uniqueConstraints={@UniqueConstraint(columnNames={"source", "username", "keyCol"})})
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "source", "username", "keyCol" }) })
 public class Preference {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column
 	private String source;
-	
-	@Column(name="username")
+
+	@Column(name = "username")
 	private String user;
-	
-	@Column(name="keyCol")
+
+	@Column(name = "keyCol")
 	private String key;
-	
-	@Column(name="valueCol", nullable=false)
+
+	@Column(name = "valueCol", nullable = false)
 	@Lob
 	private String value;
 
-	public Preference()
-	{
+	public Preference() {
 		super();
 	}
 
-	public Preference(String source, String user, String key, String value)
-	{
+	public Preference(String source, String user, String key, String value) {
 		super();
 		this.source = source;
 		this.user = user;
@@ -65,53 +63,43 @@ public class Preference {
 		this.value = value;
 	}
 
-	public Long getId()
-	{
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Long id)
-	{
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getSource()
-	{
+	public String getSource() {
 		return source;
 	}
 
-	public void setSource(String source)
-	{
+	public void setSource(String source) {
 		this.source = source;
 	}
 
-	public String getUser()
-	{
+	public String getUser() {
 		return user;
 	}
 
-	public void setUser(String user)
-	{
+	public void setUser(String user) {
 		this.user = user;
 	}
 
-	public String getKey()
-	{
+	public String getKey() {
 		return key;
 	}
 
-	public void setKey(String key)
-	{
+	public void setKey(String key) {
 		this.key = key;
 	}
 
-	public String getValue()
-	{
+	public String getValue() {
 		return value;
 	}
 
-	public void setValue(String value)
-	{
+	public void setValue(String value) {
 		this.value = value;
 	}
 
@@ -126,29 +114,19 @@ public class Preference {
 		}
 
 		final Preference other = (Preference) obj;
-		return new EqualsBuilder()
-				.append(this.id, other.id)
-				.append(this.source, other.source)
-				.append(this.user, other.user)
-				.append(this.key, other.key)
-				.append(this.value, other.value)
-				.isEquals();
+		return new EqualsBuilder().append(this.id, other.id).append(this.source, other.source)
+				.append(this.user, other.user).append(this.key, other.key).append(this.value, other.value).isEquals();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, source, user, key, value);
 	}
-	
+
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(Preference.class)
-				.add("id", id)
-				.add("source", source)
-				.add("user", user)
-				.add("key", key)
-				.add("value", value)
-				.toString();
+		return MoreObjects.toStringHelper(Preference.class).add("id", id).add("source", source).add("user", user)
+				.add("key", key).add("value", value).toString();
 	}
-	
+
 }

@@ -24,32 +24,31 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-public class PreferenceTest
-{
+public class PreferenceTest {
 	private static final long CLOB_SIZE = 1_000_000;
 
-	private EntityManagerFactory factory ;
+	private EntityManagerFactory factory;
 
 	@Before
-    public void init() {
-		factory = Persistence.createEntityManagerFactory("preferenceTest", 
-				ImmutableMap.of(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, "META-INF/persistence-test.xml"));
-		
+	public void init() {
+		factory = Persistence.createEntityManagerFactory("preferenceTest", ImmutableMap
+				.of(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, "META-INF/persistence-test.xml"));
+
 		EntityManager em = factory.createEntityManager();
 		em.getTransaction().begin();
 		em.createQuery("delete from Preference").executeUpdate();
 		em.getTransaction().commit();
 		em.close();
-    }
+	}
 
-    @After
-    public void destroy() {
-    	factory.close();
-    }
-    
+	@After
+	public void destroy() {
+		factory.close();
+	}
+
 	@Test
 	public void testPersist() {
-		
+
 		EntityManager em = factory.createEntityManager();
 
 		em.getTransaction().begin();
@@ -68,7 +67,7 @@ public class PreferenceTest
 		em.getTransaction().commit();
 
 		assertThat(em.find(Preference.class, p.getId()))
-		.isEqualToIgnoringGivenFields(new Preference("MDMXYZ", "*", "key2", "value1"), "id");
+				.isEqualToIgnoringGivenFields(new Preference("MDMXYZ", "*", "key2", "value1"), "id");
 
 		em.close();
 	}
@@ -83,10 +82,8 @@ public class PreferenceTest
 		em.getTransaction().commit();
 
 		TypedQuery<Preference> q = em.createQuery("select p from Preference p", Preference.class);
-		assertThat(q.getResultList())
-		.hasSize(1)
-		.usingElementComparatorIgnoringFields("id")
-		.contains(new Preference("MDMXYZ", "*", "key3", "value1"));
+		assertThat(q.getResultList()).hasSize(1).usingElementComparatorIgnoringFields("id")
+				.contains(new Preference("MDMXYZ", "*", "key3", "value1"));
 
 		em.close();
 	}
@@ -112,8 +109,7 @@ public class PreferenceTest
 
 	private String generateString(long length) {
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < length; i++)
-		{
+		for (int i = 0; i < length; i++) {
 			builder.append("a");
 		}
 		return builder.toString();

@@ -112,7 +112,7 @@ public class ElasticsearchBoundary {
 
 	public boolean hasIndex(String source) {
 		boolean hasIndex = false;
-		
+
 		if (Boolean.valueOf(active)) {
 			try {
 				GetMethod get = new GetMethod(esAddress + source.toLowerCase());
@@ -125,7 +125,7 @@ public class ElasticsearchBoundary {
 				hasIndex = false;
 			}
 		}
-		
+
 		return hasIndex;
 	}
 

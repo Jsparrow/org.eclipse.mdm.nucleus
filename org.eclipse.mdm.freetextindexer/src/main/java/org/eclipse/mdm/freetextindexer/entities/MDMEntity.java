@@ -36,7 +36,7 @@ public class MDMEntity {
 
 	/** name of the MDM business object */
 	public final String name;
-	
+
 	/** id of the MDM business object */
 	public final long id;
 
@@ -60,7 +60,7 @@ public class MDMEntity {
 	public MDMEntity(String name, String type, long id, Map<String, Value> values) {
 		this.name = name;
 		this.id = id;
-		
+
 		this.attributes = initAttributes(values);
 	}
 
