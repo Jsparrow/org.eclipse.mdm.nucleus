@@ -18,6 +18,8 @@ import {MDMFilereleaseDisplayComponent} from './mdm-filerelease-display.componen
 import {PropertyService} from '../core/property.service';
 import { ModalDirective } from 'ng2-bootstrap';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 @Component({
   selector: 'mdm-filerelease',
   templateUrl: 'mdm-filerelease.component.html',
@@ -27,7 +29,6 @@ export class MDMFilereleaseComponent implements OnInit {
 
   incoming: Release[] = [];
   outgoing: Release[] = [];
-  errorMessage: string;
   release: Release = new Release;
   event = 'display';
   dataHost: string;
@@ -39,7 +40,8 @@ export class MDMFilereleaseComponent implements OnInit {
   smModal: ModalDirective;
 
   constructor(private service: FilereleaseService,
-              private prop: PropertyService) {
+              private prop: PropertyService,
+              private notificationService: MDMNotificationService) {
     this.dataHost = prop.getDataHost();
   }
 
@@ -50,10 +52,12 @@ export class MDMFilereleaseComponent implements OnInit {
   getReleases() {
     this.service.readOutgoging().subscribe(
       releases => this.outgoing = releases,
-      error => this.errorMessage = <any>error);
+      error => this.notificationService.notifyError('Ausgehendes Release kann nicht gelesen werden.', error)
+    );
     this.service.readIncomming().subscribe(
       releases => this.incoming = releases,
-      error => this.errorMessage = <any>error);
+      error => this.notificationService.notifyError('Eingehendes Release kann nicht gelesen werden.', error)
+    );
   }
   setData(release) {
     this.release = release;
@@ -72,12 +76,14 @@ export class MDMFilereleaseComponent implements OnInit {
     this.release.rejectMessage = reason;
     this.service.reject(this.release).subscribe(
       release => this.updateList(release),
-      error => this.errorMessage = <any>error);
+      error => this.notificationService.notifyError('Fehler beim Zurückweisen des Release', error)
+    );
   }
   approveRelease() {
     this.service.approve(this.release).subscribe(
       release => this.updateList(release),
-      error => this.errorMessage = <any>error);
+      error => this.notificationService.notifyError('Fehler beim Bestätigen des Release', error)
+    );
     this.release.state = 'RELEASE_PROGRESSING';
   }
   updateList(id) {

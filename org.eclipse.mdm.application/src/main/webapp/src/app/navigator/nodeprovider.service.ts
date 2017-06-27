@@ -54,13 +54,11 @@ export class NodeproviderService {
 
   loadNodeproviders() {
     this.preferenceService.getPreferenceForScope(Scope.SYSTEM, 'nodeprovider.')
-      .subscribe( preferences => preferences.forEach(p => {
-          try {
-              this.nodeproviders.push(JSON.parse(p.value));
-          } catch (e) {
-            this.notificationService.notifyError('Die Einstellungen des Nodeproviders sind fehlerhaft.', e);
-          }
-      }));
+      .map(prefs => prefs.map(p => JSON.parse(p.value)))
+      .subscribe(
+        nodeproviders => this.nodeproviders = nodeproviders,
+        error => this.notificationService.notifyError('Nodeprovider kann nicht aus den Einstellungen geladen werden.', error)
+      );
   }
 
   getQueryForChildren(item: MDMItem) {

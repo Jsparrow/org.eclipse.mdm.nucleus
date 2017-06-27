@@ -22,11 +22,10 @@ import {Release, FilereleaseService} from '../filerelease/filerelease.service';
 
 import {Localization} from '../localization/localization';
 import {LocalizationService} from '../localization/localization.service';
-
-// import {MDMFilereleaseCreateComponent} from '../filerelease/mdm-filerelease-create.component';
 import {NavigatorService} from '../navigator/navigator.service';
-
 import { DetailViewService } from './detail-view.service';
+
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 @Component({
   selector: 'mdm-detail-view',
@@ -48,12 +47,15 @@ export class MDMDetailViewComponent implements OnInit, OnDestroy {
   constructor(private localService: LocalizationService,
               private basketService: BasketService,
               private navigatorService: NavigatorService,
-              private detailViewService: DetailViewService) {}
+              private detailViewService: DetailViewService,
+              private notificationService: MDMNotificationService) {}
 
   ngOnInit() {
     this.onSelectedNodeChange(this.navigatorService.getSelectedNode());
-    this.subscription = this.navigatorService.selectedNodeChanged
-        .subscribe(node => this.onSelectedNodeChange(node));
+    this.subscription = this.navigatorService.selectedNodeChanged.subscribe(
+          node => this.onSelectedNodeChange(node),
+          error => this.notificationService.notifyError('Knoten kann nicht aktualisiert werden.', error)
+        );
   }
 
   ngOnDestroy() {

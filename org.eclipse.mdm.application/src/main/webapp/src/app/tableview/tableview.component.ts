@@ -23,6 +23,7 @@ import { Node } from '../navigator/node';
 import { NodeService } from '../navigator/node.service';
 
 import {DataTableModule, SharedModule, ContextMenuModule, MenuItem} from 'primeng/primeng';
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 @Component({
   selector: 'mdm-tableview',
@@ -54,8 +55,9 @@ export class TableviewComponent implements OnInit, OnChanges {
   public btnColHidden = false;
 
   constructor(private basketService: BasketService,
-    private navigatorService: NavigatorService,
-    private nodeService: NodeService) {
+              private navigatorService: NavigatorService,
+              private nodeService: NodeService,
+              private notificationService: MDMNotificationService) {
   }
 
   ngOnInit() {
@@ -182,7 +184,8 @@ export class TableviewComponent implements OnInit, OnChanges {
   onRowClick(e: any) {
     let row: Row = e.data;
     this.nodeService.getNodeFromItem(row.getItem()).subscribe(
-      node => this.navigatorService.fireSelectedNodeChanged(node)
+      node => this.navigatorService.fireSelectedNodeChanged(node),
+      error => this.notificationService.notifyError('Knoten konnte nicht berechnet werden.', error)
     );
     let event: MouseEvent = e.originalEvent;
     if (event.shiftKey && this.selectedRows.length > 0) {

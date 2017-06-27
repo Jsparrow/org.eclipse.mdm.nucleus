@@ -25,6 +25,8 @@ import {BasketService} from '../basket/basket.service';
 
 import {Observable} from 'rxjs/Observable';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 @Component({
   selector: 'mdm-navigator',
   templateUrl: './mdm-navigator.component.html',
@@ -56,19 +58,22 @@ export class MDMNavigatorComponent implements OnInit {
     private queryService: QueryService,
     private basketService: BasketService,
     private nodeproviderService: NodeproviderService,
-    private navigatorService: NavigatorService) {
+    private navigatorService: NavigatorService,
+    private notificationService: MDMNotificationService) {
   }
 
   ngOnInit() {
     this.reloadTree();
-    this.nodeproviderService.nodeProviderChanged
-      .subscribe(np => this.reloadTree());
-
-    this.navigatorService.selectedNodeChanged
-      .subscribe(node => this.selectNode(node));
+    this.nodeproviderService.nodeProviderChanged.subscribe(
+        np => this.reloadTree(),
+        error => this.notificationService.notifyError('Navigationsbaum kann nicht aktualisiert werden.', error)
+      );
 
     this.navigatorService.onOpenInTree
-      .subscribe(items => this.openInTree(items));
+      .subscribe(
+        items => this.openInTree(items),
+        error => this.notificationService.notifyError('Knoten kann nicht im Navigationsbaum geöffnet werden.', error)
+      );
   }
 
   nodeSelect(event) {
@@ -89,14 +94,18 @@ export class MDMNavigatorComponent implements OnInit {
       return this.getChildren(event.node)
         .startWith([this.loadingNode])
         .do(nodes => (nodes && nodes.length === 0) ? event.node.leaf = true : event.node.leaf = false)
-        .subscribe(nodes => event.node.children = nodes);
+        .subscribe(
+          nodes => event.node.children = nodes,
+          error => this.notificationService.notifyError('Knoten können nicht geladen werden.', error)
+        );
     }
   }
 
   reloadTree() {
-    this.nodeService.getRootNodes().subscribe(n => {
-      this.nodes = n.map(node => this.mapNode(node));
-    });
+    this.nodeService.getRootNodes().subscribe(
+      n => this.nodes = n.map(node => this.mapNode(node)),
+      error => this.notificationService.notifyError('Navigationsbaum kann nicht aktualisiert werden.', error)
+    );
   }
 
   onFocus(event: { eventName: string, node: TreeNode }) {
@@ -121,9 +130,6 @@ export class MDMNavigatorComponent implements OnInit {
     return this.nodeService.getNodesByUrl(this.nodeproviderService.getQueryForChildren(node.data))
       .map(nodes => nodes.map(n => this.mapNode(n)))
       .map(treenodes => treenodes.sort((n1, n2) => n1.label.localeCompare(n2.label)));
-  }
-
-  selectNode(event) {
   }
 
   addSelectionToBasket() {
@@ -166,9 +172,10 @@ export class MDMNavigatorComponent implements OnInit {
       this.getChildren(current)
         .startWith([this.loadingNode])
         .do(n => current.children = n)
-        .subscribe(() => {
-          this.expander(item, current, pathTypes, iii);
-        });
+        .subscribe(
+          () => this.expander(item, current, pathTypes, iii),
+          error => this.notificationService.notifyError('Knoten kann nicht geöffnet werden.', error)
+        );
     }
   }
 
@@ -176,27 +183,33 @@ export class MDMNavigatorComponent implements OnInit {
     let expandList: number[] = [];
     this.nodeService.searchNodes('filter=' + item.type + '.Id eq ' + item.id,
       item.source, this.typeToUrl(pathTypes[iii]))
-      .subscribe(nodes => {
-        expandList = nodes.map(n => n.id);
-        current.children.filter(node => expandList.findIndex(
-          i => node.data ? i === node.data.id : false) > -1
-        )
-        .forEach(node => {
-          if (++iii < pathTypes.length) {
-            node.expanded = true;
-            this.openChildrenRecursive(item, node, pathTypes, iii);
-            this.scrollToSelectionPrimeNgDataTable(node);
-          } else {
-            this.selectedNodes.push(node);
-            let length = this.selectedNodes.length;
-            if (length === 1) {
-              this.nodeService.getNodeFromItem(this.selectedNodes[length - 1].data)
-                  .subscribe( n => this.navigatorService.setSelectedNode(n));
-            };
-            this.scrollToSelectionPrimeNgDataTable(node);
-          }
-        });
-      });
+      .subscribe(
+        nodes => {
+          expandList = nodes.map(n => n.id);
+          current.children.filter(node => expandList.findIndex(
+            i => node.data ? i === node.data.id : false) > -1
+          )
+          .forEach(node => {
+            if (++iii < pathTypes.length) {
+              node.expanded = true;
+              this.openChildrenRecursive(item, node, pathTypes, iii);
+              this.scrollToSelectionPrimeNgDataTable(node);
+            } else {
+              this.selectedNodes.push(node);
+              let length = this.selectedNodes.length;
+              if (length === 1) {
+                this.nodeService.getNodeFromItem(this.selectedNodes[length - 1].data)
+                    .subscribe(
+                      n => this.navigatorService.setSelectedNode(n),
+                      error => this.notificationService.notifyError('Knoten kann nicht geöffnet werden.', error)
+                    );
+              };
+              this.scrollToSelectionPrimeNgDataTable(node);
+            }
+          });
+        },
+        error => this.notificationService.notifyError('Knoten kann nicht geöffnet werden.', error)
+      );
   }
 
   /**

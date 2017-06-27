@@ -19,6 +19,7 @@ import {Node} from './node';
 import {PropertyService} from '../core/property.service';
 import {NodeService} from './node.service';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 @Injectable()
 export class NavigatorService {
@@ -28,7 +29,8 @@ export class NavigatorService {
   public selectedNodeChanged: EventEmitter<Node> = new EventEmitter<Node>();
   private selectedNode: Node;
 
-  constructor(private nodeService: NodeService) {
+  constructor(private nodeService: NodeService,
+              private notificationService: MDMNotificationService) {
 
   }
 
@@ -43,7 +45,10 @@ export class NavigatorService {
 
   setSelectedItem(item: MDMItem) {
     this.nodeService.getNodeFromItem(item)
-        .subscribe(node => this.setSelectedNode(node));
+        .subscribe(
+          node => this.setSelectedNode(node),
+          error => this.notificationService.notifyError('Item konnte nicht gesetzt werden.', error)
+        );
   }
 
   getSelectedNode(): Node {

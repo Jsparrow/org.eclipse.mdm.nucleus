@@ -17,6 +17,8 @@ import { ModalDirective } from 'ng2-bootstrap';
 import {Release, FilereleaseService} from './filerelease.service';
 import {Node} from '../navigator/node';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 @Component({
   selector: 'mdm-filerelease-create',
   templateUrl: 'mdm-filerelease-create.component.html'
@@ -27,14 +29,14 @@ export class MDMFilereleaseCreateComponent {
   @Input() node: Node;
   @Output() onSubmit = new EventEmitter<boolean>();
   release: Release = new Release;
-  errorMessage: string;
   options = ['PAK2RAW', 'PAK2ATFX'];
   expire = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   @ViewChild('lgModal')
   lgModal: ModalDirective;
 
-  constructor(private service: FilereleaseService) {}
+  constructor(private service: FilereleaseService,
+              private notificationService: MDMNotificationService) {}
 
   getFormat(key) {
       return this.service.formatMap[key];
@@ -55,7 +57,8 @@ export class MDMFilereleaseCreateComponent {
     this.release.expire = 0;
     this.service.create(this.release).subscribe(
       release => this.release = release,
-      error => this.errorMessage = <any>error);
+      error => this.notificationService.notifyError('Release kann nicht erzeugt werden.', error)
+    );
     this.clear();
     this.onSubmit.emit(true);
     this.lgModal.hide();

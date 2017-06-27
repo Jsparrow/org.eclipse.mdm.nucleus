@@ -55,13 +55,22 @@ export class ViewComponent implements OnInit {
   private overwriteDialogComponent: OverwriteDialogComponent;
 
   constructor(private viewService: ViewService,
-    private notificationService: MDMNotificationService) {
+              private notificationService: MDMNotificationService) {
   }
 
   ngOnInit() {
-    this.viewService.getViews().subscribe(views => this.setViews(views));
-    this.viewService.viewSaved$.subscribe(view => this.onViewSaved(view));
-    this.viewService.viewDeleted$.subscribe(() => this.onDeleteView());
+    this.viewService.getViews().subscribe(
+      views => this.setViews(views),
+      error => this.notificationService.notifyError('Ansichten können nicht geladen werden.', error)
+    );
+    this.viewService.viewSaved$.subscribe(
+      view => this.onViewSaved(view),
+      error => this.notificationService.notifyError('Es ist ein Fehler beim Speichern der Ansicht aufgetreten.', error)
+    );
+    this.viewService.viewDeleted$.subscribe(
+      () => this.onDeleteView(),
+      error => this.notificationService.notifyError('Es ist ein Fehler beim Löschen der Ansicht aufgetreten.', error)
+    );
   }
 
   selectView(view: View) {
@@ -71,29 +80,38 @@ export class ViewComponent implements OnInit {
 
   public editSelectedView(e: Event) {
     e.stopPropagation();
-    this.editViewComponent.showDialog(this.selectedView).subscribe(v => this.selectedView = v);
+    this.editViewComponent.showDialog(this.selectedView).subscribe(
+      v => this.selectedView = v,
+      error => this.notificationService.notifyError('Ansicht kann nicht ausgewählt werden.', error)
+    );
   }
 
   public newView(e: Event) {
     e.stopPropagation();
-    this.editViewComponent.showDialog(new View()).subscribe(v => this.selectedView = v);
+    this.editViewComponent.showDialog(new View()).subscribe(
+      v => this.selectedView = v,
+      error => this.notificationService.notifyError('Ansichtseditor kann nicht angezeigt werden.', error)
+    );
   }
 
   private onDeleteView() {
-    this.viewService.getViews().subscribe(prefViews => {
-      this.getGroupedView(prefViews);
-      if (prefViews.find(pv => pv.view.name === this.selectedView.name) === undefined
-          && this.viewService.defaultPrefViews.find(pv => pv.view.name === this.selectedView.name) === undefined) {
-        this.selectView(prefViews[0].view);
-      }
-    });
+    this.viewService.getViews().subscribe(
+      prefViews => {
+        this.getGroupedView(prefViews);
+        if (prefViews.find(pv => pv.view.name === this.selectedView.name) === undefined
+            && this.viewService.defaultPrefViews.find(pv => pv.view.name === this.selectedView.name) === undefined) {
+          this.selectView(prefViews[0].view);
+        }
+      },
+      error => this.notificationService.notifyError('Ansichten konnten nicht aktualisiert werden.', error)
+    );
   }
 
  private onViewSaved(view: View) {
-   this.viewService.getViews().subscribe(prefViews => this.getGroupedView(prefViews));
-    // if (this.selectedView.name === view.name) {
-    //   this.selectView(classToClass(view));
-    // }
+   this.viewService.getViews().subscribe(
+     prefViews => this.getGroupedView(prefViews),
+     error => this.notificationService.notifyError('Ansichten konnten nicht aktualisiert werden.', error)
+   );
   }
 
   private setViews(prefViews: PreferenceView[]) {
@@ -121,8 +139,10 @@ export class ViewComponent implements OnInit {
   }
 
   private updateUserViewNames() {
-    this.viewService.getViews().subscribe(prefViews =>
-      this.userViewNames = prefViews.filter(pv => pv.scope === Scope.USER).map(pv => pv.view.name)
+    this.viewService.getViews().subscribe(
+      prefViews => this.userViewNames = prefViews.filter(pv => pv.scope === Scope.USER)
+                                                 .map(pv => pv.view.name),
+      error => this.notificationService.notifyError('Ansichten konnten nicht aktualisiert werden.', error)
     );
   }
 
@@ -130,7 +150,13 @@ export class ViewComponent implements OnInit {
     e.stopPropagation();
     if (this.groupedViews.find(gv => gv.view.find(v => v.name === this.viewName) !== undefined)) {
       this.childSaveModal.hide();
-      this.overwriteDialogComponent.showOverwriteModal('eine Ansicht').subscribe(ovw => this.saveView2(ovw));
+      this.overwriteDialogComponent.showOverwriteModal('eine Ansicht').subscribe(
+        needSave => this.saveView2(needSave),
+        error => {
+          this.saveView2(false);
+          this.notificationService.notifyError('Ansicht konnte nicht gespeichert werden.', error);
+        }
+      );
     } else {
       this.saveView2(true);
     }
@@ -159,12 +185,12 @@ export class ViewComponent implements OnInit {
     let userGroup = this.groupedViews.find(gv => gv.scope === Scope.USER);
     if (userGroup && userGroup.view.length > 0) {
       this.viewService.deleteView(this.selectedView.name).subscribe(() =>
-        this.viewService.getViews().subscribe(views => {
-          this.setViews(views);
-          this.viewService.viewDeleted$.emit();
-        },
-          () => this.notificationService.notifyError('Server Error.',
-            'Die Ansicht konnte auf Grund eine Server Fehlers nicht gelöscht werden!'))
+        this.viewService.getViews().subscribe(
+          views => {
+            this.setViews(views);
+            this.viewService.viewDeleted$.emit();
+          },
+          error => this.notificationService.notifyError('Die Ansicht kann nicht gelöscht werden.', error))
       );
     } else {
       this.notificationService.notifyError('Forbidden.',

@@ -16,6 +16,8 @@ import { Observable } from 'rxjs/Observable';
 import { PreferenceService, Preference, Scope } from '../core/preference.service';
 import { Type, Exclude, plainToClass, serialize, deserialize } from 'class-transformer';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 export class View {
   name: string;
   @Type(() => ViewColumn)
@@ -96,7 +98,8 @@ export class ViewService {
 
   defaultPrefViews =  [ new PreferenceView(Scope.SYSTEM, new View('Standard', [new ViewColumn('Test', 'Name')])) ];
 
-  constructor(private prefService: PreferenceService) {
+  constructor(private prefService: PreferenceService,
+              private notificationService: MDMNotificationService) {
   }
 
   getViews() {
@@ -111,7 +114,10 @@ export class ViewService {
     pref.value = serialize(view);
     pref.key = this.preferencePrefix + view.name;
     pref.scope = Scope.USER;
-    this.prefService.savePreference(pref).subscribe(saved => this.viewSaved$.emit(view));
+    this.prefService.savePreference(pref).subscribe(
+      saved => this.viewSaved$.emit(view),
+      error => this.notificationService.notifyError('Ansicht konnte nicht gespeichert werden', error)
+    );
   }
 
   deleteView(name: string) {

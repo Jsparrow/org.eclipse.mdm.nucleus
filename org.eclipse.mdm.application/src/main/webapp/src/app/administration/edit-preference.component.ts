@@ -19,6 +19,8 @@ import { PreferenceService, Preference, Scope } from '../core/preference.service
 import { NodeService } from '../navigator/node.service';
 import { Node } from '../navigator/node';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 @Component( {
     selector: 'edit-preference',
     templateUrl: './edit-preference.component.html',
@@ -44,18 +46,18 @@ export class EditPreferenceComponent implements OnInit {
     preferenceForm: FormGroup;
     needSave = false;
     envs: Node[];
-    errorMessage = 'Environment konnte nicht geladen werden.';
 
     @ViewChild( 'lgModal' ) public childModal: ModalDirective;
 
     constructor( private formBuilder: FormBuilder,
-                 private nodeService: NodeService ) { }
+                 private nodeService: NodeService,
+                 private notificationService: MDMNotificationService ) { }
 
     ngOnInit() {
         let node: Node;
         this.nodeService.getNodes(node).subscribe(
                 env => this.envs = env,
-                error => this.errorMessage = <any>error
+                error => this.notificationService.notifyError('Datenquelle kann nicht geladen werden.', error)
                 );
         this.setupForm( new Preference() );
     }

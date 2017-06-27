@@ -73,7 +73,10 @@ export class EditSearchFieldsComponent implements OnChanges, OnInit {
     private notificationService: MDMNotificationService) { }
 
   ngOnInit() {
-      this.tree.onNodeSelect$.subscribe(node => this.nodeSelect(node));
+      this.tree.onNodeSelect$.subscribe(
+        node => this.nodeSelect(node),
+        error => this.notificationService.notifyError('Ausgewählter Knoten kann nicht aktualisiert werden.', error)
+      );
   }
 
   ngOnChanges(changes: SimpleChanges) {

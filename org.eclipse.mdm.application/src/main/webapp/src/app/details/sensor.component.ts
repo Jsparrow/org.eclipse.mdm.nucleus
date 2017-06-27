@@ -22,6 +22,8 @@ import {Context, Sensor} from './context';
 import {Node} from '../navigator/node';
 import {NavigatorService} from '../navigator/navigator.service';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 @Component({
   selector: 'sensors',
   templateUrl: 'sensor.component.html',
@@ -52,16 +54,21 @@ export class SensorComponent implements OnInit {
   constructor(private route: ActivatedRoute,
     private localService: LocalizationService,
               private _contextService: ContextService,
-              private navigatorService: NavigatorService) {}
+              private navigatorService: NavigatorService,
+              private notificationService: MDMNotificationService) {}
 
   ngOnInit() {
     this.status = this.StatusLoading;
     this.route.params
-        .subscribe(params => this.setContext(params['context'])
+        .subscribe(
+          params => this.setContext(params['context']),
+          error => this.notificationService.notifyError('Bereich kann nicht geladen werden.', error)
     );
 
     this.navigatorService.selectedNodeChanged
-        .subscribe(node => this.loadContext(node));
+        .subscribe(node => this.loadContext(node),
+        error => this.notificationService.notifyError('Daten können nicht geladen werden.', error)
+    );
   }
 
   setContext(context: string) {
@@ -77,7 +84,8 @@ export class SensorComponent implements OnInit {
         this.status = this.StatusLoading;
         this._contextService.getSensors(node).subscribe(
             sensors => this.sensors = sensors,
-            error => this.errorMessage = <any>error);
+            error => this.notificationService.notifyError('Beschreibende Daten können nicht geladen werden.', error)
+          );
       } else {
         this.status = this.StatusNoDescriptiveData;
       }
@@ -95,8 +103,4 @@ export class SensorComponent implements OnInit {
       return 'danger';
     }
   }
-  //
-  // getTrans(type: string, attr: string) {
-  //   return this.localService.getTranslation(type, attr);
-  // }
 }

@@ -56,15 +56,23 @@ export class EditViewComponent implements OnInit {
     private notificationService: MDMNotificationService) { }
 
   ngOnInit() {
-    this.tree.onNodeSelect$.subscribe(node => this.selectNode(node));
+    this.tree.onNodeSelect$.subscribe(
+      node => this.selectNode(node),
+      error => this.notificationService.notifyError('Knoten kann nicht ausgewählt werden.', error)
+    );
 
     this.nodeService.getNodes()
       .subscribe(
         envs => {
           this.searchService.loadSearchAttributesStructured(envs.map(e => e.sourceName))
             .map(attrs => attrs['measurements'])
-            .subscribe(attrs => this.refreshTypeAheadValues(attrs, envs));
-      });
+            .subscribe(
+              attrs => this.refreshTypeAheadValues(attrs, envs),
+              error => this.notificationService.notifyError('Suchattribute können nicht geladen werden', error)
+            );
+        },
+        error => this.notificationService.notifyError('Knoten können nicht geladen werden', error)
+      );
   }
 
   refreshTypeAheadValues(searchAttributes: { [env: string]: SearchAttribute[] }, environments: Node[]) {

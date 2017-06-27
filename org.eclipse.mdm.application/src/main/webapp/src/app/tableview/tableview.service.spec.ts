@@ -21,6 +21,8 @@ import { ViewService } from './tableview.service';
 import { PropertyService } from '../core/property.service';
 import { PreferenceService, Scope } from '../core/preference.service';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 describe ( 'TableviewService', () => {
 
   beforeEach(() => {
@@ -32,6 +34,7 @@ describe ( 'TableviewService', () => {
         PreferenceService,
         MockBackend,
         BaseRequestOptions,
+        MDMNotificationService,
         {
           provide: Http,
           useFactory: (backend, options) => new Http(backend, options),

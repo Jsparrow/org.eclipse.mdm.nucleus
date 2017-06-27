@@ -7,34 +7,24 @@
 *  http://www.eclipse.org/legal/epl-v10.html                                   *
 *                                                                              *
 *  Contributors:                                                               *
-*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*  Matthias Koller - initial implementation                                    *
 *******************************************************************************/
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Message } from 'primeng/primeng';
+import { ErrorHandler, Injectable } from '@angular/core';
 import { MDMNotificationService } from './mdm-notification.service';
-import { Subscription } from 'rxjs/Subscription';
 
-@Component({
-  selector: 'mdm-notifications',
-  template: '<p-growl [value]="msgs" sticky="true"></p-growl>'
-})
-export class MDMNotificationComponent implements OnInit, OnDestroy {
-  msgs: Message[] = [];
-  subscription: Subscription;
+@Injectable()
+export class MDMErrorHandler extends ErrorHandler {
 
-  constructor(private notificationsService: MDMNotificationService) { }
-
-  ngOnInit() {
-    this.subscribeToNotifications();
+  constructor(private notificationService: MDMNotificationService) {
+    super(true);
   }
 
-  subscribeToNotifications() {
-    this.subscription = this.notificationsService.notificationChange
-      .subscribe(notification => this.msgs.push(notification));
-  }
+  handleError(error) {
+    this.notificationService.notifyError("Applikationsfehler",
+      "Es ist ein Applikationsfehler aufgetreten. Für eine detailierte "
+      + "Fehlermeldung öffnen Sie bitte die Entwicklerkonsole Ihres Browsers.");
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+    super.handleError(error);
   }
 }

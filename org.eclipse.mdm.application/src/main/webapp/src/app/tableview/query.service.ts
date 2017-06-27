@@ -16,6 +16,7 @@ import { Observable } from 'rxjs/Observable';
 
 import {PropertyService} from '../core/property.service';
 import {MDMItem} from '../core/mdm-item';
+import {HttpErrorHandler} from '../core/http-error-handler';
 import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transformer';
 
 export class Filter {
@@ -86,6 +87,7 @@ export class QueryService {
   private queryUrl: string;
 
   constructor(private http: Http,
+              private httpErrorHandler: HttpErrorHandler,
               private _prop: PropertyService) {
     this.queryUrl = _prop.getUrl('/mdm/query');
   }
@@ -93,7 +95,7 @@ export class QueryService {
   query(query: Query): Observable<SearchResult> {
     return this.http.post(this.queryUrl, query)
                .map(res => deserialize(SearchResult, res.text()))
-               .catch(this.handleError);
+               .catch(this.httpErrorHandler.handleError);
   }
 
   queryItems(items: MDMItem[], columns: string[]): Observable<SearchResult>[] {
@@ -132,11 +134,7 @@ export class QueryService {
     let options = new RequestOptions({ headers: headers });
     let url =  this._prop.getUrl('/mdm/suggestions');
     return this.http.post(url, body, options)
-      .map(res => res.json().data);
-  }
-
-  private handleError(error: Response) {
-    console.error(error);
-    return Observable.throw(error.json().error || 'Server error');
+      .map(res => res.json().data)
+      .catch(this.httpErrorHandler.handleError);
   }
 }

@@ -11,7 +11,7 @@
 *******************************************************************************/
 
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
@@ -33,6 +33,8 @@ import {ViewService} from './tableview/tableview.service';
 import {NodeproviderService} from './navigator/nodeprovider.service';
 import { SearchattributeTreeComponent } from './searchattribute-tree/searchattribute-tree.component';
 import { MDMNotificationService } from './core/mdm-notification.service';
+import { MDMErrorHandler } from './core/mdm-error-handler';
+import { HttpErrorHandler } from './core/http-error-handler';
 
 @NgModule({
   imports: [
@@ -56,10 +58,12 @@ import { MDMNotificationService } from './core/mdm-notification.service';
     QueryService,
     NodeproviderService,
     MDMNotificationService,
-    ViewService
+    ViewService,
+    HttpErrorHandler,
+    { provide: ErrorHandler, useClass: MDMErrorHandler }
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
 
-    }
+}
