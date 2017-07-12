@@ -16,6 +16,7 @@ import { MockBackend } from '@angular/http/testing';
 
 import {PreferenceService, Preference, Scope} from './preference.service';
 import {PropertyService} from './property.service';
+import {HttpErrorHandler} from '../core/http-error-handler';
 
 describe('PreferenceService', () => {
   beforeEach(() => {
@@ -26,6 +27,7 @@ describe('PreferenceService', () => {
         PreferenceService,
         MockBackend,
         BaseRequestOptions,
+        HttpErrorHandler,
         {
           provide: Http,
           useFactory: (mockBackend, options) => {

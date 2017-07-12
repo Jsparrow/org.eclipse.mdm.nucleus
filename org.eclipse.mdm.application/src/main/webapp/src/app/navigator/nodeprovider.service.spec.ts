@@ -24,6 +24,7 @@ import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import {MDMNotificationService} from '../core/mdm-notification.service';
 import { QueryService } from '../tableview/query.service';
 import {MDMItem} from '../core/mdm-item';
+import {HttpErrorHandler} from '../core/http-error-handler';
 
 declare function require(path: string): any;
 const defaultNodeProvider = require('../navigator/defaultnodeprovider.json');
@@ -50,6 +51,7 @@ describe ( 'NodeproviderService', () => {
         NodeproviderService,
         MDMNotificationService,
         QueryService,
+        HttpErrorHandler,
         NodeService]
     });
   });

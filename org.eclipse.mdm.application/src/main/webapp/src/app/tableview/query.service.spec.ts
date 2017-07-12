@@ -17,6 +17,7 @@ import { Observable } from 'rxjs/Observable';
 import { ComponentFixture, async, TestBed, inject } from '@angular/core/testing';
 import { BaseRequestOptions, Http, HttpModule, Response, ResponseOptions, RequestMethod} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
+import {HttpErrorHandler} from '../core/http-error-handler';
 
 import { MDMItem } from '../core/mdm-item';
 import { PropertyService } from '../core/property.service';
@@ -32,6 +33,7 @@ describe ( 'QueryService', () => {
         QueryService,
         MockBackend,
         BaseRequestOptions,
+        HttpErrorHandler,
         {
           provide: Http,
           useFactory: (backend, options) => new Http(backend, options),

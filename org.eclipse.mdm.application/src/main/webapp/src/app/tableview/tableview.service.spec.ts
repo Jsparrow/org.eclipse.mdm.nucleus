@@ -20,6 +20,7 @@ import { MockBackend } from '@angular/http/testing';
 import { ViewService } from './tableview.service';
 import { PropertyService } from '../core/property.service';
 import { PreferenceService, Scope } from '../core/preference.service';
+import {HttpErrorHandler} from '../core/http-error-handler';
 
 import {MDMNotificationService} from '../core/mdm-notification.service';
 
@@ -34,6 +35,7 @@ describe ( 'TableviewService', () => {
         PreferenceService,
         MockBackend,
         BaseRequestOptions,
+        HttpErrorHandler,
         MDMNotificationService,
         {
           provide: Http,
