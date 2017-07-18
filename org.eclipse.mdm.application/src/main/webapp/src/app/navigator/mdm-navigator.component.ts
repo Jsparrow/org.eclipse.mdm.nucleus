@@ -1,6 +1,5 @@
 /*******************************************************************************
-*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
-*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*  Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others                    *
 *                                                                              *
 *  All rights reserved. This program and the accompanying materials            *
 *  are made available under the terms of the Eclipse Public License v1.0       *
@@ -117,7 +116,7 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   mapNode(node: Node) {
-    let item = new MDMItem(node.sourceName, node.type, +node.id);
+    let item = new MDMItem(node.sourceName, node.type, node.id);
     return <TreeNode>{
       label: node.name,
       leaf: this.nodeproviderService.getSubNodeprovider(item) === undefined,

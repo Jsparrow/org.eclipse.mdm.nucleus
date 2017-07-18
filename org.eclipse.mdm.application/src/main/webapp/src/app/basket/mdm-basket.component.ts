@@ -1,6 +1,5 @@
 /*******************************************************************************
-*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
-*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*  Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others                    *
 *                                                                              *
 *  All rights reserved. This program and the accompanying materials            *
 *  are made available under the terms of the Eclipse Public License v1.0       *
@@ -143,7 +142,7 @@ export class MDMBasketComponent implements OnInit {
   removeItems(items: MDMItem[]) {
     items.forEach(item =>
       this.basketContent.rows = this.basketContent.rows.filter(row =>
-        !(row.source === item.source && row.type === item.type && +row.id === item.id)));
+        !(row.source === item.source && row.type === item.type && row.id === item.id)));
   }
 
   setView(view: View) {
