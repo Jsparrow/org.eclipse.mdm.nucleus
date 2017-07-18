@@ -26,7 +26,7 @@ public class Row {
 
 	private String source;
 	private String type;
-	private Long id;
+	private String id;
 
 	private List<Column> columns = new ArrayList<>();
 
@@ -46,11 +46,11 @@ public class Row {
 		return type;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

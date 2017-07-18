@@ -69,7 +69,7 @@ public class TestService {
 			}
 
 			if (ServiceUtils.isParentFilter(em, filter, Pool.class)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.class);
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.class);
 				return this.navigationActivity.getTests(sourceName, id);
 			}
 
@@ -103,10 +103,10 @@ public class TestService {
 	 *            id of the {@link Test}
 	 * @return the matching {@link Test}
 	 */
-	public Test getTest(String sourceName, long testId) {
+	public Test getTest(String sourceName, String testId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(Test.class, testId);
+			return em.load(Test.class, Long.parseLong(testId));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

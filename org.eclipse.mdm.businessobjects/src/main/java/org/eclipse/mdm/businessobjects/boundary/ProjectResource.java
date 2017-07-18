@@ -104,7 +104,7 @@ public class ProjectResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{PROJECT_ID}")
-	public Response getProject(@PathParam("SOURCENAME") String sourceName, @PathParam("PROJECT_ID") long projectId) {
+	public Response getProject(@PathParam("SOURCENAME") String sourceName, @PathParam("PROJECT_ID") String projectId) {
 		try {
 			Project project = this.projectService.getProject(sourceName, projectId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Project.class, project), Status.OK);

@@ -105,7 +105,7 @@ public class PoolResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{POOL_ID}")
-	public Response getPool(@PathParam("SOURCENAME") String sourceName, @PathParam("POOL_ID") long poolId) {
+	public Response getPool(@PathParam("SOURCENAME") String sourceName, @PathParam("POOL_ID") String poolId) {
 		try {
 			Pool pool = this.poolService.getPool(sourceName, poolId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Pool.class, pool), Status.OK);

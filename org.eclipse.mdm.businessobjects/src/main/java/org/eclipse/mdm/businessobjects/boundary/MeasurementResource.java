@@ -111,7 +111,7 @@ public class MeasurementResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}")
 	public Response getMeasurement(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("MEASUREMENT_ID") long measurementId) {
+			@PathParam("MEASUREMENT_ID") String measurementId) {
 
 		try {
 			Measurement measurement = this.measurementService.getMeasurement(sourceName, measurementId);
@@ -136,7 +136,7 @@ public class MeasurementResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts")
 	public Response getContext(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("MEASUREMENT_ID") long measurementId) {
+			@PathParam("MEASUREMENT_ID") String measurementId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContext(sourceName,
 					measurementId);
@@ -161,7 +161,7 @@ public class MeasurementResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/unitundertest")
 	public Response getContextUUT(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("MEASUREMENT_ID") long measurementId) {
+			@PathParam("MEASUREMENT_ID") String measurementId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContextUUT(sourceName,
 					measurementId);
@@ -186,7 +186,7 @@ public class MeasurementResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/testsequence")
 	public Response getContextTSQ(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("MEASUREMENT_ID") long measurementId) {
+			@PathParam("MEASUREMENT_ID") String measurementId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContextTSQ(sourceName,
 					measurementId);
@@ -211,7 +211,7 @@ public class MeasurementResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/testequipment")
 	public Response getContextTEQ(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("MEASUREMENT_ID") long measurementId) {
+			@PathParam("MEASUREMENT_ID") String measurementId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.measurementService.getContextTEQ(sourceName,
 					measurementId);
@@ -236,7 +236,7 @@ public class MeasurementResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{MEASUREMENT_ID}/contexts/testequipment/sensors")
 	public Response getContextTEQSensors(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("MEASUREMENT_ID") long measurementId) {
+			@PathParam("MEASUREMENT_ID") String measurementId) {
 		try {
 			try {
 				Map<String, List<ContextSensor>> sensorMap = this.measurementService.getSensors(sourceName,

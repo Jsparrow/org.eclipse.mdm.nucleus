@@ -68,7 +68,7 @@ public class ChannelGroupService {
 			}
 
 			if (ServiceUtils.isParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT);
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT);
 				return this.navigationActivity.getChannelGroups(sourceName, id);
 			}
 
@@ -88,10 +88,10 @@ public class ChannelGroupService {
 	 *            id of the {@link ChannelGroup}
 	 * @return the matching {@link ChannelGroup}
 	 */
-	public ChannelGroup getChannelGroup(String sourceName, long channelGroupId) {
+	public ChannelGroup getChannelGroup(String sourceName, String channelGroupId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(ChannelGroup.class, channelGroupId);
+			return em.load(ChannelGroup.class, Long.parseLong(channelGroupId));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

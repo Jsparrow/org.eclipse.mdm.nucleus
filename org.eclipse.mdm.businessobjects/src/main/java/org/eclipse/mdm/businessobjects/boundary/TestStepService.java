@@ -75,7 +75,7 @@ public class TestStepService {
 			}
 
 			if (ServiceUtils.isParentFilter(em, filter, TestStep.PARENT_TYPE_TEST)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, TestStep.PARENT_TYPE_TEST);
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, TestStep.PARENT_TYPE_TEST);
 				return this.navigationActivity.getTestSteps(sourceName, id);
 			}
 
@@ -108,10 +108,10 @@ public class TestStepService {
 	 *            id of the {@link TestStep}
 	 * @return the matching {@link TestStep}
 	 */
-	public TestStep getTestStep(String sourceName, long testStepId) {
+	public TestStep getTestStep(String sourceName, String testStepId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(TestStep.class, testStepId);
+			return em.load(TestStep.class, Long.parseLong(testStepId));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -127,7 +127,7 @@ public class TestStepService {
 	 *            id of the {@link TestStep}
 	 * @return a map with the complete context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, long testStepId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, String testStepId) {
 		return this.contextActivity.getTestStepContext(sourceName, testStepId);
 	}
 
@@ -141,7 +141,7 @@ public class TestStepService {
 	 *            id of the {@link TestStep}
 	 * @return a map with the UnitUnderTest context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, long testStepId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, String testStepId) {
 		return this.contextActivity.getTestStepContext(sourceName, testStepId, ContextType.UNITUNDERTEST);
 	}
 
@@ -155,7 +155,7 @@ public class TestStepService {
 	 *            id of the {@link TestStep}
 	 * @return a map with the TestSequence context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, long testStepId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, String testStepId) {
 		return this.contextActivity.getTestStepContext(sourceName, testStepId, ContextType.TESTSEQUENCE);
 	}
 
@@ -169,7 +169,7 @@ public class TestStepService {
 	 *            id of the {@link TestStep}
 	 * @return a map with the TestEquipment context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, long testStepId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, String testStepId) {
 		return this.contextActivity.getTestStepContext(sourceName, testStepId, ContextType.TESTEQUIPMENT);
 	}
 
@@ -183,7 +183,7 @@ public class TestStepService {
 	 * @return a map with the TestEquipment sensor context data (ordered and
 	 *         measured)
 	 */
-	public Map<String, List<ContextSensor>> getSensors(String sourceName, long testStepId) {
+	public Map<String, List<ContextSensor>> getSensors(String sourceName, String testStepId) {
 		return this.contextActivity.getTestStepSensorContext(sourceName, testStepId);
 	}
 

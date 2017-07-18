@@ -104,7 +104,7 @@ public class TestResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{TEST_ID}")
-	public Response getTest(@PathParam("SOURCENAME") String sourceName, @PathParam("TEST_ID") long testId) {
+	public Response getTest(@PathParam("SOURCENAME") String sourceName, @PathParam("TEST_ID") String testId) {
 		try {
 			Test test = this.testService.getTest(sourceName, testId);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Test.class, test), Status.OK);

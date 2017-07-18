@@ -67,9 +67,9 @@ public class QueryServiceTest {
 		Row expectedRow = new Row();
 		expectedRow.setSource("env1");
 		expectedRow.setType("Test");
-		expectedRow.setId(1L);
+		expectedRow.setId("id1");
 		expectedRow.addColumns(
-				Arrays.asList(new Column("Test", "Id", "1", null), new Column("Test", "Name", "Test-Name", null)));
+				Arrays.asList(new Column("Test", "Id", "id1", null), new Column("Test", "Name", "Test-Name", null)));
 
 		assertThat(queryService.queryRows(request)).contains(expectedRow);
 
@@ -104,9 +104,9 @@ public class QueryServiceTest {
 		Row expectedRow = new Row();
 		expectedRow.setSource("env1");
 		expectedRow.setType("Test");
-		expectedRow.setId(1L);
+		expectedRow.setId("id1");
 		expectedRow.addColumns(
-				Arrays.asList(new Column("Test", "Id", "1", null), new Column("Test", "Name", "Test-Name", null)));
+				Arrays.asList(new Column("Test", "Id", "id1", null), new Column("Test", "Name", "Test-Name", null)));
 
 		assertThat(queryService.queryRows(request)).contains(expectedRow);
 	}
@@ -168,21 +168,21 @@ public class QueryServiceTest {
 		Row expectedRowEnv1 = new Row();
 		expectedRowEnv1.setSource("env1");
 		expectedRowEnv1.setType("Test");
-		expectedRowEnv1.setId(1L);
+		expectedRowEnv1.setId("id1");
 		expectedRowEnv1.addColumns(
-				Arrays.asList(new Column("Test", "Id", "1", null), new Column("Test", "Name", "Test-Name", null)));
+				Arrays.asList(new Column("Test", "Id", "id1", null), new Column("Test", "Name", "Test-Name", null)));
 
 		Row expectedRowEnv2 = new Row();
 		expectedRowEnv2.setSource("env2");
 		expectedRowEnv2.setType("Test");
-		expectedRowEnv2.setId(1L);
-		expectedRowEnv2.addColumns(Arrays.asList(new Column("Test", "Id", "1", null),
+		expectedRowEnv2.setId("id1");
+		expectedRowEnv2.addColumns(Arrays.asList(new Column("Test", "Id", "id1", null),
 				new Column("Test", "Name", "Test-Name", null), new Column("Pool", "Name", "Pool-Name", null)));
 
 		List<Row> list = queryService.queryRows(request);
 
-		assertThat(list).extracting("source", "type", "id").containsOnly(new Tuple("env1", "Test", 1L),
-				new Tuple("env2", "Test", 1L));
+		assertThat(list).extracting("source", "type", "id").containsOnly(new Tuple("env1", "Test", "id1"),
+				new Tuple("env2", "Test", "id1"));
 
 		assertThat(list.get(0).getColumns()).containsOnlyElementsOf(expectedRowEnv1.getColumns());
 
@@ -220,7 +220,7 @@ public class QueryServiceTest {
 		when(ss.listSearchableTypes()).thenReturn(Arrays.asList(Test.class));
 
 		Record record = new Record(mm.getEntityType(Test.class));
-		record.addValue(ValueType.LONG.create("Id", 1L));
+		record.addValue(ValueType.STRING.create("Id", "id1"));
 		record.addValue(ValueType.STRING.create("Name", "Test-Name"));
 		Result result = new Result();
 		result.addRecord(record);

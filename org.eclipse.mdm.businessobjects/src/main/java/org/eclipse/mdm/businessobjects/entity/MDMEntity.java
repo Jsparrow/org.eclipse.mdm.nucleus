@@ -33,7 +33,7 @@ public class MDMEntity {
 	/** name of the MDM business object */
 	private final String name;
 	/** id of the MDM business object */
-	private final long id;
+	private final String id;
 	/** type as String of the MDM business object (e.g. TestStep) */
 	private final String type;
 	/** source type name of the business object at the data source */
@@ -51,7 +51,7 @@ public class MDMEntity {
 	 */
 	public MDMEntity(Entity entity) {
 		this.name = entity.getName();
-		this.id = entity.getID();
+		this.id = Long.toString(entity.getID());
 		this.type = entity.getClass().getSimpleName();
 		this.sourceType = entity.getTypeName();
 		this.sourceName = entity.getSourceName();
@@ -62,7 +62,7 @@ public class MDMEntity {
 		return this.name;
 	}
 
-	public long getId() {
+	public String getId() {
 		return this.id;
 	}
 

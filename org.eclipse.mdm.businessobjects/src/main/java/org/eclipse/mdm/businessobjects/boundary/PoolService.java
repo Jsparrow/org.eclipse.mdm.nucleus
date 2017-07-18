@@ -95,7 +95,7 @@ public class PoolService {
 			}
 
 			if (ServiceUtils.isParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT);
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.PARENT_TYPE_PROJECT);
 				return this.navigationActivity.getPools(sourceName, id);
 			}
 
@@ -129,10 +129,10 @@ public class PoolService {
 	 *            id of the {@link Pool}
 	 * @return the matching {@link Pool}
 	 */
-	public Pool getPool(String sourceName, long poolId) {
+	public Pool getPool(String sourceName, String poolId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(Pool.class, poolId);
+			return em.load(Pool.class, Long.parseLong(poolId));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

@@ -73,12 +73,12 @@ public class ContextActivity {
 	 * @throws ContextProviderException
 	 *             if an error occurs during lookup the context informations
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getTestStepContext(String sourceName, Long testStepID,
+	public Map<String, Map<ContextType, ContextRoot>> getTestStepContext(String sourceName, String testStepID,
 			ContextType... contextTypes) {
 		try {
 
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			TestStep testStep = em.load(TestStep.class, testStepID);
+			TestStep testStep = em.load(TestStep.class, Long.parseLong(testStepID));
 
 			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, contextTypes);
 			Map<ContextType, ContextRoot> measuredContext = lookupMeasuredContextByTestStep(em, testStep, contextTypes);
@@ -116,13 +116,13 @@ public class ContextActivity {
 	 * @throws ContextProviderException
 	 *             if an error occurs during lookup the context informations
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getMeasurementContext(String sourceName, Long measurementID,
+	public Map<String, Map<ContextType, ContextRoot>> getMeasurementContext(String sourceName, String measurementID,
 			ContextType... contextTypes) {
 
 		try {
 
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			Measurement measurement = em.load(Measurement.class, measurementID);
+			Measurement measurement = em.load(Measurement.class, Long.parseLong(measurementID));
 
 			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, contextTypes);
 			Map<ContextType, ContextRoot> orderedContext = lookupOrderedContextByMeasurement(em, measurement,
@@ -152,11 +152,11 @@ public class ContextActivity {
 	 * @return a map with the TestEquipment sensor context data (ordered and
 	 *         measured)
 	 */
-	public Map<String, List<ContextSensor>> getTestStepSensorContext(String sourceName, Long testStepID) {
+	public Map<String, List<ContextSensor>> getTestStepSensorContext(String sourceName, String testStepID) {
 
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			TestStep testStep = em.load(TestStep.class, testStepID);
+			TestStep testStep = em.load(TestStep.class, Long.parseLong(testStepID));
 
 			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, ContextType.TESTEQUIPMENT);
 			Map<ContextType, ContextRoot> measuredContext = lookupMeasuredContextByTestStep(em, testStep,
@@ -181,11 +181,11 @@ public class ContextActivity {
 	 * @return a map with the TestEquipment sensor context data (ordered and
 	 *         measured)
 	 */
-	public Map<String, List<ContextSensor>> getMeasurementSensorContext(String sourceName, Long measurementID) {
+	public Map<String, List<ContextSensor>> getMeasurementSensorContext(String sourceName, String measurementID) {
 		try {
 
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			Measurement measurement = em.load(Measurement.class, measurementID);
+			Measurement measurement = em.load(Measurement.class, Long.parseLong(measurementID));
 
 			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, ContextType.TESTEQUIPMENT);
 			Map<ContextType, ContextRoot> orderedContext = lookupOrderedContextByMeasurement(em, measurement,

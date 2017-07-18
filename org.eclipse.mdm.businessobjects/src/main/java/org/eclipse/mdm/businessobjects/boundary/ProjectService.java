@@ -116,10 +116,10 @@ public class ProjectService {
 	 *            id of the {@link Project}
 	 * @return the matching {@link Project}
 	 */
-	public Project getProject(String sourceName, long projectId) {
+	public Project getProject(String sourceName, String projectId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(Project.class, projectId);
+			return em.load(Project.class, Long.parseLong(projectId));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
