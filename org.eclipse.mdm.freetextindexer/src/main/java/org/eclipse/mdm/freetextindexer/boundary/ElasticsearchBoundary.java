@@ -102,7 +102,7 @@ public class ElasticsearchBoundary {
 		}
 	}
 
-	public void delete(String api, String type, long id) {
+	public void delete(String api, String type, String id) {
 		DeleteMethod put = new DeleteMethod(esAddress + api.toLowerCase() + "/" + type + "/" + id);
 
 		execute(put);

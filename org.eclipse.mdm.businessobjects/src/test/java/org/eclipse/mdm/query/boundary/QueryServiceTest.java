@@ -134,7 +134,7 @@ public class QueryServiceTest {
 		when(ss.listSearchableTypes()).thenReturn(Arrays.asList(Test.class));
 
 		Record recordTest = new Record(mm2.getEntityType(Test.class));
-		recordTest.addValue(ValueType.LONG.create("Id", 1L));
+		recordTest.addValue(ValueType.STRING.create("Id", "id1"));
 		recordTest.addValue(ValueType.STRING.create("Name", "Test-Name"));
 
 		Record recordPool = new Record(mm2.getEntityType(Pool.class));

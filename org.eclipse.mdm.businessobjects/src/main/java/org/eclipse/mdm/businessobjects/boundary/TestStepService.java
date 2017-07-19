@@ -111,7 +111,7 @@ public class TestStepService {
 	public TestStep getTestStep(String sourceName, String testStepId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(TestStep.class, Long.parseLong(testStepId));
+			return em.load(TestStep.class, testStepId);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

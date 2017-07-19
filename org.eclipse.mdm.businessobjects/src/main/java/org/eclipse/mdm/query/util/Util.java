@@ -48,7 +48,7 @@ public class Util {
 		Row row = new Row();
 		row.setSource(type.getSourceName());
 		row.setType(resultEntityClass.getSimpleName());
-		row.setId(Long.toString(result.getRecord(type).getID()));
+		row.setId(result.getRecord(type).getID());
 		result.forEach(record -> row.addColumns(convertRecord(record)));
 		return row;
 	}

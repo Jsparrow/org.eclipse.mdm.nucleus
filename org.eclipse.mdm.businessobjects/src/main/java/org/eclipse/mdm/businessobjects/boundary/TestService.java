@@ -106,7 +106,7 @@ public class TestService {
 	public Test getTest(String sourceName, String testId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(Test.class, Long.parseLong(testId));
+			return em.load(Test.class, testId);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

@@ -39,8 +39,8 @@ public class UpdateIndexTest {
 
 	@Test
 	public void validDoc_deleted() {
-		update.delete("api", "TestStep", 123l);
+		update.delete("api", "TestStep", "123");
 
-		verify(update.esBoundary, times(1)).delete(eq("api"), eq("TestStep"), eq(123l));
+		verify(update.esBoundary, times(1)).delete(eq("api"), eq("TestStep"), eq("123"));
 	}
 }

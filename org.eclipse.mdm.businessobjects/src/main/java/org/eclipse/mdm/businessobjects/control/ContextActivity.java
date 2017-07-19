@@ -78,7 +78,7 @@ public class ContextActivity {
 		try {
 
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			TestStep testStep = em.load(TestStep.class, Long.parseLong(testStepID));
+			TestStep testStep = em.load(TestStep.class, testStepID);
 
 			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, contextTypes);
 			Map<ContextType, ContextRoot> measuredContext = lookupMeasuredContextByTestStep(em, testStep, contextTypes);
@@ -122,7 +122,7 @@ public class ContextActivity {
 		try {
 
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			Measurement measurement = em.load(Measurement.class, Long.parseLong(measurementID));
+			Measurement measurement = em.load(Measurement.class, measurementID);
 
 			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, contextTypes);
 			Map<ContextType, ContextRoot> orderedContext = lookupOrderedContextByMeasurement(em, measurement,
@@ -156,7 +156,7 @@ public class ContextActivity {
 
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			TestStep testStep = em.load(TestStep.class, Long.parseLong(testStepID));
+			TestStep testStep = em.load(TestStep.class, testStepID);
 
 			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, ContextType.TESTEQUIPMENT);
 			Map<ContextType, ContextRoot> measuredContext = lookupMeasuredContextByTestStep(em, testStep,
@@ -185,7 +185,7 @@ public class ContextActivity {
 		try {
 
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			Measurement measurement = em.load(Measurement.class, Long.parseLong(measurementID));
+			Measurement measurement = em.load(Measurement.class, measurementID);
 
 			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, ContextType.TESTEQUIPMENT);
 			Map<ContextType, ContextRoot> orderedContext = lookupOrderedContextByMeasurement(em, measurement,

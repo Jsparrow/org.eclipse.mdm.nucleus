@@ -51,7 +51,7 @@ public class MDMEntity {
 	 */
 	public MDMEntity(Entity entity) {
 		this.name = entity.getName();
-		this.id = Long.toString(entity.getID());
+		this.id = entity.getID();
 		this.type = entity.getClass().getSimpleName();
 		this.sourceType = entity.getTypeName();
 		this.sourceName = entity.getSourceName();

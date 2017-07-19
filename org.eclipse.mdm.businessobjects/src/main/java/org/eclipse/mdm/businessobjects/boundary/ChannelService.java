@@ -89,7 +89,7 @@ public class ChannelService {
 	public Channel getChannel(String sourceName, String channelId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(Channel.class, Long.parseLong(channelId));
+			return em.load(Channel.class, channelId);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

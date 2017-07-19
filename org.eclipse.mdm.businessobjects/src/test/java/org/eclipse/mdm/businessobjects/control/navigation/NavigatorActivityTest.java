@@ -60,7 +60,7 @@ public class NavigatorActivityTest {
 		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
-		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, Long.toString(test.getID()));
+		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
 
 		assertNotNull("teststep list should be not null", testStepList);
 		assertEquals("teststep list size should be " + NavigationActivityMockHelper.ITEM_COUNT,
@@ -75,9 +75,9 @@ public class NavigatorActivityTest {
 		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
-		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, Long.toString(test.getID()));
+		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
 		TestStep testStep = testStepList.get(0);
-		List<Measurement> measurementList = navigationActivity.getMeasurements(sourceName, Long.toString(testStep.getID()));
+		List<Measurement> measurementList = navigationActivity.getMeasurements(sourceName, testStep.getID());
 
 		assertNotNull("measurement list should be not null", measurementList);
 		assertEquals("measurement list size should be " + NavigationActivityMockHelper.ITEM_COUNT,
@@ -93,11 +93,11 @@ public class NavigatorActivityTest {
 		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
-		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, Long.toString(test.getID()));
+		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
 		TestStep testStep = testStepList.get(0);
-		List<Measurement> measurementList = navigationActivity.getMeasurements(sourceName, Long.toString(testStep.getID()));
+		List<Measurement> measurementList = navigationActivity.getMeasurements(sourceName, testStep.getID());
 		Measurement measurement = measurementList.get(0);
-		List<ChannelGroup> channelGroupList = navigationActivity.getChannelGroups(sourceName, Long.toString(measurement.getID()));
+		List<ChannelGroup> channelGroupList = navigationActivity.getChannelGroups(sourceName, measurement.getID());
 
 		assertNotNull("channel group list should be not null", channelGroupList);
 		assertEquals("channel group list size should be " + NavigationActivityMockHelper.ITEM_COUNT,
@@ -112,13 +112,13 @@ public class NavigatorActivityTest {
 		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
-		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, Long.toString(test.getID()));
+		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
 		TestStep testStep = testStepList.get(0);
-		List<Measurement> measurementList = navigationActivity.getMeasurements(sourceName, Long.toString(testStep.getID()));
+		List<Measurement> measurementList = navigationActivity.getMeasurements(sourceName, testStep.getID());
 		Measurement measurement = measurementList.get(0);
-		List<ChannelGroup> channelGroupList = navigationActivity.getChannelGroups(sourceName, Long.toString(measurement.getID()));
+		List<ChannelGroup> channelGroupList = navigationActivity.getChannelGroups(sourceName, measurement.getID());
 		ChannelGroup channelGroup = channelGroupList.get(0);
-		List<Channel> channelList = navigationActivity.getChannels(sourceName, Long.toString(channelGroup.getID()));
+		List<Channel> channelList = navigationActivity.getChannels(sourceName, channelGroup.getID());
 
 		assertNotNull("channel list should be not null", channelList);
 		assertEquals("channel list size should be " + NavigationActivityMockHelper.ITEM_COUNT,

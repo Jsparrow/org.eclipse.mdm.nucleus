@@ -58,7 +58,7 @@ public class PoolServiceTest {
 	public void testGetPool() throws DataAccessException {
 		service.getPool("MDMTEST", "1");
 
-		verify(em).load(Pool.class, 1L);
+		verify(em).load(Pool.class, "1");
 		verifyNoMoreInteractions(searchActivity);
 	}
 

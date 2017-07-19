@@ -91,7 +91,7 @@ public class ChannelGroupService {
 	public ChannelGroup getChannelGroup(String sourceName, String channelGroupId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(ChannelGroup.class, Long.parseLong(channelGroupId));
+			return em.load(ChannelGroup.class, channelGroupId);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

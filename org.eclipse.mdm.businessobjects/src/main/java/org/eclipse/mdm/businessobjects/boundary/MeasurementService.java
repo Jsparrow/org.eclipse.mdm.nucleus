@@ -110,7 +110,7 @@ public class MeasurementService {
 	public Measurement getMeasurement(String sourceName, String measurementId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(Measurement.class, Long.parseLong(measurementId));
+			return em.load(Measurement.class, measurementId);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

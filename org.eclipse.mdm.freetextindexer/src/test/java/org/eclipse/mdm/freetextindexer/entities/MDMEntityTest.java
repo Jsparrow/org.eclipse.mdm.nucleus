@@ -39,7 +39,7 @@ public class MDMEntityTest {
 		Map<String, Value> map = new HashMap<>();
 		map.put(value.getName(), value);
 
-		MDMEntity entity = new MDMEntity("name", "", 1, map);
+		MDMEntity entity = new MDMEntity("name", "", "1", map);
 		return entity;
 	}
 }

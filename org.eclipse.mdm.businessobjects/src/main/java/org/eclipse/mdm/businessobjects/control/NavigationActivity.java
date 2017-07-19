@@ -188,7 +188,7 @@ public class NavigationActivity {
 			Class<T> childType) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			Entity parent = em.load(parentType, Long.parseLong(parentID));
+			Entity parent = em.load(parentType, parentID);
 			return em.loadChildren(parent, childType);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);

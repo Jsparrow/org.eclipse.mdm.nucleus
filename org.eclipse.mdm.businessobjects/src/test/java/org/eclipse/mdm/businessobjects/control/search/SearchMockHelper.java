@@ -64,11 +64,11 @@ public class SearchMockHelper {
 
 		Map<Entity, Result> mockedRes = new HashMap<>();
 
-		for (int i = 0; i < ITEM_COUNT; i++) {
+		for (int i = 1; i <= ITEM_COUNT; i++) {
 			Result result = new Result();
 			EntityType etType = createEntityTypeMock(entityTypeName);
 			result.addRecord(new Record(etType));
-			T etMock = createEntityMock(clazz, entityTypeName + "_" + i, "Environment", Long.valueOf(i));
+			T etMock = createEntityMock(clazz, entityTypeName + "_" + i, "Environment", Integer.toString(i));
 			mockedRes.put(etMock, result);
 		}
 
@@ -99,7 +99,7 @@ public class SearchMockHelper {
 		return mockedETTest;
 	}
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id)
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
 			throws Exception {
 
 		HashMap<String, Value> map = new HashMap<String, Value>();

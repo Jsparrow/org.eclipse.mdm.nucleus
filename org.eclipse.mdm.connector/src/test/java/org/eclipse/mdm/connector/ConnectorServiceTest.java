@@ -190,7 +190,7 @@ public class ConnectorServiceTest {
 	}
 
 	private static EntityManager createEntityManager(String sourceName) {
-		Environment env = createEntityMock(Environment.class, "MDMTest", sourceName, 1L);
+		Environment env = createEntityMock(Environment.class, "MDMTest", sourceName, "1");
 
 		EntityManager em = Mockito.mock(EntityManager.class);
 		try {
@@ -202,7 +202,7 @@ public class ConnectorServiceTest {
 		return em;
 	}
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, long id) {
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id) {
 
 		Map<String, Value> entityAttributes = new HashMap<>();
 		entityAttributes.put("Name", ValueType.STRING.create("Name", name));
