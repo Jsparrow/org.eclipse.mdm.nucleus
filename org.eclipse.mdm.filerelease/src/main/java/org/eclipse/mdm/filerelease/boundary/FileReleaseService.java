@@ -231,7 +231,7 @@ public class FileReleaseService {
 			throw new FileReleaseException("type name for new FileRelease is missing!");
 		}
 
-		if (newFileRelease.id < 1) {
+		if (newFileRelease.id == null || newFileRelease.id.isEmpty()) {
 			throw new FileReleaseException("is is not valid for new FileRelease");
 		}
 

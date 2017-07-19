@@ -44,7 +44,7 @@ public class FileRelease implements Serializable {
 	/** name of the type of the source business object (part of MDM URI) */
 	public String typeName = "";
 	/** id of the source business object (part of URI) */
-	public long id = 0L;
+	public String id = "";
 
 	/** release sender name (MDM user name) */
 	public String sender = "";
