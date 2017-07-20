@@ -58,7 +58,7 @@ public final class ServiceUtils {
 		EntityType et = mm.getEntityType(parentType);
 
 		String idAttributeName = et.getIDAttribute().getName();
-		String matcher = workaroundForTypeMapping(et) + "." + idAttributeName + " eq (\\d+)";
+		String matcher = workaroundForTypeMapping(et) + "." + idAttributeName + " eq (\\w+)";
 		return filter.matches(matcher);
 	}
 
@@ -73,12 +73,12 @@ public final class ServiceUtils {
 	 *            parent type to identify the Id attribute name
 	 * @return the extracted business object Id
 	 */
-	public static long extactIdFromParentFilter(EntityManager em, String filter, Class<? extends Entity> parentType) {
+	public static String extactIdFromParentFilter(EntityManager em, String filter, Class<? extends Entity> parentType) {
 		ModelManager mm = getModelMananger(em);
 		EntityType et = mm.getEntityType(parentType);
 
 		String idAttributeName = et.getIDAttribute().getName();
-		return Long.valueOf(filter.replace(workaroundForTypeMapping(et) + "." + idAttributeName + " eq ", ""));
+		return filter.replace(workaroundForTypeMapping(et) + "." + idAttributeName + " eq ", "");
 	}
 
 	/**

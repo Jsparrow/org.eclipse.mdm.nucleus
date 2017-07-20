@@ -97,7 +97,7 @@ public final class FileReleaseUtils {
 	 *            The id of the {@link TestStep}
 	 * @return The loaded {@link TestStep}
 	 */
-	public static TestStep loadTestStep(ConnectorService connectorService, String sourceName, Long id) {
+	public static TestStep loadTestStep(ConnectorService connectorService, String sourceName, String id) {
 		try {
 			EntityManager em = connectorService.getEntityManagerByName(sourceName);
 			return em.load(TestStep.class, id);

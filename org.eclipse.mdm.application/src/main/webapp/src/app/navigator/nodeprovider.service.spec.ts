@@ -57,23 +57,23 @@ describe ( 'NodeproviderService', () => {
   });
 
   it('getSubNodeprovider', inject([NodeproviderService], (nodeproviderService) => {
-      let item = new MDMItem('MDMNVH', 'Project', 1);
+      let item = new MDMItem('MDMNVH', 'Project', 'id1');
       let query = nodeproviderService.getSubNodeprovider(item);
 
       expect(query).toEqual('/pools?filter=Project.Id eq {Project.Id}');
   }));
 
   it('getSubNodeprovider not found', inject([NodeproviderService], (nodeproviderService) => {
-      let item = new MDMItem('MDMNVH', 'xxx', 1);
+      let item = new MDMItem('MDMNVH', 'xxx', 'id1');
       let query = nodeproviderService.getSubNodeprovider(item, defaultNodeProvider);
 
       expect(query).toEqual(undefined);
   }));
 
   it('replace', inject([NodeproviderService], (nodeproviderService) => {
-      let item = new MDMItem('MDMNVH', 'Project', 1);
+      let item = new MDMItem('MDMNVH', 'Project', 'id1');
       let query = nodeproviderService.replace('/pools?filter=Project.Id eq {Project.Id}', item);
 
-      expect(query).toEqual('/MDMNVH/pools?filter=Project.Id eq 1');
+      expect(query).toEqual('/MDMNVH/pools?filter=Project.Id eq id1');
   }));
 });

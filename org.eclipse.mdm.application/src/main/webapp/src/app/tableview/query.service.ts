@@ -73,7 +73,7 @@ export class Row {
   }
 
   public getItem() {
-    return new MDMItem(this.source, this.type, +this.id);
+    return new MDMItem(this.source, this.type, this.id);
   }
 }
 

@@ -73,7 +73,7 @@ public class ContextActivity {
 	 * @throws ContextProviderException
 	 *             if an error occurs during lookup the context informations
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getTestStepContext(String sourceName, Long testStepID,
+	public Map<String, Map<ContextType, ContextRoot>> getTestStepContext(String sourceName, String testStepID,
 			ContextType... contextTypes) {
 		try {
 
@@ -116,7 +116,7 @@ public class ContextActivity {
 	 * @throws ContextProviderException
 	 *             if an error occurs during lookup the context informations
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getMeasurementContext(String sourceName, Long measurementID,
+	public Map<String, Map<ContextType, ContextRoot>> getMeasurementContext(String sourceName, String measurementID,
 			ContextType... contextTypes) {
 
 		try {
@@ -152,7 +152,7 @@ public class ContextActivity {
 	 * @return a map with the TestEquipment sensor context data (ordered and
 	 *         measured)
 	 */
-	public Map<String, List<ContextSensor>> getTestStepSensorContext(String sourceName, Long testStepID) {
+	public Map<String, List<ContextSensor>> getTestStepSensorContext(String sourceName, String testStepID) {
 
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
@@ -181,7 +181,7 @@ public class ContextActivity {
 	 * @return a map with the TestEquipment sensor context data (ordered and
 	 *         measured)
 	 */
-	public Map<String, List<ContextSensor>> getMeasurementSensorContext(String sourceName, Long measurementID) {
+	public Map<String, List<ContextSensor>> getMeasurementSensorContext(String sourceName, String measurementID) {
 		try {
 
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);

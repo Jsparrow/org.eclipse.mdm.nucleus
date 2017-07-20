@@ -106,7 +106,7 @@ public class NavigationActivity {
 	 *            The {@code Pool} instance ID
 	 * @return MDM {@link Test} business objects
 	 */
-	public List<Test> getTests(String sourceName, Long poolID) {
+	public List<Test> getTests(String sourceName, String poolID) {
 		return getChildren(sourceName, Pool.class, poolID, Test.class);
 	}
 
@@ -121,7 +121,7 @@ public class NavigationActivity {
 	 *            The {@code Project} instance ID
 	 * @return MDM {@link Pool} business objects
 	 */
-	public List<Pool> getPools(String sourceName, Long projectID) {
+	public List<Pool> getPools(String sourceName, String projectID) {
 		return getChildren(sourceName, Project.class, projectID, Pool.class);
 	}
 
@@ -135,7 +135,7 @@ public class NavigationActivity {
 	 *            The {@code Test} instance ID
 	 * @return MDM {@link TestStep} business objects
 	 */
-	public List<TestStep> getTestSteps(String sourceName, Long testID) {
+	public List<TestStep> getTestSteps(String sourceName, String testID) {
 		return getChildren(sourceName, Test.class, testID, TestStep.class);
 	}
 
@@ -150,7 +150,7 @@ public class NavigationActivity {
 	 *            The {@code TestStep} instance ID
 	 * @return MDM {@link Measurement} business objects
 	 */
-	public List<Measurement> getMeasurements(String sourceName, Long testStepID) {
+	public List<Measurement> getMeasurements(String sourceName, String testStepID) {
 		return getChildren(sourceName, TestStep.class, testStepID, Measurement.class);
 	}
 
@@ -165,7 +165,7 @@ public class NavigationActivity {
 	 *            The {@code Measurement} instance ID
 	 * @return MDM {@link ChannelGroup} business objects
 	 */
-	public List<ChannelGroup> getChannelGroups(String sourceName, Long measurementID) {
+	public List<ChannelGroup> getChannelGroups(String sourceName, String measurementID) {
 		return getChildren(sourceName, Measurement.class, measurementID, ChannelGroup.class);
 	}
 
@@ -180,11 +180,11 @@ public class NavigationActivity {
 	 *            The {@code ChannelGroup} instance ID
 	 * @return MDM {@link Channel} business objects
 	 */
-	public List<Channel> getChannels(String sourceName, Long channelGroupID) {
+	public List<Channel> getChannels(String sourceName, String channelGroupID) {
 		return getChildren(sourceName, ChannelGroup.class, channelGroupID, Channel.class);
 	}
 
-	private <T extends Entity> List<T> getChildren(String sourceName, Class<? extends Entity> parentType, Long parentID,
+	private <T extends Entity> List<T> getChildren(String sourceName, Class<? extends Entity> parentType, String parentID,
 			Class<T> childType) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);

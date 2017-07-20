@@ -56,9 +56,9 @@ public class PoolServiceTest {
 
 	@Test
 	public void testGetPool() throws DataAccessException {
-		service.getPool("MDMTEST", 1L);
+		service.getPool("MDMTEST", "1");
 
-		verify(em).load(Pool.class, 1L);
+		verify(em).load(Pool.class, "1");
 		verifyNoMoreInteractions(searchActivity);
 	}
 
@@ -89,7 +89,7 @@ public class PoolServiceTest {
 	public void testGetPoolsParentFilter() {
 		service.getPools("MDMTEST", "Project.Id eq 4711");
 
-		verify(navigationActivity).getPools("MDMTEST", 4711L);
+		verify(navigationActivity).getPools("MDMTEST", "4711");
 		verifyZeroInteractions(searchActivity);
 	}
 

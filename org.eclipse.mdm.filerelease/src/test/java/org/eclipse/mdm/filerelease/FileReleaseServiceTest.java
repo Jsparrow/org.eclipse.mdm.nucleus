@@ -71,7 +71,7 @@ public class FileReleaseServiceTest {
 		FileRelease request1 = new FileRelease();
 		request1.sourceName = "MDMENV";
 		request1.typeName = "TestStep";
-		request1.id = 123L;
+		request1.id = "123";
 		request1.format = FileReleaseManager.CONVERTER_FORMAT_PAK2RAW;
 		request1.orderMessage = "new file release";
 		request1.validity = 10;
@@ -81,7 +81,7 @@ public class FileReleaseServiceTest {
 		FileRelease request2 = new FileRelease();
 		request2.sourceName = "MDMENV";
 		request2.typeName = "TestStep";
-		request2.id = 1234L;
+		request2.id = "1234";
 		request2.format = FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX;
 		request2.orderMessage = "new file release";
 		request2.validity = 10;
@@ -99,7 +99,7 @@ public class FileReleaseServiceTest {
 		FileRelease request = new FileRelease();
 		request.sourceName = "MDMENV";
 		request.typeName = "TestStep";
-		request.id = 123L;
+		request.id = "123";
 		request.format = FileReleaseManager.CONVERTER_FORMAT_PAK2RAW;
 		request.orderMessage = "new file release";
 		request.validity = 0;
@@ -112,7 +112,7 @@ public class FileReleaseServiceTest {
 		FileRelease request = new FileRelease();
 		request.sourceName = "MDMENV";
 		request.typeName = "TestStep";
-		request.id = 123L;
+		request.id = "123";
 		request.format = "Some unsupported type";
 		request.orderMessage = "new file release";
 		request.validity = 0;

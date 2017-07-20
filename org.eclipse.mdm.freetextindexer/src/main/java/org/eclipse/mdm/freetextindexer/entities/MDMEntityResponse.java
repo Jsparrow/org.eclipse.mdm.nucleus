@@ -44,7 +44,7 @@ public class MDMEntityResponse {
 	/** transferable data content */
 	public MDMEntity data;
 
-	public long id;
+	public String id;
 
 	/**
 	 * Constructor (for a list of business objects {@link MDMEntity}s)

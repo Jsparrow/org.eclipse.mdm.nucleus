@@ -110,7 +110,7 @@ public class TestStepResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{TESTSTEP_ID}")
-	public Response getTestStep(@PathParam("SOURCENAME") String sourceName, @PathParam("TESTSTEP_ID") long testStepId) {
+	public Response getTestStep(@PathParam("SOURCENAME") String sourceName, @PathParam("TESTSTEP_ID") String testStepId) {
 
 		try {
 			TestStep testStep = this.testStepService.getTestStep(sourceName, testStepId);
@@ -134,7 +134,7 @@ public class TestStepResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{TESTSTEP_ID}/contexts")
-	public Response getContext(@PathParam("SOURCENAME") String sourceName, @PathParam("TESTSTEP_ID") long testStepId) {
+	public Response getContext(@PathParam("SOURCENAME") String sourceName, @PathParam("TESTSTEP_ID") String testStepId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.testStepService.getContext(sourceName,
 					testStepId);
@@ -159,7 +159,7 @@ public class TestStepResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{TESTSTEP_ID}/contexts/unitundertest")
 	public Response getContextUUT(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("TESTSTEP_ID") long testStepId) {
+			@PathParam("TESTSTEP_ID") String testStepId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.testStepService.getContextUUT(sourceName,
 					testStepId);
@@ -184,7 +184,7 @@ public class TestStepResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{TESTSTEP_ID}/contexts/testsequence")
 	public Response getContextTSQ(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("TESTSTEP_ID") long testStepId) {
+			@PathParam("TESTSTEP_ID") String testStepId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.testStepService.getContextTSQ(sourceName,
 					testStepId);
@@ -209,7 +209,7 @@ public class TestStepResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{TESTSTEP_ID}/contexts/testequipment")
 	public Response getContextTEQ(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("TESTSTEP_ID") long testStepId) {
+			@PathParam("TESTSTEP_ID") String testStepId) {
 		try {
 			Map<String, Map<ContextType, ContextRoot>> contextMap = this.testStepService.getContextTEQ(sourceName,
 					testStepId);
@@ -234,7 +234,7 @@ public class TestStepResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{TESTSTEP_ID}/contexts/testequipment/sensors")
 	public Response getContextTEQSensors(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("TESTSTEP_ID") long testStepId) {
+			@PathParam("TESTSTEP_ID") String testStepId) {
 		try {
 			Map<String, List<ContextSensor>> sensorMap = this.testStepService.getSensors(sourceName, testStepId);
 			return ServiceUtils.toResponse(new ContextSensorResponse(sensorMap), Status.OK);

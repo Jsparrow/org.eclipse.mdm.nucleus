@@ -85,7 +85,7 @@ public class ChannelResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{CHANNEL_ID}")
 	public Response getChannel(@PathParam("SOURCENAME") String sourceName,
-			@PathParam("CHANNEL_ID") long channelGroupId) {
+			@PathParam("CHANNEL_ID") String channelGroupId) {
 
 		try {
 			Channel channel = this.channelService.getChannel(sourceName, channelGroupId);

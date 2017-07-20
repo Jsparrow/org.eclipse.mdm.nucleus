@@ -47,7 +47,7 @@ public final class ContextActivityMockHelper {
 		ConnectorService connectorBean = Mockito.mock(ConnectorService.class);
 
 		List<EntityManager> emList = new ArrayList<>();
-		for (int i = 0; i < ITEM_COUNT; i++) {
+		for (int i = 1; i <= ITEM_COUNT; i++) {
 			emList.add(createEntityManagerMock("MDMENV_" + i));
 		}
 		when(connectorBean.getEntityManagers()).thenReturn(emList);
@@ -57,16 +57,16 @@ public final class ContextActivityMockHelper {
 
 	private static EntityManager createEntityManagerMock(String sourceName) throws Exception {
 
-		Environment env = createEntityMock(Environment.class, sourceName, sourceName, 1L, null);
+		Environment env = createEntityMock(Environment.class, sourceName, sourceName, "1", null);
 
 		EntityManager em = Mockito.mock(EntityManager.class);
 
-		TestStep testStep = createEntityMock(TestStep.class, "TestStepWithContext", "MDM", 1L, null);
-		Measurement measurement = createEntityMock(Measurement.class, "MeasurementWithContext", "MDM", 1L, null);
+		TestStep testStep = createEntityMock(TestStep.class, "TestStepWithContext", "MDM", "1", null);
+		Measurement measurement = createEntityMock(Measurement.class, "MeasurementWithContext", "MDM", "1", null);
 
 		when(em.loadEnvironment()).thenReturn(env);
-		when(em.load(TestStep.class, 1L)).thenReturn(testStep);
-		when(em.load(Measurement.class, 1L)).thenReturn(measurement);
+		when(em.load(TestStep.class, "1")).thenReturn(testStep);
+		when(em.load(Measurement.class, "1")).thenReturn(measurement);
 		when(em.loadParent(measurement, Measurement.PARENT_TYPE_TESTSTEP)).thenReturn(Optional.of(testStep));
 
 		List<Measurement> mList = new ArrayList<>();
@@ -82,7 +82,7 @@ public final class ContextActivityMockHelper {
 		return em;
 	}
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id,
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id,
 			ChildrenStore childrenStore) throws Exception {
 
 		HashMap<String, Value> map = new HashMap<String, Value>();
@@ -122,7 +122,7 @@ public final class ContextActivityMockHelper {
 			childrenStore.add(cc);
 		}
 
-		return createEntityMock(ContextRoot.class, "MessungUUT_" + type, "MDM", 1L, childrenStore);
+		return createEntityMock(ContextRoot.class, "MessungUUT_" + type, "MDM", "1", childrenStore);
 	}
 
 	private static ContextRoot createTSQContextRootMock(String type) throws Exception {
@@ -134,7 +134,7 @@ public final class ContextActivityMockHelper {
 			childrenStore.add(cc);
 		}
 
-		return createEntityMock(ContextRoot.class, "MessungTSQ_" + type, "MDM", 1L, childrenStore);
+		return createEntityMock(ContextRoot.class, "MessungTSQ_" + type, "MDM", "1", childrenStore);
 	}
 
 	private static ContextRoot createTEQContextRootMock(String type) throws Exception {
@@ -146,14 +146,14 @@ public final class ContextActivityMockHelper {
 			childrenStore.add(cc);
 		}
 
-		return createEntityMock(ContextRoot.class, "MessungTEQ_" + type, "MDM", 1L, childrenStore);
+		return createEntityMock(ContextRoot.class, "MessungTEQ_" + type, "MDM", "1", childrenStore);
 	}
 
 	private static List<ContextComponent> createContextComponentMocks(String type) throws Exception {
 		List<ContextComponent> ccList = new ArrayList<>();
-		for (int i = 0; i < CC_COUNT; i++) {
+		for (int i = 1; i <= CC_COUNT; i++) {
 			ContextComponent cc = createEntityMock(ContextComponent.class, type + "_ContextComponent_" + i, "MDM",
-					Long.valueOf(i), null);
+					Integer.toString(i), null);
 			when(cc.getValues()).thenReturn(createValues(type));
 			ccList.add(cc);
 		}
@@ -162,7 +162,7 @@ public final class ContextActivityMockHelper {
 
 	private static Map<String, Value> createValues(String type) {
 		Map<String, Value> valueMap = new HashMap<>();
-		for (int i = 0; i < CC_VALUE_COUNT; i++) {
+		for (int i = 1; i <= CC_VALUE_COUNT; i++) {
 			String vName = type + "_ValueName_" + i;
 			valueMap.put(vName, ValueType.STRING.create(vName, type + "_Value_" + i));
 		}

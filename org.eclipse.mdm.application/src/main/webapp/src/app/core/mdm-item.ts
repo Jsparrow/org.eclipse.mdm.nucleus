@@ -15,9 +15,9 @@ import {Node} from '../navigator/node';
 export class MDMItem {
   source: string;
   type: string;
-  id: number;
+  id: string;
 
-  constructor(source: string, type: string, id: number) {
+  constructor(source: string, type: string, id: string) {
     this.source = source;
     this.type = type;
     this.id = id;

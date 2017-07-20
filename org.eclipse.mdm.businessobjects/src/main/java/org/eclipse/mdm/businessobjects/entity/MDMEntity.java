@@ -33,7 +33,7 @@ public class MDMEntity {
 	/** name of the MDM business object */
 	private final String name;
 	/** id of the MDM business object */
-	private final long id;
+	private final String id;
 	/** type as String of the MDM business object (e.g. TestStep) */
 	private final String type;
 	/** source type name of the business object at the data source */
@@ -62,7 +62,7 @@ public class MDMEntity {
 		return this.name;
 	}
 
-	public long getId() {
+	public String getId() {
 		return this.id;
 	}
 

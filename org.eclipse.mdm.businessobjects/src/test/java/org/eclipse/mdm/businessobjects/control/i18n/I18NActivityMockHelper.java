@@ -57,7 +57,7 @@ public final class I18NActivityMockHelper {
 
 	private static EntityManager createEntityManagerMock(String sourceName) throws Exception {
 
-		Environment env = createEntityMock(Environment.class, sourceName, sourceName, 1L);
+		Environment env = createEntityMock(Environment.class, sourceName, sourceName, "1");
 
 		EntityManager em = Mockito.mock(EntityManager.class);
 
@@ -130,7 +130,7 @@ public final class I18NActivityMockHelper {
 		return attributeList;
 	}
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id)
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
 			throws Exception {
 
 		HashMap<String, Value> map = new HashMap<String, Value>();

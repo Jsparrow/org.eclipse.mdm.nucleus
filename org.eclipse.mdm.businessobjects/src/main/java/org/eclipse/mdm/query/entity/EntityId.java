@@ -18,7 +18,7 @@ package org.eclipse.mdm.query.entity;
 public class EntityId {
 	private String source;
 	private String type;
-	private long id;
+	private String id;
 
 	public String getSource() {
 		return source;
@@ -36,11 +36,11 @@ public class EntityId {
 		this.type = type;
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

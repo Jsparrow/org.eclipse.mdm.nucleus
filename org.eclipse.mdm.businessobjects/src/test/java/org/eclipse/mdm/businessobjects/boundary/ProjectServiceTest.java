@@ -42,9 +42,9 @@ public class ProjectServiceTest {
 
 	@Test
 	public void testGetProject() throws DataAccessException {
-		service.getProject("MDMTEST", 1L);
+		service.getProject("MDMTEST", "1");
 
-		verify(em).load(Project.class, 1L);
+		verify(em).load(Project.class, "1");
 		verifyNoMoreInteractions(searchActivity);
 	}
 

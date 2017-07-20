@@ -56,7 +56,7 @@ public class MdmApiBoundary {
 		}
 
 		@Override
-		public void instanceDeleted(EntityType entityType, List<Long> ids, User user) {
+		public void instanceDeleted(EntityType entityType, List<String> ids, User user) {
 			ids.forEach(id -> update.delete(getApiName(), entityType.getName(), id));
 		}
 
@@ -72,7 +72,7 @@ public class MdmApiBoundary {
 		}
 
 		@Override
-		public void securityModified(EntityType entityType, List<Long> ids, User user) {
+		public void securityModified(EntityType entityType, List<String> ids, User user) {
 			// not needed
 		}
 	}

@@ -66,7 +66,7 @@ public class ChannelService {
 			}
 
 			if (ServiceUtils.isParentFilter(em, filter, Channel.PARENT_TYPE_CHANNELGROUP)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Channel.PARENT_TYPE_CHANNELGROUP);
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, Channel.PARENT_TYPE_CHANNELGROUP);
 				return this.navigationActivity.getChannels(sourceName, id);
 			}
 
@@ -86,7 +86,7 @@ public class ChannelService {
 	 *            id of the {@link Channel}
 	 * @return the matching {@link Channel}
 	 */
-	public Channel getChannel(String sourceName, long channelId) {
+	public Channel getChannel(String sourceName, String channelId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.load(Channel.class, channelId);

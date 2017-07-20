@@ -90,13 +90,14 @@ public class ElasticsearchBoundaryTest {
 	@Test
 	public void deletedDoc_isGone() throws InterruptedException, DataAccessException {
 		TestStep ts = mock(TestStep.class);
+		when(ts.getID()).thenReturn("1");
 		when(ts.getSourceName()).thenReturn("mdmdiff");
 		EntityManager manager = mockManager(ts);
 
 		MDMEntityResponse document = MDMEntityResponse.build(TestStep.class, ts, manager);
 		es.index(document);
 
-		es.delete("mdmdiff", "TestStep", 0);
+		es.delete("mdmdiff", "TestStep", "1");
 
 		assertEquals(0, searchForASDF("mdmdiff").totalHits());
 	}

@@ -38,7 +38,7 @@ public class MDMEntity {
 	public final String name;
 
 	/** id of the MDM business object */
-	public final long id;
+	public final String id;
 
 	/** list of attribute to transfer */
 	public final Map<String, String> attributes;
@@ -57,7 +57,7 @@ public class MDMEntity {
 	 * @param values
 	 *            values of a MDM business object
 	 */
-	public MDMEntity(String name, String type, long id, Map<String, Value> values) {
+	public MDMEntity(String name, String type, String id, Map<String, Value> values) {
 		this.name = name;
 		this.id = id;
 

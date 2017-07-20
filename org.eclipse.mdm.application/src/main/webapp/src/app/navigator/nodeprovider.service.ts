@@ -87,7 +87,7 @@ replace(query: string, item: MDMItem) {
       }
 
       if (attr === 'Id') {
-        return '' + item.id;
+        return item.id;
       }
     });
 }

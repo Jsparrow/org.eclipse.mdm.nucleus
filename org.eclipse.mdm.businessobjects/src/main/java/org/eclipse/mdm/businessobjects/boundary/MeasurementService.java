@@ -74,7 +74,7 @@ public class MeasurementService {
 			}
 
 			if (ServiceUtils.isParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP);
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP);
 				return this.navigationActivity.getMeasurements(sourceName, id);
 			}
 
@@ -107,7 +107,7 @@ public class MeasurementService {
 	 *            id of the {@link Measurement}
 	 * @return the matching {@link Measurement}
 	 */
-	public Measurement getMeasurement(String sourceName, long measurementId) {
+	public Measurement getMeasurement(String sourceName, String measurementId) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.load(Measurement.class, measurementId);
@@ -126,7 +126,7 @@ public class MeasurementService {
 	 *            id of the {@link Measurement}
 	 * @return a map with the complete context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId);
 	}
 
@@ -140,7 +140,7 @@ public class MeasurementService {
 	 *            id of the {@link Measurement}
 	 * @return a map with the UnitUnderTest context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.UNITUNDERTEST);
 	}
 
@@ -154,7 +154,7 @@ public class MeasurementService {
 	 *            id of the {@link Measurement}
 	 * @return a map with the TestSequence context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.TESTSEQUENCE);
 	}
 
@@ -168,7 +168,7 @@ public class MeasurementService {
 	 *            id of the {@link Measurement}
 	 * @return a map with the TestEquipment context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.TESTEQUIPMENT);
 	}
 
@@ -182,7 +182,7 @@ public class MeasurementService {
 	 * @return a map with the TestEquipment sensor context data (ordered and
 	 *         measured)
 	 */
-	public Map<String, List<ContextSensor>> getSensors(String sourceName, long measurementId) {
+	public Map<String, List<ContextSensor>> getSensors(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementSensorContext(sourceName, measurementId);
 	}
 

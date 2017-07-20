@@ -33,7 +33,7 @@ public class ContextActivityTest {
 	public void testGetTestStepContext() throws Exception {
 
 		ContextActivity contextActitity = createMockedActivity();
-		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.getTestStepContext("MDM", 1L);
+		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.getTestStepContext("MDM", "1");
 
 		assertNotNull("context should not be null", contextMap);
 		checkContextContent(contextMap);
@@ -44,7 +44,7 @@ public class ContextActivityTest {
 	public void testGetMeasurementContext() throws Exception {
 
 		ContextActivity contextActitity = createMockedActivity();
-		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.getMeasurementContext("MDM", 1L);
+		Map<String, Map<ContextType, ContextRoot>> contextMap = contextActitity.getMeasurementContext("MDM", "1");
 
 		assertNotNull("context should not be null", contextMap);
 		checkContextContent(contextMap);
