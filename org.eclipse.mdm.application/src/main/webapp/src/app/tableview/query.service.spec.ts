@@ -17,6 +17,7 @@ import { Observable } from 'rxjs/Observable';
 import { ComponentFixture, async, TestBed, inject } from '@angular/core/testing';
 import { BaseRequestOptions, Http, HttpModule, Response, ResponseOptions, RequestMethod} from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
+import {HttpErrorHandler} from '../core/http-error-handler';
 
 import { MDMItem } from '../core/mdm-item';
 import { PropertyService } from '../core/property.service';
@@ -32,6 +33,7 @@ describe ( 'QueryService', () => {
         QueryService,
         MockBackend,
         BaseRequestOptions,
+        HttpErrorHandler,
         {
           provide: Http,
           useFactory: (backend, options) => new Http(backend, options),
@@ -45,7 +47,7 @@ describe ( 'QueryService', () => {
       mockBackend.connections.subscribe((conn: MockConnection) => {
         if (conn.request.url.endsWith('/query') && conn.request.method === RequestMethod.Post) {
           let mockResponse = { rows: [
-            {source: 'MDMNVH', type: 'Test', id: 1, columns: [{type: 'Test', attribute: 'Name', value: 'TestNumberOne'}]}
+            {source: 'MDMNVH', type: 'Test', id: 'id1', columns: [{type: 'Test', attribute: 'Name', value: 'TestNumberOne'}]}
           ]};
           conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
         }
@@ -65,13 +67,13 @@ describe ( 'QueryService', () => {
         if (conn.request.url.endsWith('/query') && conn.request.method === RequestMethod.Post) {
           let queryObject = <Query>JSON.parse(conn.request.getBody());
           let mockResponse = { rows: [
-            {source: 'MDMNVH', type: queryObject.resultType, id: 1, columns: [{type: 'Test', attribute: 'Name', value: 'TestNumberOne'}]}
+            {source: 'MDMNVH', type: queryObject.resultType, id: 'id1', columns: [{type: 'Test', attribute: 'Name', value: 'TestNumberOne'}]}
           ]};
           conn.mockRespond(new Response(new ResponseOptions({ body: mockResponse })));
         }
         return;
       });
-      let item = new MDMItem('MDMNVH', 'Test', 1);
+      let item = new MDMItem('MDMNVH', 'Test', 'id1');
 
       let result = queryService.queryItems([item], ['Test.Name']);
       expect(result.length).toBe(1);

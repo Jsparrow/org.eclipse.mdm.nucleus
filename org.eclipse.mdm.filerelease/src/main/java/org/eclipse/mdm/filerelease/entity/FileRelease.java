@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.filerelease.entity;
 
@@ -20,41 +20,53 @@ import org.eclipse.mdm.api.base.model.TestStep;
 
 /**
  * FileRelease entity
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 @XmlRootElement
 public class FileRelease implements Serializable {
-	
+
 	private static final long serialVersionUID = -9016111258701009299L;
-	
+
 	/** unique identifier of a {@link FileRelease} */
 	public String identifier = "";
 	/** current state of the {@link FileRelease} */
 	public String state = "";
-	
-	/** name of the source {@link TestStep}*/
+
+	/** name of the source {@link TestStep} */
 	public String name = "";
-	/** name of the source {@link Environment} of the business object (part of MDM URI)*/
+	/**
+	 * name of the source {@link Environment} of the business object (part of
+	 * MDM URI)
+	 */
 	public String sourceName = "";
-	/** name of the type of the source business object (part of MDM URI)*/
+	/** name of the type of the source business object (part of MDM URI) */
 	public String typeName = "";
-	/** id of the source business object (part of URI)*/
-	public long id = 0L;
-		
+	/** id of the source business object (part of URI) */
+	public String id = "";
+
 	/** release sender name (MDM user name) */
 	public String sender = "";
 	/** release receiver name (MDM user name) */
 	public String receiver = "";
-	
-	/** order message to specify by the sender on creating a {@link FileRelease} */
+
+	/**
+	 * order message to specify by the sender on creating a {@link FileRelease}
+	 */
 	public String orderMessage = "";
-	/** reject message to specify by the receiver on rejecting a {@link FileRelease} */
+	/**
+	 * reject message to specify by the receiver on rejecting a
+	 * {@link FileRelease}
+	 */
 	public String rejectMessage = "";
-	/** system error message set by the converter system if an error occuring during generating the target file*/
+	/**
+	 * system error message set by the converter system if an error occuring
+	 * during generating the target file
+	 */
 	public String errorMessage = "";
-		
-	/** output data format of the generated file*/
+
+	/** output data format of the generated file */
 	public String format = "";
 	/** relative file link of the generated file */
 	public String fileLink = "";
@@ -62,5 +74,5 @@ public class FileRelease implements Serializable {
 	/** number of days */
 	public int validity = 0;
 	/** calculated expire date (time stamp) */
-	public long expire = 0;	
+	public long expire = 0;
 }

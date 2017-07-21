@@ -37,8 +37,7 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.mockito.Mockito;
 
-
-public  final class I18NActivityMockHelper {
+public final class I18NActivityMockHelper {
 
 	public static int ITEM_COUNT = 3;
 	public static int ATTRIBUTE_COUNT = 2;
@@ -48,7 +47,7 @@ public  final class I18NActivityMockHelper {
 		ConnectorService connectorBean = Mockito.mock(ConnectorService.class);
 
 		List<EntityManager> emList = new ArrayList<>();
-		for(int i=0; i<ITEM_COUNT; i++) {
+		for (int i = 0; i < ITEM_COUNT; i++) {
 			emList.add(createEntityManagerMock("MDMENV_" + i));
 		}
 		when(connectorBean.getEntityManagers()).thenReturn(emList);
@@ -56,10 +55,9 @@ public  final class I18NActivityMockHelper {
 		return connectorBean;
 	}
 
-
 	private static EntityManager createEntityManagerMock(String sourceName) throws Exception {
 
-		Environment env = createEntityMock(Environment.class, sourceName, sourceName, 1L);
+		Environment env = createEntityMock(Environment.class, sourceName, sourceName, "1");
 
 		EntityManager em = Mockito.mock(EntityManager.class);
 
@@ -70,7 +68,6 @@ public  final class I18NActivityMockHelper {
 
 		return em;
 	}
-
 
 	private static Optional<ModelManager> createModelManagerMock() throws Exception {
 
@@ -123,10 +120,9 @@ public  final class I18NActivityMockHelper {
 		return Optional.of(modelManager);
 	}
 
-
 	private static List<Attribute> createAttributeList(Class<? extends Entity> type, long count) {
 		List<Attribute> attributeList = new ArrayList<>();
-		for(int i=0; i<count; i++){
+		for (int i = 0; i < count; i++) {
 			Attribute attribute = Mockito.mock(Attribute.class);
 			when(attribute.getName()).thenReturn(type.getSimpleName() + "_attribute_" + i);
 			attributeList.add(attribute);
@@ -134,8 +130,8 @@ public  final class I18NActivityMockHelper {
 		return attributeList;
 	}
 
-
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id) throws Exception {
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
+			throws Exception {
 
 		HashMap<String, Value> map = new HashMap<String, Value>();
 		map.put("Name", ValueType.STRING.create("Name", name));
@@ -145,13 +141,11 @@ public  final class I18NActivityMockHelper {
 		when(core.getValues()).thenReturn(map);
 		when(core.getID()).thenReturn(id);
 
-		Constructor<T> constructor  = type.getDeclaredConstructor(Core.class);
+		Constructor<T> constructor = type.getDeclaredConstructor(Core.class);
 		constructor.setAccessible(true);
 		T instance = constructor.newInstance(core);
 		constructor.setAccessible(false);
 		return instance;
 	}
 
-
 }
-

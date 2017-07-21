@@ -7,27 +7,24 @@
 *  http://www.eclipse.org/legal/epl-v10.html                                   *
 *                                                                              *
 *  Contributors:                                                               *
-*  Matthias Koller, Johannes Stamm - initial implementation                    *
+*  Matthias Koller - initial implementation                                    *
 *******************************************************************************/
 
-import {Node} from '../navigator/node';
+import { ErrorHandler, Injectable } from '@angular/core';
+import { MDMNotificationService } from './mdm-notification.service';
 
-export class MDMItem {
-  source: string;
-  type: string;
-  id: string;
+@Injectable()
+export class MDMErrorHandler extends ErrorHandler {
 
-  constructor(source: string, type: string, id: string) {
-    this.source = source;
-    this.type = type;
-    this.id = id;
+  constructor(private notificationService: MDMNotificationService) {
+    super(true);
   }
 
-  equalsNode(node: Node) {
-    return this.source === node.sourceName && this.type === node.type && this.id === node.id;
-  }
+  handleError(error) {
+    this.notificationService.notifyError("Applikationsfehler",
+      "Es ist ein Applikationsfehler aufgetreten. Für eine detailierte "
+      + "Fehlermeldung öffnen Sie bitte die Entwicklerkonsole Ihres Browsers.");
 
-  equals(item: MDMItem) {
-    return this.source === item.source && this.type === item.type && this.id === item.id;
+    super.handleError(error);
   }
 }

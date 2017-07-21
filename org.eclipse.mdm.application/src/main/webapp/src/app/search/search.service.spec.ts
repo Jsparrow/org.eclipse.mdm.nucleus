@@ -24,6 +24,7 @@ import {LocalizationService} from '../localization/localization.service';
 import {NodeService} from '../navigator/node.service';
 import {QueryService} from '../tableview/query.service';
 import {MDMNotificationService} from '../core/mdm-notification.service';
+import {HttpErrorHandler} from '../core/http-error-handler';
 
 import {Condition, Operator} from './filter.service';
 
@@ -61,6 +62,7 @@ describe ( 'SearchService', () => {
         QueryService,
         MockBackend,
         BaseRequestOptions,
+        HttpErrorHandler,
         {
           provide: Http,
           useFactory: (backend, options) => new Http(backend, options),

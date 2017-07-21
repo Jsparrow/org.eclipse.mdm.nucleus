@@ -1,6 +1,5 @@
 /*******************************************************************************
-*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
-*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*  Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others                    *
 *                                                                              *
 *  All rights reserved. This program and the accompanying materials            *
 *  are made available under the terms of the Eclipse Public License v1.0       *
@@ -15,7 +14,7 @@
 import {Injectable} from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-
+import {HttpErrorHandler} from '../core/http-error-handler';
 import {PropertyService} from '../core/property.service';
 
 @Injectable()
@@ -26,6 +25,7 @@ export class FilereleaseService {
   month = new Array();
 
   constructor(private http: Http,
+              private httpErrorHandler: HttpErrorHandler,
               private prop: PropertyService) {
 
     this.url = prop.getUrl('/mdm/filereleases');
@@ -73,21 +73,24 @@ export class FilereleaseService {
     let options = new RequestOptions({ headers: headers });
     return this.http.post(this.url, body, options)
                     .map(this.extractData)
-                    .catch(this.handleError);
+                    .catch(this.httpErrorHandler.handleError);
   }
 
   delete(release: Release) {
-    return this.http.delete(this.url + '/' + release.identifier);
+    return this.http.delete(this.url + '/' + release.identifier)
+      .catch(this.httpErrorHandler.handleError);
   }
 
   approve(release: Release) {
     release.state = 'RELEASE_APPROVED';
-    return this.update(release);
+    return this.update(release)
+      .catch(this.httpErrorHandler.handleError);
   }
 
   reject(release: Release) {
     release.state = 'RELEASE_REJECTED';
-    return this.update(release);
+    return this.update(release)
+      .catch(this.httpErrorHandler.handleError);
   }
 
   formatDate(date) {
@@ -103,8 +106,8 @@ export class FilereleaseService {
 
   private read(query: string) {
     return this.http.get(this.url + query)
-    .map(res => <Release[]> res.json().data)
-    .catch(this.handleError);
+      .map(res => <Release[]> res.json().data)
+      .catch(this.httpErrorHandler.handleError);
   }
 
   private update(release: Release) {
@@ -113,12 +116,7 @@ export class FilereleaseService {
     let options = new RequestOptions({ headers: headers });
     return this.http.post(this.url + '/' + release.identifier, body, options)
                     .map(this.extractData)
-                    .catch(this.handleError);
-  }
-
-  private handleError(error: Response) {
-    console.error(error);
-    return Observable.throw(error.json().error || 'Server error');
+                    .catch(this.httpErrorHandler.handleError);
   }
 
   private extractData(res: Response) {
@@ -133,7 +131,7 @@ export class Release {
   name: string;
   sourceName: string;
   typeName: string;
-  id: number;
+  id: string;
   sender: string;
   receiver: string;
   orderMessage: string;

@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.application.logout;
 
@@ -25,6 +25,7 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
  * MDMSessionExpiredListener
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -45,7 +46,7 @@ public class MDMSessionExpiredListener implements Serializable {
 	/**
 	 * Bind the user principal to this cdi bean.
 	 */
-	public void update() {		
+	public void update() {
 		if (this.userPrincipal == null) {
 			this.userPrincipal = servletRequest.getUserPrincipal();
 		}
@@ -56,7 +57,7 @@ public class MDMSessionExpiredListener implements Serializable {
 		if (this.userPrincipal != null) {
 			this.connectorService.disconnect(this.userPrincipal);
 		}
-		
-	}	
+
+	}
 
 }

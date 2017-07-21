@@ -12,15 +12,15 @@
 package org.eclipse.mdm.businessobjects.control;
 
 public class XMLParseException extends RuntimeException {
-	
+
 	private static final long serialVersionUID = -4196754501456211418L;
 
 	public XMLParseException(String message) {
 		super(message);
-	}	
+	}
 
 	public XMLParseException(String message, Throwable t) {
 		super(message, t);
 	}
-	
+
 }

@@ -45,7 +45,7 @@ export class SearchattributeTreeComponent implements OnChanges {
   }
 
   mapRootNode(node: Node) {
-    let item = new MDMItem(node.sourceName, node.type, +node.id);
+    let item = new MDMItem(node.sourceName, node.type, node.id);
 
     return <TreeNode>{
       label: node.name,

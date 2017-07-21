@@ -31,7 +31,9 @@ import org.eclipse.mdm.api.dflt.model.Project;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
- * NavigationActivity Bean implementation to lookup specified business object children
+ * NavigationActivity Bean implementation to lookup specified business object
+ * children
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -39,12 +41,11 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 public class NavigationActivity {
 
 	@EJB
-	private ConnectorService connectorService;	
-	
-	
-	
+	private ConnectorService connectorService;
+
 	/**
-	 * returns the MDM {@link Environment} business objects of all connected MDM systems
+	 * returns the MDM {@link Environment} business objects of all connected MDM
+	 * systems
 	 * 
 	 * @return MDM {@link Environment} business objects
 	 */
@@ -52,130 +53,146 @@ public class NavigationActivity {
 		try {
 			List<Environment> envList = new ArrayList<>();
 			List<EntityManager> emList = this.connectorService.getEntityManagers();
-			for(EntityManager em : emList) {
+			for (EntityManager em : emList) {
 				envList.add(em.loadEnvironment());
 			}
 			return envList;
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
+
 	/**
-	 * returns all MDM {@link Project} business objects of the connected MDM system identified by the given name
+	 * returns all MDM {@link Project} business objects of the connected MDM
+	 * system identified by the given name
 	 * 
-	 * @param sourceName Name of the MDM system
+	 * @param sourceName
+	 *            Name of the MDM system
 	 * @return MDM {@link Project} business objects
 	 */
 	public List<Project> getProjects(String sourceName) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.loadAll(Project.class);			
-		} catch(DataAccessException e) {
+			return em.loadAll(Project.class);
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
+
 	/**
-	 * returns all MDM {@link Test} business objects of the connected MDM system identified by the given name
+	 * returns all MDM {@link Test} business objects of the connected MDM system
+	 * identified by the given name
 	 * 
-	 * @param sourceName Name of the MDM system
+	 * @param sourceName
+	 *            Name of the MDM system
 	 * @return MDM {@link Test} business objects
 	 */
 	public List<Test> getTests(String sourceName) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.loadAll(Test.class);			
-		} catch(DataAccessException e) {
+			return em.loadAll(Test.class);
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
 
 	/**
-	 * returns all MDM {@link Test} business object children for a MDM {@link Pool} 
-	 * identified by the given source name and {@link Pool} ID.
+	 * returns all MDM {@link Test} business object children for a MDM
+	 * {@link Pool} identified by the given source name and {@link Pool} ID.
 	 * 
-	 * @param sourceName Name of the MDM system
-	 * @param poolID The {@code Pool} instance ID
+	 * @param sourceName
+	 *            Name of the MDM system
+	 * @param poolID
+	 *            The {@code Pool} instance ID
 	 * @return MDM {@link Test} business objects
 	 */
-	public List<Test> getTests(String sourceName, Long poolID) {
+	public List<Test> getTests(String sourceName, String poolID) {
 		return getChildren(sourceName, Pool.class, poolID, Test.class);
 	}
-	
+
 	/**
-	 * returns all MDM {@link Pool} business object children for a MDM {@link Project} 
-	 * identified by the given source name and {@link Project} ID.
+	 * returns all MDM {@link Pool} business object children for a MDM
+	 * {@link Project} identified by the given source name and {@link Project}
+	 * ID.
 	 * 
-	 * @param sourceName Name of the MDM system
-	 * @param projectID The {@code Project} instance ID
+	 * @param sourceName
+	 *            Name of the MDM system
+	 * @param projectID
+	 *            The {@code Project} instance ID
 	 * @return MDM {@link Pool} business objects
 	 */
-	public List<Pool> getPools(String sourceName, Long projectID) {
+	public List<Pool> getPools(String sourceName, String projectID) {
 		return getChildren(sourceName, Project.class, projectID, Pool.class);
 	}
-	
+
 	/**
-	 * returns all MDM {@link TestStep} business object children for a MDM {@link Test} 
-	 * identified by the given source name and {@link Test} ID.
+	 * returns all MDM {@link TestStep} business object children for a MDM
+	 * {@link Test} identified by the given source name and {@link Test} ID.
 	 * 
-	 * @param sourceName Name of the MDM system
-	 * @param testID The {@code Test} instance ID
+	 * @param sourceName
+	 *            Name of the MDM system
+	 * @param testID
+	 *            The {@code Test} instance ID
 	 * @return MDM {@link TestStep} business objects
 	 */
-	public List<TestStep> getTestSteps(String sourceName, Long testID) {
+	public List<TestStep> getTestSteps(String sourceName, String testID) {
 		return getChildren(sourceName, Test.class, testID, TestStep.class);
 	}
 
-	
 	/**
-	 * returns all MDM {@link Measurement} business object children for a MDM {@link TestStep} 
-	 * identified by the given source name and {@link TestStep} ID.
+	 * returns all MDM {@link Measurement} business object children for a MDM
+	 * {@link TestStep} identified by the given source name and {@link TestStep}
+	 * ID.
 	 * 
-	 * @param sourceName Name of the MDM system
-	 * @param testStepID The {@code TestStep} instance ID
+	 * @param sourceName
+	 *            Name of the MDM system
+	 * @param testStepID
+	 *            The {@code TestStep} instance ID
 	 * @return MDM {@link Measurement} business objects
 	 */
-	public List<Measurement> getMeasurements(String sourceName, Long testStepID) {
+	public List<Measurement> getMeasurements(String sourceName, String testStepID) {
 		return getChildren(sourceName, TestStep.class, testStepID, Measurement.class);
 	}
 
-	
 	/**
-	 * returns all MDM {@link ChannelGroup} business object children for a MDM {@link Measurement} 
-	 * identified by the given source name and {@link Measurement} ID.
+	 * returns all MDM {@link ChannelGroup} business object children for a MDM
+	 * {@link Measurement} identified by the given source name and
+	 * {@link Measurement} ID.
 	 * 
-	 * @param sourceName Name of the MDM system
-	 * @param measurementID The {@code Measurement} instance ID
+	 * @param sourceName
+	 *            Name of the MDM system
+	 * @param measurementID
+	 *            The {@code Measurement} instance ID
 	 * @return MDM {@link ChannelGroup} business objects
 	 */
-	public List<ChannelGroup> getChannelGroups(String sourceName, Long measurementID) {
+	public List<ChannelGroup> getChannelGroups(String sourceName, String measurementID) {
 		return getChildren(sourceName, Measurement.class, measurementID, ChannelGroup.class);
 	}
-	
 
 	/**
-	 * returns all MDM {@link Channel} business object children for a MDM {@link ChannelGroup} 
-	 * identified by the given source name and {@link ChannelGroup} ID.
+	 * returns all MDM {@link Channel} business object children for a MDM
+	 * {@link ChannelGroup} identified by the given source name and
+	 * {@link ChannelGroup} ID.
 	 * 
-	 * @param sourceName Name of the MDM system
-	 * @param channelGroupID The {@code ChannelGroup} instance ID
+	 * @param sourceName
+	 *            Name of the MDM system
+	 * @param channelGroupID
+	 *            The {@code ChannelGroup} instance ID
 	 * @return MDM {@link Channel} business objects
 	 */
-	public List<Channel> getChannels(String sourceName, Long channelGroupID) {
+	public List<Channel> getChannels(String sourceName, String channelGroupID) {
 		return getChildren(sourceName, ChannelGroup.class, channelGroupID, Channel.class);
 	}
-	
-	
-	private <T extends Entity> List<T> getChildren(String sourceName, Class<? extends Entity> parentType, 
-			Long parentID, Class<T> childType) {
+
+	private <T extends Entity> List<T> getChildren(String sourceName, Class<? extends Entity> parentType, String parentID,
+			Class<T> childType) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			Entity parent = em.load(parentType, parentID);
-			return em.loadChildren(parent, childType);		
-		} catch(DataAccessException e) {
+			return em.loadChildren(parent, childType);
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-		
+
 }

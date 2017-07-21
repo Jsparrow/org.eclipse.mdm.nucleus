@@ -22,6 +22,8 @@ import {QueryService} from '../tableview/query.service';
 import {AutoCompleteModule} from 'primeng/primeng';
 import {AutoComplete} from 'primeng/primeng';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 @Component({
   selector: '[search-condition]',
   templateUrl: 'search-condition.component.html',
@@ -45,8 +47,9 @@ export class SearchConditionComponent implements OnChanges {
   @ViewChild(AutoComplete) primeAutoCompleteComponent: AutoComplete;
 
   constructor(private localservice: LocalizationService,
-    private prop: PropertyService,
-    private queryService: QueryService) { }
+              private prop: PropertyService,
+              private queryService: QueryService,
+              private notificationService: MDMNotificationService) { }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedEnvs'] && this.condition.valueType === 'string') {
@@ -71,7 +74,10 @@ export class SearchConditionComponent implements OnChanges {
     this.queryService.suggestValues(this.env === 'Global' ?
         this.selectedEnvs.map(env => env.sourceName) :
         [this.env], this.condition.type, this.condition.attribute)
-      .subscribe(values => this.suggestions = Array.from(new Set<string>(values)));
+      .subscribe(
+        values => this.suggestions = Array.from(new Set<string>(values)),
+        error => this.notificationService.notifyError('Autotvervollständigung kann nicht initialisiert werden.', error)
+      );
   }
 
   updateSuggestions(e: any) {

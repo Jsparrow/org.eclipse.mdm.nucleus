@@ -19,7 +19,7 @@ public class SourceFilter {
 	private String sourceName;
 	private String filter;
 	private String searchString;
-	
+
 	public String getSourceName() {
 		return sourceName;
 	}
@@ -35,11 +35,11 @@ public class SourceFilter {
 	public void setFilter(String filter) {
 		this.filter = filter;
 	}
-	
+
 	public String getSearchString() {
 		return searchString;
 	}
-	
+
 	public void setSearchString(String searchString) {
 		this.searchString = searchString;
 	}

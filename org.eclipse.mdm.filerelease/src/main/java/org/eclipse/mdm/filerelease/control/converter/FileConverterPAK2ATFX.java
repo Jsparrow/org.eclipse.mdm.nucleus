@@ -7,11 +7,9 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.filerelease.control.converter;
-
-
 
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +35,11 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 
 	private static final String CONVERTER_NAME = "PAK2ATFX";
 	private final static String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.filerelease";
-	
-	private static final String MODEL_FILE_NAME = "model.atfx.technical";	
+
+	private static final String MODEL_FILE_NAME = "model.atfx.technical";
 	private static final String OUTPUT_SUB_TEMP_DIRECTORY = "tmp";
 	private static final String ATFX_OUTPUT_FILE_NAME_PREFIX = "_ATFX.zip";
-	
+
 	@Inject
 	@GlobalProperty("filerelease.converter.pak.pakApplicationPath")
 	private String pakApplicationPath = "";
@@ -57,59 +55,56 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 	@Inject
 	@GlobalProperty("filerelease.converter.pak.pakInputAttribute")
 	private String pakInputAttribute = "";
-		
-	
-	@Override
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em,
-		File targetDirectory) throws FileConverterException {
-			
-			int returnValue = -1;
 
-			String pakApplicationPathValue = super.readPropertyValue(this.pakApplicationPath, true, 
-				null, "pakApplicationPath");
-			String modelTypeEntityValue = super.readPropertyValue(this.modelTypeEntity, true, 
-				null, "modelTypeEntity");
-			String modelTypeAttributeValue = super.readPropertyValue(this.modelTypeAttribute, true, 
-				null, "modelTypeAttribute");
-			String pakInputEntityValue = super.readPropertyValue(this.pakInputEntity, true, 
-				null, "pakInputEntity");
-			String pakInputAttributeValue = super.readPropertyValue(this.pakInputAttribute, true, 
-				null, "pakInputAttribute");
-			
-			String modelType = locateStringAttributeValue(em, testStep, 
-					modelTypeEntityValue, modelTypeAttributeValue);
-			String inputPath = locateStringAttributeValue(em, testStep, 
-					pakInputEntityValue, pakInputAttributeValue);			
-					
-			File pakApplicationFile = locatePakApplicationFile(pakApplicationPathValue);
-			File modelFile = locateModelFileForModelType(modelType);
-			File inputDirectory = locateInputDirectory(inputPath);
-			File outputDirectory = createDirectory(targetDirectory.getAbsolutePath() + File.separator + fileRelease.name);
-			File outputTempDirectory = createDirectory(outputDirectory.getAbsolutePath() + File.separator + OUTPUT_SUB_TEMP_DIRECTORY);
-			File outputZIPFile = new File(outputDirectory, fileRelease.name + ATFX_OUTPUT_FILE_NAME_PREFIX);
-			
-			try {				
-				if(!outputZIPFile.exists()) {
-	 				LOG.debug("executing external pak application ...");
-					returnValue = createATFX(pakApplicationFile, inputDirectory, outputTempDirectory, modelFile);
-					if(returnValue != 0) {
-						String errorMessage = translateErrorCode(returnValue);
-						throw new FileConverterException("external pak application ends with an error (message: '" + errorMessage + "')");
-					}
-					LOG.debug("executing external pak application ... done!");				
-					
-					LOG.debug("executing zip process for pak application result ...");
-								
-					zipFolder(outputZIPFile.getAbsolutePath(), outputTempDirectory.getAbsolutePath(), true);
-					LOG.debug("executing zip process for pak application result ... done");
+	@Override
+	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em, File targetDirectory)
+			throws FileConverterException {
+
+		int returnValue = -1;
+
+		String pakApplicationPathValue = super.readPropertyValue(this.pakApplicationPath, true, null,
+				"pakApplicationPath");
+		String modelTypeEntityValue = super.readPropertyValue(this.modelTypeEntity, true, null, "modelTypeEntity");
+		String modelTypeAttributeValue = super.readPropertyValue(this.modelTypeAttribute, true, null,
+				"modelTypeAttribute");
+		String pakInputEntityValue = super.readPropertyValue(this.pakInputEntity, true, null, "pakInputEntity");
+		String pakInputAttributeValue = super.readPropertyValue(this.pakInputAttribute, true, null,
+				"pakInputAttribute");
+
+		String modelType = locateStringAttributeValue(em, testStep, modelTypeEntityValue, modelTypeAttributeValue);
+		String inputPath = locateStringAttributeValue(em, testStep, pakInputEntityValue, pakInputAttributeValue);
+
+		File pakApplicationFile = locatePakApplicationFile(pakApplicationPathValue);
+		File modelFile = locateModelFileForModelType(modelType);
+		File inputDirectory = locateInputDirectory(inputPath);
+		File outputDirectory = createDirectory(targetDirectory.getAbsolutePath() + File.separator + fileRelease.name);
+		File outputTempDirectory = createDirectory(
+				outputDirectory.getAbsolutePath() + File.separator + OUTPUT_SUB_TEMP_DIRECTORY);
+		File outputZIPFile = new File(outputDirectory, fileRelease.name + ATFX_OUTPUT_FILE_NAME_PREFIX);
+
+		try {
+			if (!outputZIPFile.exists()) {
+				LOG.debug("executing external pak application ...");
+				returnValue = createATFX(pakApplicationFile, inputDirectory, outputTempDirectory, modelFile);
+				if (returnValue != 0) {
+					String errorMessage = translateErrorCode(returnValue);
+					throw new FileConverterException(
+							"external pak application ends with an error (message: '" + errorMessage + "')");
 				}
-				
-				fileRelease.fileLink = fileRelease.name + File.separator + outputZIPFile.getName();
-				
-		} catch(IOException |InterruptedException e) {
+				LOG.debug("executing external pak application ... done!");
+
+				LOG.debug("executing zip process for pak application result ...");
+
+				zipFolder(outputZIPFile.getAbsolutePath(), outputTempDirectory.getAbsolutePath(), true);
+				LOG.debug("executing zip process for pak application result ... done");
+			}
+
+			fileRelease.fileLink = fileRelease.name + File.separator + outputZIPFile.getName();
+
+		} catch (IOException | InterruptedException e) {
 			throw new FileConverterException(e.getMessage(), e);
-		} finally {			
-			deleteDirectory(outputTempDirectory);			
+		} finally {
+			deleteDirectory(outputTempDirectory);
 		}
 	}
 
@@ -117,72 +112,61 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 	public String getConverterName() {
 		return CONVERTER_NAME;
 	}
-	
 
-		
+	private int createATFX(File pakApplicationFile, File inputDirectory, File outputTempDirectory, File modelFile)
+			throws IOException, InterruptedException {
 
-	private int createATFX(File pakApplicationFile, File inputDirectory, File outputTempDirectory, File modelFile) 
-		throws IOException, InterruptedException{
-		
-		ProcessBuilder pb = new ProcessBuilder(pakApplicationFile.getAbsolutePath(), 
-			"-M", inputDirectory.getAbsolutePath(), 
-			"-E", outputTempDirectory.getAbsolutePath(), 
-			"-MF", modelFile.getAbsolutePath());
+		ProcessBuilder pb = new ProcessBuilder(pakApplicationFile.getAbsolutePath(), "-M",
+				inputDirectory.getAbsolutePath(), "-E", outputTempDirectory.getAbsolutePath(), "-MF",
+				modelFile.getAbsolutePath());
 		Process process = pb.start();
-		
+
 		return process.waitFor();
 	}
-	
-	
+
 	private String translateErrorCode(int returnValue) {
-		
+
 		String errorMessage;
 
-		if(returnValue == 1) {
+		if (returnValue == 1) {
 			errorMessage = "invalid input pak measurement";
-		} else if(returnValue == 2) {
+		} else if (returnValue == 2) {
 			errorMessage = "illegal command (a parameter is missing)";
-		} else if(returnValue == 6) {
+		} else if (returnValue == 6) {
 			errorMessage = "foreign model measurement";
-		} else if(returnValue == 7) {
+		} else if (returnValue == 7) {
 			errorMessage = "illegal input path format";
-		} else if(returnValue == 8) {
+		} else if (returnValue == 8) {
 			errorMessage = "source directory does not exist";
-		} else if(returnValue == 9) {
+		} else if (returnValue == 9) {
 			errorMessage = "target directory does not exist";
-		} else if(returnValue == 10) {
+		} else if (returnValue == 10) {
 			errorMessage = "target directory is not empty";
-		} else if(returnValue == 11) {
+		} else if (returnValue == 11) {
 			errorMessage = "illegal commant (model file parameter is missing)";
 		} else {
 			errorMessage = "unknown error with error code '" + returnValue + "'";
 		}
 		return errorMessage + "  (errorCode = '" + returnValue + "')";
 	}
-	
-	
+
 	private File locatePakApplicationFile(String pakApplicationFilePath) {
 		File pakApplicationFile = new File(pakApplicationFilePath);
-		if(!pakApplicationFile.exists()) {
-			throw new FileReleaseException("pak application executable file at '" + pakApplicationFile.getAbsolutePath() 
-				+ "' does not exist!");
+		if (!pakApplicationFile.exists()) {
+			throw new FileReleaseException("pak application executable file at '" + pakApplicationFile.getAbsolutePath()
+					+ "' does not exist!");
 		}
 		return pakApplicationFile;
 	}
-	
-	
 
-	
 	private File locateModelFileForModelType(String modelType) {
-		File modelFile = new File(COMPONENT_CONFIG_ROOT_FOLDER + File.separator + modelType + File.separator + MODEL_FILE_NAME);
-		if(!modelFile.exists()) {
-			throw new FileReleaseException("mapping file for atfx model with type '" + modelType 
-				+ "' does not exist! (expected at: '" + modelFile.getAbsolutePath() + "')");
+		File modelFile = new File(
+				COMPONENT_CONFIG_ROOT_FOLDER + File.separator + modelType + File.separator + MODEL_FILE_NAME);
+		if (!modelFile.exists()) {
+			throw new FileReleaseException("mapping file for atfx model with type '" + modelType
+					+ "' does not exist! (expected at: '" + modelFile.getAbsolutePath() + "')");
 		}
 		return modelFile;
 	}
-	
-	
-	
-	
+
 }

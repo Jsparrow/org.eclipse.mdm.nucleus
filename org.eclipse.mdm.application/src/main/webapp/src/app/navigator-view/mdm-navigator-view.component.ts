@@ -21,6 +21,8 @@ import {Node} from '../navigator/node';
 import {NodeproviderService} from '../navigator/nodeprovider.service';
 import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
+
 @Component({
   selector: 'mdm-navigator-view',
   templateUrl: 'mdm-navigator-view.component.html',
@@ -45,7 +47,8 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
   div: any;
   scrollBtnVisible = false;
 
-  constructor(private nodeProviderService: NodeproviderService) {}
+  constructor(private nodeProviderService: NodeproviderService,
+              private notificationService: MDMNotificationService) {}
 
   onScrollTop() {
     this.div.scrollTop = 0;
@@ -77,7 +80,10 @@ export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.activeNodeprovider = this.nodeProviderService.getActiveNodeprovider();
     this.subscription = this.nodeProviderService.nodeProviderChanged
-        .subscribe(np => this.activeNodeprovider = np);
+        .subscribe(
+          np => this.activeNodeprovider = np,
+          error => this.notificationService.notifyError('Nodeprovider kann nicht aktualisiert werden.', error)
+        );
   }
 
   ngOnDestroy() {

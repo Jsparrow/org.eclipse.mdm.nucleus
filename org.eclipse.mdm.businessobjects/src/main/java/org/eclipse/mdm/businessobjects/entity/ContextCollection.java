@@ -22,58 +22,57 @@ import org.eclipse.mdm.api.base.model.ContextType;
 
 /**
  * ContextCollection (Entity for context data (ordered and measured))
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
 public class ContextCollection {
-	
+
 	public Map<ContextType, List<MDMEntity>> contextMeasured = new HashMap<>();
-	public Map<ContextType, List<MDMEntity>> contextOrdered= new HashMap<>();	
-	
-	
-	
-	
+	public Map<ContextType, List<MDMEntity>> contextOrdered = new HashMap<>();
+
 	/**
 	 * set the measured context data map
-	 * @param contextMap the measured context data map
+	 * 
+	 * @param contextMap
+	 *            the measured context data map
 	 */
 	public void setMeasuredContext(Map<ContextType, ContextRoot> contextMap) {
 
-		for(java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
-			
+		for (java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
+
 			ContextType contextType = setEntry.getKey();
 			ContextRoot contextRoot = setEntry.getValue();
-						
+
 			this.contextMeasured.put(contextType, new ArrayList<>());
-			
-			for(ContextComponent contextComponent : contextRoot.getContextComponents()) {
+
+			for (ContextComponent contextComponent : contextRoot.getContextComponents()) {
 				MDMEntity entity = new MDMEntity(contextComponent);
-				this.contextMeasured.get(contextType).add(entity);		
+				this.contextMeasured.get(contextType).add(entity);
 			}
 		}
 	}
-	
-	
-	
+
 	/**
 	 * sets the ordered context data map
-	 * @param contextMap the ordered context data map
+	 * 
+	 * @param contextMap
+	 *            the ordered context data map
 	 */
 	public void setOrderedContext(Map<ContextType, ContextRoot> contextMap) {
-		
-		for(java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
-			
+
+		for (java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
+
 			ContextType contextType = setEntry.getKey();
 			ContextRoot contextRoot = setEntry.getValue();
-						
+
 			this.contextOrdered.put(contextType, new ArrayList<>());
-			
-			for(ContextComponent contextComponent : contextRoot.getContextComponents()) {
+
+			for (ContextComponent contextComponent : contextRoot.getContextComponents()) {
 				MDMEntity entity = new MDMEntity(contextComponent);
-				this.contextOrdered.get(contextType).add(entity);		
+				this.contextOrdered.get(contextType).add(entity);
 			}
 		}
 	}
-		
-	
+
 }

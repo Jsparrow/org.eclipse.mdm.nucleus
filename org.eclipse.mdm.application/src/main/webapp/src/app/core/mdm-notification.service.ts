@@ -19,24 +19,23 @@ type Severities = 'success' | 'info' | 'warn' | 'error';
 export class MDMNotificationService {
   notificationChange = new EventEmitter<Message>();
 
-  notify(severity: Severities, summary: string, detail: string) {
+  notify(severity: Severities, summary: string, detail: any) {
     this.notificationChange.emit({ severity, summary, detail });
-    console.log(severity, summary, detail);
   }
 
-  notifyError(summary: string, detail: string) {
+  notifyError(summary: string, detail: any) {
     this.notify('error', summary, detail);
   }
 
-  notifyWarn(summary: string, detail: string) {
+  notifyWarn(summary: string, detail: any) {
     this.notify('warn', summary, detail );
   }
 
-  notifyInfo(summary: string, detail: string) {
+  notifyInfo(summary: string, detail: any) {
     this.notify('info', summary, detail);
   }
 
-  notifySuccess(summary: string, detail: string) {
+  notifySuccess(summary: string, detail: any) {
     this.notify('success', summary, detail);
   }
 }

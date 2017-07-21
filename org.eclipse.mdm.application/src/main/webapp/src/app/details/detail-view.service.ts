@@ -24,7 +24,9 @@ export class DetailViewService {
     constructor (private preferenceService: PreferenceService,
                  private notificationService: MDMNotificationService) {
       this.preferenceService.getPreference('ignoredAttributes')
-          .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
+          .subscribe(
+            prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs),
+            error => this.notificationService.notifyWarn('Einstellung für zu ignorirende Attribute kann nicht geladen werden.', error));
     }
 
     getAttributesToDisplay(node: Node) {

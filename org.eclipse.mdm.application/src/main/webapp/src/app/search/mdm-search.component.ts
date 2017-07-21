@@ -147,19 +147,26 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
       .do(nodes => this.loadSearchAttributes(nodes.map(env => env.sourceName)))
       .map(nodes => nodes.map(env => <IDropdownItem>{ id: env.sourceName, label: env.name, selected: true }))
       .subscribe(
-      dropDownItems => {
-        this.dropdownModel = dropDownItems;
-        this.selectedEnvironmentsChanged(dropDownItems);
-      },
-      error => this.notificationService.notifyError('Datenquellen konnten nicht geladen werden!', error));
+        dropDownItems => {
+          this.dropdownModel = dropDownItems;
+          this.selectedEnvironmentsChanged(dropDownItems);
+        },
+        error => this.notificationService.notifyError('Datenquellen können nicht geladen werden.', error)
+      );
 
-    this.searchService.getDefinitionsSimple()
-      .subscribe(defs => this.definitions = defs);
-
-      this.loadFilters();
-
-    this.filterService.filterChanged$.subscribe(filter => this.onFilterChanged(filter));
-    this.viewComponent.viewChanged$.subscribe(() => this.onViewChanged());
+    this.searchService.getDefinitionsSimple().subscribe(
+      defs => this.definitions = defs,
+      error => this.notificationService.notifyError('Suchdefinition kann nicht geladen werden.', error)
+    );
+    this.loadFilters();
+    this.filterService.filterChanged$.subscribe(
+      filter => this.onFilterChanged(filter),
+      error => this.notificationService.notifyError('Suchfilter kann nicht aktualisiert werden.', error)
+    );
+    this.viewComponent.viewChanged$.subscribe(
+      () => this.onViewChanged(),
+      error => this.notificationService.notifyError('Ansicht kann nicht aktualisiert werden.', error)
+    );
 
     this.selectFilter(this.filterService.currentFilter);
   }
@@ -202,9 +209,9 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.filters = [];
     this.filterService.getFilters()
       .defaultIfEmpty([this.currentFilter])
-      .subscribe(filters => {
-        this.filters = this.filters.concat(filters);
-      }
+      .subscribe(
+        filters => this.filters = this.filters.concat(filters),
+        error => this.notificationService.notifyError('Suchfilter kann nicht geladen werden.', error)
       );
   }
 
@@ -250,12 +257,13 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     }
     this.queryService.query(query)
       .do(result => this.generateWarningsIfMaxResultsReached(result))
-      .subscribe(result => {
-        this.results = result;
-        this.isSearchResultsOpen = true;
-        this.searchExecuted = true;
-      },
-      error => this.notificationService.notifyError('Suchanfrage konnte nicht bearbeitet werden!', error)
+      .subscribe(
+        result => {
+          this.results = result;
+          this.isSearchResultsOpen = true;
+          this.searchExecuted = true;
+        },
+        error => this.notificationService.notifyError('Suchanfrage kann nicht bearbeitet werden.', error)
       );
   }
 
@@ -315,8 +323,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
           this.loadFilters();
           this.selectFilter(new SearchFilter(this.filterService.NO_FILTER_NAME, [], 'Test', '', []));
         },
-        () => this.notificationService
-          .notifyError('Server Error.', 'Der Vorgang konnte nicht durchgeführt werden, da ein Serverfehler aufgetreten ist.')
+        error => this.notificationService.notifyError('Filter kann nicht gelöscht werden', error)
       );
     }
   }
@@ -325,7 +332,13 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     e.stopPropagation();
     if (this.filters.find(f => f.name === this.filterName) !== undefined) {
       this.childSaveModal.hide();
-      this.overwriteDialogComponent.showOverwriteModal('ein Filter').subscribe(ovw => this.saveFilter2(ovw));
+      this.overwriteDialogComponent.showOverwriteModal('ein Filter').subscribe(
+        needSave => this.saveFilter2(needSave),
+        error => {
+          this.saveFilter2(false);
+          this.notificationService.notifyError('Suchfilter kann nicht gespeichert werden', error);
+        }
+      );
     } else {
       this.saveFilter2(true);
     }
@@ -339,7 +352,8 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
         () => {
           this.loadFilters();
           this.selectFilter(filter);
-        }
+        },
+        error => this.notificationService.notifyError('Suchfilter kann nicht gespeichert werden', error)
       );
       this.childSaveModal.hide();
     } else {
@@ -372,14 +386,17 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   showSearchFieldsEditor(e: Event, conditions?: Condition[]) {
     e.stopPropagation();
-    this.editSearchFieldsComponent.show(conditions).subscribe(conds => {
-      if (!conditions) {
-        let filter = new SearchFilter(this.filterService.NEW_FILTER_NAME, this.currentFilter.environments, 'Test', '', conds);
-        this.selectFilter(filter);
-      }
-      this.currentFilter.conditions = conds;
-      this.calcCurrentSearch();
-    });
+    this.editSearchFieldsComponent.show(conditions).subscribe(
+      conds => {
+        if (!conditions) {
+          let filter = new SearchFilter(this.filterService.NEW_FILTER_NAME, this.currentFilter.environments, 'Test', '', conds);
+          this.selectFilter(filter);
+        }
+        this.currentFilter.conditions = conds;
+        this.calcCurrentSearch();
+      },
+      error => this.notificationService.notifyError('Suchfeldeditor kann nicht angezeigt werden.', error)
+    );
   }
 
   addSelectionToBasket() {

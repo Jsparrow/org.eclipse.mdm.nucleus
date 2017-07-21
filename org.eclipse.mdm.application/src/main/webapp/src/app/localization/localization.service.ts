@@ -19,6 +19,8 @@ import {Localization} from './localization';
 import {Node} from '../navigator/node';
 import {NodeService} from '../navigator/node.service';
 import {PropertyService} from '../core/property.service';
+import {HttpErrorHandler} from '../core/http-error-handler';
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 @Injectable()
 export class LocalizationService implements OnInit {
@@ -26,11 +28,12 @@ export class LocalizationService implements OnInit {
   private _nodeUrl: string;
 
   private _cache: Localization[] = [];
-  private errorMessage: string;
 
   constructor(private http: Http,
+              private httpErrorHandler: HttpErrorHandler,
               private _prop: PropertyService,
-              private _node: NodeService) {
+              private _node: NodeService,
+              private notificationService: MDMNotificationService) {
 
     this._nodeUrl = _prop.getUrl('/mdm/environments');
   }
@@ -39,7 +42,8 @@ export class LocalizationService implements OnInit {
     let node: Node;
     this._node.getNodes(node).subscribe(
       envs => this.initLocalization(envs),
-      error => this.errorMessage = <any>error);
+      error => this.notificationService.notifyError('Quellen können nicht geladen werden.', error)
+    );
   }
 
   getTranslation(type: string, comp: string) {
@@ -60,7 +64,8 @@ export class LocalizationService implements OnInit {
     envs.forEach((env) => {
       this.getLocalization(env).subscribe(
         locals => this.mergeLocalizations(locals),
-        error => this.errorMessage = <any>error);
+        error => this.notificationService.notifyError('Lokalisierung kann nicht geladen werden.', error)
+      );
     });
   }
 
@@ -88,11 +93,6 @@ export class LocalizationService implements OnInit {
   private get(url: string) {
     return this.http.get(url)
     .map(res => <Localization[]> res.json().data)
-    .catch(this.handleError);
-  }
-
-  private handleError(error: Response) {
-    console.error(error);
-    return Observable.throw(error.json().error || 'Server error');
+    .catch(this.httpErrorHandler.handleError);
   }
 }

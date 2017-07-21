@@ -27,10 +27,13 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 public final class ServiceUtils {
 
 	/**
-	 * converts the given object to a {@link Response} with the given {@link Status}
+	 * converts the given object to a {@link Response} with the given
+	 * {@link Status}
 	 *
-	 * @param responseEntry object to convert
-	 * @param status {@link Status} of the {@link Response}
+	 * @param responseEntry
+	 *            object to convert
+	 * @param status
+	 *            {@link Status} of the {@link Response}
 	 * @return the created {@link Response}
 	 */
 	public static Response toResponse(Object response, Status status) {
@@ -38,14 +41,16 @@ public final class ServiceUtils {
 		return Response.status(status).entity(genEntity).type(MediaType.APPLICATION_JSON).build();
 	}
 
-
-
 	/**
-	 * returns true if the given filter String is a parent filter of the given parent type
+	 * returns true if the given filter String is a parent filter of the given
+	 * parent type
 	 *
-	 * @param em {@link EntityManager} of the data source
-	 * @param filter parent filter string to check
-	 * @param parentType class of the parent entity
+	 * @param em
+	 *            {@link EntityManager} of the data source
+	 * @param filter
+	 *            parent filter string to check
+	 * @param parentType
+	 *            class of the parent entity
 	 * @return true if the give filter String is a parent filter
 	 */
 	public static boolean isParentFilter(EntityManager em, String filter, Class<? extends Entity> parentType) {
@@ -53,61 +58,70 @@ public final class ServiceUtils {
 		EntityType et = mm.getEntityType(parentType);
 
 		String idAttributeName = et.getIDAttribute().getName();
-		String matcher = workaroundForTypeMapping(et) + "." + idAttributeName + " eq (\\d+)";
+		String matcher = workaroundForTypeMapping(et) + "." + idAttributeName + " eq (\\w+)";
 		return filter.matches(matcher);
 	}
-
-
 
 	/**
 	 * returns the business object ID from a parent filter
 	 *
-	 * @param em {@link EntityManager} of the data source
-	 * @param filter parent filter string
-	 * @param parentType parent type to identify the Id attribute name
+	 * @param em
+	 *            {@link EntityManager} of the data source
+	 * @param filter
+	 *            parent filter string
+	 * @param parentType
+	 *            parent type to identify the Id attribute name
 	 * @return the extracted business object Id
 	 */
-	public static long extactIdFromParentFilter(EntityManager em, String filter, Class<? extends Entity> parentType) {
+	public static String extactIdFromParentFilter(EntityManager em, String filter, Class<? extends Entity> parentType) {
 		ModelManager mm = getModelMananger(em);
 		EntityType et = mm.getEntityType(parentType);
 
 		String idAttributeName = et.getIDAttribute().getName();
-		return Long.valueOf(filter.replace(workaroundForTypeMapping(et) + "." + idAttributeName + " eq ", ""));
+		return filter.replace(workaroundForTypeMapping(et) + "." + idAttributeName + " eq ", "");
 	}
 
-
-
 	/**
-	 * returns the {@link ModelManager} service form the given {@link EntityManager} if it is available
-	 * @param em {@link EntityManager} which provides the {@link ModelManager} service
-	 * @return the {@link ModelManager} service form the given {@link EntityManager} if it is available
+	 * returns the {@link ModelManager} service form the given
+	 * {@link EntityManager} if it is available
+	 * 
+	 * @param em
+	 *            {@link EntityManager} which provides the {@link ModelManager}
+	 *            service
+	 * @return the {@link ModelManager} service form the given
+	 *         {@link EntityManager} if it is available
 	 */
 	public static ModelManager getModelMananger(EntityManager em) {
 		Optional<ModelManager> optional = em.getModelManager();
-		if(!optional.isPresent()) {
+		if (!optional.isPresent()) {
 			throw new IllegalStateException("neccessary ModelManager service is not available");
 		}
 		return optional.get();
 	}
 
-
-
 	/**
-	 * returns the {@link SearchService} from the given {@link EntityManager} if it is available
-	 * @param em {@link EntityManager} which provides the {@link SearchService}
-	 * @return the {@link SearchService} from the given {@link EntityManager} if it is available
+	 * returns the {@link SearchService} from the given {@link EntityManager} if
+	 * it is available
+	 * 
+	 * @param em
+	 *            {@link EntityManager} which provides the {@link SearchService}
+	 * @return the {@link SearchService} from the given {@link EntityManager} if
+	 *         it is available
 	 */
 	public static SearchService getSearchService(EntityManager em) {
 		Optional<SearchService> oSS = em.getSearchService();
-		if(!oSS.isPresent()) {
+		if (!oSS.isPresent()) {
 			throw new IllegalStateException("neccessary Search service is not available");
 		}
 		return oSS.get();
 	}
-	
+
 	/**
-	 * Simple workaround for naming mismatch between Adapter and Business object names.
-	 * @param entityType entity type
+	 * Simple workaround for naming mismatch between Adapter and Business object
+	 * names.
+	 * 
+	 * @param entityType
+	 *            entity type
 	 * @return MDM business object name
 	 */
 	public static String workaroundForTypeMapping(EntityType entityType) {
@@ -120,7 +134,7 @@ public final class ServiceUtils {
 			return "ChannelGroup";
 		case "MeaQuantity":
 			return "Channel";
-		default: 
+		default:
 			return entityType.getName();
 		}
 	}

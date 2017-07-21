@@ -13,6 +13,7 @@ package org.eclipse.mdm.businessobjects.entity;
 
 /**
  * Attribute (Entity for attribute informations)
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -20,22 +21,24 @@ public class MDMAttribute {
 
 	/** name of the attribute value */
 	private final String name;
-	/** string value of the attribute value*/
+	/** string value of the attribute value */
 	private final String value;
-	/** unit of the attribute value*/
+	/** unit of the attribute value */
 	private final String unit;
 	/** data type of the attribute value */
 	private final String dataType;
-	
-	
-	
+
 	/**
 	 * Constructor
-	 *  
-	 * @param name name of the attribute value
-	 * @param value string value of the attribute value
-	 * @param unit unit of the attribute value
-	 * @param dataType data type of the attribute value
+	 * 
+	 * @param name
+	 *            name of the attribute value
+	 * @param value
+	 *            string value of the attribute value
+	 * @param unit
+	 *            unit of the attribute value
+	 * @param dataType
+	 *            data type of the attribute value
 	 */
 	public MDMAttribute(String name, String value, String unit, String dataType) {
 		this.name = name;
@@ -43,20 +46,19 @@ public class MDMAttribute {
 		this.unit = unit;
 		this.dataType = dataType;
 	}
-	
-	
+
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public String getValue() {
 		return this.value;
 	}
-	
+
 	public String getUnit() {
 		return this.unit;
 	}
-	
+
 	public String getDataType() {
 		return this.dataType;
 	}

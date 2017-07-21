@@ -30,7 +30,9 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
- * ChannelGroupService Bean implementation with available {@link ChannelGroup} operations
+ * ChannelGroupService Bean implementation with available {@link ChannelGroup}
+ * operations
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -45,72 +47,72 @@ public class ChannelGroupService {
 	private NavigationActivity navigationActivity;
 	@EJB
 	private SearchActivity searchActivity;
-	
-	
-	
+
 	/**
-	 * returns the matching {@link ChannelGroup}s using the given filter or all {@link ChannelGroup}s 
-	 * if no filter is available
+	 * returns the matching {@link ChannelGroup}s using the given filter or all
+	 * {@link ChannelGroup}s if no filter is available
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the ChannelGroup result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the ChannelGroup result
 	 * @return the found {@link ChannelGroup}s
 	 */
-	public List<ChannelGroup> getChannelGroups(String sourceName, String filter) {		
+	public List<ChannelGroup> getChannelGroups(String sourceName, String filter) {
 		try {
-			
+
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			
-			if(filter == null || filter.trim().length() <= 0) {
+
+			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(ChannelGroup.class);
 			}
-			
-			if(ServiceUtils.isParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT);
+
+			if (ServiceUtils.isParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT)) {
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT);
 				return this.navigationActivity.getChannelGroups(sourceName, id);
 			}
-			
+
 			return this.searchActivity.search(em, ChannelGroup.class, filter);
-	
-		} catch(DataAccessException e) {
-			throw new MDMEntityAccessException(e.getMessage(), e);
-		} 
-	}
-	
-	
-	
-	/**
-	 * returns a {@link ChannelGroup identified by the given id
-	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param channelGroupId id of the {@link ChannelGroup}
-	 * @return the matching {@link ChannelGroup}
-	 */
-	public ChannelGroup getChannelGroup(String sourceName, long channelGroupId) {
-		try {		
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(ChannelGroup.class, channelGroupId);
-		} catch(DataAccessException e) {
+
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
-	
-	
+
+	/**
+	 * returns a {@link ChannelGroup identified by the given id
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param channelGroupId
+	 *            id of the {@link ChannelGroup}
+	 * @return the matching {@link ChannelGroup}
+	 */
+	public ChannelGroup getChannelGroup(String sourceName, String channelGroupId) {
+		try {
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			return em.load(ChannelGroup.class, channelGroupId);
+		} catch (DataAccessException e) {
+			throw new MDMEntityAccessException(e.getMessage(), e);
+		}
+	}
+
 	/**
 	 * returns localized {@link ChannelGroup} attributes
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link ChannelGroup} attributes
 	 */
-	public Map<Attribute, String> localizeAttributes(String sourceName) {		
+	public Map<Attribute, String> localizeAttributes(String sourceName) {
 		return this.I18NActivity.localizeAttributes(sourceName, ChannelGroup.class);
-	}	
-	
-	
-	
+	}
+
 	/**
 	 * returns the localized {@link ChannelGroup} type name
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link ChannelGroup} type name
 	 */
 	public Map<EntityType, String> localizeType(String sourceName) {

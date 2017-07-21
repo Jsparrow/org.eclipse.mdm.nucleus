@@ -7,7 +7,7 @@
   *
   * Contributors:
   * Sebastian Dirsch - initial implementation
-  *******************************************************************************/ 
+  *******************************************************************************/
 
 package org.eclipse.mdm.filerelease.control;
 
@@ -38,24 +38,25 @@ import org.slf4j.LoggerFactory;
 @Stateless
 public class FileReleasePersistance {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FileReleasePersistance.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(FileReleasePersistance.class);
+
 	private static final String TARGET_FILE_NAME = "mdm_filerelease_storage.sav";
-	
+
 	/**
 	 * Persists the given file release map.
 	 * 
-	 * @param map The map to persist.
+	 * @param map
+	 *            The map to persist.
 	 */
 	public void save(Map<String, FileRelease> map) {
-		
+
 		String userHomePath = System.getProperty("user.home");
 		File directory = new File(userHomePath);
-		
+
 		File targetFile = new File(directory, TARGET_FILE_NAME);
 		writeFile(targetFile, map);
-	}	
-	
+	}
+
 	/**
 	 * 
 	 * Loads the {@link FileRelease} into a map.
@@ -63,92 +64,87 @@ public class FileReleasePersistance {
 	 * @return The map that contains the {@link FileRelease}s
 	 */
 	public Map<String, FileRelease> load() {
-		
+
 		String userHomePath = System.getProperty("user.home");
 		File directory = new File(userHomePath);
-		
+
 		File targetFile = new File(directory, TARGET_FILE_NAME);
 		return loadFile(targetFile);
-		
+
 	}
-	
-	
+
 	private void writeFile(File targetFile, Map<String, FileRelease> map) {
-		
+
 		LOG.debug("writing FileRelease storage file to '" + targetFile.getAbsolutePath() + "'");
-		
+
 		ObjectOutputStream oos = null;
-		
-		try {			
-			
-			if(targetFile.exists()) {
+
+		try {
+
+			if (targetFile.exists()) {
 				deleteFile(targetFile);
 			}
-			
+
 			oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(targetFile)));
 			oos.writeObject(map);
-		
-		} catch(IOException e) {
+
+		} catch (IOException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		} finally {
 			closeOutputStream(oos);
 		}
 	}
-	
-	
-	
+
 	@SuppressWarnings("unchecked")
 	private Map<String, FileRelease> loadFile(File targetFile) {
-		
+
 		LOG.debug("loading FileRelease storage file from '" + targetFile.getAbsolutePath() + "'");
-		
+
 		ObjectInputStream ois = null;
-		
+
 		try {
-			if(!targetFile.exists()) {
-				LOG.warn("storage file does not exist at '" + targetFile.getAbsolutePath() 
-					+ "'. Using an empty FileRelease pool");
+			if (!targetFile.exists()) {
+				LOG.warn("storage file does not exist at '" + targetFile.getAbsolutePath()
+						+ "'. Using an empty FileRelease pool");
 				return new HashMap<String, FileRelease>();
 			}
-			
+
 			ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(targetFile)));
-			return (Map<String, FileRelease>)ois.readObject();
-		} catch(IOException e) {
+			return (Map<String, FileRelease>) ois.readObject();
+		} catch (IOException e) {
 			throw new FileReleaseException(e.getMessage(), e);
-		} catch(ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		} finally {
-			closeInputSream(ois);;
+			closeInputSream(ois);
+			;
 		}
 	}
-	
-	
-	
+
 	private void deleteFile(File targetFile) {
 		boolean deleted = targetFile.delete();
-		if(!deleted) {
-			throw new FileReleaseException("unable to delete FileRelease storage file at '" 
-				+ targetFile.getAbsolutePath() + "'");
+		if (!deleted) {
+			throw new FileReleaseException(
+					"unable to delete FileRelease storage file at '" + targetFile.getAbsolutePath() + "'");
 		}
 	}
-	
-	
+
 	private void closeOutputStream(ObjectOutputStream oos) {
 		try {
-			if(oos != null) {
+			if (oos != null) {
 				oos.close();
 			}
-		} catch(IOException e) {
+		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
 	}
-	
+
 	private void closeInputSream(ObjectInputStream ois) {
 		try {
-			if(ois != null) {
+			if (ois != null) {
 				ois.close();
 			}
-		} catch(IOException e) {
+		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
 	}

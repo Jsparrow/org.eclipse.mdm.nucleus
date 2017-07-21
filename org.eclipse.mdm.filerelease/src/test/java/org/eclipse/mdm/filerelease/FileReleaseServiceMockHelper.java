@@ -43,7 +43,6 @@ public class FileReleaseServiceMockHelper {
 
 	public static final String TESTSTEP = "TestStep";
 
-
 	public static final int NUM_FILE_REL_IN = 3;
 	public static final int NUM_FILE_REL_OUT = 5;
 
@@ -51,7 +50,6 @@ public class FileReleaseServiceMockHelper {
 	public static final String ID_OUT_PREFIX = "OUT";
 
 	public static FileReleaseManager createFileReleaseManagerMock() throws Exception {
-
 
 		FileReleaseManager frManagerMock = new FileReleaseManager();
 		Field releaseMapField = frManagerMock.getClass().getDeclaredField("releaseMap");
@@ -83,21 +81,22 @@ public class FileReleaseServiceMockHelper {
 	public static EntityManager createEntityManagerMock() throws Exception {
 		EntityManager em = Mockito.mock(EntityManager.class);
 
-		Environment mockedEnv = createEntityMock(Environment.class, "MDMENV", "MDMENV", 1L);
+		Environment mockedEnv = createEntityMock(Environment.class, "MDMENV", "MDMENV", "1");
 		when(em.loadEnvironment()).thenReturn(mockedEnv);
-		
-		User mockedUser = createEntityMock(User.class, TEST_USERNAME_SELF, "MDMENV", 1L);
+
+		User mockedUser = createEntityMock(User.class, TEST_USERNAME_SELF, "MDMENV", "1");
 		when(em.loadLoggedOnUser()).thenReturn(Optional.of(mockedUser));
 
-		Test mockedTest = createEntityMock(Test.class, "Test", "MDMENV", 1L);
+		Test mockedTest = createEntityMock(Test.class, "Test", "MDMENV", "1");
 		mockedTest.setResponsiblePerson(mockedUser);
-		when(em.loadParent(Matchers.any(TestStep.class), Matchers.eq(TestStep.PARENT_TYPE_TEST))).thenReturn(Optional.of(mockedTest));
+		when(em.loadParent(Matchers.any(TestStep.class), Matchers.eq(TestStep.PARENT_TYPE_TEST)))
+				.thenReturn(Optional.of(mockedTest));
 
-		TestStep mockedTestStep1 = createEntityMock(TestStep.class, "Teststep", "MDMENV", 123L);
-		when(em.load(TestStep.class, 123L)).thenReturn(mockedTestStep1);
+		TestStep mockedTestStep1 = createEntityMock(TestStep.class, "Teststep", "MDMENV", "123");
+		when(em.load(TestStep.class, "123")).thenReturn(mockedTestStep1);
 
-		TestStep mockedTestStep2 = createEntityMock(TestStep.class, "Teststep", "MDMENV", 1234L);
-		when(em.load(TestStep.class, 1234L)).thenReturn(mockedTestStep2);
+		TestStep mockedTestStep2 = createEntityMock(TestStep.class, "Teststep", "MDMENV", "1234");
+		when(em.load(TestStep.class, "1234")).thenReturn(mockedTestStep2);
 
 		return em;
 	}
@@ -110,7 +109,7 @@ public class FileReleaseServiceMockHelper {
 			fileRelease.receiver = TEST_USERNAME_SELF;
 			fileRelease.sourceName = "MDMENV";
 			fileRelease.typeName = "TestStep";
-			fileRelease.id = i;
+			fileRelease.id = String.valueOf(i);
 			fileRelease.sender = TEST_USERNAME_OTHER;
 			fileRelease.identifier = ID_IN_PREFIX + i;
 			fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_ORDERED;
@@ -121,7 +120,7 @@ public class FileReleaseServiceMockHelper {
 			FileRelease fileRelease = new FileRelease();
 			fileRelease.sourceName = "MDMENV";
 			fileRelease.typeName = "TestStep";
-			fileRelease.id = i + NUM_FILE_REL_IN;
+			fileRelease.id = String.valueOf(i + NUM_FILE_REL_IN);
 			fileRelease.receiver = TEST_USERNAME_OTHER;
 			fileRelease.identifier = ID_OUT_PREFIX + i;
 			fileRelease.sender = TEST_USERNAME_SELF;
@@ -132,7 +131,8 @@ public class FileReleaseServiceMockHelper {
 
 	}
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id) throws Exception {
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
+			throws Exception {
 
 		HashMap<String, Value> map = new HashMap<String, Value>();
 		map.put("Name", ValueType.STRING.create("Name", name));

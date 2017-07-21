@@ -15,7 +15,7 @@ export const MockEnvNodes = {
   'data': [
     {
       'name': 'Test Environment',
-      'id': 1,
+      'id': 'id1',
       'type': 'Environment',
       'sourceType': 'Environment',
       'sourceName': 'Test Environment',
@@ -36,7 +36,7 @@ export const MockTestNodes = {
     'data': [
       {
         'name': 'Test 1',
-        'id': 10,
+        'id': 'id10',
         'type': 'Test',
         'sourceType': 'Test',
         'sourceName': 'Test Environment',
@@ -51,7 +51,7 @@ export const MockTestNodes = {
       },
       {
         'name': 'Test 2',
-        'id': 20,
+        'id': 'id20',
         'type': 'Test',
         'sourceType': 'Test',
         'sourceName': 'Test Environment',
@@ -66,7 +66,7 @@ export const MockTestNodes = {
       },
       {
         'name': 'Test 3',
-        'id': 30,
+        'id': 'id30',
         'type': 'Test',
         'sourceType': 'Test',
         'sourceName': 'Test Environment',

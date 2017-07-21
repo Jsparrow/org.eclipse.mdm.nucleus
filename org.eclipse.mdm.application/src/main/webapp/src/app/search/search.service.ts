@@ -20,6 +20,7 @@ import {MDMNotificationService} from '../core/mdm-notification.service';
 import {PropertyService} from '../core/property.service';
 import {LocalizationService} from '../localization/localization.service';
 import { Preference, PreferenceService, Scope } from '../core/preference.service';
+import {HttpErrorHandler} from '../core/http-error-handler';
 import {deserializeArray, plainToClass} from 'class-transformer';
 
 import {SearchFilter, Condition, Operator, OperatorUtil} from './filter.service';
@@ -99,13 +100,11 @@ export class SearchLayout {
 
       Object.keys(this.map)
         .forEach(env => {
-            if(this.map[env].find(c => c.type === condition.type && c.attribute === condition.attribute))
-            {
+            if (this.map[env].find(c => c.type === condition.type && c.attribute === condition.attribute)) {
               sourceName = env;
             }
           }
         );
-
       return sourceName;
     }
   }
@@ -156,19 +155,23 @@ export class SearchService {
   private cachedAttributes: Observable<any>;
 
   constructor(private http: Http,
+    private httpErrorHandler: HttpErrorHandler,
     private localService: LocalizationService,
     private _prop: PropertyService,
     private preferenceService: PreferenceService,
     private notificationService: MDMNotificationService) {
-          this.preferenceService.getPreference('ignoredAttributes')
-              .subscribe( prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs));
+      this.preferenceService.getPreference('ignoredAttributes').subscribe(
+        prefs => this.ignoreAttributesPrefs = this.ignoreAttributesPrefs.concat(prefs),
+        error => this.notificationService.notifyError('Einstellung für zu ignorirende Attribute kann nicht geladen werden.', error)
+      );
     }
 
   loadSearchAttributes(type: string, env: string) {
     return this.http.get(this._prop.getUrl('/mdm/environments/' + env + '/' + type + '/searchattributes'))
       .map(response => <SearchAttribute[]>response.json().data)
       .map(sas => sas.map(sa => { sa.source = env; return sa; }))
-      .map(sas => this.filterIgnoredAttributes(env, sas));
+      .map(sas => this.filterIgnoredAttributes(env, sas))
+      .catch(this.httpErrorHandler.handleError);
   }
 
   getDefinitionsSimple() {
@@ -211,7 +214,10 @@ export class SearchService {
 
   loadSearchAttributesForDef(type: string, environments: string[]) {
     return Observable.forkJoin(environments.map(env => this.loadSearchAttributes(type, env)
-      .catch(error => { console.log("Could not load search attributes for type " + type + " in environment " + env); return Observable.of(<SearchAttribute[]> []); })
+      .catch(error => {
+        console.log('Could not load search attributes for type ' + type + ' in environment ' + env);
+        return Observable.of(<SearchAttribute[]> []);
+      })
       .map(attrs => { return { 'env': env, 'attributes': attrs}; })))
       .map(attrsPerEnv => attrsPerEnv.reduce(
         function(acc, value) {acc[value.env] = value.attributes; return acc; },

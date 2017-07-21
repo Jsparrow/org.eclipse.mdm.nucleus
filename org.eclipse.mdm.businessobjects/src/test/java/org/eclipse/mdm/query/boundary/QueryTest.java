@@ -48,12 +48,11 @@ import com.google.common.base.Strings;
 public class QueryTest {
 
 	/*
-	 * ATTENTION:
-	 * ==========
+	 * ATTENTION: ==========
 	 *
-	 * To run this test make sure the target service is running a
-	 * MDM default model and any database constraint which enforces
-	 * a relation of Test to a parent entity is deactivated!
+	 * To run this test make sure the target service is running a MDM default
+	 * model and any database constraint which enforces a relation of Test to a
+	 * parent entity is deactivated!
 	 */
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryTest.class);
@@ -72,16 +71,16 @@ public class QueryTest {
 		String nameServicePort = System.getProperty("port");
 		String serviceName = System.getProperty("service");
 
-		if(nameServiceHost == null || nameServiceHost.isEmpty()) {
+		if (nameServiceHost == null || nameServiceHost.isEmpty()) {
 			throw new IllegalArgumentException("name service host is unknown: define system property 'host'");
 		}
 
-		nameServicePort = nameServicePort == null || nameServicePort.isEmpty() ? String.valueOf(2809) :  nameServicePort;
-		if(nameServicePort == null || nameServicePort.isEmpty()) {
+		nameServicePort = nameServicePort == null || nameServicePort.isEmpty() ? String.valueOf(2809) : nameServicePort;
+		if (nameServicePort == null || nameServicePort.isEmpty()) {
 			throw new IllegalArgumentException("name service port is unknown: define system property 'port'");
 		}
 
-		if(serviceName == null || serviceName.isEmpty()) {
+		if (serviceName == null || serviceName.isEmpty()) {
 			throw new IllegalArgumentException("service name is unknown: define system property 'service'");
 		}
 
@@ -98,7 +97,7 @@ public class QueryTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws ConnectionException {
-		if(entityManager != null) {
+		if (entityManager != null) {
 			entityManager.close();
 		}
 	}
@@ -107,33 +106,28 @@ public class QueryTest {
 	@Ignore
 	public void test() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
 		ModelManager mm = entityManager.getModelManager().get();
-		
-		 List<Result> result = mm.createQuery()
-			.select(mm.getEntityType("Test").getAttribute("Id"))
-			.select(mm.getEntityType("Test").getAttribute("Name"))
-			.select(mm.getEntityType("TestStep").getAttribute("Id"))
-			.select(mm.getEntityType("TestStep").getAttribute("Name"))
-			.fetch();
-		 
-		 List<Row> rows = new ArrayList<>();
-		 
-		 for (Result r : result)
-		 {
-			 Row row = new Row();
-			 for (Record record : r) {
-				 for (Value value : record.getValues().values()) {
-					 row.addColumn(new Column(
-							 record.getEntityType().getName(),
-							 value.getName(), 
-							 Strings.emptyToNull(Objects.toString(value.extract())), 
-							 Strings.emptyToNull(value.getUnit())));
-				 }
-			 }
-			 rows.add(row);
-		 }
-		 
-		 ObjectMapper mapper = new ObjectMapper();
-		 mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		 mapper.writeValue(System.out, rows);
+
+		List<Result> result = mm.createQuery().select(mm.getEntityType("Test").getAttribute("Id"))
+				.select(mm.getEntityType("Test").getAttribute("Name"))
+				.select(mm.getEntityType("TestStep").getAttribute("Id"))
+				.select(mm.getEntityType("TestStep").getAttribute("Name")).fetch();
+
+		List<Row> rows = new ArrayList<>();
+
+		for (Result r : result) {
+			Row row = new Row();
+			for (Record record : r) {
+				for (Value value : record.getValues().values()) {
+					row.addColumn(new Column(record.getEntityType().getName(), value.getName(),
+							Strings.emptyToNull(Objects.toString(value.extract())),
+							Strings.emptyToNull(value.getUnit())));
+				}
+			}
+			rows.add(row);
+		}
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		mapper.writeValue(System.out, rows);
 	}
 }

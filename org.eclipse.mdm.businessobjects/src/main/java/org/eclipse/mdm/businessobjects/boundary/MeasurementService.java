@@ -35,7 +35,9 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 /**
- * MeasurementService Bean implementation with available {@link Measurement} operations
+ * MeasurementService Bean implementation with available {@link Measurement}
+ * operations
+ * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
@@ -52,140 +54,154 @@ public class MeasurementService {
 	private ContextActivity contextActivity;
 	@EJB
 	private SearchActivity searchActivity;
-	
-	
-	
+
 	/**
-	 * returns the matching {@link Measurement}s using the given filter or all {@link Measurement}s 
-	 * if no filter is available
+	 * returns the matching {@link Measurement}s using the given filter or all
+	 * {@link Measurement}s if no filter is available
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param filter filter string to filter the {@link Measurement} result
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the {@link Measurement} result
 	 * @return the found {@link Measurement}s
 	 */
 	public List<Measurement> getMeasurements(String sourceName, String filter) {
-		try {			
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			
-			if(filter == null || filter.trim().length() <= 0) {
+
+			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(Measurement.class);
 			}
-			
-			if(ServiceUtils.isParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP)) {
-				long id = ServiceUtils.extactIdFromParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP);
+
+			if (ServiceUtils.isParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP)) {
+				String id = ServiceUtils.extactIdFromParentFilter(em, filter, Measurement.PARENT_TYPE_TESTSTEP);
 				return this.navigationActivity.getMeasurements(sourceName, id);
 			}
-			
+
 			return this.searchActivity.search(em, Measurement.class, filter);
-	
-		} catch(DataAccessException e) {
+
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
-		} 
+		}
 	}
-	
+
 	/**
-	 * Returns the {@link SearchAttribute} for the entity type Measurement in the given data source.
-	 * @param sourceName The name of the data source.
+	 * Returns the {@link SearchAttribute} for the entity type Measurement in
+	 * the given data source.
+	 * 
+	 * @param sourceName
+	 *            The name of the data source.
 	 * @return the found {@link SearchAttribute}s
 	 */
 	public List<SearchAttribute> getSearchAttributes(String sourceName) {
 		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 		return this.searchActivity.listAvailableAttributes(em, Measurement.class);
 	}
-	
+
 	/**
 	 * returns a {@link Measurement} identified by the given id.
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param measurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param measurementId
+	 *            id of the {@link Measurement}
 	 * @return the matching {@link Measurement}
 	 */
-	public Measurement getMeasurement(String sourceName, long measurementId) {
-		try {		
+	public Measurement getMeasurement(String sourceName, String measurementId) {
+		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 			return em.load(Measurement.class, measurementId);
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
 	}
-	
-	
-	
+
 	/**
-	 * returns the complete context data (ordered and measured) for a {@link Measurement}
+	 * returns the complete context data (ordered and measured) for a
+	 * {@link Measurement}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param measurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param measurementId
+	 *            id of the {@link Measurement}
 	 * @return a map with the complete context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContext(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId);
 	}
-	
-	
-		
+
 	/**
-	 * returns the UnitUnderTest context data (ordered and measured) for a {@link Measurement}
+	 * returns the UnitUnderTest context data (ordered and measured) for a
+	 * {@link Measurement}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param measurementIdId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param measurementIdId
+	 *            id of the {@link Measurement}
 	 * @return a map with the UnitUnderTest context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextUUT(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.UNITUNDERTEST);
 	}
-	
-	
-	
+
 	/**
-	 * returns the TestSequence context data (ordered and measured) for a {@link Measurement}
+	 * returns the TestSequence context data (ordered and measured) for a
+	 * {@link Measurement}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param measurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param measurementId
+	 *            id of the {@link Measurement}
 	 * @return a map with the TestSequence context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextTSQ(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.TESTSEQUENCE);
 	}
-	
-	
-	
+
 	/**
-	 * returns the TestEquipment context data (ordered and measured) for a {@link Measurement}
+	 * returns the TestEquipment context data (ordered and measured) for a
+	 * {@link Measurement}
 	 * 
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param measurementId id of the {@link Measurement}
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param measurementId
+	 *            id of the {@link Measurement}
 	 * @return a map with the TestEquipment context data (ordered and measured)
 	 */
-	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, long measurementId) {
+	public Map<String, Map<ContextType, ContextRoot>> getContextTEQ(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementContext(sourceName, measurementId, ContextType.TESTEQUIPMENT);
 	}
-	
-	
+
 	/**
 	 * returns all sensor context data of TestEquipment sensor configuration
-	 * @param sourceName name of the source (MDM {@link Environment} name)
-	 * @param measurementId id of the {@link Measurement}
-	 * @return a map with the TestEquipment sensor context data (ordered and measured)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param measurementId
+	 *            id of the {@link Measurement}
+	 * @return a map with the TestEquipment sensor context data (ordered and
+	 *         measured)
 	 */
-	public Map<String, List<ContextSensor>> getSensors(String sourceName, long measurementId) {
+	public Map<String, List<ContextSensor>> getSensors(String sourceName, String measurementId) {
 		return this.contextActivity.getMeasurementSensorContext(sourceName, measurementId);
 	}
-	
+
 	/**
 	 * returns localized {@link Measurement} attributes
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Measurement} attributes
 	 */
-	public Map<Attribute, String> localizeAttributes(String sourceName) {		
+	public Map<Attribute, String> localizeAttributes(String sourceName) {
 		return this.i18nActivity.localizeAttributes(sourceName, Measurement.class);
-	}	
-		
-	
-	
+	}
+
 	/**
 	 * returns the localized {@link Measurement} type name
-	 * @param sourceName name of the source (MDM {@link Environment} name)
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @return the localized {@link Measurement} type name
 	 */
 	public Map<EntityType, String> localizeType(String sourceName) {

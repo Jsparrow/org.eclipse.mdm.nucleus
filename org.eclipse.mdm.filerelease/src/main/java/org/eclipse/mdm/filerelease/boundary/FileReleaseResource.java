@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
 @Path("/filereleases")
 public class FileReleaseResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FileReleaseResource.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(FileReleaseResource.class);
+
 	@EJB
 	private FileReleaseService fileReleaseService;
 
@@ -51,7 +51,8 @@ public class FileReleaseResource {
 	 * 
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param identifier The identifier of the {@link FileRelease}
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease}
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@GET
@@ -61,48 +62,51 @@ public class FileReleaseResource {
 		try {
 			FileRelease fileRelease = this.fileReleaseService.getRelease(identifier);
 			return FileReleaseUtils.toResponse(new FileReleaseResponse(fileRelease), Status.OK);
-		} catch(RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	
-	/**
-	 * delegates the request to the {@link FileReleaseService}
-	 * 
-	 * @param state The state of the {@link FileRelease}s to return
-	 * @param direction The file release direction (incoming or outgoing)
-	 * @return @return the result of the delegated request as {@link Response}
-	 */
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getReleases(@QueryParam ("direction") String direction, @QueryParam("state") String state) {	
-		try {			
-	
-			List<FileRelease> list = null;
-			
-			if((direction != null) && direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING)) {
-				list = this.fileReleaseService.getIncommingReleases(state);	
-			} else if((direction != null) && direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING)) {
-				list = this.fileReleaseService.getOutgoingReleases(state);		
-			} else {
-				list = this.fileReleaseService.getReleases(state);
-			}
-						
-			return FileReleaseUtils.toResponse(new FileReleaseResponse(list), Status.OK);
-			
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param newFileRelease The {@link FileReleaseRequest} to create.
+	 * @param state
+	 *            The state of the {@link FileRelease}s to return
+	 * @param direction
+	 *            The file release direction (incoming or outgoing)
+	 * @return @return the result of the delegated request as {@link Response}
+	 */
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getReleases(@QueryParam("direction") String direction, @QueryParam("state") String state) {
+		try {
+
+			List<FileRelease> list = null;
+
+			if ((direction != null)
+					&& direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING)) {
+				list = this.fileReleaseService.getIncommingReleases(state);
+			} else if ((direction != null)
+					&& direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING)) {
+				list = this.fileReleaseService.getOutgoingReleases(state);
+			} else {
+				list = this.fileReleaseService.getReleases(state);
+			}
+
+			return FileReleaseUtils.toResponse(new FileReleaseResponse(list), Status.OK);
+
+		} catch (RuntimeException e) {
+			LOG.error(e.getMessage(), e);
+			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * delegates the request to the {@link FileReleaseService}
+	 * 
+	 * @param newFileRelease
+	 *            The {@link FileReleaseRequest} to create.
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@POST
@@ -111,7 +115,7 @@ public class FileReleaseResource {
 		try {
 			FileRelease fileRelease = this.fileReleaseService.create(newFileRelease);
 			return FileReleaseUtils.toResponse(new FileReleaseResponse(fileRelease), Status.OK);
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
@@ -120,8 +124,10 @@ public class FileReleaseResource {
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param identifier The identifier of the {@link FileRelease} to update.
-	 * @param The {@link FileRelease} with updated state
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to update.
+	 * @param The
+	 *            {@link FileRelease} with updated state
 	 * @return the result of the delegated request as {@link Response}
 	 */
 	@POST
@@ -129,34 +135,36 @@ public class FileReleaseResource {
 	@Path("/{IDENTIFIER}")
 	public Response update(@PathParam("IDENTIFIER") String identifier, FileRelease updatedFileRelease) {
 		try {
-						
-			if(!identifier.equals(updatedFileRelease.identifier)) {
-				throw new WebApplicationException("illegal update post request (identifier is not matching)", Status.FORBIDDEN);
+
+			if (!identifier.equals(updatedFileRelease.identifier)) {
+				throw new WebApplicationException("illegal update post request (identifier is not matching)",
+						Status.FORBIDDEN);
 			}
-			
-			if(updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
+
+			if (updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
 				FileRelease fr = this.fileReleaseService.approve(updatedFileRelease);
 				return FileReleaseUtils.toResponse(new FileReleaseResponse(fr), Status.OK);
-			} else if(updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_REJECTED)) {
+			} else if (updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_REJECTED)) {
 				FileRelease fr = this.fileReleaseService.reject(updatedFileRelease);
 				return FileReleaseUtils.toResponse(new FileReleaseResponse(fr), Status.OK);
-			} 
+			}
 			String errorMessage = "permission denied: only state updates are allowd "
 					+ "(expected stats: RELEASE_APPROVED or RELEASE_REJECTED";
 			throw new WebApplicationException(errorMessage, Status.FORBIDDEN);
-			
+
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-
 	/**
 	 * delegates the request to the {@link FileReleaseService}
 	 * 
-	 * @param identifier The identifier of the {@link FileRelease} to delete.
-	 * @return the result of the delegated request as {@link Response} (only OK if {@link FileRelease} has been deleted)
+	 * @param identifier
+	 *            The identifier of the {@link FileRelease} to delete.
+	 * @return the result of the delegated request as {@link Response} (only OK
+	 *         if {@link FileRelease} has been deleted)
 	 */
 	@DELETE
 	@Path("/{IDENTIFIER}")
@@ -164,10 +172,10 @@ public class FileReleaseResource {
 		try {
 			this.fileReleaseService.delete(identifier);
 			return Response.ok().build();
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 }

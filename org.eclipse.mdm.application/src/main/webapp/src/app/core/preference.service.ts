@@ -17,6 +17,7 @@ import { Observable } from 'rxjs/Observable';
 import { PropertyService } from './property.service';
 
 import {Type, Exclude, plainToClass, serialize, deserializeArray} from 'class-transformer';
+import { HttpErrorHandler } from './http-error-handler';
 
 export class Scope {
    public static readonly SYSTEM = 'SYSTEM';
@@ -59,6 +60,7 @@ export class PreferenceService {
   private prefEndpoint: string;
 
   constructor(private http: Http,
+              private httpErrorHandler: HttpErrorHandler,
               private _prop: PropertyService) {
     this.prefEndpoint = _prop.getUrl('/mdm/preferences');
   }
@@ -67,8 +69,10 @@ export class PreferenceService {
       if (key == null) {
           key = '';
       }
+
       return this.http.get(this.prefEndpoint + '?scope=' + scope + '&key=' + key)
-          .map(response => plainToClass(Preference, response.json().preferences));
+          .map(response => plainToClass(Preference, response.json().preferences))
+          .catch(this.httpErrorHandler.handleError);
   }
 
   getPreference(key?: string) {
@@ -76,28 +80,23 @@ export class PreferenceService {
           key = '';
       }
       return this.http.get(this.prefEndpoint + '?key=' + key)
-          .map(response => plainToClass(Preference, response.json().preferences));
+          .map(response => plainToClass(Preference, response.json().preferences))
+          .catch(this.httpErrorHandler.handleError);
   }
   savePreference(preference: Preference) {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
 
     return this.http.put(this.prefEndpoint, JSON.stringify(preference), options)
-      .catch(this.handleError);
+      .catch(this.httpErrorHandler.handleError);
   }
 
   deletePreference(id: number) {
-    return this.http.delete(this.prefEndpoint + '/' + id);
+    return this.http.delete(this.prefEndpoint + '/' + id)
+      .catch(this.httpErrorHandler.handleError);
   }
 
   deletePreferenceByScopeAndKey(scope: string, key: string) {
     return this.getPreferenceForScope(scope, key).flatMap(p => this.deletePreference(p[0].id));
-
-    // this.getPreferenceForScope(scope, key).subscribe( p => this.deletePreference(p[0].id).subscribe());
-  }
-
-  private handleError(error: Response) {
-      console.error(error);
-      return Observable.throw(error.json().error || 'Server error');
   }
 }

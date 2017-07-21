@@ -17,6 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PreferenceService, Preference, Scope } from '../core/preference.service';
 import { EditPreferenceComponent } from './edit-preference.component';
 
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 @Component( {
     selector: 'mdm-preference',
@@ -41,10 +42,14 @@ export class PreferenceComponent implements OnInit, OnDestroy {
 
   constructor( private formBuilder: FormBuilder,
                private preferenceService: PreferenceService,
-               private route: ActivatedRoute) { }
+               private route: ActivatedRoute,
+               private notificationService: MDMNotificationService) { }
 
   ngOnInit() {
-      this.sub = this.route.params.subscribe( params => this.onScopeChange(params) );
+      this.sub = this.route.params.subscribe(
+        params => this.onScopeChange(params),
+        error => this.notificationService.notifyError('Geltungsbereich kann nicht geladen werden.', error)
+      );
   }
 
   ngOnDestroy() {
@@ -80,13 +85,19 @@ export class PreferenceComponent implements OnInit, OnDestroy {
       let index = this.preferences.findIndex( p => this.preferenceEqualsWithoutId( p, preference ) );
 
       this.preferenceService.savePreference( preference )
-          .subscribe(() => index !== -1 ? this.preferences[index] = preference : this.reloadPreference( preference ));
+          .subscribe(
+            () => index !== -1 ? this.preferences[index] = preference : this.reloadPreference( preference ),
+            error => this.notificationService.notifyError('Einstellung kann nicht gespeichert werden.', error)
+          );
       this.subscription.unsubscribe();
   }
 
   reloadPreference( preference: Preference ) {
       this.preferenceService.getPreferenceForScope( preference.scope, preference.key )
-          .subscribe(p => this.preferences.push(p[0]));
+          .subscribe(
+            p => this.preferences.push(p[0]),
+            error => this.notificationService.notifyError('Einstellung kann nicht aktualisiert werden.', error)
+          );
   }
 
   preferenceEqualsWithoutId( pref1: Preference, pref2: Preference ) {

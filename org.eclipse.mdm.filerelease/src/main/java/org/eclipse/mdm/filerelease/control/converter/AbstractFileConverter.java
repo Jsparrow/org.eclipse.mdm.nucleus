@@ -64,7 +64,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		zipFolder(targetFile, folderToZip, false);
 	}
 
-	
 	/**
 	 * Creates a zip file from the given folder.
 	 * 
@@ -107,7 +106,8 @@ public abstract class AbstractFileConverter implements IFileConverter {
 	 *            The name of the attribute.
 	 * @return The attribute value.
 	 */
-	protected String locateStringAttributeValue(EntityManager em, TestStep testStep, String entityName, String attributeName) {
+	protected String locateStringAttributeValue(EntityManager em, TestStep testStep, String entityName,
+			String attributeName) {
 		try {
 			SearchService searchService = FileReleaseUtils.getSearchService(em);
 			List<EntityType> list = searchService.listEntityTypes(TestStep.class);
@@ -118,17 +118,17 @@ public abstract class AbstractFileConverter implements IFileConverter {
 			EntityType testStepET = locateEntityType(list, TestStep.class.getSimpleName());
 			Filter idFilter = Filter.idOnly(testStepET, testStep.getID());
 
-			Map<TestStep, Result> results = searchService.fetch(TestStep.class,
-					Collections.singletonList(attribute), idFilter);
+			Map<TestStep, Result> results = searchService.fetch(TestStep.class, Collections.singletonList(attribute),
+					idFilter);
 
-			if(results.size() < 0 || results.size() > 1) {
-				throw new FileReleaseException("illegal search result for attribute value from '" + entityName
-						+ "." + attributeName + "'");
+			if (results.size() < 0 || results.size() > 1) {
+				throw new FileReleaseException(
+						"illegal search result for attribute value from '" + entityName + "." + attributeName + "'");
 			}
 
 			Result result = results.values().iterator().next();
 			return result.getValue(attribute).extract();
-		} catch(DataAccessException e) {
+		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
 	}
@@ -158,50 +158,53 @@ public abstract class AbstractFileConverter implements IFileConverter {
 	 */
 	protected void deleteDirectory(File directory) {
 
-		if(!directory.exists()) {
+		if (!directory.exists()) {
 			return;
 		}
 
 		File[] files = directory.listFiles();
-		for(File file : files) {
-			if(file.isDirectory()) {
+		for (File file : files) {
+			if (file.isDirectory()) {
 				deleteDirectory(file);
 			}
-			if(!file.delete()) {
+			if (!file.delete()) {
 				LOG.warn("unable to delete file at '" + file.getAbsolutePath() + "'");
 			}
 		}
-		if(!directory.delete()) {
+		if (!directory.delete()) {
 			LOG.warn("unable to delete directory at '" + directory.getAbsolutePath() + "'");
 		}
 	}
 
 	/**
-	 * Locates the directory {@link File} for the given path 
-	 * @param inputPath The path to the directory.
+	 * Locates the directory {@link File} for the given path
+	 * 
+	 * @param inputPath
+	 *            The path to the directory.
 	 * @return The {@link File}
 	 */
 	protected File locateInputDirectory(String inputPath) {
 		File pakInputDirectory = new File(inputPath);
-		if(!pakInputDirectory.exists()) {
-			throw new FileReleaseException("input path at '" + pakInputDirectory.getAbsolutePath() + "' does not exist!");
+		if (!pakInputDirectory.exists()) {
+			throw new FileReleaseException(
+					"input path at '" + pakInputDirectory.getAbsolutePath() + "' does not exist!");
 		}
 
-		if(!pakInputDirectory.isDirectory()) {
-			throw new FileReleaseException("input path at '" + pakInputDirectory.getAbsolutePath() + "' is not a directory path!");
+		if (!pakInputDirectory.isDirectory()) {
+			throw new FileReleaseException(
+					"input path at '" + pakInputDirectory.getAbsolutePath() + "' is not a directory path!");
 		}
 
 		return pakInputDirectory;
 	}
-	
-	
-	protected String readPropertyValue(String propertyValue, boolean mandatory, String defaultValue, String propertyName) 
-		throws FileConverterException {
-		if(propertyValue == null || propertyValue.trim().length() <= 0) {
-			if(mandatory) {
+
+	protected String readPropertyValue(String propertyValue, boolean mandatory, String defaultValue,
+			String propertyName) throws FileConverterException {
+		if (propertyValue == null || propertyValue.trim().length() <= 0) {
+			if (mandatory) {
 				throw new FileConverterException("mandatory property with name '" + propertyName + "' is not defined!");
 			}
-			return defaultValue;			
+			return defaultValue;
 		}
 		return propertyValue;
 	}
@@ -224,7 +227,6 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		}
 	}
 
-	
 	private List<File> listAllFilesRecursive(File sourceFolder) {
 		List<File> files = new ArrayList<>();
 		File[] subFiles = sourceFolder.listFiles();
@@ -285,8 +287,8 @@ public abstract class AbstractFileConverter implements IFileConverter {
 	}
 
 	private EntityType locateEntityType(List<EntityType> list, String entityName) {
-		for(EntityType entityType : list) {
-			if(entityType.getName().equals(entityName)) {
+		for (EntityType entityType : list) {
+			if (entityType.getName().equals(entityName)) {
 				return entityType;
 			}
 		}
@@ -295,13 +297,13 @@ public abstract class AbstractFileConverter implements IFileConverter {
 
 	private Attribute locateAttribute(EntityType entityType, String attributeName) {
 		List<Attribute> list = entityType.getAttributes();
-		for(Attribute attribute : list) {
-			if(attribute.getName().equals(attributeName)) {
+		for (Attribute attribute : list) {
+			if (attribute.getName().equals(attributeName)) {
 				return attribute;
 			}
 		}
-		throw new FileReleaseException("attribute with name '" + attributeName + "' not exista at entity '"
-				+ entityType.getName() + "'");
+		throw new FileReleaseException(
+				"attribute with name '" + attributeName + "' not exista at entity '" + entityType.getName() + "'");
 	}
 
 }

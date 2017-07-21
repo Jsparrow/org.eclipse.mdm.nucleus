@@ -1,6 +1,5 @@
 /*******************************************************************************
-*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
-*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*  Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others                    *
 *                                                                              *
 *  All rights reserved. This program and the accompanying materials            *
 *  are made available under the terms of the Eclipse Public License v1.0       *
@@ -32,6 +31,8 @@ import { serialize, deserialize } from 'class-transformer';
 
 import {MenuItem} from 'primeng/primeng';
 import * as FileSaver from 'file-saver';
+
+import {MDMNotificationService} from '../core/mdm-notification.service';
 
 @Component({
   selector: 'mdm-basket',
@@ -90,7 +91,8 @@ export class MDMBasketComponent implements OnInit {
               private queryService: QueryService,
               private navigatorService: NavigatorService,
               private sanitizer: DomSanitizer,
-              private NodeService: NodeService) {
+              private NodeService: NodeService,
+              private notificationService: MDMNotificationService) {
   }
 
   removeSelected() {
@@ -98,11 +100,23 @@ export class MDMBasketComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.NodeService.getRootNodes().subscribe(envs => this.environments = envs);
+    this.NodeService.getRootNodes().subscribe(
+      envs => this.environments = envs,
+      error => this.notificationService.notifyError('Quellen kann nicht geladen werden.', error)
+    );
     this.setItems(this._basketService.items);
-    this._basketService.itemsAdded$.subscribe(items => this.addItems(items));
-    this._basketService.itemsRemoved$.subscribe(items => this.removeItems(items));
-    this.viewComponent.viewChanged$.subscribe(() => this.setItems(this._basketService.items));
+    this._basketService.itemsAdded$.subscribe(
+      items => this.addItems(items),
+      error => this.notificationService.notifyError('Auswahl kann nicht hinzugefügt werden.', error)
+    );
+    this._basketService.itemsRemoved$.subscribe(
+      items => this.removeItems(items),
+      error => this.notificationService.notifyError('Auswahl kann nicht entfernt werden.', error)
+    );
+    this.viewComponent.viewChanged$.subscribe(
+      () => this.setItems(this._basketService.items),
+      error => this.notificationService.notifyError('Ansicht kann nicht ausgewählt werden.', error)
+    );
   }
 
   onViewClick(e: Event) {
@@ -117,14 +131,18 @@ export class MDMBasketComponent implements OnInit {
   addItems(items: MDMItem[]) {
     if (this.viewComponent.selectedView) {
       this.queryService.queryItems(items, this.viewComponent.selectedView.columns.map(c => c.type + '.' + c.name))
-        .forEach(q => q.subscribe(r => this.addData(r.rows)));
+        .forEach(q => q.subscribe(
+          r => this.addData(r.rows),
+          error => this.notificationService.notifyError('Items können nicht zum Warenkorb hinzugefügt werden', error)
+        )
+      );
     }
   }
 
   removeItems(items: MDMItem[]) {
     items.forEach(item =>
       this.basketContent.rows = this.basketContent.rows.filter(row =>
-        !(row.source === item.source && row.type === item.type && +row.id === item.id)));
+        !(row.source === item.source && row.type === item.type && row.id === item.id)));
   }
 
   setView(view: View) {
@@ -135,7 +153,12 @@ export class MDMBasketComponent implements OnInit {
     e.stopPropagation();
     if (this.baskets.find(f => f.name === this.basketName) !== undefined) {
       this.childSaveModal.hide();
-      this.overwriteDialogComponent.showOverwriteModal('ein Warenkorb').subscribe(ovw => this.saveBasket2(ovw));
+      this.overwriteDialogComponent.showOverwriteModal('ein Warenkorb').subscribe(
+        needSave => this.saveBasket2(needSave),
+        error => {
+          this.saveBasket2(false);
+          this.notificationService.notifyError('Ein Fehler ist aufgetreten. Der Warenkorb wurde nicht gespeichert.', error);
+        });
     } else {
       this.saveBasket2(true);
     }
@@ -164,7 +187,9 @@ export class MDMBasketComponent implements OnInit {
   }
 
   loadBaskets() {
-    this._basketService.getBaskets().subscribe(baskets => this.baskets = baskets);
+    this._basketService.getBaskets().subscribe(
+      baskets => this.baskets = baskets,
+      error => this.notificationService.notifyError('Warenkorb kann nicht geladen werden.', error));
   }
 
   clearBasket(e: Event) {

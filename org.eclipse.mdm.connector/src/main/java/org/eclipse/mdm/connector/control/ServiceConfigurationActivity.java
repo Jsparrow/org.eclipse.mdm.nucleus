@@ -31,10 +31,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * ServiceConfigurationReader to read MDM Service configurations from a service.xml file
+ * ServiceConfigurationReader to read MDM Service configurations from a
+ * service.xml file
  * 
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
- * @author Canoo Engineering AG (support for arbitrary entity manager factories and connection parameters)
+ * @author Canoo Engineering AG (support for arbitrary entity manager factories
+ *         and connection parameters)
  *
  */
 @Stateless
@@ -59,31 +61,31 @@ public class ServiceConfigurationActivity {
 
 			Element root = doc.getDocumentElement();
 			if (!ROOT_ELEMENT_NAME.equals(root.getNodeName())) {
-				throw new ConnectorServiceException("unable to find root element with name '" + ROOT_ELEMENT_NAME + "'");
+				throw new ConnectorServiceException(
+						"unable to find root element with name '" + ROOT_ELEMENT_NAME + "'");
 			}
 
 			NodeList serviceElements = root.getElementsByTagName(SERVICE_ELEMENT_NAME);
 			List<ServiceConfiguration> parsedServiceElements = new ArrayList<>(serviceElements.getLength());
 			for (int i = 0, n = serviceElements.getLength(); i < n; i++) {
-				parsedServiceElements.add(parseServiceElement((Element)serviceElements.item(i)));
+				parsedServiceElements.add(parseServiceElement((Element) serviceElements.item(i)));
 			}
 
 			return parsedServiceElements;
 
-		} catch(ConnectorServiceException e) {
+		} catch (ConnectorServiceException e) {
 			throw e;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new ConnectorServiceException(e.toString(), e);
 		}
 	}
-
 
 	private static ServiceConfiguration parseServiceElement(Element serviceElement) {
 		String entityManagerFactoryClass = readElementAttribute(serviceElement, EMFACTORYCLASS_ATTRIBUTE_NAME);
 		NodeList paramElements = serviceElement.getElementsByTagName(PARAM_ELEMENT_NAME);
 		Map<String, String> connectionParameters = new LinkedHashMap<>(paramElements.getLength());
 		for (int i = 0, n = paramElements.getLength(); i < n; i++) {
-			Element paramElement = (Element)paramElements.item(i);
+			Element paramElement = (Element) paramElements.item(i);
 			String paramName = readElementAttribute(paramElement, NAME_ATTRIBUTE_NAME);
 			String paramValue = paramElement.getTextContent();
 			if (paramValue != null && !(paramValue = paramValue.trim()).isEmpty()) {
@@ -93,27 +95,27 @@ public class ServiceConfigurationActivity {
 		return new ServiceConfiguration(entityManagerFactoryClass, connectionParameters);
 	}
 
-
 	private static String readElementAttribute(Element element, String attrName) {
 		String value = element.getAttribute(attrName);
 		if (value.trim().isEmpty()) {
-			throw new ConnectorServiceException("mandatory attribute '" + attrName + "' of element '" + element.getNodeName() + "' is missing!");
+			throw new ConnectorServiceException(
+					"mandatory attribute '" + attrName + "' of element '" + element.getNodeName() + "' is missing!");
 		}
 		return value;
 	}
 
-
 	private static File getServiceFile() {
 		File file = new File(COMPONENT_CONFIG_ROOT_FOLDER);
 		if (!file.exists() || !file.isDirectory()) {
-			throw new ConnectorServiceException("mandatory configuration folder '" + file.getAbsolutePath() + "' does not exist!");
+			throw new ConnectorServiceException(
+					"mandatory configuration folder '" + file.getAbsolutePath() + "' does not exist!");
 		}
 		File serviceXML = new File(file, SERVICE_XML_FILE_NAME);
 		if (!file.exists()) {
-			throw new ConnectorServiceException("mandatory service configuration file at '" + serviceXML.getAbsolutePath() + "' does not exist!");
+			throw new ConnectorServiceException(
+					"mandatory service configuration file at '" + serviceXML.getAbsolutePath() + "' does not exist!");
 		}
 		return serviceXML;
 	}
-
 
 }

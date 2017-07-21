@@ -7,9 +7,9 @@ public class ConnectorServiceException extends RuntimeException {
 	public ConnectorServiceException(String message) {
 		super(message);
 	}
-	
+
 	public ConnectorServiceException(String message, Throwable t) {
 		super(message, t);
 	}
-	
+
 }

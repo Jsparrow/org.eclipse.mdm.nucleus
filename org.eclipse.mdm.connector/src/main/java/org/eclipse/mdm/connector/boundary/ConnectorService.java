@@ -138,8 +138,8 @@ public class ConnectorService {
 
 	/**
 	 * registers all connections for a {@link Principal} at the
-	 * {@link ConnectorService} This method is call from a {@link LoginModule} at
-	 * login phase 2.
+	 * {@link ConnectorService} This method is call from a {@link LoginModule}
+	 * at login phase 2.
 	 *
 	 * @param principal
 	 *            owner of the given connection list (EntityManager list)
@@ -185,11 +185,14 @@ public class ConnectorService {
 		try {
 
 			@SuppressWarnings("rawtypes")
-			Class<? extends EntityManagerFactory> entityManagerFactoryClass = Thread.currentThread().getContextClassLoader().loadClass(source.getEntityManagerFactoryClass()).asSubclass(EntityManagerFactory.class);
+			Class<? extends EntityManagerFactory> entityManagerFactoryClass = Thread.currentThread()
+					.getContextClassLoader().loadClass(source.getEntityManagerFactoryClass())
+					.asSubclass(EntityManagerFactory.class);
 			EntityManagerFactory<?> emf = entityManagerFactoryClass.newInstance();
 
 			Map<String, String> staticConnectionParameters = source.getConnectionParameters();
-			Map<String, String> dynamicConnectionParameters = new LinkedHashMap<>(staticConnectionParameters.size() + 3);
+			Map<String, String> dynamicConnectionParameters = new LinkedHashMap<>(
+					staticConnectionParameters.size() + 3);
 			dynamicConnectionParameters.putAll(staticConnectionParameters);
 			dynamicConnectionParameters.put(CONNECTION_PARAM_USER, user);
 			dynamicConnectionParameters.put(CONNECTION_PARAM_PASSWORD, password);
@@ -198,14 +201,16 @@ public class ConnectorService {
 			}
 
 			BaseEntityManager<? extends BaseEntityFactory> em = emf.connect(dynamicConnectionParameters);
-			// The cast below is unsafe, but cannot be avoided without changing the API of this class.
-			emList.add((EntityManager)em);
+			// The cast below is unsafe, but cannot be avoided without changing
+			// the API of this class.
+			emList.add((EntityManager) em);
 
 		} catch (ConnectionException e) {
 			LOG.warn("unable to logon user with name '" + user + "' at data source '" + source.toString()
-			+ "' (reason: " + e.getMessage() + ")");
+					+ "' (reason: " + e.getMessage() + ")");
 		} catch (Exception e) {
-			LOG.error("failed to initialize entity manager using factory '" + source.getEntityManagerFactoryClass() + "' (reason: " + e + ")", e);
+			LOG.error("failed to initialize entity manager using factory '" + source.getEntityManagerFactoryClass()
+					+ "' (reason: " + e + ")", e);
 		}
 	}
 

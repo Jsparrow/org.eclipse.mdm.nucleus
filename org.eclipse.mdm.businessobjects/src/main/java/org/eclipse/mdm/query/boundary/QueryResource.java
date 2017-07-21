@@ -38,15 +38,15 @@ public class QueryResource {
 
 	@EJB
 	private QueryService queryService;
-	
+
 	@POST
 	@Path("query")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public QueryResult query(QueryRequest request) {	
+	public QueryResult query(QueryRequest request) {
 		return new QueryResult(queryService.queryRows(request));
 	}
-	
+
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)

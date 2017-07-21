@@ -21,6 +21,7 @@ import {Node} from './node';
 import {PropertyService} from '../core/property.service';
 import {PreferenceService, Preference} from '../core/preference.service';
 import {QueryService, Query} from '../tableview/query.service';
+import {HttpErrorHandler} from '../core/http-error-handler';
 import {plainToClass} from 'class-transformer';
 
 @Injectable()
@@ -34,6 +35,7 @@ export class NodeService {
   }
 
   constructor(private http: Http,
+              private httpErrorHandler: HttpErrorHandler,
               private _prop: PropertyService,
               private queryService: QueryService,
               private preferenceService: PreferenceService) {
@@ -43,13 +45,13 @@ export class NodeService {
   searchNodes(query, env, type) {
     return this.http.get(this._nodeUrl + '/' + env + '/' + type + '?' + query)
               .map(res => plainToClass(Node, res.json().data))
-              .catch(this.handleError);
+              .catch(this.httpErrorHandler.handleError);
   }
 
   searchFT(query, env) {
     return this.http.get(this._nodeUrl + '/' + env + '/search?q=' + query)
               .map(res => plainToClass(Node, res.json().data))
-              .catch(this.handleError);
+              .catch(this.httpErrorHandler.handleError);
   }
 
   getNodes(node?: Node) {
@@ -66,13 +68,13 @@ export class NodeService {
 
     return this.http.post(this._nodeUrl, body, options)
                     .map(res => plainToClass(Node, res.json().data))
-                    .catch(this.handleError);
+                    .catch(this.httpErrorHandler.handleError);
   }
 
   deleteNode(node: Node) {
     return this.http.delete(this.getUrl(node))
       .map(res => plainToClass(Node, res.json().data))
-      .catch(this.handleError);
+      .catch(this.httpErrorHandler.handleError);
   }
 
   compareNode(node1, node2) {
@@ -86,7 +88,7 @@ export class NodeService {
   getRootNodes() {
     return this.http.get(this._nodeUrl)
       .map(res => plainToClass(Node, res.json().data))
-      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
+      .catch(this.httpErrorHandler.handleError);
   }
 
   getNodeFromItem(mdmItem: MDMItem) {
@@ -121,20 +123,17 @@ export class NodeService {
 
   getNode(url: string) {
     return this.http.get(url)
-      .map(res => plainToClass(Node, res.json().data));
+      .map(res => plainToClass(Node, res.json().data))
+      .catch(this.httpErrorHandler.handleError);
   }
 
   getNodesByUrl(url: string) {
     return this.http.get(this._nodeUrl + url)
-      .map(res => plainToClass(Node, res.json().data));
+      .map(res => plainToClass(Node, res.json().data))
+      .catch(this.httpErrorHandler.handleError);
   }
 
   private getUrl(node: Node) {
     return this._nodeUrl + '/' + node.sourceName + '/' + node.type + '/' + node.id;
-  }
-
-  private handleError(error: Response) {
-    console.error(error);
-    return Observable.throw(error.json().error || 'Server error');
   }
 }

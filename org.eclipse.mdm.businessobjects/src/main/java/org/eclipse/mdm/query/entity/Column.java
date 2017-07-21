@@ -28,7 +28,7 @@ public class Column {
 	private String attribute;
 	private String value;
 	private String unit;
-	
+
 	public Column(String type, String attribute, String value, String unit) {
 		this.type = type;
 		this.attribute = attribute;
@@ -67,35 +67,29 @@ public class Column {
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(type, attribute, value, unit);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final Column other = (Column) obj;
-		return Objects.equals(this.type, other.type)
-				&& Objects.equals(this.attribute, other.attribute)
-				&& Objects.equals(this.value, other.value)
-				&& Objects.equals(this.unit, other.unit);
+		return Objects.equals(this.type, other.type) && Objects.equals(this.attribute, other.attribute)
+				&& Objects.equals(this.value, other.value) && Objects.equals(this.unit, other.unit);
 	}
-	
+
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(Column.class)
-				.add("type", type)
-				.add("attribute", attribute)
-				.add("value", value)
-				.add("unit", unit)
-				.toString();
+		return MoreObjects.toStringHelper(Column.class).add("type", type).add("attribute", attribute)
+				.add("value", value).add("unit", unit).toString();
 	}
 }

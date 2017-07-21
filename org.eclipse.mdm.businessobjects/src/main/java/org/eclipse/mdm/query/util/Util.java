@@ -34,10 +34,11 @@ import com.google.common.base.Strings;
 public class Util {
 
 	private Util() {
-		
+
 	}
-	
-	public static List<Row> convertResultList(Collection<Result> results, Class<? extends Entity> resultEntityClass, EntityType type) {
+
+	public static List<Row> convertResultList(Collection<Result> results, Class<? extends Entity> resultEntityClass,
+			EntityType type) {
 		List<Row> rows = new ArrayList<>();
 		results.forEach(row -> rows.add(convertResult(row, resultEntityClass, type)));
 		return rows;
@@ -52,18 +53,15 @@ public class Util {
 		return row;
 	}
 
-	public static List<Column> convertRecord(Record record) {		
+	public static List<Column> convertRecord(Record record) {
 		List<Column> columns = new ArrayList<>();
 		record.getValues().values().forEach(value -> columns.add(convertColumn(record, value)));
 		return columns;
 	}
 
-	public static  Column convertColumn(Record record, Value value) {
-		return new Column(
-				ServiceUtils.workaroundForTypeMapping(record.getEntityType()),
-				value.getName(), 
-				Strings.emptyToNull(Objects.toString(value.extract())), 
-				Strings.emptyToNull(value.getUnit()));
+	public static Column convertColumn(Record record, Value value) {
+		return new Column(ServiceUtils.workaroundForTypeMapping(record.getEntityType()), value.getName(),
+				Strings.emptyToNull(Objects.toString(value.extract())), Strings.emptyToNull(value.getUnit()));
 	}
 
 }

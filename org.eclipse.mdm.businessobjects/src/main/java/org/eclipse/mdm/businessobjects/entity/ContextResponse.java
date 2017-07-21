@@ -28,27 +28,26 @@ import org.eclipse.mdm.businessobjects.control.ContextActivity;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ContextResponse {
 
-	
 	/** transferable data content */
 	private List<ContextCollection> data;
-	
-		
-	
+
 	/**
 	 * Constructor
-	 * @param contextMap map with context data (ordered and measured)
+	 * 
+	 * @param contextMap
+	 *            map with context data (ordered and measured)
 	 */
 	public ContextResponse(Map<String, Map<ContextType, ContextRoot>> contextMap) {
 		this.data = new ArrayList<>();
 		ContextCollection contextData = new ContextCollection();
-		contextData.setOrderedContext(contextMap.get(ContextActivity.CONTEXT_GROUP_ORDERED));		
-		contextData.setMeasuredContext(contextMap.get(ContextActivity.CONTEXT_GROUP_MEASURED));				
+		contextData.setOrderedContext(contextMap.get(ContextActivity.CONTEXT_GROUP_ORDERED));
+		contextData.setMeasuredContext(contextMap.get(ContextActivity.CONTEXT_GROUP_MEASURED));
 		this.data.add(contextData);
 	}
-	
-	
+
 	/**
 	 * returns the context data
+	 * 
 	 * @return the context data
 	 */
 	public List<ContextCollection> getData() {

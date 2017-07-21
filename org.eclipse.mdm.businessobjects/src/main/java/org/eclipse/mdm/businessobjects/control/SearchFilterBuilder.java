@@ -86,8 +86,7 @@ public class SearchFilterBuilder {
 		}
 		return Filter.and().merge(filterList);
 	}
-	
-	
+
 	/**
 	 * Create the next filter.
 	 * 

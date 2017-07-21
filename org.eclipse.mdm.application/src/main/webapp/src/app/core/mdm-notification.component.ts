@@ -31,10 +31,7 @@ export class MDMNotificationComponent implements OnInit, OnDestroy {
 
   subscribeToNotifications() {
     this.subscription = this.notificationsService.notificationChange
-    .subscribe(notification => {
-      this.msgs.length = 0;
-      this.msgs.push(notification);
-    });
+      .subscribe(notification => this.msgs.push(notification));
   }
 
   ngOnDestroy() {

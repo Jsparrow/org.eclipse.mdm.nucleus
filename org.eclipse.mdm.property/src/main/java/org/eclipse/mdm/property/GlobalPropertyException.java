@@ -25,19 +25,24 @@ public class GlobalPropertyException extends RuntimeException {
 
 	/**
 	 * Constructor.
-	 * @param error  error message.
+	 * 
+	 * @param error
+	 *            error message.
 	 */
 	public GlobalPropertyException(String error) {
 		super(error);
 	}
-	
+
 	/**
 	 * Constructor
-	 * @param error error message
-	 * @param e throwable
+	 * 
+	 * @param error
+	 *            error message
+	 * @param e
+	 *            throwable
 	 */
 	public GlobalPropertyException(String error, Exception e) {
 		super(error, e);
 	}
-	
+
 }

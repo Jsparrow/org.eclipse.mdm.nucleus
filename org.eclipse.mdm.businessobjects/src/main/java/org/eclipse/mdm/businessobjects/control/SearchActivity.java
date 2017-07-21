@@ -78,8 +78,8 @@ public class SearchActivity {
 
 		for (EntityType entityType : entityTypes) {
 			for (Attribute attr : entityType.getAttributes()) {
-				searchAttributes.add(
-						new SearchAttribute(ServiceUtils.workaroundForTypeMapping(entityType), attr.getName(), attr.getValueType().toString(), "*"));
+				searchAttributes.add(new SearchAttribute(ServiceUtils.workaroundForTypeMapping(entityType),
+						attr.getName(), attr.getValueType().toString(), "*"));
 			}
 		}
 
@@ -137,15 +137,14 @@ public class SearchActivity {
 		try {
 			SearchService searchService = ServiceUtils.getSearchService(em);
 			List<Entity> allEntities = new ArrayList<>();
-			
+
 			if (searchService.isTextSearchAvailable()) {
 				Map<Class<? extends Entity>, List<Entity>> fetch = searchService.fetch(query);
-				for(List<Entity> entities : fetch.values())
-				{
+				for (List<Entity> entities : fetch.values()) {
 					allEntities.addAll(entities);
 				}
 			}
-			
+
 			return allEntities;
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);

@@ -24,6 +24,7 @@ import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import {MDMNotificationService} from '../core/mdm-notification.service';
 import { QueryService } from '../tableview/query.service';
 import {MDMItem} from '../core/mdm-item';
+import {HttpErrorHandler} from '../core/http-error-handler';
 
 declare function require(path: string): any;
 const defaultNodeProvider = require('../navigator/defaultnodeprovider.json');
@@ -50,28 +51,29 @@ describe ( 'NodeproviderService', () => {
         NodeproviderService,
         MDMNotificationService,
         QueryService,
+        HttpErrorHandler,
         NodeService]
     });
   });
 
   it('getSubNodeprovider', inject([NodeproviderService], (nodeproviderService) => {
-      let item = new MDMItem('MDMNVH', 'Project', 1);
+      let item = new MDMItem('MDMNVH', 'Project', 'id1');
       let query = nodeproviderService.getSubNodeprovider(item);
 
       expect(query).toEqual('/pools?filter=Project.Id eq {Project.Id}');
   }));
 
   it('getSubNodeprovider not found', inject([NodeproviderService], (nodeproviderService) => {
-      let item = new MDMItem('MDMNVH', 'xxx', 1);
+      let item = new MDMItem('MDMNVH', 'xxx', 'id1');
       let query = nodeproviderService.getSubNodeprovider(item, defaultNodeProvider);
 
       expect(query).toEqual(undefined);
   }));
 
   it('replace', inject([NodeproviderService], (nodeproviderService) => {
-      let item = new MDMItem('MDMNVH', 'Project', 1);
+      let item = new MDMItem('MDMNVH', 'Project', 'id1');
       let query = nodeproviderService.replace('/pools?filter=Project.Id eq {Project.Id}', item);
 
-      expect(query).toEqual('/MDMNVH/pools?filter=Project.Id eq 1');
+      expect(query).toEqual('/MDMNVH/pools?filter=Project.Id eq id1');
   }));
 });

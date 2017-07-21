@@ -38,18 +38,16 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.mockito.Mockito;
 
-
-public  final class NavigationActivityMockHelper {
+public final class NavigationActivityMockHelper {
 
 	public static int ITEM_COUNT = 5;
-
 
 	public static ConnectorService createConnectorMock() throws Exception {
 
 		ConnectorService connectorBean = Mockito.mock(ConnectorService.class);
 
 		List<EntityManager> emList = new ArrayList<>();
-		for(int i=0; i<ITEM_COUNT; i++) {
+		for (int i = 1; i <= ITEM_COUNT; i++) {
 			emList.add(createEntityManagerMock("MDMENV_" + i));
 		}
 		when(connectorBean.getEntityManagers()).thenReturn(emList);
@@ -57,13 +55,11 @@ public  final class NavigationActivityMockHelper {
 		return connectorBean;
 	}
 
-
 	private static EntityManager createEntityManagerMock(String sourceName) throws Exception {
 
-		Environment env = createEntityMock(Environment.class, sourceName, sourceName, 1L);
+		Environment env = createEntityMock(Environment.class, sourceName, sourceName, "1");
 
 		EntityManager em = Mockito.mock(EntityManager.class);
-
 
 		when(em.loadEnvironment()).thenReturn(env);
 
@@ -88,54 +84,47 @@ public  final class NavigationActivityMockHelper {
 		return em;
 	}
 
-
 	private static List<Test> createTestMocks(int count, String sourceName) throws Exception {
 		List<Test> list = new ArrayList<>();
-		for(int i=0; i<count; i++) {
-			list.add(createEntityMock(Test.class, "Test_" + count,  sourceName, Long.valueOf(count)));
+		for (int i = 1; i <= count; i++) {
+			list.add(createEntityMock(Test.class, "Test_" + count, sourceName, Integer.toString(count)));
 		}
 		return list;
 	}
-
 
 	private static List<TestStep> createTestStepMocks(int count, String sourceName) throws Exception {
 		List<TestStep> list = new ArrayList<>();
-		for(int i=0; i<count; i++) {
-			list.add(createEntityMock(TestStep.class, "TestStep_" + count,  sourceName, Long.valueOf(count)));
+		for (int i = 1; i <= count; i++) {
+			list.add(createEntityMock(TestStep.class, "TestStep_" + count, sourceName, Integer.toString(count)));
 		}
 		return list;
 	}
-
 
 	private static List<Measurement> createMeasurementMocks(int count, String sourceName) throws Exception {
 		List<Measurement> list = new ArrayList<>();
-		for(int i=0; i<count; i++) {
-			list.add(createEntityMock(Measurement.class, "Measurement_" + count,  sourceName, Long.valueOf(count)));
+		for (int i = 1; i <= count; i++) {
+			list.add(createEntityMock(Measurement.class, "Measurement_" + count, sourceName, Integer.toString(count)));
 		}
 		return list;
 	}
-
 
 	private static List<ChannelGroup> createChannelGroupMocks(int count, String sourceName) throws Exception {
 		List<ChannelGroup> list = new ArrayList<>();
-		for(int i=0; i<count; i++) {
-			list.add(createEntityMock(ChannelGroup.class, "ChannelGroup_" + count, sourceName, Long.valueOf(count)));
+		for (int i = 1; i <= count; i++) {
+			list.add(createEntityMock(ChannelGroup.class, "ChannelGroup_" + count, sourceName, Integer.toString(count)));
 		}
 		return list;
 	}
-
 
 	private static List<Channel> createChannelMocks(int count, String sourceName) throws Exception {
 		List<Channel> list = new ArrayList<>();
-		for(int i=0; i<count; i++) {
-			list.add(createEntityMock(Channel.class, "Channel_" + count, sourceName, Long.valueOf(count)));
+		for (int i = 1; i <= count; i++) {
+			list.add(createEntityMock(Channel.class, "Channel_" + count, sourceName, Integer.toString(count)));
 		}
 		return list;
 	}
 
-
 	private static Optional<ModelManager> createModelManagerMock() throws Exception {
-
 
 		EntityType envET = Mockito.mock(EntityType.class);
 		when(envET.getName()).thenReturn("Environment");
@@ -166,7 +155,8 @@ public  final class NavigationActivityMockHelper {
 		return Optional.of(modelManager);
 	}
 
-	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, Long id) throws Exception {
+	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
+			throws Exception {
 
 		HashMap<String, Value> map = new HashMap<String, Value>();
 		map.put("Name", ValueType.STRING.create("Name", name));
@@ -176,7 +166,7 @@ public  final class NavigationActivityMockHelper {
 		when(core.getValues()).thenReturn(map);
 		when(core.getID()).thenReturn(id);
 
-		Constructor<T> constructor  = type.getDeclaredConstructor(Core.class);
+		Constructor<T> constructor = type.getDeclaredConstructor(Core.class);
 		constructor.setAccessible(true);
 		T instance = constructor.newInstance(core);
 		constructor.setAccessible(false);
@@ -184,4 +174,3 @@ public  final class NavigationActivityMockHelper {
 	}
 
 }
-

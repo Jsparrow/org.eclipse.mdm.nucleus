@@ -17,7 +17,7 @@ import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Context, Sensor} from './context';
 import {PropertyService} from '../core/property.service';
-
+import {HttpErrorHandler} from '../core/http-error-handler';
 import {Node} from '../navigator/node';
 
 import {Components} from './context';
@@ -31,6 +31,7 @@ export class ContextService {
   private errorMessage: string;
 
   constructor(private http: Http,
+              private httpErrorHandler: HttpErrorHandler,
               private _prop: PropertyService) {
     this._contextUrl = _prop.getUrl('/mdm/environments');
   }
@@ -45,7 +46,7 @@ export class ContextService {
     let url = this._contextUrl + '/' + node.sourceName + '/' + node.type.toLowerCase() + 's/' + node.id + '/contexts/testequipment/sensors';
     return this.http.get(url)
         .map((res) => { return <{}> this.merge(res.json().data); })
-        .catch(this.handleError);
+        .catch(this.httpErrorHandler.handleError);
   }
 
   private get(url: string) {
@@ -55,7 +56,7 @@ export class ContextService {
       let context = this.specialMerger([data[0].contextOrdered, data[0].contextMeasured]);
       return <{}> context;
     })
-    .catch(this.handleError);
+    .catch(this.httpErrorHandler.handleError);
   }
 
   private merge(sensor: Sensor) {
@@ -165,10 +166,5 @@ export class ContextService {
       }
     }
     return result;
-  }
-
-  private handleError(error: Response) {
-    console.error(error);
-    return Observable.throw(error.json().error || 'Server error');
   }
 }

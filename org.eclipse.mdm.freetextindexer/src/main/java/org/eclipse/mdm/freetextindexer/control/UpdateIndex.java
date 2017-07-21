@@ -29,7 +29,7 @@ public class UpdateIndex {
 		}
 	}
 
-	public void delete(String apiName, String name, long id) {
+	public void delete(String apiName, String name, String id) {
 		esBoundary.delete(apiName, name, id);
 	}
 }
