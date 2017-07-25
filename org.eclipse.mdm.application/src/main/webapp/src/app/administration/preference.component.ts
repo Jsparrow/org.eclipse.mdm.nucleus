@@ -38,7 +38,7 @@ export class PreferenceComponent implements OnInit, OnDestroy {
   sub: any;
 
   @ViewChild( EditPreferenceComponent )
-  private editPreferenceComponent: EditPreferenceComponent;
+  editPreferenceComponent: EditPreferenceComponent;
 
   constructor( private formBuilder: FormBuilder,
                private preferenceService: PreferenceService,

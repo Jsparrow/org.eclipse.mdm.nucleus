@@ -46,13 +46,13 @@ export class ViewComponent implements OnInit {
   public lazySelectedRow: string;
 
   @ViewChild(EditViewComponent)
-  private editViewComponent: EditViewComponent;
+  editViewComponent: EditViewComponent;
 
   @ViewChild('lgSaveModal')
   childSaveModal: ModalDirective;
 
   @ViewChild(OverwriteDialogComponent)
-  private overwriteDialogComponent: OverwriteDialogComponent;
+  overwriteDialogComponent: OverwriteDialogComponent;
 
   constructor(private viewService: ViewService,
               private notificationService: MDMNotificationService) {

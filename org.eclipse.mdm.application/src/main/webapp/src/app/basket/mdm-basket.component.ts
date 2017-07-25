@@ -85,7 +85,7 @@ export class MDMBasketComponent implements OnInit {
   @ViewChild('lgSaveModal')
   childSaveModal: ModalDirective;
   @ViewChild(OverwriteDialogComponent)
-  private overwriteDialogComponent: OverwriteDialogComponent;
+  overwriteDialogComponent: OverwriteDialogComponent;
 
   constructor(private _basketService: BasketService,
               private queryService: QueryService,

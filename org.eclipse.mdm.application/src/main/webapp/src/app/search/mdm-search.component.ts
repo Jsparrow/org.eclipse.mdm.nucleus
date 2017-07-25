@@ -121,16 +121,16 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   viewComponent: ViewComponent;
 
   @ViewChild(TableviewComponent)
-  private tableViewComponent: TableviewComponent;
+  tableViewComponent: TableviewComponent;
 
   @ViewChild('lgSaveModal')
   childSaveModal: ModalDirective;
 
   @ViewChild(EditSearchFieldsComponent)
-  private editSearchFieldsComponent: EditSearchFieldsComponent;
+  editSearchFieldsComponent: EditSearchFieldsComponent;
 
   @ViewChild(OverwriteDialogComponent)
-  private overwriteDialogComponent: OverwriteDialogComponent;
+  overwriteDialogComponent: OverwriteDialogComponent;
 
   constructor(private searchService: SearchService,
     private queryService: QueryService,
