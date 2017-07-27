@@ -57,21 +57,24 @@ dependencies {
 
 
 task collectConfiguration() {
-
-	subprojects.each {
-		subproject ->
-		copy {
-			from "${project.projectDir}/${subproject.name}/src/main/configuration/"
-			into "${project.projectDir}/build/tmp/mdmweb/configuration/${subproject.name}"
-		}	
-	}
+    doLast {
+        subprojects.each {
+          subproject ->
+          copy {
+            from "${project.projectDir}/${subproject.name}/src/main/configuration/"
+            into "${project.projectDir}/build/tmp/mdmweb/configuration/${subproject.name}"
+          }
+        }
+    }
 }
 
 task copySchema(dependsOn: ':org.eclipse.mdm.preferences:generateSchema') {
-  copy {
-    from "${project.projectDir}/org.eclipse.mdm.preferences/build/generated-schema/"
-    into "${project.projectDir}/build/tmp/mdmweb/schema/org.eclipse.mdm.preferences"
-  }
+    doLast {
+        copy {
+          from "${project.projectDir}/org.eclipse.mdm.preferences/build/generated-schema/"
+          into "${project.projectDir}/build/tmp/mdmweb/schema/org.eclipse.mdm.preferences"
+        }
+    }
 }
 
 task distribute(type: Zip) {
