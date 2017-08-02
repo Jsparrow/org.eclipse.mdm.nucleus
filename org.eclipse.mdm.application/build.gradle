@@ -89,12 +89,15 @@ node {
 		nodeModulesDir.mkdirs()
 	}
 }
+
 npm_install {
 	args = ["${project.buildDir}"]
 }
 
 task runBuild(type: NpmTask) {
     args = ['run', 'ci_build']
+    inputs.dir 'src'
+    outputs.dir 'build'
 }
 
 task copy_loginsites(type: Copy) {
