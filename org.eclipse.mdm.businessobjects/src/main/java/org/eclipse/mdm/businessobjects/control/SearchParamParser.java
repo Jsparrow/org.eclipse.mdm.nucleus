@@ -229,7 +229,7 @@ public class SearchParamParser {
 	 * @throws IllegalArgumentException
 	 *             Thrown if the value type is not supported
 	 */
-	private static Object createConditionValue(ValueType valueType, String valueAsString) {
+	private static Object createConditionValue(ValueType<?> valueType, String valueAsString) {
 		Object ret = null;
 		if (ValueType.BOOLEAN.equals(valueType)) {
 			ret = Boolean.valueOf(valueAsString);
