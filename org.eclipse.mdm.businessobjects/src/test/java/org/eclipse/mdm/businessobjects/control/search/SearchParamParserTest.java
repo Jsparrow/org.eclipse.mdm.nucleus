@@ -19,7 +19,7 @@ import org.eclipse.mdm.api.base.query.Condition;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.FilterItem;
 import org.eclipse.mdm.api.base.query.ComparisonOperator;
-import org.eclipse.mdm.api.base.query.Operator;
+import org.eclipse.mdm.api.base.query.BooleanOperator;
 import org.eclipse.mdm.businessobjects.control.SearchParamParser;
 import org.junit.Test;
 
@@ -53,7 +53,7 @@ public class SearchParamParserTest {
 					containsTestStepNameAttr = true;
 				}
 			} else {
-				if (filterItems.get(i).getOperator().equals(Operator.AND)) {
+				if (filterItems.get(i).isBooleanOperator() && filterItems.get(i).getBooleanOperator().equals(BooleanOperator.AND)) {
 					containsAndOperator = true;
 				}
 
