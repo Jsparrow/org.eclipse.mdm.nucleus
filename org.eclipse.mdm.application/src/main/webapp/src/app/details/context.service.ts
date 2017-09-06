@@ -39,7 +39,13 @@ export class ContextService {
   getContext(node: Node) {
     let url = this._contextUrl + '/' + node.sourceName;
     url = url + '/' + node.type.toLowerCase() + 's/' + node.id + '/contexts';
-    return this.get(url);
+    return this.http.get(url)
+      .map((res) => {
+        let data = res.json().data;
+        let context = this.mergeContextRoots([data[0].contextOrdered, data[0].contextMeasured]);
+        return <{}> context;
+      })
+      .catch(this.httpErrorHandler.handleError);
   }
 
   getSensors(node: Node) {
@@ -47,16 +53,6 @@ export class ContextService {
     return this.http.get(url)
         .map((res) => { return <{}> this.merge(res.json().data); })
         .catch(this.httpErrorHandler.handleError);
-  }
-
-  private get(url: string) {
-    return this.http.get(url)
-    .map((res) => {
-      let data = res.json().data;
-      let context = this.specialMerger([data[0].contextOrdered, data[0].contextMeasured]);
-      return <{}> context;
-    })
-    .catch(this.httpErrorHandler.handleError);
   }
 
   private merge(sensor: Sensor) {
@@ -108,63 +104,96 @@ export class ContextService {
     return node;
   }
 
-  private specialMerger(contexts) {
-    let result = new Object();
-    let resultattributegroup, resultattributes, resultattribute;
+  /** Merges several ContextRoots by merging their ContextComponents */
+  private mergeContextRoots(contexts) {
+    let result : { [context: string]: MergedContextComponent[] } = {};
 
     for (let i = 0; i < contexts.length; ++i) {
-      for (let testname in contexts[i]) {
-        if (contexts[i].hasOwnProperty(testname)) {
-          let test = contexts[i][testname];
-          if (!Array.isArray(test)) { continue; }
-
-          if (!result[testname]) {
-            result[testname] = new Array();
-          }
-
-          let subresult = result[testname];
-
-          for (let j = 0; j < test.length; ++j) {
-            let attributegroup = test[j];
-            if (!(attributegroup instanceof Object)) { continue; }
-
-            let index = -1;
-            subresult.forEach(function (_resultattributegroup, idx) {
-              if (_resultattributegroup['name'] === attributegroup['name']) { index = idx; return true; }
-            });
-            if (index < 0) {
-              index = subresult.length;
-              subresult.push(resultattributegroup = JSON.parse(JSON.stringify(attributegroup)));
-              resultattributegroup['attributes'] = new Array();
-            } else {
-              resultattributegroup = subresult[index];
-            }
-            resultattributes = resultattributegroup['attributes'];
-
-            let attributes = attributegroup['attributes'];
-            if (!Array.isArray(attributes)) { continue; };
-
-            for (let k = 0; k < attributes.length; ++k) {
-              let attribute = attributes[k];
-              if (!(attribute instanceof Object)) { continue; }
-
-              let index2 = -1;
-              resultattributes.forEach(function (_resultattribute, idx) {
-                if (_resultattribute['name'] === attribute['name']) { index2 = idx; return true; }
-              });
-              if (index2 < 0) {
-                index2 = resultattributes.length;
-                resultattributes.push(resultattribute = JSON.parse(JSON.stringify(attribute)));
-                resultattribute['value'] = new Array(contexts.length);
-              } else {
-                resultattribute = resultattributes[index2];
-              }
-              resultattribute['value'][i] = attribute['value'];
-            }
-          }
+      for (let contextType in contexts[i]) {
+        if (contexts[i].hasOwnProperty(contextType)) {
+          result[contextType] = this.mergeComponents(contexts[i][contextType], i, result[contextType]);
         }
       }
     }
     return result;
   }
+
+  /** Merges several ContextComponents by merging their ContextAttributes */
+  private mergeComponents(contextComponents: any, contextIndex: number, resultComponents: MergedContextComponent[]) {
+    if (!Array.isArray(contextComponents)) {
+      return resultComponents;
+    }
+
+    let result = resultComponents || [];
+
+    for (let contextComponent of contextComponents) {
+      if (!(contextComponent instanceof Object)) { continue; }
+
+      let resultComponent = result.find(cc => cc.name === contextComponent['name']);
+
+      if (!resultComponent) {
+        resultComponent = JSON.parse(JSON.stringify(contextComponent))
+        resultComponent['attributes'] = [];
+        result.push(resultComponent);
+      }
+
+      resultComponent['attributes'] = this.mergeAttributes(contextComponent['attributes'], contextIndex, resultComponent['attributes']);
+    }
+    return result;
+  }
+
+  /** Merges a array of ContextAttributes to a MergedContextAttribute
+   * and adds it to the given resultAttributes array. Merging the ContextAttributes
+   * copies the values of all properties (which should be identical), except the
+   * value property. The value property in MergedContextAttribute is an array
+   * with all values of the value property from all ContextAttributes.
+   */
+  private mergeAttributes(attributes: ContextAttribute[], contextIndex: number, resultAttributes: MergedContextAttribute[]) {
+    if (!Array.isArray(attributes)) {
+      return resultAttributes;
+    };
+
+    let result = resultAttributes || [];
+
+    for (let attribute of attributes) {
+      if (!(attribute instanceof Object)) { continue; }
+
+      let resultAttribute = result.find(a => a.name === attribute['name']);
+
+      if (!resultAttribute) {
+        resultAttribute = JSON.parse(JSON.stringify(attribute))
+        resultAttribute['value'] = [];
+        result.push(resultAttribute);
+      }
+      resultAttribute['value'][contextIndex] = attribute['value'];
+    }
+
+    return resultAttributes;
+  }
+}
+
+/** Represents a ContextAttribute */
+export class ContextAttribute {
+  name: string;
+  value: string;
+  unit: string;
+  dataType: string;
+}
+
+/** Represents multiple ContextAttributes with their value properties merged to an array */
+export class MergedContextAttribute {
+  name: string;
+  value: string[];
+  unit: string;
+  dataType: string;
+}
+
+/** Represents merged ContextComponents */
+export class MergedContextComponent {
+  name: string;
+  id: string;
+  type: string;
+  sourcType: string;
+  sourceName: string;
+  attributes: MergedContextAttribute[];
 }
