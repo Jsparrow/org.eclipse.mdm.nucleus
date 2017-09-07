@@ -8,12 +8,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy proxies/development.config.json",
-    "build": "ng build",
+    "build": "ng build --prod",
     "test": "ng test --reporters mocha --browsers PhantomJS",
     "lint": "ng lint --force --format json > coverage/tslint_out.json",
     "e2e": "ng e2e",
     "coverage": "ng test --browsers PhantomJS --singleRun --code-coverage",
-    "ci_build": "npm run coverage && npm run lint && ng build --base-href /org.eclipse.mdm.nucleus/",
+    "ci_build": "npm run coverage && npm run lint && ng build --prod --base-href /org.eclipse.mdm.nucleus/",
     "postinstall": "rimraf node_modules/ng2-dropdown-multiselect/node_modules"
   },
   "private": true,

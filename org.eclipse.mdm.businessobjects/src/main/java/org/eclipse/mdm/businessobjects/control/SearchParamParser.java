@@ -1,5 +1,5 @@
 /*******************************************************************************
-  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others
   * All rights reserved. This program and the accompanying materials
   * are made available under the terms of the Eclipse Public License v1.0
   * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.Condition;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.Operation;
+import org.eclipse.mdm.api.base.query.ComparisonOperator;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
 import com.google.common.base.Strings;
@@ -172,10 +172,10 @@ public class SearchParamParser {
 		String attributeIdentifier = tokenizer.nextToken();
 		Attribute attribute = getAttribute(possibleSearchAttrs, attributeIdentifier);
 		String operationString = tokenizer.nextToken();
-		Operation operation = stringToOperation(operationString);
+		ComparisonOperator comparisonOperator = stringToComparisonOperator(operationString);
 		condition = condition.substring(condition.indexOf(attributeIdentifier) + attributeIdentifier.length());
 		String value = condition.substring(condition.indexOf(operationString) + operationString.length());
-		return operation.create(attribute, createConditionValue(attribute.getValueType(), value.trim()));
+		return comparisonOperator.create(attribute, createConditionValue(attribute.getValueType(), value.trim()));
 	}
 
 	/**
@@ -229,7 +229,7 @@ public class SearchParamParser {
 	 * @throws IllegalArgumentException
 	 *             Thrown if the value type is not supported
 	 */
-	private static Object createConditionValue(ValueType valueType, String valueAsString) {
+	private static Object createConditionValue(ValueType<?> valueType, String valueAsString) {
 		Object ret = null;
 		if (ValueType.BOOLEAN.equals(valueType)) {
 			ret = Boolean.valueOf(valueAsString);
@@ -270,20 +270,20 @@ public class SearchParamParser {
 	 *             Thrown if there is no operation available for the given
 	 *             operation string.
 	 */
-	private static Operation stringToOperation(String operationString) {
-		Operation operation;
+	private static ComparisonOperator stringToComparisonOperator(String operationString) {
+		ComparisonOperator comparisonOperator;
 
 		if (LESS_THAN_OPERATOR.equals(operationString)) {
-			operation = Operation.CASE_INSENSITIVE_LESS_THAN;
+			comparisonOperator = ComparisonOperator.CASE_INSENSITIVE_LESS_THAN;
 		} else if (GREATER_THAN_OPERATOR.equals(operationString)) {
-			operation = Operation.CASE_INSENSITIVE_GREATER_THAN;
+			comparisonOperator = ComparisonOperator.CASE_INSENSITIVE_GREATER_THAN;
 		} else if (EQUALS_OPERATOR.equals(operationString)) {
-			operation = Operation.CASE_INSENSITIVE_EQUAL;
+			comparisonOperator = ComparisonOperator.CASE_INSENSITIVE_EQUAL;
 		} else if (LIKE_OPERATOR.equals(operationString)) {
-			operation = Operation.CASE_INSENSITIVE_LIKE;
+			comparisonOperator = ComparisonOperator.CASE_INSENSITIVE_LIKE;
 		} else {
 			throw new IllegalArgumentException("Unsupported operation: " + operationString);
 		}
-		return operation;
+		return comparisonOperator;
 	}
 }

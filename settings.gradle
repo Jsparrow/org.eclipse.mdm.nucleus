@@ -11,6 +11,10 @@
  
 rootProject.name = 'org.eclipse.mdm.nucleus'
 
+includeBuild '../org.eclipse.mdm.api.base'
+includeBuild '../org.eclipse.mdm.api.default'
+includeBuild '../org.eclipse.mdm.api.odsadapter'
+
 include 'org.eclipse.mdm.application'
 include 'org.eclipse.mdm.connector'
 include 'org.eclipse.mdm.businessobjects'

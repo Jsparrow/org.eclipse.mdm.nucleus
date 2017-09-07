@@ -26,7 +26,7 @@ export class OverwriteDialogComponent {
   overwriteEvent = new EventEmitter<boolean>();
 
   @ViewChild('lgOverwriteModal')
-  private childOverwriteModal: ModalDirective;
+  childOverwriteModal: ModalDirective;
 
   constructor () {}
 

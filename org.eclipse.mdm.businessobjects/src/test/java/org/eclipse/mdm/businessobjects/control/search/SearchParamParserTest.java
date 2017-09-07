@@ -18,8 +18,8 @@ import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.Condition;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.FilterItem;
-import org.eclipse.mdm.api.base.query.Operation;
-import org.eclipse.mdm.api.base.query.Operator;
+import org.eclipse.mdm.api.base.query.ComparisonOperator;
+import org.eclipse.mdm.api.base.query.BooleanOperator;
 import org.eclipse.mdm.businessobjects.control.SearchParamParser;
 import org.junit.Test;
 
@@ -42,18 +42,18 @@ public class SearchParamParserTest {
 				Condition cond = filterItems.get(i).getCondition();
 				Attribute attr = filterItems.get(i).getCondition().getAttribute();
 				if ("Test".equals(attr.getEntityType().getName()) && "Name".equals(attr.getName())) {
-					assertTrue("The type of the operation should be " + Operation.CASE_INSENSITIVE_LIKE,
-							cond.getOperation().name().equals(Operation.CASE_INSENSITIVE_LIKE.name()));
+					assertTrue("The type of the operation should be " + ComparisonOperator.CASE_INSENSITIVE_LIKE,
+							cond.getComparisonOperator().name().equals(ComparisonOperator.CASE_INSENSITIVE_LIKE.name()));
 					containsTestNameAttr = true;
 				}
 
 				if ("TestStep".equals(attr.getEntityType().getName()) && "Name".equals(attr.getName())) {
-					assertTrue("The type of the operation should be " + Operation.CASE_INSENSITIVE_EQUAL,
-							cond.getOperation().name().equals(Operation.CASE_INSENSITIVE_EQUAL.name()));
+					assertTrue("The type of the operation should be " + ComparisonOperator.CASE_INSENSITIVE_EQUAL,
+							cond.getComparisonOperator().name().equals(ComparisonOperator.CASE_INSENSITIVE_EQUAL.name()));
 					containsTestStepNameAttr = true;
 				}
 			} else {
-				if (filterItems.get(i).getOperator().equals(Operator.AND)) {
+				if (filterItems.get(i).isBooleanOperator() && filterItems.get(i).getBooleanOperator().equals(BooleanOperator.AND)) {
 					containsAndOperator = true;
 				}
 

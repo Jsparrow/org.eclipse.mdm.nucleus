@@ -62,6 +62,9 @@ export class MDMDescriptiveDataComponent implements OnInit {
 
   ngOnInit() {
     this.status = this.StatusLoading;
+
+    this.loadContext(this.navigatorService.getSelectedNode());
+
     this.route.params
         .subscribe(
           params => this.setContext(params['context']),
@@ -76,7 +79,6 @@ export class MDMDescriptiveDataComponent implements OnInit {
 
   setContext(context: string) {
     this.context = context;
-    this.loadContext(this.navigatorService.getSelectedNode());
   }
 
   loadContext(node: Node) {

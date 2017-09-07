@@ -16,7 +16,6 @@ apply plugin: 'com.moowork.node'
 
 System.setProperty('file.encoding', 'UTF-8')
 
-
 task map_tslint(type: Copy) {
 	File tsLintFile = file("${project.buildDir}/node/coverage/tslint_out.json")
 	File mappedTsLintFile = file("${project.buildDir}/node/coverage/tslint_out_mapped.json")
@@ -43,7 +42,6 @@ sonarqube {
 }
 
 dependencies {
-
 	runtime 'org.glassfish.jersey.containers:jersey-container-servlet:2.15'
 	runtime 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.8.1'
 
@@ -89,12 +87,15 @@ node {
 		nodeModulesDir.mkdirs()
 	}
 }
+
 npm_install {
 	args = ["${project.buildDir}"]
 }
 
 task runBuild(type: NpmTask) {
     args = ['run', 'ci_build']
+    inputs.dir 'src'
+    outputs.dir 'build'
 }
 
 task copy_loginsites(type: Copy) {
@@ -105,13 +106,21 @@ task copy_loginsites(type: Copy) {
 	into	 "${project.buildDir}/node/dist"
 }
 
-compileJava.dependsOn(copy_loginsites)
-map_tslint.dependsOn(runBuild)
-copy_loginsites.dependsOn(runBuild)
-runBuild.dependsOn(npmInstall)
-npmInstall.dependsOn(copy_websources)
-copy_websources.dependsOn(npmSetup)
-npmSetup.dependsOn(nodeSetup)
+task copyFilesForRunningWithoutNpm(type: Copy){
+	from	"${project.buildDir}/node/src/index.html"
+	into	"${project.buildDir}/node/dist"
+}
 
-
-
+if (hasProperty('skipNode')) {
+	compileJava.dependsOn(copyFilesForRunningWithoutNpm)
+	copyFilesForRunningWithoutNpm.dependsOn(copy_loginsites)
+	copy_loginsites.dependsOn(copy_websources)
+} else {
+	compileJava.dependsOn(copy_loginsites)
+	map_tslint.dependsOn(runBuild)	
+	copy_loginsites.dependsOn(runBuild)
+	runBuild.dependsOn(npmInstall)
+	npmInstall.dependsOn(copy_websources)
+	copy_websources.dependsOn(npmSetup)
+	npmSetup.dependsOn(nodeSetup)
+}

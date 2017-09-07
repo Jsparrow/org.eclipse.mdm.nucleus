@@ -15,3 +15,6 @@ out/
 *.iml
 *.iws
 /bin/
+
+# node
+**/node_modules
