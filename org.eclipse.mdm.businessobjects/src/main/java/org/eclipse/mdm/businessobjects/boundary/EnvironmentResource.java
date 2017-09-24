@@ -46,6 +46,8 @@ public class EnvironmentResource {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EnvironmentResource.class);
 
+	public static final String SOURCENAME_PARAM = "SOURCENAME";
+
 	@EJB
 	private EnvironmentService environmentService;
 
@@ -75,8 +77,8 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}")
-	public Response getEnvironment(@PathParam("SOURCENAME") String sourceName) {
+	@Path("/{" + SOURCENAME_PARAM + "}")
+	public Response getEnvironment(@PathParam(SOURCENAME_PARAM) String sourceName) {
 		try {
 			Environment environment = this.environmentService.getEnvironment(sourceName);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);
@@ -95,8 +97,8 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/localizations")
-	public Response localize(@PathParam("SOURCENAME") String sourceName, @QueryParam("all") boolean all) {
+	@Path("/{" + SOURCENAME_PARAM + "}/localizations")
+	public Response localize(@PathParam(SOURCENAME_PARAM) String sourceName, @QueryParam("all") boolean all) {
 
 		try {
 
@@ -120,8 +122,8 @@ public class EnvironmentResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/search")
-	public Response search(@PathParam("SOURCENAME") String sourceName, @QueryParam("q") String query) {
+	@Path("/{" + SOURCENAME_PARAM + "}/search")
+	public Response search(@PathParam(SOURCENAME_PARAM) String sourceName, @QueryParam("q") String query) {
 		List<Entity> searchResults = environmentService.search(sourceName, query);
 		return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, searchResults), Status.OK);
 	}
