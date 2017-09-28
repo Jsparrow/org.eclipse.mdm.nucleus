@@ -76,8 +76,15 @@ public class ValueListResource {
 	public Response getValueList(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@PathParam("ID") String id) {
 		try {
-			ValueList valueList = this.valueListService.getValueList(sourceName, id);
-			return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueList), Status.OK);
+			Optional<ValueList> valueList = this.entityService.find(ValueList.class, sourceName, id);
+
+			// return ValueList representation
+			if (valueList.isPresent()) {
+				return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueList.get()), Status.OK);
+			} else {
+				LOG.error("ValueList could not be created.");
+				return Response.serverError().status(Status.NOT_MODIFIED).build();
+			}
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -98,9 +105,15 @@ public class ValueListResource {
 	public Response getValueLists(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@QueryParam("filter") String filter) {
 		try {
-			List<ValueList> valueLists = this.valueListService.getValueLists(sourceName, filter);
-			return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueLists), Status.OK);
+			Optional<List<ValueList>> valueLists = this.entityService.findAll(ValueList.class, sourceName, filter);
 
+			// return representation of ValueLists
+			if (valueLists.isPresent()) {
+				return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueLists.get()), Status.OK);
+			} else {
+				LOG.error("ValueList could not be created.");
+				return Response.serverError().status(Status.NOT_MODIFIED).build();
+			}
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -129,9 +142,9 @@ public class ValueListResource {
 
 			// get name from object map
 			Optional<Object> valueListName = Optional.ofNullable(objectValueMap.get(NAME_PARAM));
-
+			System.out.println("HAKKK");
 			// create ValueList if name is given
-			valueList = valueListName.map(name -> entityService.create(sourceName, ValueList.class, name.toString()))
+			valueList = valueListName.map(name -> entityService.create(ValueList.class, sourceName, name.toString()))
 					.map(wrappedValueList -> wrappedValueList.get());
 
 			// return ValueList representation if created
@@ -162,7 +175,7 @@ public class ValueListResource {
 	public Response delete(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@PathParam("ID") String id) {
 		try {
-			Optional<ValueList> valueList = this.entityService.delete(sourceName, ValueList.class, id);
+			Optional<ValueList> valueList = this.entityService.delete(ValueList.class, sourceName, id);
 
 			// return ValueList representation if it was deleted
 			if (valueList.isPresent()) {

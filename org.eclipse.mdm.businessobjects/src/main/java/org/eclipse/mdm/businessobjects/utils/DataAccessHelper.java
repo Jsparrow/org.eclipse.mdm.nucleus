@@ -34,7 +34,7 @@ import io.vavr.collection.Stream;
 public class DataAccessHelper {
 
 	/**
-	 * Returns a function that executes a transactional operation within a
+	 * Returns a function that executes one transactional operation within a
 	 * transaction.
 	 * 
 	 * @return Function that executes a transactional operation on an entity within
