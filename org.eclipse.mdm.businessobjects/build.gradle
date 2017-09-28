@@ -15,6 +15,6 @@ version = '1.0.0'
 dependencies {
   compile project(':org.eclipse.mdm.connector')	
   compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
-
+  compile 'io.vavr:vavr:0.9.1'
   testCompile 'org.assertj:assertj-core:3.6.2'
 }
