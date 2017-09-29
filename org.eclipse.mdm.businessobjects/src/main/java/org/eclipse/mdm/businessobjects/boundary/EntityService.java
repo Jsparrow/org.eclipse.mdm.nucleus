@@ -1,7 +1,9 @@
 package org.eclipse.mdm.businessobjects.boundary;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -9,12 +11,16 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
+import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.EntityFactory;
 import org.eclipse.mdm.api.dflt.model.ValueList;
+import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
+import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.DataAccessHelper;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
@@ -29,7 +35,11 @@ public class EntityService {
 	@EJB
 	private SearchActivity searchActivity;
 
+	@EJB
+	private I18NActivity i18nActivity;
+
 	/**
+	 * 
 	 * Returns a {@link Entity} identified by the given id.
 	 * 
 	 * @param entityClass
@@ -61,15 +71,21 @@ public class EntityService {
 	 *            filter string to filter the {@link Entity} result
 	 * @return found {@link Entity}
 	 */
-	public <T extends Entity> Optional<List<T>> findAll(Class<T> entityClass, String sourceName, String filter) {
+	public <T extends Entity> List<T> findAll(Class<T> entityClass, String sourceName, String filter) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 
+			List<T> entities = null;
 			if (filter == null || filter.trim().length() <= 0) {
-				return Optional.ofNullable(em.loadAll(entityClass));
+				entities = em.loadAll(entityClass);
+
+			} else {
+				entities = this.searchActivity.search(em, entityClass, filter);
 			}
 
-			return Optional.ofNullable(this.searchActivity.search(em, entityClass, filter));
+			// return empty list if nothing was found just in case the backend methods would
+			// return null
+			return entities != null ? entities : new ArrayList<T>();
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -157,5 +173,52 @@ public class EntityService {
 		} catch (Throwable t) {
 			throw new MDMEntityAccessException(t.getMessage(), t);
 		}
+	}
+
+	/**
+	 * Returns the {@link SearchAttribute}s for the given entityClass
+	 * 
+	 * @param entityClass
+	 *            class of the {@link Entity} to get the {@link SearchAttribute}s
+	 *            for
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @return the {@link SearchAttribute}s
+	 */
+	public <T extends Entity> List<SearchAttribute> getSearchAttributes(Class<T> entityClass, String sourceName) {
+		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+		List<SearchAttribute> searchAttributes = null;
+
+		searchAttributes = this.searchActivity.listAvailableAttributes(em, entityClass);
+
+		// return empty list if nothing was found just in case the backend methods would
+		// return null
+		return searchAttributes != null ? searchAttributes : new ArrayList<SearchAttribute>();
+	}
+
+	/**
+	 * Returns the localized {@link Entity} type name
+	 * 
+	 * @param entityClass
+	 *            class of the {@link Entity} to be localized
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @return the localized {@link Entity} type name
+	 */
+	public <T extends Entity> Map<EntityType, String> localizeType(Class<T> entityClass, String sourceName) {
+		return this.i18nActivity.localizeType(sourceName, entityClass);
+	}
+
+	/**
+	 * Returns localized {@link Entity} attributes
+	 * 
+	 * @param entityClass
+	 *            class of the {@link Entity} to be localized
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @return the localized {@link Entity} attributes
+	 */
+	public <T extends Entity> Map<Attribute, String> localizeAttributes(Class<T> entityClass, String sourceName) {
+		return this.i18nActivity.localizeAttributes(sourceName, entityClass);
 	}
 }

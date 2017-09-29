@@ -56,9 +56,6 @@ public class ValueListResource {
 	private static final String NAME_PARAM = "name";
 
 	@EJB
-	private ValueListService valueListService;
-
-	@EJB
 	private EntityService entityService;
 
 	/**
@@ -105,15 +102,19 @@ public class ValueListResource {
 	public Response getValueLists(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@QueryParam("filter") String filter) {
 		try {
-			Optional<List<ValueList>> valueLists = this.entityService.findAll(ValueList.class, sourceName, filter);
+			List<ValueList> valueLists = this.entityService.findAll(ValueList.class, sourceName, filter);
 
 			// return representation of ValueLists
-			if (valueLists.isPresent()) {
-				return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueLists.get()), Status.OK);
-			} else {
-				LOG.error("ValueList could not be created.");
-				return Response.serverError().status(Status.NOT_MODIFIED).build();
-			}
+			return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueLists), Status.OK);
+			// TODO do error logging
+			// // return representation of ValueLists
+			// if (valueLists.isPresent()) {
+			// return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class,
+			// valueLists.get()), Status.OK);
+			// } else {
+			// LOG.error("ValueList could not be created.");
+			// return Response.serverError().status(Status.NOT_MODIFIED).build();
+			// }
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -142,7 +143,6 @@ public class ValueListResource {
 
 			// get name from object map
 			Optional<Object> valueListName = Optional.ofNullable(objectValueMap.get(NAME_PARAM));
-			System.out.println("HAKKK");
 			// create ValueList if name is given
 			valueList = valueListName.map(name -> entityService.create(ValueList.class, sourceName, name.toString()))
 					.map(wrappedValueList -> wrappedValueList.get());
@@ -202,7 +202,8 @@ public class ValueListResource {
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName) {
 		try {
-			List<SearchAttribute> searchAttributes = this.valueListService.getSearchAttributes(sourceName);
+			List<SearchAttribute> searchAttributes = this.entityService.getSearchAttributes(ValueList.class,
+					sourceName);
 			return ServiceUtils.toResponse(new SearchAttributeResponse(searchAttributes), Status.OK);
 		} catch (RuntimeException e) {
 			LOG.error(e.getMessage(), e);
@@ -223,8 +224,10 @@ public class ValueListResource {
 	public Response localize(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName) {
 
 		try {
-			Map<Attribute, String> localizedAttributeMap = this.valueListService.localizeAttributes(sourceName);
-			Map<EntityType, String> localizedEntityTypeMap = this.valueListService.localizeType(sourceName);
+			Map<Attribute, String> localizedAttributeMap = this.entityService.localizeAttributes(ValueList.class,
+					sourceName);
+			Map<EntityType, String> localizedEntityTypeMap = this.entityService.localizeType(ValueList.class,
+					sourceName);
 			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
 
 		} catch (RuntimeException e) {
