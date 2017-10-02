@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -29,22 +27,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.query.Attribute;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.model.ValueList;
-import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
-import org.eclipse.mdm.businessobjects.entity.SearchAttributeResponse;
+import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.vavr.control.Try;
+
 /**
- * {@link ValueList} resource
+ * {@link ValueList} resource handling REST requests
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
@@ -52,187 +47,138 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Path("/environments/{" + EnvironmentResource.SOURCENAME_PARAM + "}/valuelists")
 public class ValueListResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ValueListResource.class);
 	private static final String NAME_PARAM = "name";
 
 	@EJB
 	private EntityService entityService;
 
 	/**
-	 * Delegates the getValueList-request to the {@link ValueListService}
+	 * Delegates the getValueList-request to the {@link ValueListService} and return
+	 * the found {@link ValueList}.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param valueListId
 	 *            id of the {@link ValueList}
-	 * @return the result of the delegated request as {@link Response}
+	 * @return the {@link ValueList} as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{ID}")
 	public Response getValueList(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@PathParam("ID") String id) {
-		try {
-			Optional<ValueList> valueList = this.entityService.find(ValueList.class, sourceName, id);
+		return Try
+				.of(() -> this.entityService.find(ValueList.class, sourceName, id))
+				// TODO handle failure and respond to client appropriately. How can we deliver
+				// error messages from down the callstack? Use Exceptions or some Vavr magic?
+				.map(e -> new MDMEntityResponse(ValueList.class, e.get()))
+				.map(r -> ServiceUtils.toResponse(r, Status.OK))
+				.onFailure(ResourceHelper.rethrowException)
+				// TODO send reponse or error regarding error expressiveness
+				.get();
 
-			// return ValueList representation
-			if (valueList.isPresent()) {
-				return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueList.get()), Status.OK);
-			} else {
-				LOG.error("ValueList could not be created.");
-				return Response.serverError().status(Status.NOT_MODIFIED).build();
-			}
-		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
 	}
 
 	/**
-	 * Delegates the getValueLists-request to the {@link ValueListService}
+	 * Returns the (filtered) {@link ValueList}s. Throws a
+	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param filter
 	 *            filter string to filter the {@link ValueList} result
-	 * @return the result of the delegated request as {@link Response}
+	 * @return the (filtered) {@link ValueList}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getValueLists(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@QueryParam("filter") String filter) {
-		try {
-			List<ValueList> valueLists = this.entityService.findAll(ValueList.class, sourceName, filter);
-
-			// return representation of ValueLists
-			return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueLists), Status.OK);
-			// TODO do error logging
-			// // return representation of ValueLists
-			// if (valueLists.isPresent()) {
-			// return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class,
-			// valueLists.get()), Status.OK);
-			// } else {
-			// LOG.error("ValueList could not be created.");
-			// return Response.serverError().status(Status.NOT_MODIFIED).build();
-			// }
-		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
+		return Try
+				.of(() -> this.entityService.findAll(ValueList.class, sourceName, filter))
+				// TODO what if e is not found? Test!
+				.map(e -> new MDMEntityResponse(ValueList.class, e))
+				.map(r -> ServiceUtils.toResponse(r, Status.OK))
+				.onFailure(ResourceHelper.rethrowException)
+				.get();
 	}
 
 	/**
-	 * Delegates the create-request to the {@link ValueListService}
+	 * Delegates the create-request to the {@link EntityService} and returns the
+	 * created {@link ValueList}. Throws a {@link WebApplicationException} on error.
 	 * 
 	 * @param newValueList
 	 *            The {@link ValueList} to create.
-	 * @return the result of the delegated request as {@link Response}
+	 * @return The created {@link ValueList} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName, String body) {
-		try {
-			Optional<ValueList> valueList = Optional.empty();
-
-			// TODO move deser code to EntityService
-			// deserialize JSON into object map
-			ObjectMapper mapper = new ObjectMapper();
-			Map<String, Object> objectValueMap = mapper.readValue(body, new TypeReference<Map<String, Object>>() {
-			});
-
-			// get name from object map
-			Optional<Object> valueListName = Optional.ofNullable(objectValueMap.get(NAME_PARAM));
-			// create ValueList if name is given
-			valueList = valueListName.map(name -> entityService.create(ValueList.class, sourceName, name.toString()))
-					.map(wrappedValueList -> wrappedValueList.get());
-
-			// return ValueList representation if created
-			if (valueList.isPresent()) {
-				return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueList.get()), Status.OK);
-			} else {
-				LOG.error("ValueList could not be created.");
-				return Response.serverError().status(Status.NOT_MODIFIED).build();
-			}
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
-			System.out.println();
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
+		// deserialize JSON into object map
+		return Try
+				.<Map<String, Object>>of(
+						() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
+							// TODO correct to use onFailure instead of getOrThrow
+						}))
+				// TODO do we really need this or is the failure handled later nevertheless
+				.onFailure(ResourceHelper.rethrowException)
+				.toOption()
+				.map(mapping -> mapping.get(NAME_PARAM))
+				// TODO handle non existing value
+				.toTry()
+				.map(name -> entityService.create(ValueList.class, sourceName, name.toString()).get())
+				.onFailure(ResourceHelper.rethrowException)
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, entity), Status.OK))
+				.get();
 	}
 
 	/**
-	 * Delegates the delete-request to the {@link ValueListService}
+	 * Returns the deleted {@link ValueList}. Throws a
+	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param identifier
 	 *            The identifier of the {@link ValueList} to delete.
-	 * @return the result of the delegated request as {@link Response} (only OK if
-	 *         {@link ValueList} has been deleted)
+	 * @return The deleted {@link ValueList }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{ID}")
 	public Response delete(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@PathParam("ID") String id) {
-		try {
-			Optional<ValueList> valueList = this.entityService.delete(ValueList.class, sourceName, id);
-
-			// return ValueList representation if it was deleted
-			if (valueList.isPresent()) {
-				return ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, valueList.get()), Status.OK);
-			} else {
-				LOG.error("ValueList could not be deleted.");
-				return Response.serverError().status(Status.NOT_MODIFIED).build();
-			}
-		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
+		return Try
+				.of(() -> this.entityService.delete(ValueList.class, sourceName, id).get())
+				.onFailure(ResourceHelper.rethrowException)
+				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, result), Status.OK))
+				.get();
 	}
 
 	/**
-	 * Delegates the request to the {@link ValueListService}
+	 * Returns the search attributes for the {@link ValueList} type. Throws a
+	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return the result of the delegated request as {@link Response}
+	 * @return The {@link SearchAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName) {
-		try {
-			List<SearchAttribute> searchAttributes = this.entityService.getSearchAttributes(ValueList.class,
-					sourceName);
-			return ServiceUtils.toResponse(new SearchAttributeResponse(searchAttributes), Status.OK);
-		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
+		return ResourceHelper.createSearchAttributesResponse(entityService, ValueList.class, sourceName);
 	}
 
 	/**
-	 * Delegates the localize-request to the {@link ValueListService}
+	 * Returns a map of localization for the entity type and the attributes. Throws
+	 * a {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return the result of the delegated request as {@link Response}
+	 * @return The I18N as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName) {
-
-		try {
-			Map<Attribute, String> localizedAttributeMap = this.entityService.localizeAttributes(ValueList.class,
-					sourceName);
-			Map<EntityType, String> localizedEntityTypeMap = this.entityService.localizeType(ValueList.class,
-					sourceName);
-			return ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap, localizedAttributeMap), Status.OK);
-
-		} catch (RuntimeException e) {
-			LOG.error(e.getMessage(), e);
-			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
-		}
+		return ResourceHelper.createLocalizationResponse(entityService, ValueList.class, sourceName);
 	}
 }
