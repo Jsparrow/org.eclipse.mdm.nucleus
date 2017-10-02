@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2017 science + computing AG Tuebingen (ATOS SE)
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Alexander Nehmer - initial implementation
+ *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
 import java.util.ArrayList;
@@ -5,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -25,7 +36,15 @@ import org.eclipse.mdm.businessobjects.utils.DataAccessHelper;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 import io.vavr.collection.Stream;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 
+/**
+ * Class providing basic data access methods to Entities.
+ * 
+ * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
+ *
+ */
 @Stateless
 public class EntityService {
 
@@ -37,6 +56,10 @@ public class EntityService {
 
 	@EJB
 	private I18NActivity i18nActivity;
+
+	private static Consumer<? super Throwable> throwException = e -> {
+		throw new MDMEntityAccessException(e.getMessage(), e);
+	};
 
 	/**
 	 * 
@@ -50,13 +73,15 @@ public class EntityService {
 	 *            id of the {@link Entity} to find
 	 * @return found {@link Entity}
 	 */
-	public <T extends Entity> Optional<T> find(Class<T> entityClass, String sourceName, String id) {
-		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return Optional.ofNullable(em.load(entityClass, id));
-		} catch (DataAccessException e) {
-			throw new MDMEntityAccessException(e.getMessage(), e);
-		}
+	public <T extends Entity> Option<T> find(Class<T> entityClass, String sourceName, String id) {
+		// TODO error handling: how to inform caller about what happened? Try?
+		// TODO handle "Connector Service not found", "Source not found"
+		return Try
+				.of(() -> this.connectorService.getEntityManagerByName(sourceName))
+				// TODO handle "Entity not found"
+				.mapTry(em -> em.load(entityClass, id))
+				.onFailure(throwException)
+				.toOption();
 	}
 
 	/**
@@ -106,39 +131,37 @@ public class EntityService {
 	 * @return created {@link Entity}
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends Entity> Optional<T> create(Class<T> entityClass, String sourceName, Object... createMethodArgs) {
+	public <T extends Entity> Option<T> create(Class<T> entityClass, String sourceName, Object... createMethodArgs) {
 		EntityManager em = connectorService.getEntityManagerByName(sourceName);
-		Optional<T> entity;
+		Option<T> entity;
 
 		// gather classes of method args
-		List<Class<? extends Object>> argClasses = Stream.of(createMethodArgs).map(o -> o.getClass())
-				.collect(Collectors.toList());
+		List<Class<? extends Object>> argClasses = Stream.of(createMethodArgs).map(o -> o.getClass()).collect(
+				Collectors.toList());
 
 		// get corresponding create method for Entity from EntityFactory
-		entity = em.getEntityFactory().map(factory -> {
+		entity = Option.ofOptional(em.getEntityFactory()).map(factory -> {
 			try {
-				return (T) Stream.of(EntityFactory.class.getMethods())
+				return (T) Stream
+						.of(EntityFactory.class.getMethods())
 						// find method with the return type matching entityClass
 						.filter(m -> m.getReturnType().equals(entityClass))
-						.filter(m -> Arrays.asList(m.getParameterTypes()).equals(argClasses)).getOrElseThrow(() -> {
-							throw new MDMEntityAccessException(
-									"No matching create()-method found for EntityType " + entityClass.getSimpleName()
-											+ " taking the parameters " + Stream.of(createMethodArgs)
-													.map(o -> o.getClass().getName()).collect(Collectors.toList()));
-						}).invoke(factory, createMethodArgs);
+						.filter(m -> Arrays.asList(m.getParameterTypes()).equals(argClasses))
+						.getOrElseThrow(() -> {
+							throw new MDMEntityAccessException("No matching create()-method found for EntityType "
+									+ entityClass.getSimpleName() + " taking the parameters "
+									+ Stream.of(createMethodArgs).map(o -> o.getClass().getName()).collect(
+											Collectors.toList()));
+						})
+						.invoke(factory, createMethodArgs);
 			} catch (Exception e) {
 				throw new MDMEntityAccessException(e.getMessage(), e);
 			}
 		});
 
-		entity.ifPresent(e -> {
-			try {
-				// start transaction to create the entity
-				DataAccessHelper.execute().apply(em, e, DataAccessHelper.create());
-			} catch (Throwable t) {
-				throw new MDMEntityAccessException(t.getMessage(), t);
-			}
-		});
+		// start transaction to create the entity
+		entity.toTry().mapTry(e -> DataAccessHelper.execute().apply(em, e, DataAccessHelper.create())).onFailure(
+				throwException);
 
 		return entity;
 	}
