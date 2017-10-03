@@ -76,8 +76,7 @@ public class EntityService {
 	public <T extends Entity> Option<T> find(Class<T> entityClass, String sourceName, String id) {
 		// TODO error handling: how to inform caller about what happened? Try?
 		// TODO handle "Connector Service not found", "Source not found"
-		return Try
-				.of(() -> this.connectorService.getEntityManagerByName(sourceName))
+		return Try.of(() -> this.connectorService.getEntityManagerByName(sourceName))
 				// TODO handle "Entity not found"
 				.mapTry(em -> em.load(entityClass, id))
 				.onFailure(throwException)
@@ -101,7 +100,8 @@ public class EntityService {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 
 			List<T> entities = null;
-			if (filter == null || filter.trim().length() <= 0) {
+			if (filter == null || filter.trim()
+					.length() <= 0) {
 				entities = em.loadAll(entityClass);
 
 			} else {
@@ -136,32 +136,40 @@ public class EntityService {
 		Option<T> entity;
 
 		// gather classes of method args
-		List<Class<? extends Object>> argClasses = Stream.of(createMethodArgs).map(o -> o.getClass()).collect(
-				Collectors.toList());
+		List<Class<? extends Object>> argClasses = Stream.of(createMethodArgs)
+				.map(o -> o.getClass())
+				.collect(Collectors.toList());
 
 		// get corresponding create method for Entity from EntityFactory
-		entity = Option.ofOptional(em.getEntityFactory()).map(factory -> {
-			try {
-				return (T) Stream
-						.of(EntityFactory.class.getMethods())
-						// find method with the return type matching entityClass
-						.filter(m -> m.getReturnType().equals(entityClass))
-						.filter(m -> Arrays.asList(m.getParameterTypes()).equals(argClasses))
-						.getOrElseThrow(() -> {
-							throw new MDMEntityAccessException("No matching create()-method found for EntityType "
-									+ entityClass.getSimpleName() + " taking the parameters "
-									+ Stream.of(createMethodArgs).map(o -> o.getClass().getName()).collect(
-											Collectors.toList()));
-						})
-						.invoke(factory, createMethodArgs);
-			} catch (Exception e) {
-				throw new MDMEntityAccessException(e.getMessage(), e);
-			}
-		});
+		entity = Option.ofOptional(em.getEntityFactory())
+				.map(factory -> {
+					try {
+						return (T) Stream.of(EntityFactory.class.getMethods())
+								// find method with the return type matching entityClass
+								.filter(m -> m.getReturnType()
+										.equals(entityClass))
+								.filter(m -> Arrays.asList(m.getParameterTypes())
+										.equals(argClasses))
+								.getOrElseThrow(() -> {
+									throw new MDMEntityAccessException(
+											"No matching create()-method found for EntityType "
+													+ entityClass.getSimpleName() + " taking the parameters "
+													+ Stream.of(createMethodArgs)
+															.map(o -> o.getClass()
+																	.getName())
+															.collect(Collectors.toList()));
+								})
+								.invoke(factory, createMethodArgs);
+					} catch (Exception e) {
+						throw new MDMEntityAccessException(e.getMessage(), e);
+					}
+				});
 
 		// start transaction to create the entity
-		entity.toTry().mapTry(e -> DataAccessHelper.execute().apply(em, e, DataAccessHelper.create())).onFailure(
-				throwException);
+		entity.toTry()
+				.mapTry(e -> DataAccessHelper.execute()
+						.apply(em, e, DataAccessHelper.create()))
+				.onFailure(throwException);
 
 		return entity;
 	}
@@ -189,7 +197,8 @@ public class EntityService {
 					// start transaction to delete the entity
 					// TODO change construct that Throwable has not to be catched here (Sonar
 					// issues)
-					DataAccessHelper.execute().apply(entityManager, entity.get(), DataAccessHelper.delete());
+					DataAccessHelper.execute()
+							.apply(entityManager, entity.get(), DataAccessHelper.delete());
 				} catch (Throwable t) {
 					throw new MDMEntityAccessException(t.getMessage(), t);
 				}

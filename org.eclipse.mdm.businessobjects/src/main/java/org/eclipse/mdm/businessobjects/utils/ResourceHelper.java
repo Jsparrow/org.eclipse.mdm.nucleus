@@ -50,6 +50,12 @@ public class ResourceHelper {
 	public static final String ENTITYATTRIBUTE_NAME = "name";
 
 	/**
+	 * Just hide the default constructor
+	 */
+	private ResourceHelper() {
+	}
+
+	/**
 	 * Creates a response holding the localized type and attributes of the given.
 	 * entityClass
 	 * 
@@ -73,7 +79,8 @@ public class ResourceHelper {
 				.of(() -> ServiceUtils.toResponse(
 						new I18NResponse(localizedEntityTypeMap.get(), localizedAttributeMap.get()), Status.OK))
 				// TODO enough to deal with potentially failed Tries at top?
-				.getOrElse(Response.status(Status.INTERNAL_SERVER_ERROR).build());
+				.getOrElse(Response.status(Status.INTERNAL_SERVER_ERROR)
+						.build());
 	}
 
 	/**
@@ -85,11 +92,11 @@ public class ResourceHelper {
 	 */
 	public static <T extends Entity> Response createSearchAttributesResponse(EntityService entityService,
 			Class<T> entityClass, String sourceName) {
-		return Try
-				.of(() -> entityService.getSearchAttributes(entityClass, sourceName))
+		return Try.of(() -> entityService.getSearchAttributes(entityClass, sourceName))
 				.map(searchAttributes -> ServiceUtils.toResponse(new SearchAttributeResponse(searchAttributes),
 						Status.OK))
-				.getOrElse(Response.status(Status.INTERNAL_SERVER_ERROR).build());
+				.getOrElse(Response.status(Status.INTERNAL_SERVER_ERROR)
+						.build());
 	}
 
 	/**
