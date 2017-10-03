@@ -35,7 +35,7 @@ import io.vavr.control.Try;
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
-public class ResourceHelper {
+public final class ResourceHelper {
 	// TODO use logger from caller to preserve the error context
 	private static final Logger LOG = LoggerFactory.getLogger(ResourceHelper.class);
 
