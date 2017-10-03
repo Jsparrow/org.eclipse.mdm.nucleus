@@ -46,6 +46,9 @@ public class EnvironmentResource {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EnvironmentResource.class);
 
+	/**
+	 * Parameter name holding the {@link Environment}, i.e. the source name
+	 */
 	public static final String SOURCENAME_PARAM = "SOURCENAME";
 
 	@EJB

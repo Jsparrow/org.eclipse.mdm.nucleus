@@ -34,6 +34,12 @@ import io.vavr.collection.Stream;
 public class DataAccessHelper {
 
 	/**
+	 * Just hide the default constructor
+	 */
+	private DataAccessHelper() {
+	}
+
+	/**
 	 * Returns a function that executes one transactional operation within a
 	 * transaction.
 	 * 

@@ -36,7 +36,18 @@ import io.vavr.control.Try;
  *
  */
 public class ResourceHelper {
+	// TODO use logger from caller to preserve the error context
 	private static final Logger LOG = LoggerFactory.getLogger(ResourceHelper.class);
+
+	/**
+	 * Parameter holding the {@link Entity}s id in the URI path
+	 */
+	public static final String REQUESTPARAM_ID = "ID";
+
+	/**
+	 * Parameter holding the name of the {@link Entity} in the request body
+	 */
+	public static final String ENTITYATTRIBUTE_NAME = "name";
 
 	/**
 	 * Creates a response holding the localized type and attributes of the given.

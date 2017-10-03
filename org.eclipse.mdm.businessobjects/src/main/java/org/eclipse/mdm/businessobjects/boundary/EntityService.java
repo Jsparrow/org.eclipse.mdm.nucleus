@@ -183,9 +183,12 @@ public class EntityService {
 
 			Optional<T> entity = Optional.ofNullable(entityObject);
 
+			// TODO do it the functional way
 			entity.ifPresent(e -> {
 				try {
 					// start transaction to delete the entity
+					// TODO change construct that Throwable has not to be catched here (Sonar
+					// issues)
 					DataAccessHelper.execute().apply(entityManager, entity.get(), DataAccessHelper.delete());
 				} catch (Throwable t) {
 					throw new MDMEntityAccessException(t.getMessage(), t);

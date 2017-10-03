@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
+import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.ENTITYATTRIBUTE_NAME;
+import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_ID;
+
 import java.util.Map;
 
 import javax.ejb.EJB;
@@ -28,6 +31,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.ValueList;
+import org.eclipse.mdm.api.dflt.model.ValueListValue;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
@@ -47,28 +51,25 @@ import io.vavr.control.Try;
 @Path("/environments/{" + EnvironmentResource.SOURCENAME_PARAM + "}/valuelists")
 public class ValueListResource {
 
-	private static final String NAME_PARAM = "name";
-
 	@EJB
 	private EntityService entityService;
 
 	/**
-	 * Delegates the getValueList-request to the {@link ValueListService} and return
-	 * the found {@link ValueList}.
+	 * Returns the found {@link ValueList}. Throws a {@link WebApplicationException}
+	 * on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @param valueListId
+	 * @param id
 	 *            id of the {@link ValueList}
-	 * @return the {@link ValueList} as {@link Response}
+	 * @return the found {@link ValueList} as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{ID}")
-	public Response getValueList(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
-			@PathParam("ID") String id) {
-		return Try
-				.of(() -> this.entityService.find(ValueList.class, sourceName, id))
+	@Path("/{" + REQUESTPARAM_ID + "}")
+	public Response find(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
+			@PathParam(REQUESTPARAM_ID) String id) {
+		return Try.of(() -> this.entityService.find(ValueList.class, sourceName, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(ValueList.class, e.get()))
@@ -91,10 +92,9 @@ public class ValueListResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getValueLists(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
+	public Response findAll(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try
-				.of(() -> this.entityService.findAll(ValueList.class, sourceName, filter))
+		return Try.of(() -> this.entityService.findAll(ValueList.class, sourceName, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(ValueList.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -103,8 +103,8 @@ public class ValueListResource {
 	}
 
 	/**
-	 * Delegates the create-request to the {@link EntityService} and returns the
-	 * created {@link ValueList}. Throws a {@link WebApplicationException} on error.
+	 * Returns the created {@link ValueListValue}. Throws a
+	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param newValueList
 	 *            The {@link ValueList} to create.
@@ -115,18 +115,18 @@ public class ValueListResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName, String body) {
 		// deserialize JSON into object map
-		return Try
-				.<Map<String, Object>>of(
-						() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
-							// TODO correct to use onFailure instead of getOrThrow
-						}))
+		return Try.<Map<String, Object>>of(
+				() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
+					// TODO correct to use onFailure instead of getOrThrow
+				}))
 				// TODO do we really need this or is the failure handled later nevertheless
 				.onFailure(ResourceHelper.rethrowException)
 				.toOption()
-				.map(mapping -> mapping.get(NAME_PARAM))
+				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
 				// TODO handle non existing value
 				.toTry()
-				.map(name -> entityService.create(ValueList.class, sourceName, name.toString()).get())
+				.map(name -> entityService.create(ValueList.class, sourceName, name.toString())
+						.get())
 				.onFailure(ResourceHelper.rethrowException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, entity), Status.OK))
 				.get();
@@ -142,11 +142,11 @@ public class ValueListResource {
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{ID}")
+	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
-			@PathParam("ID") String id) {
-		return Try
-				.of(() -> this.entityService.delete(ValueList.class, sourceName, id).get())
+			@PathParam(REQUESTPARAM_ID) String id) {
+		return Try.of(() -> this.entityService.delete(ValueList.class, sourceName, id)
+				.get())
 				.onFailure(ResourceHelper.rethrowException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, result), Status.OK))
 				.get();
