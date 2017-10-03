@@ -31,7 +31,7 @@ import io.vavr.collection.Stream;
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
-public class DataAccessHelper {
+public final class DataAccessHelper {
 
 	/**
 	 * Just hide the default constructor
