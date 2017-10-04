@@ -71,8 +71,7 @@ public class ValueListValueResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try
-				.of(() -> this.entityService.find(ValueListValue.class, sourceName, id))
+		return Try.of(() -> this.entityService.find(ValueListValue.class, sourceName, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(ValueListValue.class, e.get()))
@@ -97,8 +96,7 @@ public class ValueListValueResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try
-				.of(() -> this.entityService.findAll(ValueListValue.class, sourceName, filter))
+		return Try.of(() -> this.entityService.findAll(ValueListValue.class, sourceName, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(ValueListValue.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -120,11 +118,10 @@ public class ValueListValueResource {
 	public Response create(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, String body) {
 		// deserialize JSON into object map
-		return Try
-				.<Map<String, Object>>of(
-						() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
-							// TODO correct to use onFailure instead of getOrThrow
-						}))
+		return Try.<Map<String, Object>>of(
+				() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
+					// TODO correct to use onFailure instead of getOrThrow
+				}))
 				// TODO do we really need this or is the failure handleed later nevertheless
 				.onFailure(ResourceHelper.rethrowException)
 				.toOption()
@@ -139,7 +136,8 @@ public class ValueListValueResource {
 							return paramTuple.update2(value);
 						}))
 				// why need unpacking the option? There must be a more elegant solution
-				.map(t -> t.get())
+				.get()
+				.toTry()
 				.map((Tuple2<String, Object> paramTuple) -> {
 					return entityService.<ValueListValue>create(ValueListValue.class, sourceName, paramTuple._1(),
 							(ValueList) paramTuple._2());
@@ -165,8 +163,8 @@ public class ValueListValueResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try
-				.of(() -> this.entityService.delete(ValueListValue.class, sourceName, id).get())
+		return Try.of(() -> this.entityService.delete(ValueListValue.class, sourceName, id)
+				.get())
 				.onFailure(ResourceHelper.rethrowException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, result), Status.OK))
 				.get();
