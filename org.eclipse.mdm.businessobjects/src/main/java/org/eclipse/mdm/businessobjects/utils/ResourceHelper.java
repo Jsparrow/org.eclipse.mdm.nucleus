@@ -103,7 +103,7 @@ public final class ResourceHelper {
 	 * Handles a {œlink {@link Throwable} by loggging the exception message and
 	 * rethrowing a {@link WebApplicationException}
 	 */
-	public static Consumer<? super Throwable> rethrowException = e -> {
+	public static final Consumer<? super Throwable> rethrowException = e -> {
 		LOG.error(e.getMessage(), e);
 		throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 	};
