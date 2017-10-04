@@ -31,6 +31,7 @@ import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
+import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +46,6 @@ import org.slf4j.LoggerFactory;
 public class EnvironmentResource {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EnvironmentResource.class);
-
-	/**
-	 * Parameter name holding the {@link Environment}, i.e. the source name
-	 */
-	public static final String SOURCENAME_PARAM = "SOURCENAME";
 
 	@EJB
 	private EnvironmentService environmentService;
@@ -80,8 +76,8 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + SOURCENAME_PARAM + "}")
-	public Response getEnvironment(@PathParam(SOURCENAME_PARAM) String sourceName) {
+	@Path("/{" + ResourceHelper.REQUESTPARAM_SOURCENAME + "}")
+	public Response getEnvironment(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName) {
 		try {
 			Environment environment = this.environmentService.getEnvironment(sourceName);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);
@@ -100,8 +96,9 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + SOURCENAME_PARAM + "}/localizations")
-	public Response localize(@PathParam(SOURCENAME_PARAM) String sourceName, @QueryParam("all") boolean all) {
+	@Path("/{" + ResourceHelper.REQUESTPARAM_SOURCENAME + "}/localizations")
+	public Response localize(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
+			@QueryParam("all") boolean all) {
 
 		try {
 
@@ -125,8 +122,9 @@ public class EnvironmentResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + SOURCENAME_PARAM + "}/search")
-	public Response search(@PathParam(SOURCENAME_PARAM) String sourceName, @QueryParam("q") String query) {
+	@Path("/{" + ResourceHelper.REQUESTPARAM_SOURCENAME + "}/search")
+	public Response search(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
+			@QueryParam("q") String query) {
 		List<Entity> searchResults = environmentService.search(sourceName, query);
 		return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, searchResults), Status.OK);
 	}

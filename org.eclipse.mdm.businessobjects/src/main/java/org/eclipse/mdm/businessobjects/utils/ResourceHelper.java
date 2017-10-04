@@ -17,6 +17,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;
@@ -40,9 +41,20 @@ public final class ResourceHelper {
 	private static final Logger LOG = LoggerFactory.getLogger(ResourceHelper.class);
 
 	/**
+	 * Parameter name holding the {@link Environment}, i.e. the source name
+	 */
+	public static final String REQUESTPARAM_SOURCENAME = "SOURCENAME";
+
+	/**
 	 * Parameter holding the {@link Entity}s id in the URI path
 	 */
 	public static final String REQUESTPARAM_ID = "ID";
+
+	/**
+	 * Parameter holding the {@link ContextType} of the {@link Describable}, i.e.
+	 * the {@link Entity} } in the URI path
+	 */
+	public static final String REQUESTPARAM_CONTEXTTYPE = "CONTEXTTYPE";
 
 	/**
 	 * Parameter holding the name of the {@link Entity} in the request body
@@ -50,7 +62,7 @@ public final class ResourceHelper {
 	public static final String ENTITYATTRIBUTE_NAME = "name";
 
 	/**
-	 * Just hide the default constructor
+	 * * Just hide the default constructor
 	 */
 	private ResourceHelper() {
 	}

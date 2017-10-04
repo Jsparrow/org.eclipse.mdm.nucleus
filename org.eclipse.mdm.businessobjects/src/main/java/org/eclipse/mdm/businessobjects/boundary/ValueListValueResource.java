@@ -50,7 +50,7 @@ import io.vavr.control.Try;
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
-@Path("/environments/{" + EnvironmentResource.SOURCENAME_PARAM + "}/valuelists/{" + REQUESTPARAM_ID + "}/values")
+@Path("/environments/{" + ResourceHelper.REQUESTPARAM_SOURCENAME + "}/valuelists/{" + REQUESTPARAM_ID + "}/values")
 public class ValueListValueResource {
 
 	@EJB
@@ -69,7 +69,7 @@ public class ValueListValueResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response find(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
+	public Response find(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.find(ValueListValue.class, sourceName, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
@@ -94,7 +94,7 @@ public class ValueListValueResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response findAll(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
+	public Response findAll(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> this.entityService.findAll(ValueListValue.class, sourceName, filter))
 				// TODO what if e is not found? Test!
@@ -115,7 +115,7 @@ public class ValueListValueResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response create(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
+	public Response create(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, String body) {
 		// deserialize JSON into object map
 		return Try.<Map<String, Object>>of(
@@ -161,7 +161,7 @@ public class ValueListValueResource {
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response delete(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName,
+	public Response delete(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.delete(ValueListValue.class, sourceName, id)
 				.get())
@@ -181,7 +181,7 @@ public class ValueListValueResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
-	public Response getSearchAttributes(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName) {
+	public Response getSearchAttributes(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName) {
 		return ResourceHelper.createSearchAttributesResponse(entityService, ValueListValue.class, sourceName);
 	}
 
@@ -196,7 +196,7 @@ public class ValueListValueResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
-	public Response localize(@PathParam(EnvironmentResource.SOURCENAME_PARAM) String sourceName) {
+	public Response localize(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName) {
 		return ResourceHelper.createLocalizationResponse(entityService, ValueListValue.class, sourceName);
 	}
 }
