@@ -96,6 +96,7 @@ public class ValueListValueResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
+		// TODO fix method as always all valuelistvalues are returned
 		return Try.of(() -> this.entityService.findAll(ValueListValue.class, sourceName, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(ValueListValue.class, e))

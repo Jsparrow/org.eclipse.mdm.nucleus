@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.model.ValueList;
@@ -52,8 +53,8 @@ public final class ResourceHelper {
 	public static final String REQUESTPARAM_ID = "ID";
 
 	/**
-	 * Parameter holding the {@link ContextType} of the {@link Describable}, i.e.
-	 * the {@link Entity} } in the URI path
+	 * Parameter holding the {@link ContextType} of the {@link Entity} in the URI
+	 * path
 	 */
 	public static final String REQUESTPARAM_CONTEXTTYPE = "CONTEXTTYPE";
 
@@ -61,6 +62,12 @@ public final class ResourceHelper {
 	 * Parameter holding the name of the {@link Entity} in the request body
 	 */
 	public static final String ENTITYATTRIBUTE_NAME = "name";
+
+	/**
+	 * Parameter holding the {@link ValueType} of the {@link Entity} in the request
+	 * body
+	 */
+	public static final String ENTITYATTRIBUTE_VALUETYPE = "valuetype";
 
 	/**
 	 * * Just hide the default constructor
