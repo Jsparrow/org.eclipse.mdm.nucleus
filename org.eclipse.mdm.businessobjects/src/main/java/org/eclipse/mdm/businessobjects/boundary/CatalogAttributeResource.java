@@ -38,7 +38,6 @@ import org.eclipse.mdm.api.base.model.EnumerationValue;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.CatalogAttribute;
 import org.eclipse.mdm.api.dflt.model.CatalogComponent;
-import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
@@ -51,7 +50,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 /**
- * {@link ValueList} resource handling REST requests
+ * {@link CatalogAttribute} resource handling REST requests
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *

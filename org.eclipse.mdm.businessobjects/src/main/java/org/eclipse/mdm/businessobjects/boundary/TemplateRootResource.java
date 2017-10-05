@@ -33,7 +33,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.dflt.model.CatalogComponent;
+import org.eclipse.mdm.api.dflt.model.TemplateRoot;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
@@ -46,28 +46,28 @@ import io.vavr.Tuple2;
 import io.vavr.control.Try;
 
 /**
- * {@link CatalogComponent} resource handling REST requests
+ * {@link TemplateRoot} resource handling REST requests
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
-@Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/catcomps/{" + REQUESTPARAM_CONTEXTTYPE + "}")
-public class CatalogComponentResource {
+@Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/tplroots/{" + REQUESTPARAM_CONTEXTTYPE + "}")
+public class TemplateRootResource {
 
 	@EJB
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link CatalogComponent}. Throws a
+	 * Returns the found {@link TemplateRoot}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param contextType
-	 *            {@link ContextType} of the {@link CatalogComponent} to load
+	 *            {@link ContextType} of the {@link TemplateRoot} to load
 	 * @param id
-	 *            id of the {@link CatalogComponent}
-	 * @return the found {@link CatalogComponent} as {@link Response}
+	 *            id of the {@link TemplateRoot}
+	 * @return the found {@link TemplateRoot} as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -75,9 +75,9 @@ public class CatalogComponentResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(CatalogComponent.class, contextType, sourceName, id))
+				.map(contextType -> this.entityService.find(TemplateRoot.class, contextType, sourceName, id))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(CatalogComponent.class, e.get()))
+				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				// TODO send reponse or error regarding error expressiveness
@@ -86,37 +86,37 @@ public class CatalogComponentResource {
 	}
 
 	/**
-	 * Returns the (filtered) {@link CatalogComponent}s. Throws a
+	 * Returns the (filtered) {@link TemplateRoot}s. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param contextType
-	 *            {@link ContextType} of the {@link CatalogComponent} to load
+	 *            {@link ContextType} of the {@link TemplateRoot} to load
 	 * @param filter
-	 *            filter string to filter the {@link CatalogComponent} result
-	 * @return the (filtered) {@link CatalogComponent}s as {@link Response}
+	 *            filter string to filter the {@link TemplateRoot} result
+	 * @return the (filtered) {@link TemplateRoot}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.findAll(CatalogComponent.class, contextType, sourceName, filter))
+				.map(contextType -> this.entityService.findAll(TemplateRoot.class, contextType, sourceName, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(CatalogComponent.class, e))
+				.map(e -> new MDMEntityResponse(TemplateRoot.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();
 	}
 
 	/**
-	 * Returns the created {@link CatalogComponentValue}. Throws a
+	 * Returns the created {@link TemplateRootValue}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param body
-	 *            The {@link CatalogComponent} to create.
-	 * @return The created {@link CatalogComponent} as {@link Response}.
+	 *            The {@link TemplateRoot} to create.
+	 * @return The created {@link TemplateRoot} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -141,21 +141,20 @@ public class CatalogComponentResource {
 						ResourceHelper.mapContextType(contextTypeParam)))
 				.toTry()
 				// create catalog component
-				.map(tuple -> entityService.create(CatalogComponent.class, sourceName, tuple._2, tuple._1)
+				.map(tuple -> entityService.create(TemplateRoot.class, sourceName, tuple._2, tuple._1)
 						.get())
 				.onFailure(ResourceHelper.rethrowException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, entity),
-						Status.OK))
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, entity), Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the deleted {@link CatalogComponent}. Throws a
+	 * Returns the deleted {@link TemplateRoot}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param id
-	 *            The identifier of the {@link CatalogComponent} to delete.
-	 * @return The deleted {@link CatalogComponent }s as {@link Response}
+	 *            The identifier of the {@link TemplateRoot} to delete.
+	 * @return The deleted {@link TemplateRoot }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
@@ -163,16 +162,15 @@ public class CatalogComponentResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(CatalogComponent.class, sourceName, contextType, id)
+				.map(contextType -> this.entityService.delete(TemplateRoot.class, sourceName, contextType, id)
 						.get())
 				.onFailure(ResourceHelper.rethrowException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, result),
-						Status.OK))
+				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, result), Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the search attributes for the {@link CatalogComponent} type. Throws a
+	 * Returns the search attributes for the {@link TemplateRoot} type. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
@@ -183,7 +181,7 @@ public class CatalogComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, CatalogComponent.class, sourceName);
+		return ResourceHelper.createSearchAttributesResponse(entityService, TemplateRoot.class, sourceName);
 	}
 
 	/**
@@ -198,6 +196,6 @@ public class CatalogComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, CatalogComponent.class, sourceName);
+		return ResourceHelper.createLocalizationResponse(entityService, TemplateRoot.class, sourceName);
 	}
 }
