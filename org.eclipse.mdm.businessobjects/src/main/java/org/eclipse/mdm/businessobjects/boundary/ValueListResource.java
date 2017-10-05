@@ -106,7 +106,7 @@ public class ValueListResource {
 	 * Returns the created {@link ValueListValue}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
-	 * @param newValueList
+	 * @param body
 	 *            The {@link ValueList} to create.
 	 * @return The created {@link ValueList} as {@link Response}.
 	 */
@@ -136,7 +136,7 @@ public class ValueListResource {
 	 * Returns the deleted {@link ValueList}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
-	 * @param identifier
+	 * @param id
 	 *            The identifier of the {@link ValueList} to delete.
 	 * @return The deleted {@link ValueList }s as {@link Response}
 	 */

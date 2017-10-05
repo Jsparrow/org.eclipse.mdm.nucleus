@@ -39,6 +39,8 @@ public final class DataAccessHelper {
 	private DataAccessHelper() {
 	}
 
+	// TODO realize the functions as static to have the () erased from the call
+
 	/**
 	 * Returns a function that executes one transactional operation within a
 	 * transaction.

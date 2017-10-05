@@ -28,6 +28,7 @@ import org.eclipse.mdm.businessobjects.entity.SearchAttributeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vavr.collection.Stream;
 import io.vavr.control.Try;
 
 /**
@@ -118,5 +119,16 @@ public final class ResourceHelper {
 	public static final Consumer<? super Throwable> rethrowException = e -> {
 		LOG.error(e.getMessage(), e);
 		throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
+	};
+
+	/**
+	 * Static function to get the {@link ContextType} for the provided name
+	 */
+	public static final ContextType mapContextType(String contextTypeName) {
+		return Stream.of(ContextType.values())
+				.filter(contextType -> contextType.name()
+						.equals(contextTypeName.toUpperCase()))
+				// TODO handle non-mapping ContextType
+				.get();
 	};
 }

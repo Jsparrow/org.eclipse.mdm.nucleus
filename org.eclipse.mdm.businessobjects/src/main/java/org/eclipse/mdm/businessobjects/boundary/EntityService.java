@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.eclipse.mdm.api.base.model.ContextDescribable;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.query.Attribute;
@@ -63,6 +62,8 @@ public class EntityService {
 		throw new MDMEntityAccessException(e.getMessage(), e);
 	};
 
+	// TODO unify NON-ContextType and ContextType methods
+
 	/**
 	 * 
 	 * Returns a {@link Entity} identified by the given id.
@@ -87,8 +88,8 @@ public class EntityService {
 
 	/**
 	 * 
-	 * Returns a {@link ContextDescribabla} with the given {@link EntityType} and j
-	 * * identified by the given id.
+	 * Returns a {@link Entity} with the given {@link EntityType} and j * identified
+	 * by the given id.
 	 * 
 	 * @param entityClass
 	 *            class of the {@link Entity} to find
@@ -100,6 +101,7 @@ public class EntityService {
 	 *            id of the {@link Entity} to find
 	 * @return found {@link Entity}
 	 */
+	// TODO needed?
 	public <T extends Entity> Option<T> find(Class<T> entityClass, ContextType contextType, String sourceName,
 			String id) {
 		// TODO error handling: how to inform caller about what happened? Try?
@@ -145,9 +147,9 @@ public class EntityService {
 	}
 
 	/**
-	 * Returns the matching {@link ContextDescribable}s of the given contextType
-	 * using the given filter or all {@link ContextDescibable}s of the given
-	 * contextType if no filter is available
+	 * Returns the matching {@link Entity}s of the given contextType using the given
+	 * filter or all {@link Entity}s of the given contextType if no filter is
+	 * available
 	 * 
 	 * @param entityClass
 	 *            class of the {@link Entity} to find
@@ -160,8 +162,8 @@ public class EntityService {
 	 * @return found {@link Entity}
 	 */
 
-	public <T extends ContextDescribable> List<T> findAll(Class<T> entityClass, ContextType contextType,
-			String sourceName, String filter) {
+	public <T extends Entity> List<T> findAll(Class<T> entityClass, ContextType contextType, String sourceName,
+			String filter) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 
@@ -247,9 +249,50 @@ public class EntityService {
 	 *            class of the {@link Entity} to delete
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
+	 * @param contextType
+	 *            the {@link ContextType) of the entities to find
 	 * @param identifier
 	 *            The id of the {@link Entity} to delete.
 	 */
+	// TODO handle erroneous call to delete on complete lists of ValueList etc.
+	public <T extends Entity> Optional<T> delete(Class<T> entityClass, String sourceName, ContextType contextType,
+			String id) {
+		try {
+			EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
+			T entityObject = entityManager.load(entityClass, contextType, id);
+
+			Optional<T> entity = Optional.ofNullable(entityObject);
+
+			// TODO do it the functional way
+			entity.ifPresent(e -> {
+				try {
+					// start transaction to delete the entity
+					// TODO change construct that Throwable has not to be catched here (Sonar
+					// issues)
+					DataAccessHelper.execute()
+							.apply(entityManager, entity.get(), DataAccessHelper.delete());
+				} catch (Throwable t) {
+					throw new MDMEntityAccessException(t.getMessage(), t);
+				}
+			});
+
+			return entity;
+		} catch (Throwable t) {
+			throw new MDMEntityAccessException(t.getMessage(), t);
+		}
+	}
+
+	/**
+	 * Deletes the {@link Entity} with the given identifier.
+	 * 
+	 * @param entityClass
+	 *            class of the {@link Entity} to delete
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param identifier
+	 *            The id of the {@link Entity} to delete.
+	 */
+	// TODO handle erroneous call to delete on complete lists of ValueList etc.
 	public <T extends Entity> Optional<T> delete(Class<T> entityClass, String sourceName, String id) {
 		try {
 			EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);

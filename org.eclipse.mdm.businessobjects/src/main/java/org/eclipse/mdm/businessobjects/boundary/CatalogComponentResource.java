@@ -11,7 +11,9 @@
 package org.eclipse.mdm.businessobjects.boundary;
 
 import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.ENTITYATTRIBUTE_NAME;
+import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_CONTEXTTYPE;
 import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_ID;
+import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_SOURCENAME;
 
 import java.util.Map;
 
@@ -29,9 +31,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
+import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.ValueList;
-import org.eclipse.mdm.api.dflt.model.ValueListValue;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
@@ -40,41 +43,42 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.control.Try;
 
 /**
- * {@link ValueListValue} resource handling REST requests
+ * {@link ValueList} resource handling REST requests
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
-@Path("/environments/{" + ResourceHelper.REQUESTPARAM_SOURCENAME + "}/valuelists/{" + REQUESTPARAM_ID + "}/values")
-public class ValueListValueResource {
+@Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/catcomps/{" + REQUESTPARAM_CONTEXTTYPE + "}")
+public class CatalogComponentResource {
 
 	@EJB
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link ValueListValue}. Throws a
+	 * Returns the found {@link CatalogComponent}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
+	 * @param contextType
+	 *            {@link ContextType} of the {@link CatalogComponent} to load
 	 * @param id
-	 *            id of the {@link ValueListValue}
-	 * @return the found {@link ValueListValue} as {@link Response}
+	 *            id of the {@link CatalogComponent}
+	 * @return the found {@link CatalogComponent} as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response find(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(ValueListValue.class, sourceName, id))
-				// TODO handle failure and respond to client appropriately. How can we deliver
+	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
+		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+				.map(contextType -> this.entityService.find(CatalogComponent.class, contextType, sourceName, id))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(ValueListValue.class, e.get()))
+				.map(e -> new MDMEntityResponse(CatalogComponent.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				// TODO send reponse or error regarding error expressiveness
@@ -83,97 +87,93 @@ public class ValueListValueResource {
 	}
 
 	/**
-	 * Returns the (filtered) {@link ValueListValue}s. Throws a
+	 * Returns the (filtered) {@link CatalogComponent}s. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
+	 * @param contextType
+	 *            {@link ContextType} of the {@link CatalogComponent} to load
 	 * @param filter
-	 *            filter string to filter the {@link ValueListValue} result
-	 * @return the (filtered) {@link ValueListValue}s as {@link Response}
+	 *            filter string to filter the {@link CatalogComponent} result
+	 * @return the (filtered) {@link CatalogComponent}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response findAll(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
-			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(ValueListValue.class, sourceName, filter))
+	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
+		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+				.map(contextType -> this.entityService.findAll(CatalogComponent.class, contextType, sourceName, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(ValueListValue.class, e))
+				.map(e -> new MDMEntityResponse(CatalogComponent.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();
 	}
 
 	/**
-	 * Returns the created {@link ValueListValue}. Throws a
+	 * Returns the created {@link CatalogComponentValue}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @param valueListId
-	 *            id of the {@link ValueList} to create to value for
 	 * @param body
-	 *            The {@link ValueListValue} to create.
-	 * @return The created {@link ValueListValue} as {@link Response}.
+	 *            The {@link CatalogComponent} to create.
+	 * @return The created {@link CatalogComponent} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response create(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID) String valueListId, String body) {
+	// TODO test with already existing CatComp -> error handling onFailure in
+	// EntityService seems not to trigger
+	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, String body) {
 		// deserialize JSON into object map
 		return Try.<Map<String, Object>>of(
+				// TODO replace with function in ResourceHelper
 				() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
 					// TODO correct to use onFailure instead of getOrThrow
 				}))
-				// TODO do we really need this or is the failure handleed later nevertheless
+				// TODO do we really need this or is the failure handled later nevertheless
 				.onFailure(ResourceHelper.rethrowException)
 				.toOption()
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
-				// create tuple with name of ValueListValue and id of ValueList of -1
-				.map(name -> Tuple.of(name.toString(), null))
-				.toTry()
 				// TODO handle non existing value
-				.map((Tuple2<String, Object> paramTuple) -> this.entityService
-						.find(ValueList.class, sourceName, valueListId)
-						.map(value -> {
-							return paramTuple.update2(value);
-						}))
-				// why need unpacking the option? There must be a more elegant solution
-				.get()
+				// create tuple for name and contextType
+				.map((Object name) -> new Tuple2<String, ContextType>(name.toString(),
+						ResourceHelper.mapContextType(contextTypeParam)))
 				.toTry()
-				.map((Tuple2<String, Object> paramTuple) -> {
-					return entityService.<ValueListValue>create(ValueListValue.class, sourceName, paramTuple._1(),
-							(ValueList) paramTuple._2());
-				})
+				// create catalog component
+				.map(tuple -> entityService.create(CatalogComponent.class, sourceName, tuple._2, tuple._1)
+						.get())
 				.onFailure(ResourceHelper.rethrowException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity.get()),
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, entity),
 						Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the deleted {@link ValueListValue}. Throws a
+	 * Returns the deleted {@link CatalogComponent}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param id
-	 *            The identifier of the {@link ValueListValue} to delete.
-	 * @return The deleted {@link ValueListValue }s as {@link Response}
+	 *            The identifier of the {@link CatalogComponent} to delete.
+	 * @return The deleted {@link CatalogComponent }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response delete(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(ValueListValue.class, sourceName, id)
-				.get())
+	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
+		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+				.map(contextType -> this.entityService.delete(CatalogComponent.class, sourceName, contextType, id)
+						.get())
 				.onFailure(ResourceHelper.rethrowException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, result), Status.OK))
+				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, result),
+						Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the search attributes for the {@link ValueListValue} type. Throws a
+	 * Returns the search attributes for the {@link CatalogComponent} type. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
@@ -183,8 +183,8 @@ public class ValueListValueResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
-	public Response getSearchAttributes(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, ValueListValue.class, sourceName);
+	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
+		return ResourceHelper.createSearchAttributesResponse(entityService, CatalogComponent.class, sourceName);
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class ValueListValueResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
-	public Response localize(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, ValueListValue.class, sourceName);
+	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
+		return ResourceHelper.createLocalizationResponse(entityService, CatalogComponent.class, sourceName);
 	}
 }
