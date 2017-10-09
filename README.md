@@ -48,7 +48,7 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests?filter=FILTERSTRING
-* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/tests?filter=Test.Name eq t*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/tests?filter=Test.Name%20eq%20t*)_
+* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/tests?filter=Test.Name eq 't*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/tests?filter=Test.Name%20eq%20%27t*%27)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/searchattributes
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/TESTID
@@ -58,7 +58,7 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps?filter=FILTERSTRING
-* _example: [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/teststeps?filter=TestStep.Name eq t*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/teststeps?filter=TestStep.Name%20eq%20t*)_
+* _example: [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/teststeps?filter=TestStep.Name eq 't*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/teststeps?filter=TestStep.Name%20eq%20%27t*%27)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/searchattributes
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID
@@ -72,7 +72,7 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements?filter=FILTERSTRING
-* _example: [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/measurements?filter=User.Name eq s*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/measurements?filter=User.Name%20eq%20s*)_
+* _example: [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/measurements?filter=User.Name eq 's*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/measurements?filter=User.Name%20eq%20%27s*%27)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/searchattributes
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID
@@ -100,7 +100,7 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects?filter=FILTERSTRING
-* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/projects?filter=Project.Name eq p*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/projects?filter=Project.Name%20eq%20p*)_
+* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/projects?filter=Project.Name eq 'p*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/projects?filter=Project.Name%20eq%20%27p*%27)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/searchattributes
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/PROJECTID
@@ -110,7 +110,7 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools?filter=FILTERSTRING
-* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools?filter=Pool.Name eq p*](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/pools?filter=Pool.Name%20eq%20p*)_
+* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools?filter=Pool.Name eq 'p*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/pools?filter=Pool.Name%20eq%20%27p*%27)_
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/searchattributes
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/localizations
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/POOLID

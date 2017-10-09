@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
-import org.eclipse.mdm.businessobjects.control.SearchParamParser;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.junit.Test;
 
@@ -28,7 +27,7 @@ public class SearchActivityTest {
 	public void testSearch() throws Exception {
 		SearchActivity activity = new SearchActivity();
 		List<TestStep> searchResult = activity.search(SearchMockHelper.createEntityManagerMock(), TestStep.class,
-				"TestStep.Name " + SearchParamParser.EQUALS_OPERATOR + " * ");
+				"TestStep.Name eq '*' ");
 		assertNotNull("search result list should not be null", searchResult);
 		assertEquals("The size of the search result list should be " + SearchMockHelper.ITEM_COUNT,
 				SearchMockHelper.ITEM_COUNT, searchResult.size());

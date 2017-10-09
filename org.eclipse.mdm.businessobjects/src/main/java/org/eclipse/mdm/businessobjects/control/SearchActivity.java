@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+ * Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -101,7 +101,7 @@ public class SearchActivity {
 		try {
 			SearchService searchService = ServiceUtils.getSearchService(em);
 			List<EntityType> searchable = searchService.listEntityTypes(resultType);
-			Filter filter = SearchParamParser.parseFilterString(searchable, filterString);
+			Filter filter = FilterParser.parseFilterString(searchable, filterString);
 			List<Attribute> attributesList = getAttributeListFromFilter(filter);
 			Map<T, Result> result = searchService.fetch(resultType, attributesList, filter);
 			return new ArrayList<>(result.keySet());

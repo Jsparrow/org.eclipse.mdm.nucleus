@@ -57,7 +57,7 @@ public class QueryServiceTest {
 
 		SourceFilter filter = new SourceFilter();
 		filter.setSourceName("env1");
-		filter.setFilter("Test.Name lk *");
+		filter.setFilter("Test.Name lk '*'");
 
 		QueryRequest request = new QueryRequest();
 		request.setResultType("Test");
@@ -90,11 +90,11 @@ public class QueryServiceTest {
 
 		SourceFilter filterEnv1 = new SourceFilter();
 		filterEnv1.setSourceName("env1");
-		filterEnv1.setFilter("Test.Name lk *");
+		filterEnv1.setFilter("Test.Name lk '*'");
 
 		SourceFilter filterEnv2 = new SourceFilter();
 		filterEnv2.setSourceName("env2");
-		filterEnv2.setFilter("Test.Name lk *");
+		filterEnv2.setFilter("Test.Name lk '*'");
 
 		QueryRequest request = new QueryRequest();
 		request.setResultType("Test");
@@ -154,11 +154,11 @@ public class QueryServiceTest {
 
 		SourceFilter filterEnv1 = new SourceFilter();
 		filterEnv1.setSourceName("env1");
-		filterEnv1.setFilter("Test.Name lk *");
+		filterEnv1.setFilter("Test.Name lk '*'");
 
 		SourceFilter filterEnv2 = new SourceFilter();
 		filterEnv2.setSourceName("env2");
-		filterEnv2.setFilter("Test.Name lk *");
+		filterEnv2.setFilter("Test.Name lk '*'");
 
 		QueryRequest request = new QueryRequest();
 		request.setResultType("Test");

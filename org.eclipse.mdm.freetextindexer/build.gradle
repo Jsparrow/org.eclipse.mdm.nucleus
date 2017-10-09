@@ -36,7 +36,6 @@ dependencies {
 	providedCompile 'javax:javaee-api:7.0'
 
 	testCompile 'junit:junit:4.12'
-	testCompile 'org.mockito:mockito-core:1.+'
 	testCompile 'org.apache.lucene:lucene-test-framework:5.3.1'
   	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4')
 	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4', classifier: 'tests')

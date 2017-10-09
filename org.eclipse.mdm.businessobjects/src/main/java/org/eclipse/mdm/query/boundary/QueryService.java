@@ -29,7 +29,7 @@ import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.api.base.query.SearchService;
 import org.eclipse.mdm.api.dflt.EntityManager;
-import org.eclipse.mdm.businessobjects.control.SearchParamParser;
+import org.eclipse.mdm.businessobjects.control.FilterParser;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
@@ -120,7 +120,7 @@ public class QueryService {
 		List<Attribute> attributes = columns.stream().map(c -> getAttribute(searchableTypes, c))
 				.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
-		Filter filter = SearchParamParser.parseFilterString(searchableTypes, filterString);
+		Filter filter = FilterParser.parseFilterString(searchableTypes, filterString);
 
 		List<Result> result = searchService.fetchResults(resultType, attributes, filter, searchString);
 
