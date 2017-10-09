@@ -8,7 +8,7 @@
  * Contributors:
  * Alexander Nehmer - initial implementation
  *******************************************************************************/
-package org.eclipse.mdm.businessobjects.utils;
+package org.eclipse.mdm.businessobjects.boundary.utils;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -19,16 +19,13 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Entity;
-import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;
-import org.eclipse.mdm.api.dflt.model.CatalogComponent;
-import org.eclipse.mdm.api.dflt.model.TemplateComponent;
-import org.eclipse.mdm.api.dflt.model.TemplateRoot;
 import org.eclipse.mdm.api.dflt.model.ValueList;
-import org.eclipse.mdm.businessobjects.boundary.EntityService;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttributeResponse;
+import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +33,7 @@ import io.vavr.collection.Stream;
 import io.vavr.control.Try;
 
 /**
- * Helper class providing methods used by the specific Jersey response classes.
+ * Helper class providing methods used by the specific Jersey resource classes.
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
@@ -46,47 +43,7 @@ public final class ResourceHelper {
 	private static final Logger LOG = LoggerFactory.getLogger(ResourceHelper.class);
 
 	/**
-	 * Parameter name holding the {@link Environment}, i.e. the source name
-	 */
-	public static final String REQUESTPARAM_SOURCENAME = "SOURCENAME";
-
-	/**
-	 * Parameter holding the {@link Entity}s id in the URI path
-	 */
-	public static final String REQUESTPARAM_ID = "ID";
-
-	/**
-	 * Parameter holding an additional {@link Entity}s id in the URI path, e.g. for
-	 * a {@link TemplateComponent} when {@link REQUESTPARAM_ID} holds the id of the
-	 * {@link TemplateRoot}.
-	 */
-	public static final String REQUESTPARAM_ID2 = "ID2";
-
-	/**
-	 * Parameter holding the {@link ContextType} of the {@link Entity} in the URI
-	 * path
-	 */
-	public static final String REQUESTPARAM_CONTEXTTYPE = "CONTEXTTYPE";
-
-	/**
-	 * Parameter holding the name of the {@link Entity} in the request body
-	 */
-	public static final String ENTITYATTRIBUTE_NAME = "name";
-
-	/**
-	 * Parameter holding the {@link ValueType} of the {@link Entity} in the request
-	 * body
-	 */
-	public static final String ENTITYATTRIBUTE_VALUETYPE = "valuetype";
-
-	/**
-	 * Parameter holding the id of the {@link CatalogComponent} of e.g. the
-	 * {@link TemplateComponent} in the request body
-	 */
-	public static final String ENTITYATTRIBUTE_CATALOGCOMPONENT_ID = "catalogcomponent";
-
-	/**
-	 * * Just hide the default constructor
+	 * Just hide the default constructor
 	 */
 	private ResourceHelper() {
 	}

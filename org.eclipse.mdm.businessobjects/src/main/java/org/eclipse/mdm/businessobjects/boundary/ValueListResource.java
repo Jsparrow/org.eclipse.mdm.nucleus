@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
-import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.ENTITYATTRIBUTE_NAME;
-import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_ID;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
 
 import java.util.Map;
 
@@ -32,9 +33,10 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.api.dflt.model.ValueListValue;
+import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
-import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
+import org.eclipse.mdm.businessobjects.service.EntityService;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -48,7 +50,7 @@ import io.vavr.control.Try;
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
-@Path("/environments/{" + ResourceHelper.REQUESTPARAM_SOURCENAME + "}/valuelists")
+@Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/valuelists")
 public class ValueListResource {
 
 	@EJB
@@ -67,8 +69,7 @@ public class ValueListResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response find(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID) String id) {
+	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.find(ValueList.class, sourceName, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
@@ -92,7 +93,7 @@ public class ValueListResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response findAll(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
+	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> this.entityService.findAll(ValueList.class, sourceName, filter))
 				// TODO what if e is not found? Test!
@@ -113,7 +114,7 @@ public class ValueListResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response create(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName, String body) {
+	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, String body) {
 		// deserialize JSON into object map
 		return Try.<Map<String, Object>>of(
 				() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
@@ -143,7 +144,7 @@ public class ValueListResource {
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response delete(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName,
+	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.delete(ValueList.class, sourceName, id)
 				.get())
@@ -163,7 +164,7 @@ public class ValueListResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
-	public Response getSearchAttributes(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName) {
+	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
 		return ResourceHelper.createSearchAttributesResponse(entityService, ValueList.class, sourceName);
 	}
 
@@ -178,7 +179,7 @@ public class ValueListResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
-	public Response localize(@PathParam(ResourceHelper.REQUESTPARAM_SOURCENAME) String sourceName) {
+	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
 		return ResourceHelper.createLocalizationResponse(entityService, ValueList.class, sourceName);
 	}
 }

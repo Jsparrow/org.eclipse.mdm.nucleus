@@ -8,7 +8,7 @@
  * Contributors:
  * Alexander Nehmer - initial implementation
  *******************************************************************************/
-package org.eclipse.mdm.businessobjects.utils;
+package org.eclipse.mdm.businessobjects.service;
 
 import java.util.Collection;
 import java.util.LinkedList;

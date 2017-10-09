@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
-import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.ENTITYATTRIBUTE_NAME;
-import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.ENTITYATTRIBUTE_VALUETYPE;
-import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_CONTEXTTYPE;
-import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_ID;
-import static org.eclipse.mdm.businessobjects.utils.ResourceHelper.REQUESTPARAM_SOURCENAME;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_VALUETYPE;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_CONTEXTTYPE;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
 
 import java.util.Map;
 
@@ -38,9 +38,10 @@ import org.eclipse.mdm.api.base.model.EnumerationValue;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.CatalogAttribute;
 import org.eclipse.mdm.api.dflt.model.CatalogComponent;
+import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
-import org.eclipse.mdm.businessobjects.utils.ResourceHelper;
+import org.eclipse.mdm.businessobjects.service.EntityService;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
