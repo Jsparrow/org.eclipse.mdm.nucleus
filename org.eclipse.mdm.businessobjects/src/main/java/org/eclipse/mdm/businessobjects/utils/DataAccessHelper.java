@@ -48,6 +48,7 @@ public final class DataAccessHelper {
 	 * @return Function that executes a transactional operation on an entity within
 	 *         a transaction.
 	 */
+	//TODO extend this method to handle lists of objects
 	public static <T extends Entity> CheckedFunction3<EntityManager, T, CheckedFunction2<Transaction, T, Object>, Object> execute() {
 		return (em, entity, operation) -> {
 			Transaction t = null;
@@ -58,13 +59,14 @@ public final class DataAccessHelper {
 				operation.apply(t, entity);
 				// commit the transaction
 				t.commit();
+				//return the processed entity
+				return entity;
 			} catch (Exception e) {
 				if (t != null) {
 					t.abort();
 				}
 				throw new MDMEntityAccessException(e.getMessage(), e);
 			}
-			return null;
 		};
 	}
 
@@ -74,18 +76,24 @@ public final class DataAccessHelper {
 	 * 
 	 * @return function that performs a delete operation
 	 */
+	// TODO make that a constant DELETE
 	@SuppressWarnings("unchecked")
+	// TODO make the return value of delete() an Option
+	// TODO do we really want to return something if deleting an object -> could be
+	// some kind to success marker and it's nice for a caller to build a response
+	// upon
 	public static <T extends Entity> CheckedFunction2<Transaction, T, Object> delete() {
 		return (t, entity) -> {
 			if (entity instanceof Deletable) {
 				t.delete((Collection<Deletable>) Stream.of(entity)
 						.collect(Collectors.<T, List<T>>toCollection(LinkedList<T>::new)));
+				// TODO did this "return entity" killed some callers like CatComp, CatAttr,
+				// ValueList etc.?
+				return entity;
 			} else {
 				throw new MDMEntityAccessException(
 						"Entity " + entity.getName() + "[" + entity.getID() + "] is not deletable");
 			}
-
-			return null;
 		};
 	}
 
@@ -95,6 +103,7 @@ public final class DataAccessHelper {
 	 * 
 	 * @return function that performs a create operation
 	 */
+	// TODO make that a constant CREATE
 	@SuppressWarnings("unchecked")
 	public static <T extends Entity> CheckedFunction2<Transaction, T, Object> create() {
 		return (t, entity) -> {

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -147,6 +146,67 @@ public class EntityService {
 	}
 
 	/**
+	 * 
+	 * Returns the children of the given {@link Entity}.
+	 * 
+	 * @param parentEntityClass
+	 *            class of the parent that is also an {@link Entity}
+	 * @param childrenEntityClass
+	 *            class of the {@link Entity}s to find
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param parentId
+	 *            id of the {@link Entity} to find
+	 * @return found {@link Entity}s
+	 */
+	public <T extends Entity> List<T> findChildren(Class<Entity> parentEntityClass, Class<T> childrenEntityClass,
+			String sourceName, String parentId) {
+		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
+		// TODO handle "Entity not found"
+		// TODO is that messy functional style and should I just use a function chain
+		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, parentId))
+				.onFailure(throwException)
+				.get();
+		List<T> children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass))
+				.onFailure(throwException)
+				.get();
+
+		return children;
+	}
+
+	/**
+	 * 
+	 * Returns the children of the given {@link Entity} for the given
+	 * {@link ContextType}.
+	 * 
+	 * @param parentEntityClass
+	 *            class of the parent that is also an {@link Entity}
+	 * @param childrenEntityClass
+	 *            class of the {@link Entity}s to find
+	 * @param contextType
+	 *            Context type of the parent and children
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param parentId
+	 *            id of the {@link Entity} to find
+	 * @return found {@link Entity}s
+	 */
+	public <T extends Entity> List<T> findChildren(Class<? extends Entity> parentEntityClass,
+			Class<T> childrenEntityClass, ContextType contextType, String sourceName, String parentId) {
+		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
+		// TODO handle "Entity not found"
+		// TODO is that messy functional style and should I just use a function chain
+		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, contextType, parentId))
+				.onFailure(throwException)
+				.get();
+		List<T> children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass, contextType))
+				.onFailure(throwException)
+				.get();
+
+		return children;
+	}
+
+	/**
 	 * Returns the matching {@link Entity}s of the given contextType using the given
 	 * filter or all {@link Entity}s of the given contextType if no filter is
 	 * available
@@ -255,31 +315,19 @@ public class EntityService {
 	 *            The id of the {@link Entity} to delete.
 	 */
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
-	public <T extends Entity> Optional<T> delete(Class<T> entityClass, String sourceName, ContextType contextType,
+	@SuppressWarnings("unchecked")
+	public <T extends Entity> Option<T> delete(Class<T> entityClass, String sourceName, ContextType contextType,
 			String id) {
-		try {
-			EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-			T entityObject = entityManager.load(entityClass, contextType, id);
-
-			Optional<T> entity = Optional.ofNullable(entityObject);
-
-			// TODO do it the functional way
-			entity.ifPresent(e -> {
-				try {
-					// start transaction to delete the entity
-					// TODO change construct that Throwable has not to be catched here (Sonar
-					// issues)
-					DataAccessHelper.execute()
-							.apply(entityManager, entity.get(), DataAccessHelper.delete());
-				} catch (Throwable t) {
-					throw new MDMEntityAccessException(t.getMessage(), t);
-				}
-			});
-
-			return entity;
-		} catch (Throwable t) {
-			throw new MDMEntityAccessException(t.getMessage(), t);
-		}
+		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
+		return Try.of(() -> entityManager.load(entityClass, contextType, id))
+				.onFailure(throwException)
+				.mapTry(e ->
+				// start transaction and delete the entity
+				// TODO this causes the unchecked warning. Why is apply() not returning T?
+				(T) DataAccessHelper.execute()
+						.apply(entityManager, e, DataAccessHelper.delete()))
+				.onFailure(throwException)
+				.toOption();
 	}
 
 	/**
@@ -293,30 +341,18 @@ public class EntityService {
 	 *            The id of the {@link Entity} to delete.
 	 */
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
-	public <T extends Entity> Optional<T> delete(Class<T> entityClass, String sourceName, String id) {
-		try {
-			EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-			T entityObject = entityManager.load(entityClass, id);
-
-			Optional<T> entity = Optional.ofNullable(entityObject);
-
-			// TODO do it the functional way
-			entity.ifPresent(e -> {
-				try {
-					// start transaction to delete the entity
-					// TODO change construct that Throwable has not to be catched here (Sonar
-					// issues)
-					DataAccessHelper.execute()
-							.apply(entityManager, entity.get(), DataAccessHelper.delete());
-				} catch (Throwable t) {
-					throw new MDMEntityAccessException(t.getMessage(), t);
-				}
-			});
-
-			return entity;
-		} catch (Throwable t) {
-			throw new MDMEntityAccessException(t.getMessage(), t);
-		}
+	@SuppressWarnings("unchecked")
+	public <T extends Entity> Option<T> delete(Class<T> entityClass, String sourceName, String id) {
+		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
+		return Try.of(() -> entityManager.load(entityClass, id))
+				.onFailure(throwException)
+				.mapTry(e ->
+				// start transaction and delete the entity
+				// TODO this causes the unchecked warning. Why is apply() not returning T?
+				(T) DataAccessHelper.execute()
+						.apply(entityManager, e, DataAccessHelper.delete()))
+				.onFailure(throwException)
+				.toOption();
 	}
 
 	/**
