@@ -14,6 +14,7 @@ import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYA
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_VALUETYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_CONTEXTTYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
 
 import java.util.Map;
@@ -185,15 +186,16 @@ public class CatalogAttributeResource {
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
-		// TODO notworking --> needs 2nd ID (one for CatComp and one for CatAttr)
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
+			@PathParam(REQUESTPARAM_ID) String catCompId) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(CatalogAttribute.class, sourceName, contextType, id)
-						.get())
+				.map(contextType -> this.entityService.delete(CatalogAttribute.class, CatalogComponent.class,
+						sourceName, contextType, id, catCompId))
 				.onFailure(ResourceHelper.rethrowException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, result),
+				// TODO add check for result.isPresent()
+				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, result.get()),
 						Status.OK))
 				.get();
 	}

@@ -26,6 +26,8 @@ import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.dflt.model.CatalogAttribute;
+import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.EntityFactory;
 import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
@@ -123,6 +125,7 @@ public class EntityService {
 	 *            filter string to filter the {@link Entity} result
 	 * @return found {@link Entity}
 	 */
+	// TODO add filter code like in ChannelGroupService.getChannelGroups()…
 	public <T extends Entity> List<T> findAll(Class<T> entityClass, String sourceName, String filter) {
 		try {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
@@ -299,6 +302,55 @@ public class EntityService {
 				.onFailure(throwException);
 
 		return entity;
+	}
+
+	/**
+	 * Deletes the {@link Entity} with the given identifier.
+	 * 
+	 * @param entityClass
+	 *            class of the {@link Entity} to delete
+	 * @param parentClass
+	 *            class of the {@link Entity}'s parent. Can be null.
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param contextType
+	 *            the {@link ContextType) of the entities to find
+	 * @param identifier
+	 *            The id of the {@link Entity} to delete.
+	 */
+	// TODO handle erroneous call to delete on complete lists of ValueList etc.
+	@SuppressWarnings("unchecked")
+	public <T extends Entity> Option<T> delete(Class<T> entityClass, Class<? extends Entity> parentClass,
+			String sourceName, ContextType contextType, String id, String catCompId) {
+		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
+		return Try.of(() -> entityManager.load(entityClass, contextType, id))
+				.mapTry(e -> {
+					// reload from parent in case of CatalogAttribute as it can only be deleted if
+					// the parent is set
+					// TODO rewrite that mess: put in separate method reloadFromParent()
+					if (CatalogAttribute.class.isAssignableFrom(entityClass)
+							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
+						// TODO verify existence of parent
+						Entity parent = entityManager.load(CatalogComponent.class, contextType, catCompId);
+						return ((CatalogComponent) parent).getCatalogAttributes()
+								.stream()
+								.filter(attr -> attr.getName()
+										.equals(e.getName()))
+								.findFirst()
+								.get();
+					} else {
+						return e;
+					}
+				})
+				// TODO add null check for parent class
+				.onFailure(throwException)
+				.mapTry(e ->
+				// start transaction and delete the entity
+				// TODO this causes the unchecked warning. Why is apply() not returning T?
+				(T) DataAccessHelper.execute()
+						.apply(entityManager, e, DataAccessHelper.delete()))
+				.onFailure(throwException)
+				.toOption();
 	}
 
 	/**
