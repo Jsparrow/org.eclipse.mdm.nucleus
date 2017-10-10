@@ -98,6 +98,13 @@ public class ValueListValueResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
 		// TODO fix method as always all valuelistvalues are returned
+		// apply the following filter code:
+		// if (ServiceUtils.isParentFilter(em, filter, Pool.class)) {
+		// String id = ServiceUtils.extactIdFromParentFilter(em, filter, Pool.class);
+		// return this.navigationActivity.getTests(sourceName, id);
+		// }
+		// return this.searchActivity.search(em, Test.class, filter);
+
 		return Try.of(() -> this.entityService.findAll(ValueListValue.class, sourceName, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(ValueListValue.class, e))
