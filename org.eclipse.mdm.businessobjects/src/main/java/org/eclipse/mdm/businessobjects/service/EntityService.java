@@ -328,6 +328,9 @@ public class EntityService {
 					// reload from parent in case of CatalogAttribute as it can only be deleted if
 					// the parent is set
 					// TODO rewrite that mess: put in separate method reloadFromParent()
+					// TODO or check ODSModelManager for non-declared mandatory relation from
+					// CatAttr to CatComp as EntityRequest.load() loads all mandatory and optional
+					// related entities
 					if (CatalogAttribute.class.isAssignableFrom(entityClass)
 							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
 						// TODO verify existence of parent

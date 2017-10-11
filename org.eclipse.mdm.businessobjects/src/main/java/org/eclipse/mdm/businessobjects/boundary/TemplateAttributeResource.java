@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
-import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_CATALOGCOMPONENT_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_CONTEXTTYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID3;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
 
 import java.util.Map;
@@ -36,8 +36,8 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.CatalogComponent;
+import org.eclipse.mdm.api.dflt.model.TemplateAttribute;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
-import org.eclipse.mdm.api.dflt.model.TemplateRoot;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
@@ -51,39 +51,39 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 /**
- * {@link TemplateComponent} resource handling REST requests
+ * {@link TemplateAttribute} resource handling REST requests
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
 @Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/tplroots/{" + REQUESTPARAM_CONTEXTTYPE + "}/{" + REQUESTPARAM_ID
-		+ "}/tplcomps")
-public class TemplateComponentResource {
+		+ "}/tplcomps/{" + REQUESTPARAM_ID2 + "}/attributes")
+public class TemplateAttributeResource {
 
 	@EJB
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link TemplateComponent}. Throws a
+	 * Returns the found {@link TemplateAttribute}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param contextType
-	 *            {@link ContextType} of the {@link TemplateComponent} to load
+	 *            {@link ContextType} of the {@link TemplateAttribute} to load
 	 * @param id
-	 *            id of the {@link TemplateComponent}
-	 * @return the found {@link TemplateComponent} as {@link Response}
+	 *            id of the {@link TemplateAttribute}
+	 * @return the found {@link TemplateAttribute} as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID2 + "}")
+	@Path("/{" + REQUESTPARAM_ID3 + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(TemplateComponent.class, contextType, sourceName, id))
+				.map(contextType -> this.entityService.find(TemplateAttribute.class, contextType, sourceName, id))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(TemplateComponent.class, e.get()))
+				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				// TODO send reponse or error regarding error expressiveness
@@ -92,50 +92,47 @@ public class TemplateComponentResource {
 	}
 
 	/**
-	 * Returns the (filtered) {@link TemplateComponent}s. Throws a
+	 * Returns the (filtered) {@link TemplateAttribute}s. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param contextType
-	 *            {@link ContextType} of the {@link TemplateComponent} to load
+	 *            {@link ContextType} of the {@link TemplateAttribute} to load
 	 * @param filter
-	 *            filter string to filter the {@link TemplateComponent} result
-	 * @return the (filtered) {@link TemplateComponent}s as {@link Response}
+	 *            filter string to filter the {@link TemplateAttribute} result
+	 * @return the (filtered) {@link TemplateAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
-			@QueryParam("filter") String filter) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
+		// TODO returns all TplAttrs from all TplComps -> use filter or something else
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				// find the TemplateRoot
-				.map(ct -> this.entityService.find(TemplateRoot.class, ct, sourceName, tplRootId))
-				// find the TemplateComponents
-				.map(parent -> this.entityService.findChildren(TemplateRoot.class, TemplateComponent.class,
-						ResourceHelper.mapContextType(contextTypeParam), sourceName, tplRootId))
-				// prepare the result
-				.map(e -> new MDMEntityResponse(TemplateComponent.class, e))
+				.map(contextType -> this.entityService.findAll(TemplateAttribute.class, contextType, sourceName,
+						filter))
+				// TODO what if e is not found? Test!
+				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();
 	}
 
 	/**
-	 * Returns the created {@link TemplateComponentValue}. Throws a
+	 * Returns the created {@link TemplateAttributeValue}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param body
-	 *            The {@link TemplateComponent} to create.
-	 * @return The created {@link TemplateComponent} as {@link Response}.
+	 *            The {@link TemplateAttribute} to create.
+	 * @return The created {@link TemplateAttribute} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	// TODO test with already existing TplComp -> error handling onFailure in
+	// TODO test with already existing CatComp -> error handling onFailure in
 	// EntityService seems not to trigger
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String tplCompId,
 			String body) {
 		// deserialize JSON into object map
 		@SuppressWarnings("unchecked")
@@ -152,64 +149,50 @@ public class TemplateComponentResource {
 				.toString())
 				.toOption();
 
-		// get contextType
+		// get ContextType
 		Option<ContextType> contextType = Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.toOption();
 
-		// get catCompId
-		// TODO discuss if name of CatComp (as it is unique) could be used
-		// (additionally)
-		Option<String> catCompId = Try.of(() -> mapping.get(ENTITYATTRIBUTE_CATALOGCOMPONENT_ID)
-				.toString())
-				.toOption();
-
-		// get catalog component
-		// TODO handle non-existing catComp
-		Option<CatalogComponent> catComp = Try.of(
-				() -> this.entityService.find(CatalogComponent.class, contextType.get(), sourceName, catCompId.get()))
+		// get TemplateComponent
+		Option<TemplateComponent> tplComp = Try
+				.of(() -> this.entityService.find(TemplateComponent.class, contextType.get(), sourceName, tplCompId))
 				.get();
 
-		// get catalog component
-		// TODO handle non-existing TplRoot
-		Option<TemplateRoot> tplRoot = Try
-				.of(() -> this.entityService.find(TemplateRoot.class, contextType.get(), sourceName, tplRootId))
-				.get();
-
-		// create
-		return Try
-				.of(() -> entityService
-						.create(TemplateComponent.class, sourceName, name.get(), tplRoot.get(), catComp.get())
-						.get())
+		// create TemplateAttribute
+		return Try.of(() -> entityService.create(TemplateAttribute.class, sourceName, name.get(), tplComp.get())
+				.get())
 				.onFailure(ResourceHelper.rethrowException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, entity),
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, entity),
 						Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the deleted {@link TemplateComponent}. Throws a
+	 * Returns the deleted {@link TemplateAttribute}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
 	 * @param id
-	 *            The identifier of the {@link TemplateComponent} to delete.
-	 * @return The deleted {@link TemplateComponent }s as {@link Response}
+	 *            The identifier of the {@link TemplateAttribute} to delete.
+	 * @return The deleted {@link TemplateAttribute }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
+			@PathParam(REQUESTPARAM_ID) String catCompId) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(TemplateComponent.class, sourceName, contextType, id)
-						.get())
+				.map(contextType -> this.entityService.delete(TemplateAttribute.class, CatalogComponent.class,
+						sourceName, contextType, id, catCompId))
 				.onFailure(ResourceHelper.rethrowException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, result),
+				// TODO add check for result.isPresent()
+				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, result.get()),
 						Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the search attributes for the {@link TemplateComponent} type. Throws
+	 * Returns the search attributes for the {@link TemplateAttribute} type. Throws
 	 * a {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
@@ -220,7 +203,7 @@ public class TemplateComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, TemplateComponent.class, sourceName);
+		return ResourceHelper.createSearchAttributesResponse(entityService, TemplateAttribute.class, sourceName);
 	}
 
 	/**
@@ -235,6 +218,6 @@ public class TemplateComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, TemplateComponent.class, sourceName);
+		return ResourceHelper.createLocalizationResponse(entityService, TemplateAttribute.class, sourceName);
 	}
 }
