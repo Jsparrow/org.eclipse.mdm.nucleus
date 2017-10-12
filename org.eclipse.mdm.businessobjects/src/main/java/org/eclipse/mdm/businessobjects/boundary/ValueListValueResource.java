@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 /**
@@ -132,23 +133,22 @@ public class ValueListValueResource {
 				}))
 				// TODO do we really need this or is the failure handleed later nevertheless
 				.onFailure(ResourceHelper.rethrowException)
-				.toOption()
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
-				// create tuple with name of ValueListValue and id of ValueList of -1
+				// create tuple with name of ValueListValue and null as the ValueList
 				.map(name -> Tuple.of(name.toString(), null))
-				.toTry()
 				// TODO handle non existing value
-				.map((Tuple2<String, Object> paramTuple) -> this.entityService
+				// get the ValueList
+				.mapTry((Tuple2<String, Object> paramTuple) -> this.entityService
 						.find(ValueList.class, sourceName, valueListId)
-						.map(value -> {
-							return paramTuple.update2(value);
+						.map(valueList -> {
+							return paramTuple.update2(valueList);
 						}))
-				// why need unpacking the option? There must be a more elegant solution
-				.get()
-				.toTry()
-				.map((Tuple2<String, Object> paramTuple) -> {
-					return entityService.<ValueListValue>create(ValueListValue.class, sourceName, paramTuple._1(),
-							(ValueList) paramTuple._2());
+				// create ValueListValue
+				.mapTry((Option<Tuple2<String, Object>> paramTuple) -> {
+					return entityService.<ValueListValue>create(ValueListValue.class, sourceName, paramTuple.get()
+							._1(),
+							(ValueList) paramTuple.get()
+									._2());
 				})
 				.onFailure(ResourceHelper.rethrowException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity.get()),
