@@ -58,7 +58,7 @@ import io.vavr.control.Try;
  *
  */
 @Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/catcomps/{" + REQUESTPARAM_CONTEXTTYPE + "}/{" + REQUESTPARAM_ID
-		+ "}/attributes")
+		+ "}/catattrs")
 public class CatalogAttributeResource {
 
 	@EJB

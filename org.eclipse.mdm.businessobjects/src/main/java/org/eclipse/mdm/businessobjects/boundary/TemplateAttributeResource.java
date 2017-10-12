@@ -57,7 +57,7 @@ import io.vavr.control.Try;
  *
  */
 @Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/tplroots/{" + REQUESTPARAM_CONTEXTTYPE + "}/{" + REQUESTPARAM_ID
-		+ "}/tplcomps/{" + REQUESTPARAM_ID2 + "}/attributes")
+		+ "}/tplcomps/{" + REQUESTPARAM_ID2 + "}/tplattrs")
 public class TemplateAttributeResource {
 
 	@EJB
