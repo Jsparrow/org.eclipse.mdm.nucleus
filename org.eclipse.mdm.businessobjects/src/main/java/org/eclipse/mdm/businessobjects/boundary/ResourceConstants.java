@@ -54,7 +54,7 @@ public final class ResourceConstants {
 	 * Parameter holding the {@link ValueType} of the {@link Entity} in the request
 	 * body
 	 */
-	public static final String ENTITYATTRIBUTE_VALUETYPE = "valuetype";
+	public static final String ENTITYATTRIBUTE_DATATYPE = "datatype";
 
 	/**
 	 * Parameter holding the id of the {@link CatalogComponent} of e.g. the

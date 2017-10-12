@@ -11,7 +11,7 @@
 package org.eclipse.mdm.businessobjects.boundary;
 
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
-import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_VALUETYPE;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_DATATYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_CONTEXTTYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
@@ -152,7 +152,7 @@ public class CatalogAttributeResource {
 		// TODO handle non-existing valueType
 		Option<EnumerationValue> valueType = Try.<EnumerationValue>of(() -> EnumRegistry.getInstance()
 				.get(EnumRegistry.VALUE_TYPE)
-				.valueOf(mapping.get(ENTITYATTRIBUTE_VALUETYPE)
+				.valueOf(mapping.get(ENTITYATTRIBUTE_DATATYPE)
 						.toString()))
 				.toOption();
 
