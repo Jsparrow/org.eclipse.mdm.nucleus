@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
-import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_DATATYPE;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_CONTEXTTYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
@@ -107,9 +107,11 @@ public class CatalogAttributeResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String catCompId,
+			@QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.findAll(CatalogAttribute.class, contextType, sourceName, filter))
+				.map(contextType -> this.entityService.findChildren(CatalogComponent.class, CatalogAttribute.class,
+						contextType, sourceName, catCompId, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))

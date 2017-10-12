@@ -114,7 +114,7 @@ public class EntityService {
 	}
 
 	/**
-	 * Returns the matching {@link Entity}s using the given filter or all
+	 * Returns the matching {@link Entity}s using the given filter or returns all
 	 * {@link Entity}s if no filter is available
 	 * 
 	 * @param entityClass
@@ -122,7 +122,7 @@ public class EntityService {
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param filter
-	 *            filter string to filter the {@link Entity} result
+	 *            filter string to filter the {@link Entity} result. Can be null.
 	 * @return found {@link Entity}
 	 */
 	// TODO add filter code like in ChannelGroupService.getChannelGroups()…
@@ -161,6 +161,7 @@ public class EntityService {
 	 *            id of the {@link Entity} to find
 	 * @return found {@link Entity}s
 	 */
+	// TODO use method with filter and call with null
 	public <T extends Entity> List<T> findChildren(Class<Entity> parentEntityClass, Class<T> childrenEntityClass,
 			String sourceName, String parentId) {
 		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
@@ -178,7 +179,9 @@ public class EntityService {
 
 	/**
 	 * 
-	 * Returns the children of the given {@link Entity}.
+	 * Returns the children of the parent {@link Entity} identified by parentId
+	 * using the given filter or returns all {@link Entity}s if no filter is
+	 * available
 	 * 
 	 * @param parentEntityClass
 	 *            class of the parent that is also an {@link Entity}
@@ -189,7 +192,7 @@ public class EntityService {
 	 * @param parentId
 	 *            id of the {@link Entity} to find
 	 * @param filter
-	 *            filter string to filter the {@link Entity} result
+	 *            filter string to filter the {@link Entity} result. Can be null.
 	 * @return found {@link Entity}s
 	 */
 	public <T extends Entity> List<T> findChildren(Class<? extends Entity> parentEntityClass,
@@ -232,6 +235,7 @@ public class EntityService {
 	 *            id of the {@link Entity} to find
 	 * @return found {@link Entity}s
 	 */
+	// TODO use method with filter and call with null
 	public <T extends Entity> List<T> findChildren(Class<? extends Entity> parentEntityClass,
 			Class<T> childrenEntityClass, ContextType contextType, String sourceName, String parentId) {
 		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
@@ -245,6 +249,49 @@ public class EntityService {
 				.get();
 
 		return children;
+	}
+
+	/**
+	 * 
+	 * Returns the children of the given {@link Entity} for the given
+	 * {@link ContextType}.
+	 * 
+	 * @param parentEntityClass
+	 *            class of the parent that is also an {@link Entity}
+	 * @param childrenEntityClass
+	 *            class of the {@link Entity}s to find
+	 * @param contextType
+	 *            Context type of the parent and children
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param parentId
+	 *            id of the {@link Entity} to find
+	 * @param filter
+	 *            filter string to filter the {@link Entity} result. Can be null.
+	 * @return found {@link Entity}s
+	 */
+	public <T extends Entity> List<T> findChildren(Class<? extends Entity> parentEntityClass,
+			Class<T> childrenEntityClass, ContextType contextType, String sourceName, String parentId, String filter) {
+		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
+		// TODO handle "Entity not found"
+		// TODO is that messy functional style and should I just use a function chain
+		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, contextType, parentId))
+				.onFailure(throwException)
+				.get();
+
+		Try<List<T>> children;
+		if (filter == null || filter.trim()
+				.length() <= 0) {
+			children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass, contextType));
+
+		} else {
+			// TODO filter should only filter entities under the given parentId
+			// TODO why not use em.loadChildren(..., String pattern)?
+			children = entityManager.mapTry(em -> this.searchActivity.search(em, childrenEntityClass, filter));
+		}
+
+		return children.onFailure(throwException)
+				.get();
 	}
 
 	/**

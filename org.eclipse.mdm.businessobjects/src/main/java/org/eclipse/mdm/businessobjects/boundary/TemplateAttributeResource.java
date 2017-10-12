@@ -107,7 +107,8 @@ public class TemplateAttributeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
-		// TODO returns all TplAttrs from all TplComps -> use filter or something else
+		// TODO realize filter as an CatalogAttributeResource, because all TplAttrs of
+		// all TplComps are returned
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.findAll(TemplateAttribute.class, contextType, sourceName,
 						filter))
