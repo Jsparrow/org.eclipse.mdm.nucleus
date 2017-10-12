@@ -178,6 +178,45 @@ public class EntityService {
 
 	/**
 	 * 
+	 * Returns the children of the given {@link Entity}.
+	 * 
+	 * @param parentEntityClass
+	 *            class of the parent that is also an {@link Entity}
+	 * @param childrenEntityClass
+	 *            class of the {@link Entity}s to find
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param parentId
+	 *            id of the {@link Entity} to find
+	 * @param filter
+	 *            filter string to filter the {@link Entity} result
+	 * @return found {@link Entity}s
+	 */
+	public <T extends Entity> List<T> findChildren(Class<? extends Entity> parentEntityClass,
+			Class<T> childrenEntityClass, String sourceName, String parentId, String filter) {
+		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
+		// TODO handle "Entity not found"
+		// TODO is that messy functional style and should I just use a function chain
+		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, parentId))
+				.onFailure(throwException)
+				.get();
+
+		Try<List<T>> children;
+		if (filter == null || filter.trim()
+				.length() <= 0) {
+			children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass));
+
+		} else {
+			// TODO filter should only filter entities under the given parentId
+			children = entityManager.mapTry(em -> this.searchActivity.search(em, childrenEntityClass, filter));
+		}
+
+		return children.onFailure(throwException)
+				.get();
+	}
+
+	/**
+	 * 
 	 * Returns the children of the given {@link Entity} for the given
 	 * {@link ContextType}.
 	 * 
