@@ -106,12 +106,12 @@ public class TemplateAttributeResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
-		// TODO realize filter as an CatalogAttributeResource, because all TplAttrs of
-		// all TplComps are returned
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String tplCompId,
+			@QueryParam("filter") String filter) {
+
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.findAll(TemplateAttribute.class, contextType, sourceName,
-						filter))
+				.map(contextType -> this.entityService.findChildren(TemplateComponent.class, TemplateAttribute.class,
+						contextType, sourceName, tplCompId, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -145,6 +145,7 @@ public class TemplateAttributeResource {
 		// TODO clean up that mess
 
 		// TODO error handling
+		// TODO name is redundant to CatAttr id
 		// get name
 		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
 				.toString())
