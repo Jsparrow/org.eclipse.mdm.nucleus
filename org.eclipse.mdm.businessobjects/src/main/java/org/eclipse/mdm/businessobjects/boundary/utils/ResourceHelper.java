@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.utils;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.ws.rs.WebApplicationException;
@@ -29,7 +28,10 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 /**
@@ -68,9 +70,12 @@ public final class ResourceHelper {
 		Try<Map<EntityType, String>> localizedEntityTypeMap = Try
 				.of(() -> entityService.localizeType(entityClass, sourceName));
 
-		return Try
-				.of(() -> ServiceUtils.toResponse(
-						new I18NResponse(localizedEntityTypeMap.get(), localizedAttributeMap.get()), Status.OK))
+		// TODO what if get() fails?
+		return Try.of(() -> ServiceUtils.toResponse(new I18NResponse(localizedEntityTypeMap.get()
+				.toJavaMap(),
+				localizedAttributeMap.get()
+						.toJavaMap()),
+				Status.OK))
 				// TODO enough to deal with potentially failed Tries at top?
 				.getOrElse(Response.status(Status.INTERNAL_SERVER_ERROR)
 						.build());
@@ -86,8 +91,8 @@ public final class ResourceHelper {
 	public static <T extends Entity> Response createSearchAttributesResponse(EntityService entityService,
 			Class<T> entityClass, String sourceName) {
 		return Try.of(() -> entityService.getSearchAttributes(entityClass, sourceName))
-				.map(searchAttributes -> ServiceUtils.toResponse(new SearchAttributeResponse(searchAttributes),
-						Status.OK))
+				.map(searchAttributes -> ServiceUtils
+						.toResponse(new SearchAttributeResponse(searchAttributes.toJavaList()), Status.OK))
 				.getOrElse(Response.status(Status.INTERNAL_SERVER_ERROR)
 						.build());
 	}
@@ -103,6 +108,10 @@ public final class ResourceHelper {
 
 	/**
 	 * Static function to get the {@link ContextType} for the provided name
+	 * 
+	 * @param contextTypeName
+	 *            name of the {@link ContextType}
+	 * @return the {@link ContextType} for the given name
 	 */
 	public static ContextType mapContextType(String contextTypeName) {
 		return Stream.of(ContextType.values())
@@ -111,4 +120,34 @@ public final class ResourceHelper {
 				// TODO handle non-mapping ContextType
 				.get();
 	};
+
+	/**
+	 * Updates the given {@link Entity} with the values from the given valueMap. All
+	 * matching attributes are updated, whereas attribute matching is case sensitve
+	 * (the data model attribute name is the reference).
+	 * 
+	 * @param entity
+	 *            the entity to update
+	 * @param valueMap
+	 *            values to update the entity with according to matching attribute
+	 *            names
+	 * @return the updated entity
+	 */
+	public static <T extends Entity> Option<T> updateEntity(T entity, Map<String, Object> valueMap) {
+
+		// update all entity values with values from the valueMap
+		return Try.of(() -> entity)
+				.map(e -> {
+					// TODO Test: what happens, if an attribute is missing?
+					// iterate all key-values of entity
+					HashMap.ofAll(e.getValues())
+							// get for each the corresponding update value
+							.forEach((name, value) -> valueMap.get(name)
+									// set the update value
+									.peek(mapValue -> value.set(mapValue)));
+					return e;
+				})
+				.onFailure(ResourceHelper.rethrowException)
+				.toOption();
+	}
 }

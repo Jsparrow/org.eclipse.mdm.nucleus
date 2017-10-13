@@ -48,7 +48,7 @@ public final class DataAccessHelper {
 	 * @return Function that executes a transactional operation on an entity within
 	 *         a transaction.
 	 */
-	//TODO extend this method to handle lists of objects
+	// TODO extend this method to handle lists of objects
 	public static <T extends Entity> CheckedFunction3<EntityManager, T, CheckedFunction2<Transaction, T, Object>, Object> execute() {
 		return (em, entity, operation) -> {
 			Transaction t = null;
@@ -59,7 +59,7 @@ public final class DataAccessHelper {
 				operation.apply(t, entity);
 				// commit the transaction
 				t.commit();
-				//return the processed entity
+				// return the processed entity
 				return entity;
 			} catch (Exception e) {
 				if (t != null) {
@@ -72,7 +72,7 @@ public final class DataAccessHelper {
 
 	/**
 	 * Returns a function that performs a delete operation. The operation method
-	 * returns null.
+	 * returns the deleted {@link Entity}.
 	 * 
 	 * @return function that performs a delete operation
 	 */
@@ -99,18 +99,29 @@ public final class DataAccessHelper {
 
 	/**
 	 * Returns a function that performs a create operation. The operation method
-	 * returns null.
+	 * returns the created {@link Entity}.
 	 * 
 	 * @return function that performs a create operation
 	 */
-	// TODO make that a constant CREATE
+	// TODO make that a constant CREATE. Replace T by just Entity. Should work.
 	@SuppressWarnings("unchecked")
 	public static <T extends Entity> CheckedFunction2<Transaction, T, Object> create() {
 		return (t, entity) -> {
 			t.create((Collection<Deletable>) Stream.of(entity)
 					.collect(Collectors.<T, List<T>>toCollection(LinkedList<T>::new)));
 
-			return null;
+			return entity;
 		};
 	}
+
+	/**
+	 * Function that updates the given {@link Entity} it is executed upon and return
+	 * the updated entity.
+	 */
+	public static CheckedFunction2<Transaction, Entity, Object> UPDATE = (t, entity) -> {
+		t.update((Collection<Entity>) Stream.of(entity)
+				.collect(Collectors.<Entity, List<Entity>>toCollection(LinkedList<Entity>::new)));
+
+		return entity;
+	};
 }

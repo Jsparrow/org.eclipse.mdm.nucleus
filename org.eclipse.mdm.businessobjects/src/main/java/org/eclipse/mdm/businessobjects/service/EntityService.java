@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -30,12 +27,16 @@ import org.eclipse.mdm.api.dflt.model.CatalogAttribute;
 import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.EntityFactory;
 import org.eclipse.mdm.api.dflt.model.ValueList;
+import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
+import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -133,15 +134,15 @@ public class EntityService {
 			List<T> entities = null;
 			if (filter == null || filter.trim()
 					.length() <= 0) {
-				entities = em.loadAll(entityClass);
+				entities = List.ofAll(em.loadAll(entityClass));
 
 			} else {
-				entities = this.searchActivity.search(em, entityClass, filter);
+				entities = List.ofAll(this.searchActivity.search(em, entityClass, filter));
 			}
 
 			// return empty list if nothing was found just in case the backend methods would
 			// return null
-			return entities != null ? entities : new ArrayList<T>();
+			return entities != null ? entities : List.empty();
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -170,7 +171,7 @@ public class EntityService {
 		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, parentId))
 				.onFailure(throwException)
 				.get();
-		List<T> children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass))
+		List<T> children = entityManager.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass)))
 				.onFailure(throwException)
 				.get();
 
@@ -207,11 +208,12 @@ public class EntityService {
 		Try<List<T>> children;
 		if (filter == null || filter.trim()
 				.length() <= 0) {
-			children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass));
+			children = entityManager.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass)));
 
 		} else {
 			// TODO filter should only filter entities under the given parentId
-			children = entityManager.mapTry(em -> this.searchActivity.search(em, childrenEntityClass, filter));
+			children = entityManager
+					.mapTry(em -> List.ofAll(this.searchActivity.search(em, childrenEntityClass, filter)));
 		}
 
 		return children.onFailure(throwException)
@@ -244,7 +246,8 @@ public class EntityService {
 		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, contextType, parentId))
 				.onFailure(throwException)
 				.get();
-		List<T> children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass, contextType))
+		List<T> children = entityManager
+				.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass, contextType)))
 				.onFailure(throwException)
 				.get();
 
@@ -282,12 +285,14 @@ public class EntityService {
 		Try<List<T>> children;
 		if (filter == null || filter.trim()
 				.length() <= 0) {
-			children = entityManager.mapTry(em -> em.loadChildren(parent, childrenEntityClass, contextType));
+			children = entityManager
+					.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass, contextType)));
 
 		} else {
 			// TODO filter should only filter entities under the given parentId
 			// TODO why not use em.loadChildren(..., String pattern)?
-			children = entityManager.mapTry(em -> this.searchActivity.search(em, childrenEntityClass, filter));
+			children = entityManager
+					.mapTry(em -> List.ofAll(this.searchActivity.search(em, childrenEntityClass, filter)));
 		}
 
 		return children.onFailure(throwException)
@@ -318,15 +323,15 @@ public class EntityService {
 			List<T> entities = null;
 			if (filter == null || filter.trim()
 					.length() <= 0) {
-				entities = em.loadAll(entityClass, contextType);
+				entities = List.ofAll(em.loadAll(entityClass, contextType));
 
 			} else {
-				entities = this.searchActivity.search(em, entityClass, filter);
+				entities = List.ofAll(this.searchActivity.search(em, entityClass, filter));
 			}
 
 			// return empty list if nothing was found just in case the backend methods would
 			// return null
-			return entities != null ? entities : new ArrayList<T>();
+			return entities != null ? entities : List.empty();
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -352,9 +357,8 @@ public class EntityService {
 		Option<T> entity;
 
 		// gather classes of method args
-		List<Class<? extends Object>> argClasses = Stream.of(createMethodArgs)
-				.map(o -> o.getClass())
-				.collect(Collectors.toList());
+		List<Class<? extends Object>> argClasses = List.of(createMethodArgs)
+				.map(o -> o.getClass());
 
 		// get corresponding create method for Entity from EntityFactory
 		entity = Option.ofOptional(em.getEntityFactory())
@@ -365,7 +369,7 @@ public class EntityService {
 								.filter(m -> m.getReturnType()
 										.equals(entityClass))
 								.filter(m -> Arrays.asList(m.getParameterTypes())
-										.equals(argClasses))
+										.equals(argClasses.toJavaList()))
 								.getOrElseThrow(() -> {
 									throw new MDMEntityAccessException(
 											"No matching create()-method found for EntityType "
@@ -391,6 +395,33 @@ public class EntityService {
 	}
 
 	/**
+	 * Updates the {@link Entity} with the given identifier with the values in the
+	 * given map.
+	 * 
+	 * @param entityClass
+	 *            the class of the entity to update
+	 * 
+	 */
+	// TODO handle erroneous call to delete on complete lists of ValueList etc.
+	@SuppressWarnings("unchecked")
+	// TODO change method signatures to have sourceName as first param
+	public <T extends Entity> Option<T> update(Class<T> entityClass, String sourceName, String id,
+			Map<String, Object> values) {
+		// get EntityManager
+		Try<EntityManager> entityManager = Try.of(() -> connectorService.getEntityManagerByName(sourceName));
+
+		// return updated entity
+		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, id))
+				// update entity
+				.map(entity -> ResourceHelper.updateEntity(entity, values))
+				// udpate in backend
+				.mapTry(entity -> DataAccessHelper.execute()
+						.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
+				.onFailure(ResourceHelper.rethrowException)
+				.toOption();
+	}
+
+	/**
 	 * Deletes the {@link Entity} with the given identifier.
 	 * 
 	 * @param entityClass
@@ -407,7 +438,7 @@ public class EntityService {
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
 	@SuppressWarnings("unchecked")
 	public <T extends Entity> Option<T> delete(Class<T> entityClass, Class<? extends Entity> parentClass,
-			String sourceName, ContextType contextType, String id, String catCompId) {
+			String sourceName, ContextType contextType, String id, String parentId) {
 		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
 		return Try.of(() -> entityManager.load(entityClass, contextType, id))
 				.mapTry(e -> {
@@ -420,7 +451,7 @@ public class EntityService {
 					if (CatalogAttribute.class.isAssignableFrom(entityClass)
 							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
 						// TODO verify existence of parent
-						Entity parent = entityManager.load(CatalogComponent.class, contextType, catCompId);
+						Entity parent = entityManager.load(CatalogComponent.class, contextType, parentId);
 						return ((CatalogComponent) parent).getCatalogAttributes()
 								.stream()
 								.filter(attr -> attr.getName()
@@ -509,11 +540,11 @@ public class EntityService {
 		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 		List<SearchAttribute> searchAttributes = null;
 
-		searchAttributes = this.searchActivity.listAvailableAttributes(em, entityClass);
+		searchAttributes = List.ofAll(this.searchActivity.listAvailableAttributes(em, entityClass));
 
 		// return empty list if nothing was found just in case the backend methods would
 		// return null
-		return searchAttributes != null ? searchAttributes : new ArrayList<SearchAttribute>();
+		return searchAttributes != null ? searchAttributes : List.empty();
 	}
 
 	/**
@@ -526,7 +557,7 @@ public class EntityService {
 	 * @return the localized {@link Entity} type name
 	 */
 	public <T extends Entity> Map<EntityType, String> localizeType(Class<T> entityClass, String sourceName) {
-		return this.i18nActivity.localizeType(sourceName, entityClass);
+		return HashMap.ofAll(this.i18nActivity.localizeType(sourceName, entityClass));
 	}
 
 	/**
@@ -539,6 +570,6 @@ public class EntityService {
 	 * @return the localized {@link Entity} attributes
 	 */
 	public <T extends Entity> Map<Attribute, String> localizeAttributes(Class<T> entityClass, String sourceName) {
-		return this.i18nActivity.localizeAttributes(sourceName, entityClass);
+		return HashMap.ofAll(this.i18nActivity.localizeAttributes(sourceName, entityClass));
 	}
 }
