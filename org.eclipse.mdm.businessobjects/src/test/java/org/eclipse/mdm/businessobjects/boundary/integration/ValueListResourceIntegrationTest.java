@@ -14,8 +14,15 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 
 /**
@@ -24,23 +31,60 @@ import io.restassured.specification.RequestSpecification;
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ValueListResourceIntegrationTest {
 
-	RequestSpecification reqSpec;
+	static RequestSpecification reqSpec;
+	static String id;
 
 	@Before
 	public void prepareTest() {
+		RestAssured.baseURI = "http://localhost:8080/org.eclipse.mdm.nucleus";
+		RestAssured.basePath = "/mdm/environments/PODS";
 		reqSpec = given().auth()
 				.preemptive()
 				.basic("sa", "sa");
 	}
 
 	@Test
-	public void testCreate() {
-		reqSpec.contentType("application/json")
-				.body("{\"name\":\"mytestvaluelist\"}")
-				.post("/org.eclipse.mdm.nucleus/mdm/environments/PODS/valuelists")
+	public void test1_Create() {
+		JsonObject o = new JsonObject();
+		o.add("name", new JsonPrimitive("mytestvaluelist"));
+
+		id = reqSpec.contentType(ContentType.JSON)
+				.body(o.toString())
+				.post("/valuelists")
 				.then()
-				.body("type", equalTo("ValueList"));
+				.contentType(ContentType.JSON)
+				.and()
+				.body("data.first().name", equalTo("mytestvaluelist"))
+				.and()
+				.body("data.first().type", equalTo("ValueList"))
+				.extract()
+				.path("data.first().id");
+	}
+
+	@Test
+	public void test2_Find() {
+		reqSpec.get("/valuelists/" + id)
+				.then()
+				.body("data.first().name", equalTo("mytestvaluelist"))
+				.body("data.first().type", equalTo("ValueList"));
+	}
+
+	@Test
+	public void test3_FindAll() {
+		reqSpec.get("/valuelists")
+				.then()
+				// TODO what else to check?
+				.contentType(ContentType.JSON);
+	}
+
+	@Test
+	public void test4_Delete() {
+		reqSpec.delete("/valuelists/" + id)
+				.then()
+				.body("data.first().name", equalTo("mytestvaluelist"))
+				.body("data.first().type", equalTo("ValueList"));
 	}
 }
