@@ -105,7 +105,7 @@ public class TemplateRootResource {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.findAll(TemplateRoot.class, contextType, sourceName, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(TemplateRoot.class, e))
+				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();

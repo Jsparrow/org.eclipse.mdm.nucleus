@@ -97,7 +97,7 @@ public class ValueListResource {
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> this.entityService.findAll(ValueList.class, sourceName, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(ValueList.class, e))
+				.map(e -> new MDMEntityResponse(ValueList.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();

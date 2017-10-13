@@ -413,11 +413,13 @@ public class EntityService {
 		// return updated entity
 		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, id))
 				// update entity
-				.map(entity -> ResourceHelper.updateEntity(entity, values))
+				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// udpate in backend
-				.mapTry(entity -> DataAccessHelper.execute()
-						.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
+				.mapTry(entity -> entity.toTry()
+						.mapTry(e -> DataAccessHelper.execute()
+								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE)))
 				.onFailure(ResourceHelper.rethrowException)
+				.get()
 				.toOption();
 	}
 

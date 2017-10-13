@@ -113,7 +113,7 @@ public class CatalogAttributeResource {
 				.map(contextType -> this.entityService.findChildren(CatalogComponent.class, CatalogAttribute.class,
 						contextType, sourceName, catCompId, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e))
+				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();

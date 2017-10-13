@@ -115,7 +115,7 @@ public class TemplateComponentResource {
 				.map(parent -> this.entityService.findChildren(TemplateRoot.class, TemplateComponent.class,
 						ResourceHelper.mapContextType(contextTypeParam), sourceName, tplRootId))
 				// prepare the result
-				.map(e -> new MDMEntityResponse(TemplateComponent.class, e))
+				.map(e -> new MDMEntityResponse(TemplateComponent.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();

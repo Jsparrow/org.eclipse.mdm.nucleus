@@ -133,7 +133,7 @@ public final class ResourceHelper {
 	 *            names
 	 * @return the updated entity
 	 */
-	public static <T extends Entity> Option<T> updateEntity(T entity, Map<String, Object> valueMap) {
+	public static <T extends Entity> Option<T> updateEntityValues(T entity, Map<String, Object> valueMap) {
 
 		// update all entity values with values from the valueMap
 		return Try.of(() -> entity)

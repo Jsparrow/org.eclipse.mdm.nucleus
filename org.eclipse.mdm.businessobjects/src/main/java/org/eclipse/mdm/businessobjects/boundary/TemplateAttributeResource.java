@@ -113,7 +113,7 @@ public class TemplateAttributeResource {
 				.map(contextType -> this.entityService.findChildren(TemplateComponent.class, TemplateAttribute.class,
 						contextType, sourceName, tplCompId, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e))
+				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();

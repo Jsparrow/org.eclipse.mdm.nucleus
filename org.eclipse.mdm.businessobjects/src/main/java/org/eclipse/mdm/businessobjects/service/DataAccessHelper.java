@@ -49,7 +49,7 @@ public final class DataAccessHelper {
 	 *         a transaction.
 	 */
 	// TODO extend this method to handle lists of objects
-	public static <T extends Entity> CheckedFunction3<EntityManager, T, CheckedFunction2<Transaction, T, Object>, Object> execute() {
+	public static <T extends Entity> CheckedFunction3<EntityManager, T, CheckedFunction2<Transaction, T, Object>, T> execute() {
 		return (em, entity, operation) -> {
 			Transaction t = null;
 			try {

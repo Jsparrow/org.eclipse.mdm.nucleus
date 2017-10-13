@@ -96,7 +96,7 @@ public class TemplateTestResource {
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> this.entityService.findAll(TemplateTest.class, sourceName, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(TemplateTest.class, e))
+				.map(e -> new MDMEntityResponse(TemplateTest.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();
@@ -125,7 +125,8 @@ public class TemplateTestResource {
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
 				// TODO handle non existing value
 				.toTry()
-				.map(name -> entityService.create(TemplateTest.class, sourceName, name.toString()).get())
+				.map(name -> entityService.create(TemplateTest.class, sourceName, name.toString())
+						.get())
 				.onFailure(ResourceHelper.rethrowException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, entity), Status.OK))
 				.get();
@@ -144,7 +145,8 @@ public class TemplateTestResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(TemplateTest.class, sourceName, id).get())
+		return Try.of(() -> this.entityService.delete(TemplateTest.class, sourceName, id)
+				.get())
 				.onFailure(ResourceHelper.rethrowException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, result), Status.OK))
 				.get();

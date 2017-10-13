@@ -105,7 +105,7 @@ public class CatalogComponentResource {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.findAll(CatalogComponent.class, contextType, sourceName, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(CatalogComponent.class, e))
+				.map(e -> new MDMEntityResponse(CatalogComponent.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();

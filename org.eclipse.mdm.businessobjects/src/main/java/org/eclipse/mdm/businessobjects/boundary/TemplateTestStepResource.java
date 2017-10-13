@@ -102,7 +102,7 @@ public class TemplateTestStepResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
 		return Try.of(() -> this.entityService.findAll(TemplateTestStep.class, sourceName, filter))
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(TemplateTestStep.class, e))
+				.map(e -> new MDMEntityResponse(TemplateTestStep.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();
