@@ -412,14 +412,18 @@ public class EntityService {
 
 		// return updated entity
 		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, id))
-				// update entity
+				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
-				// udpate in backend
+				// persist entity
 				.mapTry(entity -> entity.toTry()
 						.mapTry(e -> DataAccessHelper.execute()
 								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE)))
 				.onFailure(ResourceHelper.rethrowException)
-				.get()
+				// unwrap Option
+				// TODO check if that's the way to handle a potential error and thus null return
+				// value of the mapTry. To just call e.get() doesn't seem right also. What about
+				// flatMap()?
+				.map(e -> e.get())
 				.toOption();
 	}
 

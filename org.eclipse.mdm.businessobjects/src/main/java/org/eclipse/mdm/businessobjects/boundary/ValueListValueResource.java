@@ -159,24 +159,31 @@ public class ValueListValueResource {
 				.get();
 	}
 
+	/**
+	 * Updates the ValueListValue with all parameters set in the given JSON body of
+	 * the request
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link ValueListValue} to delete.
+	 * @param body
+	 *            the body of the request containing the attributes to udpate
+	 * @return the updated {@link ValueListValue}
+	 */
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID2) String valueListValueId, String body) {
-		// deserialize JSON into object map
-		// TODO check if String, String can be applied to create() too
-		Try<Map<String, Object>> mapping = Try.of(() -> HashMap
-				.ofAll(new ObjectMapper().readValue(body, new TypeReference<java.util.Map<String, Object>>() {
-				})));
+			@PathParam(REQUESTPARAM_ID2) String id, String body) {
 
 		// update entity
-		return mapping.map(m -> this.entityService.update(ValueListValue.class, sourceName, valueListValueId, m)
-				// TODO right to use get() in that way?
-				.get())
+		return ResourceHelper.deserializeJSON(body)
+				.map(valueMap -> this.entityService.update(ValueListValue.class, sourceName, id, valueMap))
 				.onFailure(ResourceHelper.rethrowException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity), Status.OK))
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity.get()),
+						Status.OK))
 				.get();
 	}
 
@@ -184,6 +191,8 @@ public class ValueListValueResource {
 	 * Returns the deleted {@link ValueListValue}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
 	 *            The identifier of the {@link ValueListValue} to delete.
 	 * @return The deleted {@link ValueListValue }s as {@link Response}

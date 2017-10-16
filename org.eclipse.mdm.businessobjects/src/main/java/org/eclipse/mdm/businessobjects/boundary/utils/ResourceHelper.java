@@ -28,6 +28,9 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
@@ -130,7 +133,7 @@ public final class ResourceHelper {
 	 *            the entity to update
 	 * @param valueMap
 	 *            values to update the entity with according to matching attribute
-	 *            names
+	 *            names. The keys are compared case sensitive.
 	 * @return the updated entity
 	 */
 	public static <T extends Entity> Option<T> updateEntityValues(T entity, Map<String, Object> valueMap) {
@@ -149,5 +152,21 @@ public final class ResourceHelper {
 				})
 				.onFailure(ResourceHelper.rethrowException)
 				.toOption();
+	}
+
+	/**
+	 * Returns a {@link Try<java.util.Map<String, Object>>} of the deserialized JSON
+	 * object.
+	 * 
+	 * @param body
+	 *            the JSON body to deserialize
+	 * @return {@link Try} of the deserialized body
+	 */
+	public static Try<Map<String, Object>> deserializeJSON(String body) {
+		return Try.of(() -> HashMap.<String, Object>ofAll(
+				new ObjectMapper().readValue(body, new TypeReference<java.util.Map<String, Object>>() {
+					// TODO correct to use onFailure instead of getOrThrow
+				})));
+
 	}
 }
