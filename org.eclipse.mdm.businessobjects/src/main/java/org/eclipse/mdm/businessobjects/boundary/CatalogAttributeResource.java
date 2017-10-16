@@ -24,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -167,7 +168,7 @@ public class CatalogAttributeResource {
 				.of(() -> this.entityService.find(CatalogComponent.class, contextType.get(), sourceName, catCompId))
 				.get();
 
-		// create catalog component
+		// create catalog attribute
 		return Try
 				.of(() -> entityService
 						.create(CatalogAttribute.class, sourceName, name.get(), valueType.get(), catComp.get())
@@ -175,6 +176,43 @@ public class CatalogAttributeResource {
 				.onFailure(ResourceHelper.rethrowException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, entity),
 						Status.OK))
+				.get();
+	}
+
+	/**
+	 * Updates the CatalogAttribute with all parameters set in the given JSON body
+	 * of the request
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link CatalogAttribute} to delete.
+	 * @param body
+	 *            the body of the request containing the attributes to udpate
+	 * @return the updated {@link CatalogAttribute}
+	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
+			@PathParam(REQUESTPARAM_ID) String catCompId, String body) {
+		return ResourceHelper.deserializeJSON(body)
+				.map(valueMap -> this.entityService.update(CatalogAttribute.class, CatalogComponent.class,
+						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, catCompId, valueMap))
+				// TODO if update returns ??? and entity is Option(none), why is the following
+				// map() executed?
+
+				// get catalog component
+				// Option<CatalogComponent> catComp = Try
+				// .of(() -> this.entityService.find(CatalogComponent.class, contextType.get(),
+				// sourceName, catCompId))
+				// .get();
+
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, entity.get()),
+						Status.OK))
+				.onFailure(ResourceHelper.rethrowException)
 				.get();
 	}
 

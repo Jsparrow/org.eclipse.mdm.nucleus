@@ -400,7 +400,8 @@ public class EntityService {
 	 * 
 	 * @param entityClass
 	 *            the class of the entity to update
-	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 */
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
 	@SuppressWarnings("unchecked")
@@ -435,7 +436,15 @@ public class EntityService {
 	 * 
 	 * @param entityClass
 	 *            the class of the entity to update
-	 * 
+	 * @param contextType
+	 *            the {@link ContextType) of the entities to find
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            id of the entity to update
+	 * @param values
+	 *            map of values to update the entity with according to matching
+	 *            attribute values by name case sensitive
 	 */
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
 	@SuppressWarnings("unchecked")
@@ -447,8 +456,76 @@ public class EntityService {
 
 		// return updated entity
 		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, contextType, id))
-				// TODO remove potentially loaded children before persisting the updated entity
-				// .map(entity -> ((BaseEntity) entity.))
+				// update entity values
+				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
+				// persist entity
+				// TODO remove toTry()
+				.mapTry(entity -> entity.toTry()
+						.mapTry(e -> DataAccessHelper.execute()
+								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
+						// TODO try to get rid of inner onFailure
+						.onFailure(ResourceHelper.rethrowException))
+				.onFailure(ResourceHelper.rethrowException)
+				// unwrap Option
+				// TODO check if that's the way to handle a potential error and thus null return
+				// value of the mapTry. To just call e.get() doesn't seem right also. What about
+				// flatMap()?
+				.map(e -> e.get())
+				.toOption();
+	}
+
+	/**
+	 * Updates the {@link Entity} of the given contextType with the given identifier
+	 * with the values in the given map.
+	 * 
+	 * @param entityClass
+	 *            the class of the entity to update
+	 * @param parentClass
+	 *            class of the {@link Entity}'s parent. Can be null.
+	 * @param contextType
+	 *            the {@link ContextType) of the entities to find
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            id of the entity to update
+	 * @param values
+	 *            map of values to update the entity with according to matching
+	 *            attribute values by name case sensitive
+	 */
+	// TODO handle erroneous call to delete on complete lists of ValueList etc.
+	@SuppressWarnings("unchecked")
+	// TODO change method signatures to have sourceName as first param
+	public <T extends Entity> Option<T> update(Class<T> entityClass, Class<? extends Entity> parentClass,
+			ContextType contextType, String sourceName, String id, String parentId, Map<String, Object> values) {
+		// get EntityManager
+		Try<EntityManager> entityManager = Try.of(() -> connectorService.getEntityManagerByName(sourceName));
+
+		// return updated entity
+		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, contextType, id))
+				.mapTry(e -> {
+					// reload from parent in case of CatalogAttribute as it can only be deleted
+					// if the parent is set
+					// TODO rewrite that mess: put in separate method reloadFromParent()
+					// TODO or check ODSModelManager for non-declared mandatory relation from
+					// CatAttr to CatComp as EntityRequest.load() loads all mandatory and
+					// optional related entities
+					// UPDATE: currently the mandatory relation from CatAttr to CatComp cannot be
+					// defined as this leads to a circular call when loading a CatComp
+					if (CatalogAttribute.class.isAssignableFrom(entityClass)
+							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
+						// TODO verify existence of parent
+						return entityManager.mapTry(em -> em.load(CatalogComponent.class, contextType, parentId))
+								.map(catComp -> catComp.getCatalogAttributes()
+								.stream()
+								.filter(attr -> attr.getName()
+										.equals(e.getName()))
+								.findFirst()
+										.get())
+								.getOrElse((CatalogAttribute) e);
+					} else {
+						return e;
+					}
+				})
 				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// persist entity
@@ -488,12 +565,14 @@ public class EntityService {
 		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
 		return Try.of(() -> entityManager.load(entityClass, contextType, id))
 				.mapTry(e -> {
-					// reload from parent in case of CatalogAttribute as it can only be deleted if
-					// the parent is set
+					// reload from parent in case of CatalogAttribute as it can only be deleted
+					// if the parent is set
 					// TODO rewrite that mess: put in separate method reloadFromParent()
 					// TODO or check ODSModelManager for non-declared mandatory relation from
-					// CatAttr to CatComp as EntityRequest.load() loads all mandatory and optional
-					// related entities
+					// CatAttr to CatComp as EntityRequest.load() loads all mandatory and
+					// optional related entities
+					// UPDATE: currently the mandatory relation from CatAttr to CatComp cannot be
+					// defined as this leads to a circular call when loading a CatComp
 					if (CatalogAttribute.class.isAssignableFrom(entityClass)
 							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
 						// TODO verify existence of parent
