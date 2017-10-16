@@ -181,9 +181,9 @@ public class ValueListValueResource {
 		// update entity
 		return ResourceHelper.deserializeJSON(body)
 				.map(valueMap -> this.entityService.update(ValueListValue.class, sourceName, id, valueMap))
-				.onFailure(ResourceHelper.rethrowException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity.get()),
 						Status.OK))
+				.onFailure(ResourceHelper.rethrowException)
 				.get();
 	}
 

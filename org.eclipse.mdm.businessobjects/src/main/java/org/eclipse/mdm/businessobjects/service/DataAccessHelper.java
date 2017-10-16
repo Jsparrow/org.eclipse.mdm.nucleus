@@ -118,6 +118,7 @@ public final class DataAccessHelper {
 	 * Function that updates the given {@link Entity} it is executed upon and return
 	 * the updated entity.
 	 */
+	// TODO return type of function should be Entity
 	public static CheckedFunction2<Transaction, Entity, Object> UPDATE = (t, entity) -> {
 		t.update((Collection<Entity>) Stream.of(entity)
 				.collect(Collectors.<Entity, List<Entity>>toCollection(LinkedList<Entity>::new)));

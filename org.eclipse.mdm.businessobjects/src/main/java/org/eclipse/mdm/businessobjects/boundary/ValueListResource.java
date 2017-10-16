@@ -111,7 +111,6 @@ public class ValueListResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, String body) {
-		// deserialize JSON into object map
 		return ResourceHelper.deserializeJSON(body)
 				// TODO what about deserialization errors and value not found?
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME)
@@ -140,12 +139,10 @@ public class ValueListResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
-
-		// update entity
 		return ResourceHelper.deserializeJSON(body)
-				.map(m -> this.entityService.update(ValueList.class, sourceName, id, m))
-				.onFailure(ResourceHelper.rethrowException)
+				.map(valueMap -> this.entityService.update(ValueList.class, sourceName, id, valueMap))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, entity.get()), Status.OK))
+				.onFailure(ResourceHelper.rethrowException)
 				.get();
 	}
 

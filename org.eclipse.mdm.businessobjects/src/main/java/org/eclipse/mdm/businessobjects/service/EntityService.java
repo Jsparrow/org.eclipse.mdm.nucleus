@@ -417,7 +417,47 @@ public class EntityService {
 				// persist entity
 				.mapTry(entity -> entity.toTry()
 						.mapTry(e -> DataAccessHelper.execute()
-								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE)))
+								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
+						// TODO try to get rid of inner onFailure
+						.onFailure(ResourceHelper.rethrowException))
+				.onFailure(ResourceHelper.rethrowException)
+				// unwrap Option
+				// TODO check if that's the way to handle a potential error and thus null return
+				// value of the mapTry. To just call e.get() doesn't seem right also. What about
+				// flatMap()?
+				.map(e -> e.get())
+				.toOption();
+	}
+
+	/**
+	 * Updates the {@link Entity} of the given contextType with the given identifier
+	 * with the values in the given map.
+	 * 
+	 * @param entityClass
+	 *            the class of the entity to update
+	 * 
+	 */
+	// TODO handle erroneous call to delete on complete lists of ValueList etc.
+	@SuppressWarnings("unchecked")
+	// TODO change method signatures to have sourceName as first param
+	public <T extends Entity> Option<T> update(Class<T> entityClass, ContextType contextType, String sourceName,
+			String id, Map<String, Object> values) {
+		// get EntityManager
+		Try<EntityManager> entityManager = Try.of(() -> connectorService.getEntityManagerByName(sourceName));
+
+		// return updated entity
+		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, contextType, id))
+				// TODO remove potentially loaded children before persisting the updated entity
+				// .map(entity -> ((BaseEntity) entity.))
+				// update entity values
+				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
+				// persist entity
+				// TODO remove toTry()
+				.mapTry(entity -> entity.toTry()
+						.mapTry(e -> DataAccessHelper.execute()
+								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
+						// TODO try to get rid of inner onFailure
+						.onFailure(ResourceHelper.rethrowException))
 				.onFailure(ResourceHelper.rethrowException)
 				// unwrap Option
 				// TODO check if that's the way to handle a potential error and thus null return
