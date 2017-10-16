@@ -203,13 +203,6 @@ public class CatalogAttributeResource {
 						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, catCompId, valueMap))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
-
-				// get catalog component
-				// Option<CatalogComponent> catComp = Try
-				// .of(() -> this.entityService.find(CatalogComponent.class, contextType.get(),
-				// sourceName, catCompId))
-				// .get();
-
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, entity.get()),
 						Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
