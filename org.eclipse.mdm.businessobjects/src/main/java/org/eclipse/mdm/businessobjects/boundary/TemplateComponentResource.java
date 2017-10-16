@@ -202,9 +202,9 @@ public class TemplateComponentResource {
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
 				.map(valueMap -> this.entityService.update(TemplateComponent.class,
