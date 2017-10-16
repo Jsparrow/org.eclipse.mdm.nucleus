@@ -47,7 +47,7 @@ public class ValueListResourceIntegrationTest {
 	}
 
 	@Test
-	public void test1_Create() {
+	public void test1Create() {
 		JsonObject o = new JsonObject();
 		o.add("name", new JsonPrimitive("mytestvaluelist"));
 
@@ -65,7 +65,7 @@ public class ValueListResourceIntegrationTest {
 	}
 
 	@Test
-	public void test2_Find() {
+	public void test2Find() {
 		reqSpec.get("/valuelists/" + id)
 				.then()
 				.body("data.first().name", equalTo("mytestvaluelist"))
@@ -73,7 +73,7 @@ public class ValueListResourceIntegrationTest {
 	}
 
 	@Test
-	public void test3_FindAll() {
+	public void test3FindAll() {
 		reqSpec.get("/valuelists")
 				.then()
 				// TODO what else to check?
@@ -81,10 +81,15 @@ public class ValueListResourceIntegrationTest {
 	}
 
 	@Test
-	public void test4_Delete() {
+	public void test4Delete() {
 		reqSpec.delete("/valuelists/" + id)
 				.then()
 				.body("data.first().name", equalTo("mytestvaluelist"))
 				.body("data.first().type", equalTo("ValueList"));
+	}
+
+	@Test
+	public void test5Update() {
+		sdsdf
 	}
 }
