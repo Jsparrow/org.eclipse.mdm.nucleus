@@ -24,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -183,6 +184,36 @@ public class TemplateComponentResource {
 				.onFailure(ResourceHelper.rethrowException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, entity),
 						Status.OK))
+				.get();
+	}
+
+	/**
+	 * Updates the TemplateComponent with all parameters set in the given JSON body
+	 * of the request
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link TemplateComponent} to delete.
+	 * @param body
+	 *            the body of the request containing the attributes to udpate
+	 * @return the updated {@link TemplateComponent}
+	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id,
+			String body) {
+		return ResourceHelper.deserializeJSON(body)
+				.map(valueMap -> this.entityService.update(TemplateComponent.class,
+						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, valueMap))
+				// TODO if update returns ??? and entity is Option(none), why is the following
+				// map() executed?
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, entity.get()),
+						Status.OK))
+				.onFailure(ResourceHelper.rethrowException)
 				.get();
 	}
 

@@ -34,7 +34,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateRoot;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
@@ -152,16 +151,16 @@ public class TemplateRootResource {
 	}
 
 	/**
-	 * Updates the CatalogComponent with all parameters set in the given JSON body
-	 * of the request
+	 * Updates the TemplateRoot with all parameters set in the given JSON body of
+	 * the request
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
-	 *            the identifier of the {@link CatalogComponent} to delete.
+	 *            the identifier of the {@link TemplateRoot} to delete.
 	 * @param body
 	 *            the body of the request containing the attributes to udpate
-	 * @return the updated {@link CatalogComponent}
+	 * @return the updated {@link TemplateRoot}
 	 */
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
