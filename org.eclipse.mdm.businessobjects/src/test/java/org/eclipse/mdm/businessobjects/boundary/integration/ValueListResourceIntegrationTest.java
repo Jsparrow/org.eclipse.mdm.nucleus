@@ -90,6 +90,5 @@ public class ValueListResourceIntegrationTest {
 
 	@Test
 	public void test5Update() {
-		sdsdf
 	}
 }
