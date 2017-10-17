@@ -89,18 +89,26 @@ public final class ResourceConstants {
 	 * request body
 	 */
 	public static final String ENTITYATTRIBUTE_TPLROOTUNITUNDERTEST_ID = "templaterootunitundertest";
+
 	/**
 	 * Parameter holding the id of the {@link TemplateRoot} of
 	 * {@link ContextType.TESTSEQUENCE} of e.g. the {@link TemplateTestStep} in the
 	 * request body
 	 */
 	public static final String ENTITYATTRIBUTE_TPLROOTTESTSEQUENCE_ID = "templateroottestsequence";
+
 	/**
 	 * Parameter holding the id of the {@link TemplateRoot} of
 	 * {@link ContextType.TESTEQUIPMMENT} of e.g. the {@link TemplateTestStep} in
 	 * the request body
 	 */
 	public static final String ENTITYATTRIBUTE_TPLROOTTESTEQUIPMENT_ID = "templateroottestequipment";
+
+	/**
+	 * Parameter holding the id of the {@link ValueList} of e.g. the
+	 * {@link CatalogAttribute} in the request body
+	 */
+	public static final String ENTITYATTRIBUTE_VALUELISTID = "valuelist";
 
 	/**
 	 * Just hide the default constructor

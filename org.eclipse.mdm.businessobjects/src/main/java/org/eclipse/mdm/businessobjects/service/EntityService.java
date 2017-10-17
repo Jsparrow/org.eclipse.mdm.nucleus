@@ -422,7 +422,7 @@ public class EntityService {
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// attach TplRoots to TplTestStep
 				.map(entity -> {
-					// TODO rewrite that mess! use not attributes but complex JSON objects to set
+					// TODO make attaching related enties generic
 					// related entities in a generic way
 					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTUNITUNDERTEST_ID)
 							.map(value -> entityManager.mapTry(
@@ -557,6 +557,18 @@ public class EntityService {
 				})
 				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
+				// TODO make attaching related enties generic
+				// attach ValueList to CatAttr
+				.map(entity -> {
+					// TODO rewrite that mess! use not attributes but complex JSON objects to set
+					// related entities in a generic way
+					values.get(ResourceConstants.ENTITYATTRIBUTE_VALUELISTID)
+							.map(value -> entityManager.mapTry(em -> em.load(ValueList.class, value.toString()))
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
+							.peek(valueList -> setRelatedEntity(entity.get(), valueList, null));
+					return entity;
+				})
 				// persist entity
 				// TODO remove toTry()
 				.mapTry(entity -> entity.toTry()
