@@ -188,7 +188,7 @@ public class CatalogAttributeResource {
 	 * @param id
 	 *            the identifier of the {@link CatalogAttribute} to delete.
 	 * @param body
-	 *            the body of the request containing the attributes to udpate
+	 *            the body of the request containing the attributes to update
 	 * @return the updated {@link CatalogAttribute}
 	 */
 	@PUT

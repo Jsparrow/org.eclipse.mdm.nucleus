@@ -178,7 +178,7 @@ public class TemplateAttributeResource {
 	 * @param id
 	 *            the identifier of the {@link TemplateAttribute} to delete.
 	 * @param body
-	 *            the body of the request containing the attributes to udpate
+	 *            the body of the request containing the attributes to update
 	 * @return the updated {@link TemplateAttribute}
 	 */
 	@PUT

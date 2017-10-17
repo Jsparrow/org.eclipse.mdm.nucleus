@@ -168,7 +168,7 @@ public class ValueListValueResource {
 	 * @param id
 	 *            the identifier of the {@link ValueListValue} to delete.
 	 * @param body
-	 *            the body of the request containing the attributes to udpate
+	 *            the body of the request containing the attributes to update
 	 * @return the updated {@link ValueListValue}
 	 */
 	@PUT

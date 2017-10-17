@@ -159,7 +159,7 @@ public class TemplateRootResource {
 	 * @param id
 	 *            the identifier of the {@link TemplateRoot} to delete.
 	 * @param body
-	 *            the body of the request containing the attributes to udpate
+	 *            the body of the request containing the attributes to update
 	 * @return the updated {@link TemplateRoot}
 	 */
 	@PUT

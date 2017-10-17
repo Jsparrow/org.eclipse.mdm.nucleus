@@ -196,7 +196,7 @@ public class TemplateComponentResource {
 	 * @param id
 	 *            the identifier of the {@link TemplateComponent} to delete.
 	 * @param body
-	 *            the body of the request containing the attributes to udpate
+	 *            the body of the request containing the attributes to update
 	 * @return the updated {@link TemplateComponent}
 	 */
 	@PUT
