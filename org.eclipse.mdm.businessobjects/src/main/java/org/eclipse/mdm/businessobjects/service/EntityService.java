@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.service;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -17,7 +18,9 @@ import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.model.BaseEntity;
 import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.api.base.model.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
@@ -26,7 +29,9 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.CatalogAttribute;
 import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.EntityFactory;
+import org.eclipse.mdm.api.dflt.model.TemplateRoot;
 import org.eclipse.mdm.api.dflt.model.ValueList;
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
@@ -415,6 +420,30 @@ public class EntityService {
 		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, id))
 				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
+				// attach TplRoots to TplTestStep
+				.map(entity -> {
+					// TODO rewrite that mess! use not attributes but complex JSON objects to set
+					// related entities in a generic way
+					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTUNITUNDERTEST_ID)
+							.map(value -> entityManager.mapTry(
+									em -> em.load(TemplateRoot.class, ContextType.UNITUNDERTEST, value.toString()))
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
+							.peek(tplRoot -> setRelatedEntity(entity.get(), tplRoot, ContextType.UNITUNDERTEST));
+					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTTESTSEQUENCE_ID)
+							.map(value -> entityManager.mapTry(
+									em -> em.load(TemplateRoot.class, ContextType.TESTSEQUENCE, value.toString()))
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
+							.peek(tplRoot -> setRelatedEntity(entity.get(), tplRoot, ContextType.TESTSEQUENCE));
+					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTTESTEQUIPMENT_ID)
+							.map(value -> entityManager.mapTry(
+									em -> em.load(TemplateRoot.class, ContextType.TESTEQUIPMENT, value.toString()))
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
+							.peek(tplRoot -> setRelatedEntity(entity.get(), tplRoot, ContextType.TESTEQUIPMENT));
+					return entity;
+				})
 				// persist entity
 				.mapTry(entity -> entity.toTry()
 						.mapTry(e -> DataAccessHelper.execute()
@@ -696,5 +725,44 @@ public class EntityService {
 	 */
 	public <T extends Entity> Map<Attribute, String> localizeAttributes(Class<T> entityClass, String sourceName) {
 		return HashMap.ofAll(this.i18nActivity.localizeAttributes(sourceName, entityClass));
+	}
+
+	/**
+	 * Sets a related {@link Entity} for a given {@link Entity}. A
+	 * {@link ContextType} can be specified for the relatedEntity.
+	 * 
+	 * @param entity
+	 *            entity to set related entity for
+	 * @param relatedEntity
+	 *            related entity to set
+	 * @param contextType
+	 *            contextType of related entity or null if not applicable
+	 */
+	private static void setRelatedEntity(Entity entity, Entity relatedEntity, ContextType contextType) {
+		Method GET_CORE_METHOD;
+		try {
+			GET_CORE_METHOD = BaseEntity.class.getDeclaredMethod("getCore");
+			GET_CORE_METHOD.setAccessible(true);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new IllegalStateException(
+					"Unable to load 'getCore()' in class '" + BaseEntity.class.getSimpleName() + "'.", e);
+		}
+		// use appropriate set-method
+		if (contextType != null) {
+			Try.of(() -> {
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
+						.set(relatedEntity, contextType);
+				return null;
+			})
+					.onFailure(ResourceHelper.rethrowException);
+		} else {
+			Try.of(() -> {
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
+						.set(relatedEntity);
+				return null;
+			})
+					.onFailure(ResourceHelper.rethrowException);
+
+		}
 	}
 }

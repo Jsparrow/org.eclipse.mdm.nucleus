@@ -136,6 +136,8 @@ public final class ResourceHelper {
 	 *            names. The keys are compared case sensitive.
 	 * @return the updated entity
 	 */
+	// TODO method should return Try and not Option to indicate that the update was
+	// successful
 	public static <T extends Entity> Option<T> updateEntityValues(T entity, Map<String, Object> valueMap) {
 
 		// update all entity values with values from the valueMap

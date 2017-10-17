@@ -81,8 +81,26 @@ public final class ResourceConstants {
 	 * Parameter holding the id of the {@link TemplateTestStep} of e.g. the
 	 * {@link TemplateTestStepUsage} in the request body
 	 */
-
 	public static final String ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID = "templateteststep";
+
+	/**
+	 * Parameter holding the id of the {@link TemplateRoot} of
+	 * {@link ContextType.UNITUNDERTEST} of e.g. the {@link TemplateTestStep} in the
+	 * request body
+	 */
+	public static final String ENTITYATTRIBUTE_TPLROOTUNITUNDERTEST_ID = "templaterootunitundertest";
+	/**
+	 * Parameter holding the id of the {@link TemplateRoot} of
+	 * {@link ContextType.TESTSEQUENCE} of e.g. the {@link TemplateTestStep} in the
+	 * request body
+	 */
+	public static final String ENTITYATTRIBUTE_TPLROOTTESTSEQUENCE_ID = "templateroottestsequence";
+	/**
+	 * Parameter holding the id of the {@link TemplateRoot} of
+	 * {@link ContextType.TESTEQUIPMMENT} of e.g. the {@link TemplateTestStep} in
+	 * the request body
+	 */
+	public static final String ENTITYATTRIBUTE_TPLROOTTESTEQUIPMENT_ID = "templateroottestequipment";
 
 	/**
 	 * Just hide the default constructor
