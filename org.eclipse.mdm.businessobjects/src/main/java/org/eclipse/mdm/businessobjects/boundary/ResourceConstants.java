@@ -6,6 +6,9 @@ import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateAttribute;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateRoot;
+import org.eclipse.mdm.api.dflt.model.TemplateTest;
+import org.eclipse.mdm.api.dflt.model.TemplateTestStep;
+import org.eclipse.mdm.api.dflt.model.TemplateTestStepUsage;
 
 /**
  * Class defining constants used by the specific Jersey resource classes.
@@ -67,6 +70,19 @@ public final class ResourceConstants {
 	 * {@link TemplateAttribute} in the request body
 	 */
 	public static final String ENTITYATTRIBUTE_CATALOGATTRIBUTE_ID = "catalogattribute";
+
+	/**
+	 * Parameter holding the id of the {@link TemplateTest} of e.g. the
+	 * {@link TemplateTestStepUsage} in the request body
+	 */
+	public static final String ENTITYATTRIBUTE_TEMPLATETEST_ID = "templatetest";
+
+	/**
+	 * Parameter holding the id of the {@link TemplateTestStep} of e.g. the
+	 * {@link TemplateTestStepUsage} in the request body
+	 */
+
+	public static final String ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID = "templateteststep";
 
 	/**
 	 * Just hide the default constructor
