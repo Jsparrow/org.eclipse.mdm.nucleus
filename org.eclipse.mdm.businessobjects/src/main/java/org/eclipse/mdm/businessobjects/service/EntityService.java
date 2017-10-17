@@ -516,10 +516,10 @@ public class EntityService {
 						// TODO verify existence of parent
 						return entityManager.mapTry(em -> em.load(CatalogComponent.class, contextType, parentId))
 								.map(catComp -> catComp.getCatalogAttributes()
-								.stream()
-								.filter(attr -> attr.getName()
-										.equals(e.getName()))
-								.findFirst()
+										.stream()
+										.filter(attr -> attr.getName()
+												.equals(e.getName()))
+										.findFirst()
 										.get())
 								.getOrElse((CatalogAttribute) e);
 					} else {

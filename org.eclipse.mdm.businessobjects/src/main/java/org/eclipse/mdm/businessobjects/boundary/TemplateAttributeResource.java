@@ -24,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,7 +36,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateAttribute;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
@@ -170,6 +170,36 @@ public class TemplateAttributeResource {
 	}
 
 	/**
+	 * Updates the TemplateAttribute with all parameters set in the given JSON body
+	 * of the request
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link TemplateAttribute} to delete.
+	 * @param body
+	 *            the body of the request containing the attributes to udpate
+	 * @return the updated {@link TemplateAttribute}
+	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID3 + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id,
+			String body) {
+		return ResourceHelper.deserializeJSON(body)
+				.map(valueMap -> this.entityService.update(TemplateAttribute.class,
+						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, valueMap))
+				// TODO if update returns ??? and entity is Option(none), why is the following
+				// map() executed?
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, entity.get()),
+						Status.OK))
+				.onFailure(ResourceHelper.rethrowException)
+				.get();
+	}
+
+	/**
 	 * Returns the deleted {@link TemplateAttribute}. Throws a
 	 * {@link WebApplicationException} on error.
 	 * 
@@ -179,13 +209,11 @@ public class TemplateAttributeResource {
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID2 + "}")
+	@Path("/{" + REQUESTPARAM_ID3 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
-			@PathParam(REQUESTPARAM_ID) String catCompId) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(TemplateAttribute.class, CatalogComponent.class,
-						sourceName, contextType, id, catCompId))
+				.map(contextType -> this.entityService.delete(TemplateAttribute.class, sourceName, contextType, id))
 				.onFailure(ResourceHelper.rethrowException)
 				// TODO add check for result.isPresent()
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, result.get()),
