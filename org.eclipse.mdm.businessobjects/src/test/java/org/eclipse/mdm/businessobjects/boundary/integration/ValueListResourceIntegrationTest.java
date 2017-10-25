@@ -13,7 +13,6 @@ package org.eclipse.mdm.businessobjects.boundary.integration;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -21,12 +20,13 @@ import org.junit.runners.MethodSorters;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
 
 /**
- * Test class for ValueListResource
+ * Test class for ValueListResource. Tests are executed in
+ * {@link FixMethodOrder(MethodSorters.NAME_ASCENDING)} as test2Find(),
+ * test3FindAll(), test3Delete() and test4Update() depend on the entity created
+ * by test1Create().
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
@@ -34,25 +34,15 @@ import io.restassured.specification.RequestSpecification;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ValueListResourceIntegrationTest {
 
-	static RequestSpecification reqSpec;
 	static String id;
-
-	@Before
-	public void prepareTest() {
-		RestAssured.baseURI = "http://localhost:8080/org.eclipse.mdm.nucleus";
-		RestAssured.basePath = "/mdm/environments/PODS";
-		reqSpec = given().auth()
-				.preemptive()
-				.basic("sa", "sa");
-	}
 
 	@Test
 	public void test1Create() {
-		JsonObject o = new JsonObject();
-		o.add("name", new JsonPrimitive("mytestvaluelist"));
+		JsonObject json = new JsonObject();
+		json.add("name", new JsonPrimitive("mytestvaluelist"));
 
-		id = reqSpec.contentType(ContentType.JSON)
-				.body(o.toString())
+		id = given().contentType(ContentType.JSON)
+				.body(json.toString())
 				.post("/valuelists")
 				.then()
 				.contentType(ContentType.JSON)
@@ -66,29 +56,40 @@ public class ValueListResourceIntegrationTest {
 
 	@Test
 	public void test2Find() {
-		reqSpec.get("/valuelists/" + id)
+		given().get("/valuelists/" + id)
 				.then()
+				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo("mytestvaluelist"))
 				.body("data.first().type", equalTo("ValueList"));
 	}
 
 	@Test
 	public void test3FindAll() {
-		reqSpec.get("/valuelists")
+		given().get("/valuelists")
 				.then()
-				// TODO what else to check?
-				.contentType(ContentType.JSON);
-	}
-
-	@Test
-	public void test4Delete() {
-		reqSpec.delete("/valuelists/" + id)
-				.then()
-				.body("data.first().name", equalTo("mytestvaluelist"))
+				.contentType(ContentType.JSON)
 				.body("data.first().type", equalTo("ValueList"));
 	}
 
 	@Test
-	public void test5Update() {
+	public void test4Update() {
+		JsonObject json = new JsonObject();
+		json.add("name", new JsonPrimitive("myupdatedtestvaluelist"));
+
+		given().contentType(ContentType.JSON)
+				.body(json.toString())
+				.put("/valuelists/" + id)
+				.then()
+				.contentType(ContentType.JSON)
+				.body("data.first().name", equalTo("myupdatedtestvaluelist"))
+				.body("data.first().type", equalTo("ValueList"));
+	}
+
+	@Test
+	public void test5Delete() {
+		given().delete("/valuelists/" + id)
+				.then()
+				.body("data.first().name", equalTo("mytestvaluelist"))
+				.body("data.first().type", equalTo("ValueList"));
 	}
 }
