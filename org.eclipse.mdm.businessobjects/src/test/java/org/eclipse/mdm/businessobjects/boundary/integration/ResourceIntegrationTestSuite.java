@@ -1,7 +1,6 @@
 package org.eclipse.mdm.businessobjects.boundary.integration;
 
-import org.junit.ClassRule;
-import org.junit.rules.ExternalResource;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -28,27 +27,24 @@ public class ResourceIntegrationTestSuite {
 	private static final String AUTH_USERNAME = "sa";
 	private static final String AUTH_PASSWORD = "sa";
 
-	@ClassRule
-	public static ExternalResource connectionRule = new ExternalResource() {
-		@Override
-		protected void before() throws Throwable {
-			StringBuilder baseURI = new StringBuilder();
-			baseURI.append("http://")
-					.append(HOST)
-					.append(":")
-					.append(PORT)
-					.append("/")
-					.append(BASE_PATH)
-					.append("/")
-					.append(API_PATH);
-			RestAssured.baseURI = baseURI.toString();
-			RestAssured.basePath = ENV_PATH;
+	@BeforeClass
+	public static void before() throws Throwable {
+		StringBuilder baseURI = new StringBuilder();
+		baseURI.append("http://")
+				.append(HOST)
+				.append(":")
+				.append(PORT)
+				.append("/")
+				.append(BASE_PATH)
+				.append("/")
+				.append(API_PATH);
+		RestAssured.baseURI = baseURI.toString();
+		RestAssured.basePath = ENV_PATH;
 
-			PreemptiveBasicAuthScheme authScheme = new PreemptiveBasicAuthScheme();
-			authScheme.setUserName(AUTH_USERNAME);
-			authScheme.setPassword(AUTH_PASSWORD);
+		PreemptiveBasicAuthScheme authScheme = new PreemptiveBasicAuthScheme();
+		authScheme.setUserName(AUTH_USERNAME);
+		authScheme.setPassword(AUTH_PASSWORD);
 
-			RestAssured.authentication = authScheme;
-		}
-	};
+		RestAssured.authentication = authScheme;
+	}
 }
