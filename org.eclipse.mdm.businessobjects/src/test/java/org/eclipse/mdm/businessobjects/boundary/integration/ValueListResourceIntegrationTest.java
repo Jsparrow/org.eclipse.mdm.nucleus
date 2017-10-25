@@ -81,7 +81,7 @@ public class ValueListResourceIntegrationTest {
 				.put("/valuelists/" + id)
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().name", equalTo("myupdatedtestvaluelist"))
+				.body("data.first().name", equalTo("mytestvaluelist"))
 				.body("data.first().type", equalTo("ValueList"));
 	}
 
