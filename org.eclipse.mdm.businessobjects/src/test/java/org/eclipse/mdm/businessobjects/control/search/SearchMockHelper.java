@@ -37,7 +37,7 @@ import org.mockito.Mockito;
 
 public class SearchMockHelper {
 
-	public static int ITEM_COUNT = 3;
+	public static final int ITEM_COUNT = 3;
 
 	public static EntityManager createEntityManagerMock() throws Exception {
 		EntityManager em = Mockito.mock(EntityManager.class);
