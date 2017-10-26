@@ -186,7 +186,73 @@ public class TemplateComponentResource {
 						Status.OK))
 				.get();
 	}
+	
+	
+	/**
+	 * Returns the created {@link TemplateComponentValue}. Throws a
+	 * {@link WebApplicationException} on error.
+	 * 
+	 * @param body
+	 *            The {@link TemplateComponent} to create.
+	 * @param id
+	 *            the identifier of the parent {@link TemplateComponent}.
+	 * @return The created {@link TemplateComponent} as {@link Response}.
+	 */
 
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID2 + "}/tplcomps")
+	public Response createChild(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
+			String body) {
+
+		// deserialize JSON into object map
+		@SuppressWarnings("unchecked")
+		Map<String, Object> mapping = (Map<String, Object>) Try
+		.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
+		}))
+		.get();
+
+		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
+				.toString())
+				.toOption();
+
+		// get contextType
+		Option<ContextType> contextType = Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+				.toOption();
+
+		// get catCompId
+		// TODO discuss if name of CatComp (as it is unique) could be used
+		// (additionally)
+		Option<String> catCompId = Try.of(() -> mapping.get(ENTITYATTRIBUTE_CATALOGCOMPONENT_ID)
+				.toString())
+				.toOption();
+
+		// get catalog component
+		// TODO handle non-existing catComp
+		Option<CatalogComponent> catComp = Try.of(
+				() -> this.entityService.find(CatalogComponent.class, contextType.get(), sourceName, catCompId.get()))
+				.get();
+
+		// get parent component
+		Option<TemplateComponent> tplParent = Try.of(
+				() -> this.entityService.find(TemplateComponent.class, contextType.get(), sourceName, id))
+				.get();
+
+		// create
+		return Try
+				.of(() -> this.entityService
+						.create(TemplateComponent.class, sourceName, name.get(), tplParent.get(), catComp.get())
+						.get())
+				.onFailure(ResourceHelper.rethrowException)
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, entity),
+						Status.OK))
+				.get();
+
+	}
+
+	
 	/**
 	 * Updates the TemplateComponent with all parameters set in the given JSON body
 	 * of the request
@@ -194,7 +260,7 @@ public class TemplateComponentResource {
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
-	 *            the identifier of the {@link TemplateComponent} to delete.
+	 *            the identifier of the {@link TemplateComponent} to update.
 	 * @param body
 	 *            the body of the request containing the attributes to update
 	 * @return the updated {@link TemplateComponent}
