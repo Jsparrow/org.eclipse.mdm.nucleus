@@ -13,7 +13,6 @@ package org.eclipse.mdm.businessobjects.boundary.integration;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -21,6 +20,8 @@ import org.junit.runners.MethodSorters;
 import io.restassured.RestAssured;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
 import io.restassured.http.ContentType;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 
 /**
  * Abstract test class for Entity resources. Tests are executed in
@@ -43,16 +44,18 @@ public abstract class EntityResourceIntegrationTest {
 	private static final String AUTH_USERNAME = "sa";
 	private static final String AUTH_PASSWORD = "sa";
 
-	private static String entityId;
-	private static String entityName;
-	private static String entityType;
-	private static String createJSONBody;
-	private static String resourceURI;
+	protected static String TESTDATA_ENTITY_ID = "entityId";
+	protected static String TESTDATA_ENTITY_NAME = "entityName";
+	protected static String TESTDATA_ENTITY_TYPE = "entityType";
+	protected static String TESTDATA_CREATE_JSON_BODY = "createJSONBody";
+	protected static String TESTDATA_RESOURCE_URI = "resourceURI";
 
-	@Before
-	// TODO that should happen as @BeforeClass but initTestData cannot be static to
-	// be referenced by this static context
-	public void before() throws Throwable {
+	private static Map<Class<?>, Map<String, String>> testDataMap = HashMap.empty();
+
+	/**
+	 * Init RestAssured
+	 */
+	static {
 		StringBuilder baseURI = new StringBuilder();
 		baseURI.append("http://")
 				.append(HOST)
@@ -70,44 +73,67 @@ public abstract class EntityResourceIntegrationTest {
 		authScheme.setPassword(AUTH_PASSWORD);
 
 		RestAssured.authentication = authScheme;
-
-		initTestData();
 	}
 
-	public abstract void initTestData();
+	// @BeforeClass
+	// // TODO that should happen as @BeforeClass but initTestData cannot be static
+	// to
+	// // be referenced by this static context
+	// public static void setUpBefore() throws Throwable {
+	// prepareTest();
+	// }
+	//
+	// public EntityResourceIntegrationTest prepareTest() {
+	// // let the implementation set up its test bed
+	// prepareTestData();
+	//
+	// return this;
+	// }
+	//
+	// /**
+	// * Prepare the test data, i.e. the resource URI and entity config
+	// */
+	// public abstract void prepareTestData();
 
 	@Test
 	public void test1Create() {
+		createEntity();
+	}
+
+	public EntityResourceIntegrationTest createEntity() {
 		String id = given().contentType(ContentType.JSON)
-				.body(getCreateJSONBody())
-				.post(getResourceURI())
+				.body(getTestDataValue(this.getClass(), TESTDATA_CREATE_JSON_BODY))
+				.post(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI))
 				.then()
 				.contentType(ContentType.JSON)
 				.and()
-				.body("data.first().name", equalTo(getEntityName()))
+				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
 				.and()
-				.body("data.first().type", equalTo(getEntityType()))
+				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)))
 				.extract()
 				.path("data.first().id");
 
-		setEntityId(id);
+		setTestDataValue(this.getClass(), TESTDATA_ENTITY_ID, id);
+
+		return this;
 	}
 
 	@Test
 	public void test2Find() {
-		given().get(getResourceURI() + "/" + getEntityId())
+		given().get(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI) + "/"
+				+ getTestDataValue(this.getClass(), TESTDATA_ENTITY_ID))
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().name", equalTo(getEntityName()))
-				.body("data.first().type", equalTo(getEntityType()));
+				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
+				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
 	}
 
 	@Test
 	public void test3FindAll() {
-		given().get(getResourceURI())
+		given().get(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI))
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().type", equalTo(getEntityType()));
+				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
 	}
 
 	@Test
@@ -119,59 +145,34 @@ public abstract class EntityResourceIntegrationTest {
 				// instead: return the old or updated object as returning the updated one would
 				// mean to perform another get as the ODSTransaction.update() does not return
 				// the updated entity
-				.body(getCreateJSONBody())
-				.put(getResourceURI() + "/" + getEntityId())
+				.body(getTestDataValue(this.getClass(), TESTDATA_CREATE_JSON_BODY))
+				.put(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI) + "/"
+						+ getTestDataValue(this.getClass(), TESTDATA_ENTITY_ID))
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().name", equalTo(getEntityName()))
-				.body("data.first().type", equalTo(getEntityType()));
+				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
+				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
 	}
 
 	@Test
 	public void test5Delete() {
-		given().delete(getResourceURI() + "/" + getEntityId())
+		given().delete(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI) + "/"
+				+ getTestDataValue(this.getClass(), TESTDATA_ENTITY_ID))
 				.then()
-				.body("data.first().name", equalTo(getEntityName()))
-				.body("data.first().type", equalTo(getEntityType()));
+				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
+				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
 	}
 
-	public static String getEntityId() {
-		return entityId;
+	public static String getTestDataValue(Class<?> context, String key) {
+		return testDataMap.get(context)
+				.get()
+				.get(key)
+				.get();
 	}
 
-	public static void setEntityId(String id) {
-		entityId = id;
-	}
-
-	public static String getCreateJSONBody() {
-		return createJSONBody;
-	}
-
-	public static void setCreateJSONBody(String createJSONBody) {
-		EntityResourceIntegrationTest.createJSONBody = createJSONBody;
-	}
-
-	public static String getResourceURI() {
-		return resourceURI;
-	}
-
-	public static void setResourceURI(String resourceURI) {
-		EntityResourceIntegrationTest.resourceURI = resourceURI;
-	}
-
-	public static String getEntityName() {
-		return entityName;
-	}
-
-	public static void setEntityName(String entityName) {
-		EntityResourceIntegrationTest.entityName = entityName;
-	}
-
-	public static String getEntityType() {
-		return entityType;
-	}
-
-	public static void setEntityType(String entityType) {
-		EntityResourceIntegrationTest.entityType = entityType;
+	public static void setTestDataValue(Class<?> context, String key, String value) {
+		Map<String, String> entityTestData = testDataMap.getOrElse(context, HashMap.empty());
+		entityTestData = entityTestData.put(key, value);
+		testDataMap = testDataMap.put(context, entityTestData);
 	}
 }
