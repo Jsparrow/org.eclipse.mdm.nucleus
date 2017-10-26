@@ -34,14 +34,14 @@ import io.restassured.http.ContentType;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ValueListResourceIntegrationTest {
 
-	static String id;
+	private static String entityId;
 
 	@Test
 	public void test1Create() {
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive("mytestvaluelist"));
 
-		id = given().contentType(ContentType.JSON)
+		String id = given().contentType(ContentType.JSON)
 				.body(json.toString())
 				.post("/valuelists")
 				.then()
@@ -52,11 +52,13 @@ public class ValueListResourceIntegrationTest {
 				.body("data.first().type", equalTo("ValueList"))
 				.extract()
 				.path("data.first().id");
+
+		setEntityId(id);
 	}
 
 	@Test
 	public void test2Find() {
-		given().get("/valuelists/" + id)
+		given().get("/valuelists/" + getEntityId())
 				.then()
 				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo("mytestvaluelist"))
@@ -78,7 +80,7 @@ public class ValueListResourceIntegrationTest {
 
 		given().contentType(ContentType.JSON)
 				.body(json.toString())
-				.put("/valuelists/" + id)
+				.put("/valuelists/" + getEntityId())
 				.then()
 				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo("mytestvaluelist"))
@@ -87,9 +89,17 @@ public class ValueListResourceIntegrationTest {
 
 	@Test
 	public void test5Delete() {
-		given().delete("/valuelists/" + id)
+		given().delete("/valuelists/" + getEntityId())
 				.then()
 				.body("data.first().name", equalTo("mytestvaluelist"))
 				.body("data.first().type", equalTo("ValueList"));
+	}
+
+	public static String getEntityId() {
+		return entityId;
+	}
+
+	public static void setEntityId(String id) {
+		entityId = id;
 	}
 }
