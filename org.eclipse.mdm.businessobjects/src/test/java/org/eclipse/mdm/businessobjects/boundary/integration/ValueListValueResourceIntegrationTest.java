@@ -26,21 +26,20 @@ public class ValueListValueResourceIntegrationTest extends EntityResourceIntegra
 
 	@BeforeClass
 	public static void prepareTestData() {
-		//create ValueList
+		// create ValueList
 		// TODO tear down valueList entity
 		ValueListResourceIntegrationTest.prepareTestData();
-		String valueListId = new ValueListResourceIntegrationTest()
-				.createEntity()
-				.getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID);
-		
-		setTestDataValue(ValueListValueResourceIntegrationTest.class, TESTDATA_RESOURCE_URI,
-				"/valuelists/" + valueListId + "/values");
-		setTestDataValue(ValueListValueResourceIntegrationTest.class, TESTDATA_ENTITY_NAME, "testValueListValue");
-		setTestDataValue(ValueListValueResourceIntegrationTest.class, TESTDATA_ENTITY_TYPE, "ValueListValue");
+		ValueListResourceIntegrationTest.create();
+
+		setContextClass(ValueListValueResourceIntegrationTest.class);
+
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/valuelists/"
+				+ getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/values");
+		putTestDataValue(TESTDATA_ENTITY_NAME, "testValueListValue");
+		putTestDataValue(TESTDATA_ENTITY_TYPE, "ValueListValue");
 
 		JsonObject json = new JsonObject();
-		json.add("name",
-				new JsonPrimitive(getTestDataValue(ValueListValueResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
-		setTestDataValue(ValueListValueResourceIntegrationTest.class, TESTDATA_CREATE_JSON_BODY, json.toString());
+		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 }

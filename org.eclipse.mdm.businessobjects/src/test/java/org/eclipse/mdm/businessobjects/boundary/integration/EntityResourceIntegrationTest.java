@@ -11,7 +11,10 @@
 package org.eclipse.mdm.businessobjects.boundary.integration;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -52,6 +55,8 @@ public abstract class EntityResourceIntegrationTest {
 
 	private static Map<Class<?>, Map<String, String>> testDataMap = HashMap.empty();
 
+	private static Class<?> contextClass;
+
 	/**
 	 * Init RestAssured
 	 */
@@ -75,65 +80,42 @@ public abstract class EntityResourceIntegrationTest {
 		RestAssured.authentication = authScheme;
 	}
 
-	// @BeforeClass
-	// // TODO that should happen as @BeforeClass but initTestData cannot be static
-	// to
-	// // be referenced by this static context
-	// public static void setUpBefore() throws Throwable {
-	// prepareTest();
-	// }
-	//
-	// public EntityResourceIntegrationTest prepareTest() {
-	// // let the implementation set up its test bed
-	// prepareTestData();
-	//
-	// return this;
-	// }
-	//
-	// /**
-	// * Prepare the test data, i.e. the resource URI and entity config
-	// */
-	// public abstract void prepareTestData();
-
 	@Test
 	public void test1Create() {
-		createEntity();
+		create();
 	}
 
-	public EntityResourceIntegrationTest createEntity() {
+	public static void create() {
 		String id = given().contentType(ContentType.JSON)
-				.body(getTestDataValue(this.getClass(), TESTDATA_CREATE_JSON_BODY))
-				.post(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI))
+				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
+				.post(getTestDataValue(TESTDATA_RESOURCE_URI))
 				.then()
 				.contentType(ContentType.JSON)
 				.and()
-				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
+				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
 				.and()
-				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)))
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
 				.extract()
 				.path("data.first().id");
 
-		setTestDataValue(this.getClass(), TESTDATA_ENTITY_ID, id);
-
-		return this;
+		putTestDataValue(TESTDATA_ENTITY_ID, id);
 	}
 
 	@Test
 	public void test2Find() {
-		given().get(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI) + "/"
-				+ getTestDataValue(this.getClass(), TESTDATA_ENTITY_ID))
+		given().get(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
+				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
 	}
 
 	@Test
 	public void test3FindAll() {
-		given().get(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI))
+		given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
 	}
 
 	@Test
@@ -145,34 +127,76 @@ public abstract class EntityResourceIntegrationTest {
 				// instead: return the old or updated object as returning the updated one would
 				// mean to perform another get as the ODSTransaction.update() does not return
 				// the updated entity
-				.body(getTestDataValue(this.getClass(), TESTDATA_CREATE_JSON_BODY))
-				.put(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI) + "/"
-						+ getTestDataValue(this.getClass(), TESTDATA_ENTITY_ID))
+				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
+				.put(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
+				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
 	}
 
 	@Test
 	public void test5Delete() {
-		given().delete(getTestDataValue(this.getClass(), TESTDATA_RESOURCE_URI) + "/"
-				+ getTestDataValue(this.getClass(), TESTDATA_ENTITY_ID))
+		given().delete(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
-				.body("data.first().name", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(this.getClass(), TESTDATA_ENTITY_TYPE)));
+				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
 	}
 
-	public static String getTestDataValue(Class<?> context, String key) {
-		return testDataMap.get(context)
+	/**
+	 * Get value with key from the testDataMap. The value map is thereby
+	 * automatically identified by the implementing class.
+	 * 
+	 * @param key
+	 *            key to get value for
+	 * @return value for given key
+	 */
+	public static String getTestDataValue(String key) {
+		// TODO what to do if key is not found?
+		return testDataMap.get(getContextClass())
 				.get()
 				.get(key)
 				.get();
 	}
 
-	public static void setTestDataValue(Class<?> context, String key, String value) {
-		Map<String, String> entityTestData = testDataMap.getOrElse(context, HashMap.empty());
+	/**
+	 * Get value with key from the testDataMap
+	 * 
+	 * @param testType
+	 *            the class of the test type
+	 * @param key
+	 *            key to get value for
+	 * @return value for given key
+	 */
+	public static String getTestDataValue(Class<?> testType, String key) {
+		// TODO what to do if key is not found?
+		return testDataMap.get(testType)
+				.get()
+				.get(key)
+				.get();
+	}
+
+	/**
+	 * Put value with key in the testDataMap. The value map is thereby automatically
+	 * identified by the implementing class.
+	 * 
+	 * @param key
+	 *            key to store value under
+	 * @param value
+	 *            value to store
+	 */
+	public static void putTestDataValue(String key, String value) {
+		Map<String, String> entityTestData = testDataMap.getOrElse(getContextClass(), HashMap.empty());
 		entityTestData = entityTestData.put(key, value);
-		testDataMap = testDataMap.put(context, entityTestData);
+		testDataMap = testDataMap.put(getContextClass(), entityTestData);
+	}
+
+	private static Class<?> getContextClass() {
+		assertThat(contextClass, is(notNullValue()));
+		return contextClass;
+	}
+
+	public static void setContextClass(Class<?> contextClass) {
+		EntityResourceIntegrationTest.contextClass = contextClass;
 	}
 }
