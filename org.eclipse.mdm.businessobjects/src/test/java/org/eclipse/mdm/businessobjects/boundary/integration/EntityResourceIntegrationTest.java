@@ -19,10 +19,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.restassured.RestAssured;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
 import io.restassured.http.ContentType;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 
@@ -37,6 +41,8 @@ import io.vavr.collection.Map;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class EntityResourceIntegrationTest {
+
+	protected static Logger LOGGER = LoggerFactory.getLogger(EntityResourceIntegrationTest.class);
 
 	private static final String HOST = "localhost";
 	private static final String PORT = "8080";
@@ -72,21 +78,26 @@ public abstract class EntityResourceIntegrationTest {
 				.append(API_PATH);
 		RestAssured.baseURI = baseURI.toString();
 		RestAssured.basePath = ENV_PATH;
+		LOGGER.debug("RestAssured set up to " + RestAssured.baseURI + "/" + RestAssured.basePath);
 
 		PreemptiveBasicAuthScheme authScheme = new PreemptiveBasicAuthScheme();
 		authScheme.setUserName(AUTH_USERNAME);
 		authScheme.setPassword(AUTH_PASSWORD);
 
 		RestAssured.authentication = authScheme;
+		LOGGER.debug("RestAssured authentication set to credentials [" + AUTH_USERNAME + "]/[" + AUTH_PASSWORD + "]");
 	}
 
 	@Test
 	public void test1Create() {
-		create();
+		createEntity();
 	}
 
-	public static void create() {
-		String id = given().contentType(ContentType.JSON)
+	/**
+	 * Static method that can be utilised by tests to create a specific entity
+	 */
+	public static void createEntity() {
+		ExtractableResponse<io.restassured.response.Response> response = given().contentType(ContentType.JSON)
 				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
 				.post(getTestDataValue(TESTDATA_RESOURCE_URI))
 				.then()
@@ -95,31 +106,40 @@ public abstract class EntityResourceIntegrationTest {
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
 				.and()
 				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-				.extract()
-				.path("data.first().id");
+				.extract();
 
-		putTestDataValue(TESTDATA_ENTITY_ID, id);
+		LOGGER.debug(getContextClass().getSimpleName() + " created " + response.asString());
+
+		putTestDataValue(TESTDATA_ENTITY_ID, response.path("data.first().id"));
 	}
 
 	@Test
 	public void test2Find() {
-		given().get(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
+		ExtractableResponse<Response> response = given()
+				.get(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
 				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+				.extract();
+
+		LOGGER.debug(getContextClass().getSimpleName() + " found " + response.asString());
 	}
 
 	@Test
 	public void test3FindAll() {
-		given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
+		ExtractableResponse<Response> response = given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
 				.then()
 				.contentType(ContentType.JSON)
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+				.extract();
+
+		LOGGER.debug(getContextClass().getSimpleName() + " found all " + response.asString());
 	}
 
 	@Test
 	public void test4Update() {
+		ExtractableResponse<Response> response =
 		given().contentType(ContentType.JSON)
 				// TODO the update should use different data but as the returned JSON represents
 				// the entity prior update it does not make any difference as the update is
@@ -132,15 +152,29 @@ public abstract class EntityResourceIntegrationTest {
 				.then()
 				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
+						.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+						.extract();
+
+		LOGGER.debug(getContextClass().getSimpleName() + " updated " + response.asString());
 	}
 
 	@Test
 	public void test5Delete() {
+		deleteEntity();
+	}
+
+	/**
+	 * Static method that can be utilised by tests to delete a specific entity
+	 */
+	public static void deleteEntity() {
+		ExtractableResponse<Response> response =
 		given().delete(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)));
+						.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+						.extract();
+
+		LOGGER.debug(getContextClass().getSimpleName() + " deleted " + response.asString());
 	}
 
 	/**
@@ -160,7 +194,8 @@ public abstract class EntityResourceIntegrationTest {
 	}
 
 	/**
-	 * Get value with key from the testDataMap
+	 * Get value with key from the testDataMap using the context specified by
+	 * {@code testType}
 	 * 
 	 * @param testType
 	 *            the class of the test type
@@ -191,12 +226,27 @@ public abstract class EntityResourceIntegrationTest {
 		testDataMap = testDataMap.put(getContextClass(), entityTestData);
 	}
 
+	/**
+	 * Get the context class set by a test implementation used to store context
+	 * aware test data
+	 * 
+	 * @return the context class of the test implementation
+	 */
 	private static Class<?> getContextClass() {
 		assertThat(contextClass, is(notNullValue()));
 		return contextClass;
 	}
 
+	/**
+	 * Set the context class used to store context aware test data. This method must
+	 * be called by any test implementation before using {@link getTestDataValue} or
+	 * {@link putTestDataValue}
+	 * 
+	 * @param contextClass
+	 *            the context class set by a test implementation
+	 */
 	public static void setContextClass(Class<?> contextClass) {
 		EntityResourceIntegrationTest.contextClass = contextClass;
+		LOGGER = LoggerFactory.getLogger(contextClass);
 	}
 }

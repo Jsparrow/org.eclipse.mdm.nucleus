@@ -29,7 +29,7 @@ public class ValueListResourceIntegrationTest extends EntityResourceIntegrationT
 		setContextClass(ValueListResourceIntegrationTest.class);
 
 		putTestDataValue(TESTDATA_RESOURCE_URI, "/valuelists");
-		putTestDataValue(TESTDATA_ENTITY_NAME, "testValueList");
+		putTestDataValue(TESTDATA_ENTITY_NAME, "alexserstertest");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "ValueList");
 
 		JsonObject json = new JsonObject();

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integration;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
@@ -26,13 +27,14 @@ public class ValueListValueResourceIntegrationTest extends EntityResourceIntegra
 
 	@BeforeClass
 	public static void prepareTestData() {
-		// create ValueList
-		// TODO tear down valueList entity
+		// prepare test data and create ValueList
 		ValueListResourceIntegrationTest.prepareTestData();
-		ValueListResourceIntegrationTest.create();
+		ValueListResourceIntegrationTest.createEntity();
 
+		// reset the context
 		setContextClass(ValueListValueResourceIntegrationTest.class);
 
+		// set up test data
 		putTestDataValue(TESTDATA_RESOURCE_URI, "/valuelists/"
 				+ getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/values");
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testValueListValue");
@@ -41,5 +43,11 @@ public class ValueListValueResourceIntegrationTest extends EntityResourceIntegra
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		ValueListResourceIntegrationTest.prepareTestData();
+		ValueListResourceIntegrationTest.deleteEntity();
 	}
 }
