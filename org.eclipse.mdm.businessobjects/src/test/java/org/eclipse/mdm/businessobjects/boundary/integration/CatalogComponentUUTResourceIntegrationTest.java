@@ -10,32 +10,33 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integration;
 
+import org.eclipse.mdm.api.base.model.ContextType;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Test class for CatalogComponentResource.
+ * Test class for CatalogComponentResource for UnitUnderTest
+ * {@link ContextType}.
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  * @see EntityResourceIntegrationTest
  *
  */
-public class CatalogComponentResourceIntegrationTest extends EntityResourceIntegrationTest {
+public class CatalogComponentUUTResourceIntegrationTest extends EntityResourceIntegrationTest {
 
 	@BeforeClass
 	public static void prepareTestData() {
 		// set up test data
-		setContextClass(CatalogComponentResourceIntegrationTest.class);
+		setContextClass(CatalogComponentUUTResourceIntegrationTest.class);
 
 		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/unitundertest");
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatCompUUT");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogComponent");
 
 		JsonObject json = new JsonObject();
-		json.add("name",
-				new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 }
