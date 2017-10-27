@@ -16,6 +16,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.util.NoSuchElementException;
+
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -147,8 +149,7 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test4Update() {
-		ExtractableResponse<Response> response =
-		given().contentType(ContentType.JSON)
+		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
 				// TODO the update should use different data but as the returned JSON represents
 				// the entity prior update it does not make any difference as the update is
 				// performed just based on identical data. We should discuss the PUT-behaviour
@@ -160,8 +161,8 @@ public abstract class EntityResourceIntegrationTest {
 				.then()
 				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-						.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-						.extract();
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+				.extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " updated " + response.asString());
 	}
@@ -176,12 +177,12 @@ public abstract class EntityResourceIntegrationTest {
 	 * called indirectly by JUnit
 	 */
 	public static void deleteEntity() {
-		ExtractableResponse<Response> response =
-		given().delete(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
+		ExtractableResponse<Response> response = given()
+				.delete(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-						.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-						.extract();
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+				.extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " deleted " + response.asString());
 	}
@@ -195,28 +196,25 @@ public abstract class EntityResourceIntegrationTest {
 	 * @return value for given key
 	 */
 	public static String getTestDataValue(String key) {
-		// TODO what to do if key is not found?
-		return testDataMap.get(getContextClass())
-				.get()
-				.get(key)
-				.get();
+		return getTestDataValue(getContextClass(), key);
 	}
 
 	/**
 	 * Get value with key from the testDataMap using the context specified by
-	 * {@code testType}
+	 * contextClass
 	 * 
-	 * @param testType
-	 *            the class of the test type
+	 * @param contextClass
+	 *            the class of the test implementation
 	 * @param key
 	 *            key to get value for
 	 * @return value for given key
 	 */
-	public static String getTestDataValue(Class<?> testType, String key) {
-		// TODO what to do if key is not found?
-		return testDataMap.get(testType)
-				.get()
-				.get(key)
+	public static String getTestDataValue(Class<?> contextClass, String key) {
+		return testDataMap.get(contextClass)
+				.map(valueMap -> valueMap.get(key)
+						.getOrElseThrow(() -> new NoSuchElementException(
+								"Key [" + key + "] not found in test data value map in context ["
+										+ contextClass.getSimpleName() + "]")))
 				.get();
 	}
 
