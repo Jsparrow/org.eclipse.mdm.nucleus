@@ -61,12 +61,17 @@ public abstract class EntityResourceIntegrationTest {
 
 	private static Map<Class<?>, Map<String, String>> testDataMap = HashMap.empty();
 
+	/**
+	 * The context class must be set by implementing tests as the context to get
+	 * from and put test data values to
+	 */
 	private static Class<?> contextClass;
 
 	/**
 	 * Init RestAssured
 	 */
 	static {
+		// configure URI
 		StringBuilder baseURI = new StringBuilder();
 		baseURI.append("http://")
 				.append(HOST)
@@ -80,11 +85,13 @@ public abstract class EntityResourceIntegrationTest {
 		RestAssured.basePath = ENV_PATH;
 		LOGGER.debug("RestAssured set up to " + RestAssured.baseURI + "/" + RestAssured.basePath);
 
+		// setup authentication
 		PreemptiveBasicAuthScheme authScheme = new PreemptiveBasicAuthScheme();
 		authScheme.setUserName(AUTH_USERNAME);
 		authScheme.setPassword(AUTH_PASSWORD);
 
 		RestAssured.authentication = authScheme;
+
 		LOGGER.debug("RestAssured authentication set to credentials [" + AUTH_USERNAME + "]/[" + AUTH_PASSWORD + "]");
 	}
 
@@ -94,7 +101,8 @@ public abstract class EntityResourceIntegrationTest {
 	}
 
 	/**
-	 * Static method that can be utilised by tests to create a specific entity
+	 * Static method that can be utilised by tests to create a specific entity or is
+	 * called indirectly by JUnit
 	 */
 	public static void createEntity() {
 		ExtractableResponse<io.restassured.response.Response> response = given().contentType(ContentType.JSON)
@@ -164,7 +172,8 @@ public abstract class EntityResourceIntegrationTest {
 	}
 
 	/**
-	 * Static method that can be utilised by tests to delete a specific entity
+	 * Static method that can be utilised by tests to delete a specific entity or is
+	 * called indirectly by JUnit
 	 */
 	public static void deleteEntity() {
 		ExtractableResponse<Response> response =
