@@ -8,35 +8,46 @@
  * Contributors:
  * Alexander Nehmer - initial implementation
  *******************************************************************************/
-package org.eclipse.mdm.businessobjects.boundary.integration;
+package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
-import org.eclipse.mdm.api.base.model.ContextType;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Test class for CatalogComponentResource for UnitUnderTest
- * {@link ContextType}.
+ * Test class for ValueListValueResource.
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  * @see EntityResourceIntegrationTest
  *
  */
-public class CatalogComponentUUTResourceIntegrationTest extends EntityResourceIntegrationTest {
+public class ValueListValueResourceIntegrationTest extends EntityResourceIntegrationTest {
 
 	@BeforeClass
 	public static void prepareTestData() {
-		// set up test data
-		setContextClass(CatalogComponentUUTResourceIntegrationTest.class);
+		// prepare test data and create ValueList
+		ValueListResourceIntegrationTest.prepareTestData();
+		ValueListResourceIntegrationTest.createEntity();
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/unitundertest");
-		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatCompUUT");
-		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogComponent");
+		// reset the context
+		setContextClass(ValueListValueResourceIntegrationTest.class);
+
+		// set up test data
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/valuelists/"
+				+ getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/values");
+		putTestDataValue(TESTDATA_ENTITY_NAME, "testValueListValue");
+		putTestDataValue(TESTDATA_ENTITY_TYPE, "ValueListValue");
 
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		ValueListResourceIntegrationTest.prepareTestData();
+		ValueListResourceIntegrationTest.deleteEntity();
 	}
 }

@@ -8,7 +8,7 @@
  * Contributors:
  * Alexander Nehmer - initial implementation
  *******************************************************************************/
-package org.eclipse.mdm.businessobjects.boundary.integration;
+package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,7 +44,7 @@ import io.vavr.collection.Map;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class EntityResourceIntegrationTest {
 
-	protected static Logger LOGGER = LoggerFactory.getLogger(EntityResourceIntegrationTest.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(EntityResourceIntegrationTest.class);
 
 	private static final String HOST = "localhost";
 	private static final String PORT = "8080";
@@ -55,11 +55,11 @@ public abstract class EntityResourceIntegrationTest {
 	private static final String AUTH_USERNAME = "sa";
 	private static final String AUTH_PASSWORD = "sa";
 
-	protected static String TESTDATA_ENTITY_ID = "entityId";
-	protected static String TESTDATA_ENTITY_NAME = "entityName";
-	protected static String TESTDATA_ENTITY_TYPE = "entityType";
-	protected static String TESTDATA_CREATE_JSON_BODY = "createJSONBody";
-	protected static String TESTDATA_RESOURCE_URI = "resourceURI";
+	protected final static String TESTDATA_ENTITY_ID = "entityId";
+	protected final static String TESTDATA_ENTITY_NAME = "entityName";
+	protected final static String TESTDATA_ENTITY_TYPE = "entityType";
+	protected final static String TESTDATA_CREATE_JSON_BODY = "createJSONBody";
+	protected final static String TESTDATA_RESOURCE_URI = "resourceURI";
 
 	private static Map<Class<?>, Map<String, String>> testDataMap = HashMap.empty();
 

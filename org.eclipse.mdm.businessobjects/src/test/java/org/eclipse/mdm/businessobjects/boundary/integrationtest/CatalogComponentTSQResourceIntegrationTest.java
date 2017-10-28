@@ -8,7 +8,7 @@
  * Contributors:
  * Alexander Nehmer - initial implementation
  *******************************************************************************/
-package org.eclipse.mdm.businessobjects.boundary.integration;
+package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.junit.BeforeClass;
