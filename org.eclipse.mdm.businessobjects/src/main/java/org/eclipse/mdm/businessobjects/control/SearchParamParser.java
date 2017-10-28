@@ -35,7 +35,7 @@ import com.google.common.base.Strings;
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  *
  */
-public class SearchParamParser {
+public final class SearchParamParser {
 
 	public static final String AND_DELIMITER = " and ";
 	public static final String OR_DELIMITER = " or ";
