@@ -34,9 +34,9 @@ import io.vavr.collection.Map;
 
 /**
  * Abstract test class for Entity resources. Tests are executed in
- * {@link FixMethodOrder(MethodSorters.NAME_ASCENDING)} as test2Find(),
- * test3FindAll(), test3Delete() and test4Update() depend on the entity created
- * by test1Create().
+ * {@code FixMethodOrder(MethodSorters.NAME_ASCENDING)} as {@link test1Create},
+ * {@link test2Find()}, {@link test3FindAll()}, {@link test4Update()} and
+ * {@link test5Delete()} depend on the entity created by test1Create().
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *

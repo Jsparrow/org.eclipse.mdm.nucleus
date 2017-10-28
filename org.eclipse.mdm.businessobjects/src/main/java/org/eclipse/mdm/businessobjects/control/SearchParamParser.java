@@ -21,10 +21,10 @@ import javax.mail.search.SearchException;
 
 import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.base.query.Attribute;
+import org.eclipse.mdm.api.base.query.ComparisonOperator;
 import org.eclipse.mdm.api.base.query.Condition;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.ComparisonOperator;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
 import com.google.common.base.Strings;
@@ -45,6 +45,12 @@ public class SearchParamParser {
 	public static final String LIKE_OPERATOR = "lk";
 	public static final String GREATER_THAN_OPERATOR = "gt";
 
+	/**
+	 * Just hide the default constructor
+	 */
+	private SearchParamParser() {
+
+	}
 	/**
 	 * Parses the given filter string.
 	 * 
