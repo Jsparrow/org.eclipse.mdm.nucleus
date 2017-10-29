@@ -145,10 +145,10 @@ public class CatalogComponentResource {
 				// create catalog component
 				.map(tuple -> entityService.create(CatalogComponent.class, sourceName, tuple._2, tuple._1)
 						.get())
-				.onFailure(ResourceHelper.rethrowException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, entity),
 						Status.OK))
-				.get();
+				// TODO seems not to work: test! and use throughout Resources
+				.getOrElseGet(ResourceHelper.buildErrorResponse(Status.INTERNAL_SERVER_ERROR));
 	}
 
 	/**

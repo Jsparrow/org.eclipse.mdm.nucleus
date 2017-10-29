@@ -11,6 +11,7 @@
 package org.eclipse.mdm.businessobjects.boundary.utils;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -104,10 +105,22 @@ public final class ResourceHelper {
 	 * Handles a {œlink {@link Throwable} by loggging the exception message and
 	 * rethrowing a {@link WebApplicationException}
 	 */
+	// TODO should be replaced in Resources by buildErrorResponse()
 	public static final Consumer<? super Throwable> rethrowException = e -> {
 		LOG.error(e.getMessage(), e);
 		throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 	};
+
+	/**
+	 * Handles a {œlink {@link Throwable} by loggging the exception message and
+	 * rethrowing a {@link WebApplicationException}
+	 */
+	public static final Function<? super Throwable, ? extends Response> buildErrorResponse(Status status) {
+		return e -> {
+			LOG.error(e.getMessage(), e);
+			return ServiceUtils.toResponse(e, status);
+		};
+	}
 
 	/**
 	 * Static function to get the {@link ContextType} for the provided name
