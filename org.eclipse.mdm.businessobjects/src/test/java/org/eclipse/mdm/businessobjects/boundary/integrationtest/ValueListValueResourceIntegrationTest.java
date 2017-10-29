@@ -27,7 +27,7 @@ public class ValueListValueResourceIntegrationTest extends EntityResourceIntegra
 
 	@BeforeClass
 	public static void prepareTestData() {
-		// prepare test data and create ValueList
+		// prepare test data for creating the ValueList
 		ValueListResourceIntegrationTest.prepareTestData();
 		ValueListResourceIntegrationTest.createEntity();
 

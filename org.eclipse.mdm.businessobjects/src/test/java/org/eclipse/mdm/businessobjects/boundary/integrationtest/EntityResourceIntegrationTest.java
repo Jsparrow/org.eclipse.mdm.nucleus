@@ -85,6 +85,7 @@ public abstract class EntityResourceIntegrationTest {
 				.append(API_PATH);
 		RestAssured.baseURI = baseURI.toString();
 		RestAssured.basePath = ENV_PATH;
+
 		LOGGER.debug("RestAssured set up to " + RestAssured.baseURI + "/" + RestAssured.basePath);
 
 		// setup authentication
@@ -107,6 +108,18 @@ public abstract class EntityResourceIntegrationTest {
 	 * called indirectly by JUnit
 	 */
 	public static void createEntity() {
+		// do not create entity if it was already created in a currently running
+		// prepareTestData() cascade
+		if (isTestDataValuePresent(TESTDATA_ENTITY_ID)) {
+			LOGGER.debug(getContextClass().getSimpleName() + ".create() aborted as entity "
+					+ getTestDataValue(TESTDATA_ENTITY_NAME) + " of type " + getTestDataValue(TESTDATA_ENTITY_TYPE)
+					+ " was already created" + getTestDataValue(TESTDATA_RESOURCE_URI));
+			return;
+		}
+
+		LOGGER.debug(getContextClass().getSimpleName() + ".create() sending POST to "
+				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+
 		ExtractableResponse<io.restassured.response.Response> response = given().contentType(ContentType.JSON)
 				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
 				.post(getTestDataValue(TESTDATA_RESOURCE_URI))
@@ -127,6 +140,10 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test2Find() {
+		LOGGER.debug(
+				getContextClass().getSimpleName() + ".find() sending GET to "
+						+ getTestDataValue(TESTDATA_RESOURCE_URI));
+
 		ExtractableResponse<Response> response = given()
 				.get(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
@@ -142,6 +159,9 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test3FindAll() {
+		LOGGER.debug(getContextClass().getSimpleName() + ".findAll() sending GET to "
+				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+
 		ExtractableResponse<Response> response = given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
 				.then()
 				.log()
@@ -155,6 +175,10 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test4Update() {
+		LOGGER.debug(
+				getContextClass().getSimpleName() + ".update() sending PUT to "
+						+ getTestDataValue(TESTDATA_RESOURCE_URI));
+
 		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
 				// TODO the update should use different data but as the returned JSON represents
 				// the entity prior update it does not make any difference as the update is
@@ -185,6 +209,9 @@ public abstract class EntityResourceIntegrationTest {
 	 * called indirectly by JUnit
 	 */
 	public static void deleteEntity() {
+		LOGGER.debug(getContextClass().getSimpleName() + ".delete() sending DELETE to "
+				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+
 		ExtractableResponse<Response> response = given()
 				.delete(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
 				.then()
@@ -225,6 +252,13 @@ public abstract class EntityResourceIntegrationTest {
 						.getOrElseThrow(() -> new NoSuchElementException(
 								"Key [" + key + "] not found in test data value map in context ["
 										+ contextClass.getSimpleName() + "]")))
+				.get();
+	}
+
+	public static boolean isTestDataValuePresent(String key) {
+		return testDataMap.get(getContextClass())
+				.map(valueMap -> valueMap.get(key)
+						.isDefined())
 				.get();
 	}
 
