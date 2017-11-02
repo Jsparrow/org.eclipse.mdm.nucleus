@@ -22,14 +22,16 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.mail.search.SearchException;
 
+import org.eclipse.mdm.api.base.ServiceNotProvidedException;
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Entity;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.FilterItem;
 import org.eclipse.mdm.api.base.query.Result;
-import org.eclipse.mdm.api.base.query.SearchService;
+import org.eclipse.mdm.api.base.search.SearchService;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.entity.SearchDefinition;
@@ -70,8 +72,10 @@ public class SearchActivity {
 	 *            The result type.
 	 * @return The available search attributes.
 	 */
-	public <T extends Entity> List<SearchAttribute> listAvailableAttributes(EntityManager em, Class<T> resultType) {
-		SearchService searchService = ServiceUtils.getSearchService(em);
+	public <T extends Entity> List<SearchAttribute> listAvailableAttributes(ApplicationContext context, Class<T> resultType) {
+
+		SearchService searchService = context.getSearchService()
+				.orElseThrow(() -> new MDMEntityAccessException("SearchService not found!"));
 
 		List<EntityType> entityTypes = searchService.listEntityTypes(resultType);
 		List<SearchAttribute> searchAttributes = new ArrayList<>();
@@ -97,9 +101,10 @@ public class SearchActivity {
 	 *            filter for the search request
 	 * @return the found business objects
 	 */
-	public <T extends Entity> List<T> search(EntityManager em, Class<T> resultType, String filterString) {
+	public <T extends Entity> List<T> search(ApplicationContext context, Class<T> resultType, String filterString) {
 		try {
-			SearchService searchService = ServiceUtils.getSearchService(em);
+			SearchService searchService = context.getSearchService()
+					.orElseThrow(() -> new ServiceNotProvidedException(SearchService.class));
 			List<EntityType> searchable = searchService.listEntityTypes(resultType);
 			Filter filter = FilterParser.parseFilterString(searchable, filterString);
 			List<Attribute> attributesList = getAttributeListFromFilter(filter);
@@ -133,9 +138,10 @@ public class SearchActivity {
 	 *            the query given to the search
 	 * @return the found business objects
 	 */
-	public List<Entity> search(EntityManager em, String query) {
+	public List<Entity> search(ApplicationContext context, String query) {
 		try {
-			SearchService searchService = ServiceUtils.getSearchService(em);
+			SearchService searchService = context.getSearchService()
+					.orElseThrow(() -> new ServiceNotProvidedException(SearchService.class));
 			List<Entity> allEntities = new ArrayList<>();
 
 			if (searchService.isTextSearchAvailable()) {

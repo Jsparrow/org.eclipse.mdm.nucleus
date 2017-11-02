@@ -16,13 +16,13 @@ import static org.junit.Assert.assertEquals;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.query.Attribute;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.junit.Test;

@@ -16,11 +16,12 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
@@ -61,18 +62,21 @@ public class ChannelGroupService {
 	public List<ChannelGroup> getChannelGroups(String sourceName, String filter) {
 		try {
 
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			ApplicationContext context = this.connectorService.getContextByName(sourceName);
+			EntityManager em = context
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 
 			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(ChannelGroup.class);
 			}
 
-			if (ServiceUtils.isParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT)) {
-				String id = ServiceUtils.extactIdFromParentFilter(em, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT);
+			if (ServiceUtils.isParentFilter(context, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT)) {
+				String id = ServiceUtils.extactIdFromParentFilter(context, filter, ChannelGroup.PARENT_TYPE_MEASUREMENT);
 				return this.navigationActivity.getChannelGroups(sourceName, id);
 			}
 
-			return this.searchActivity.search(em, ChannelGroup.class, filter);
+			return this.searchActivity.search(context, ChannelGroup.class, filter);
 
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
@@ -90,7 +94,9 @@ public class ChannelGroupService {
 	 */
 	public ChannelGroup getChannelGroup(String sourceName, String channelGroupId) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 			return em.load(ChannelGroup.class, channelGroupId);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);

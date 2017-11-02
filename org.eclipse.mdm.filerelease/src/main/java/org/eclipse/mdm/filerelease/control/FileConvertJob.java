@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.eclipse.mdm.api.base.model.TestStep;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.filerelease.control.converter.FileConverterException;
 import org.eclipse.mdm.filerelease.control.converter.IFileConverter;
@@ -37,7 +38,7 @@ public class FileConvertJob implements Runnable {
 	private final IFileConverter fileConverter;
 	private final FileRelease fileRelease;
 	private final TestStep testStep;
-	private final EntityManager em;
+	private final ApplicationContext context;
 	private final File targetDirectory;
 
 	/**
@@ -55,13 +56,13 @@ public class FileConvertJob implements Runnable {
 	 * @param targetDirectory
 	 *            target output directory for the generated files
 	 */
-	public FileConvertJob(FileRelease fileRelease, IFileConverter fileConverter, TestStep testStep, EntityManager em,
+	public FileConvertJob(FileRelease fileRelease, IFileConverter fileConverter, TestStep testStep, ApplicationContext context,
 			File targetDirectory) {
 
 		this.fileRelease = fileRelease;
 		this.fileConverter = fileConverter;
 		this.testStep = testStep;
-		this.em = em;
+		this.context = context;
 		this.targetDirectory = targetDirectory;
 	}
 
@@ -73,7 +74,7 @@ public class FileConvertJob implements Runnable {
 		try {
 			this.fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_PROGRESSING;
 
-			this.fileConverter.execute(this.fileRelease, this.testStep, this.em, this.targetDirectory);
+			this.fileConverter.execute(this.fileRelease, this.testStep, this.context, this.targetDirectory);
 
 			this.fileRelease.expire = calculateExpireDate(this.fileRelease.validity);
 			this.fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_RELEASED;

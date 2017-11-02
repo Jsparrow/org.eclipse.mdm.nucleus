@@ -32,6 +32,7 @@ import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.mockito.Mockito;
@@ -46,16 +47,16 @@ public final class ContextActivityMockHelper {
 
 		ConnectorService connectorBean = Mockito.mock(ConnectorService.class);
 
-		List<EntityManager> emList = new ArrayList<>();
+		List<ApplicationContext> contextList = new ArrayList<>();
 		for (int i = 1; i <= ITEM_COUNT; i++) {
-			emList.add(createEntityManagerMock("MDMENV_" + i));
+			contextList.add(createContextMock("MDMENV_" + i));
 		}
-		when(connectorBean.getEntityManagers()).thenReturn(emList);
-		when(connectorBean.getEntityManagerByName(anyString())).thenReturn(emList.get(0));
+		when(connectorBean.getContexts()).thenReturn(contextList);
+		when(connectorBean.getContextByName(anyString())).thenReturn(contextList.get(0));
 		return connectorBean;
 	}
 
-	private static EntityManager createEntityManagerMock(String sourceName) throws Exception {
+	private static ApplicationContext createContextMock(String sourceName) throws Exception {
 
 		Environment env = createEntityMock(Environment.class, sourceName, sourceName, "1", null);
 
@@ -79,7 +80,9 @@ public final class ContextActivityMockHelper {
 		when(em.loadContexts(testStep)).thenReturn(orderedContext);
 		when(em.loadContexts(measurement)).thenReturn(measuredContext);
 
-		return em;
+		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		when(context.getEntityManager()).thenReturn(Optional.of(em));
+		return context;
 	}
 
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id,

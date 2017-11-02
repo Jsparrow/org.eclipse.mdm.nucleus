@@ -20,6 +20,7 @@ import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.filerelease.control.converter.FileConverterPAK2ATFX;
@@ -64,7 +65,11 @@ public class FileConvertJobManager {
 	public void release(FileRelease fileRelease, File targetDirectory) {
 
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(fileRelease.sourceName);
+			ApplicationContext context = this.connectorService.getContextByName(fileRelease.sourceName);
+			EntityManager em = context
+					.getEntityManager()
+					.orElseThrow(() -> new FileReleaseException("Entity manager not present!"));
+			
 			TestStep testStep = em.load(TestStep.class, fileRelease.id);
 
 			IFileConverter converter = getFileConverterByFormat(fileRelease);
@@ -73,7 +78,7 @@ public class FileConvertJobManager {
 			LOG.info("starting file release process for FileRelease with identifier '" + identifier + "' (with '"
 					+ converter.getConverterName() + "') ...");
 
-			Runnable runnable = new FileConvertJob(fileRelease, converter, testStep, em, targetDirectory);
+			Runnable runnable = new FileConvertJob(fileRelease, converter, testStep, context, targetDirectory);
 			this.executor.execute(runnable);
 		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);

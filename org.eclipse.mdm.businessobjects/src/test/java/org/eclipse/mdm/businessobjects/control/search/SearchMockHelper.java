@@ -23,20 +23,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.EnumRegistry;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
-import org.eclipse.mdm.api.base.query.Attribute;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
-import org.eclipse.mdm.api.base.query.SearchService;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.base.search.SearchService;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -44,14 +44,14 @@ public class SearchMockHelper {
 
 	public static int ITEM_COUNT = 27;
 
-	public static EntityManager createEntityManagerMock() throws Exception {
-		EntityManager em = Mockito.mock(EntityManager.class);
+	public static ApplicationContext createContextMock() throws Exception {
+		ApplicationContext context = Mockito.mock(ApplicationContext.class);
 		List<EntityType> etResultMock = createETListMock();
 		Optional<SearchService> mockedSearchService = createSearchServiceMock(etResultMock);
-		when(em.getSearchService()).thenReturn(mockedSearchService);
+		when(context.getSearchService()).thenReturn(mockedSearchService);
 		Optional<ModelManager> mockedModelManager = createModelManagerMock(etResultMock);
-		when(em.getModelManager()).thenReturn(mockedModelManager);
-		return em;
+		when(context.getModelManager()).thenReturn(mockedModelManager);
+		return context;
 	}
 
 	public static Optional<ModelManager> createModelManagerMock(List<EntityType> etResultMock) {

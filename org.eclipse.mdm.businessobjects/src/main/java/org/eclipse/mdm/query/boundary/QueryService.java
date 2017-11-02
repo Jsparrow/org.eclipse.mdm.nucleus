@@ -20,15 +20,16 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.eclipse.mdm.api.base.ServiceNotProvidedException;
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Entity;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.api.base.query.Result;
-import org.eclipse.mdm.api.base.query.SearchService;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.base.search.SearchService;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.businessobjects.control.FilterParser;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -64,9 +65,9 @@ public class QueryService {
 
 		for (SourceFilter filter : request.getFilters()) {
 			try {
-				EntityManager em = this.connectorService.getEntityManagerByName(filter.getSourceName());
+				ApplicationContext context = this.connectorService.getContextByName(filter.getSourceName());
 
-				rows.addAll(queryRowsForSource(em, request.getResultType(), request.getColumns(), filter.getFilter(),
+				rows.addAll(queryRowsForSource(context, request.getResultType(), request.getColumns(), filter.getFilter(),
 						filter.getSearchString()));
 			} catch (ConnectorServiceException e) {
 				LOG.warn("Could not retrieve EntityManager for environment '" + filter.getSourceName() + "'!", e);
@@ -85,17 +86,18 @@ public class QueryService {
 
 		for (String envName : suggestionRequest.getSourceNames()) {
 
-			EntityManager em = this.connectorService.getEntityManagerByName(envName);
-			Optional<ModelManager> mm = em.getModelManager();
+			ApplicationContext context = this.connectorService.getContextByName(envName);
+			Optional<ModelManager> mm = context.getModelManager();
+			Optional<org.eclipse.mdm.api.base.query.QueryService> qs = context.getQueryService();
 
-			if (mm.isPresent()) {
+			if (mm.isPresent() && qs.isPresent()) {
 
 				try {
 					EntityType entityType = mm.get().getEntityType(suggestionRequest.getType());
 
 					Attribute attr = entityType.getAttribute(suggestionRequest.getAttrName());
 
-					suggestions.addAll(mm.get().createQuery().select(attr).group(attr).fetch().stream()
+					suggestions.addAll(qs.get().createQuery().select(attr).group(attr).fetch().stream()
 							.map(r -> Objects.toString(r.getValue(attr).extract())).collect(Collectors.toList()));
 
 				} catch (DataAccessException | IllegalArgumentException e) {
@@ -107,12 +109,15 @@ public class QueryService {
 		return suggestions;
 	}
 
-	List<Row> queryRowsForSource(EntityManager em, String resultEntity, List<String> columns, String filterString,
+	List<Row> queryRowsForSource(ApplicationContext context, String resultEntity, List<String> columns, String filterString,
 			String searchString) throws DataAccessException {
 
-		ModelManager modelManager = getModelManager(em);
+		
+		ModelManager modelManager = context.getModelManager()
+				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 
-		SearchService searchService = ServiceUtils.getSearchService(em);
+		SearchService searchService = context.getSearchService()
+				.orElseThrow(() -> new IllegalStateException("neccessary SearchService is not available"));
 
 		Class<? extends Entity> resultType = getEntityClassByNameType(searchService, resultEntity);
 
@@ -126,14 +131,6 @@ public class QueryService {
 
 		return Util.convertResultList(result.subList(0, Math.min(result.size(), getMaxResultsPerSource())), resultType,
 				modelManager.getEntityType(resultType));
-	}
-
-	private ModelManager getModelManager(EntityManager em) {
-		Optional<ModelManager> mm = em.getModelManager();
-		if (!mm.isPresent()) {
-			throw new IllegalStateException("neccessary ModelManager is not available");
-		}
-		return mm.get();
 	}
 
 	private Optional<Attribute> getAttribute(List<EntityType> searchableTypes, String c) {

@@ -18,7 +18,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.eclipse.mdm.property.GlobalProperty;
@@ -57,7 +57,7 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 	private String pakInputAttribute = "";
 
 	@Override
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em, File targetDirectory)
+	public void execute(FileRelease fileRelease, TestStep testStep, ApplicationContext context, File targetDirectory)
 			throws FileConverterException {
 
 		int returnValue = -1;
@@ -71,8 +71,8 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 		String pakInputAttributeValue = super.readPropertyValue(this.pakInputAttribute, true, null,
 				"pakInputAttribute");
 
-		String modelType = locateStringAttributeValue(em, testStep, modelTypeEntityValue, modelTypeAttributeValue);
-		String inputPath = locateStringAttributeValue(em, testStep, pakInputEntityValue, pakInputAttributeValue);
+		String modelType = locateStringAttributeValue(context, testStep, modelTypeEntityValue, modelTypeAttributeValue);
+		String inputPath = locateStringAttributeValue(context, testStep, pakInputEntityValue, pakInputAttributeValue);
 
 		File pakApplicationFile = locatePakApplicationFile(pakApplicationPathValue);
 		File modelFile = locateModelFileForModelType(modelType);

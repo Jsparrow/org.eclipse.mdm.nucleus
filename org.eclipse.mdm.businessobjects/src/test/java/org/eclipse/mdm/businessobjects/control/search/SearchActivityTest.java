@@ -26,7 +26,7 @@ public class SearchActivityTest {
 	@Test
 	public void testSearch() throws Exception {
 		SearchActivity activity = new SearchActivity();
-		List<TestStep> searchResult = activity.search(SearchMockHelper.createEntityManagerMock(), TestStep.class,
+		List<TestStep> searchResult = activity.search(SearchMockHelper.createContextMock(), TestStep.class,
 				"TestStep.Name eq '*' ");
 		assertNotNull("search result list should not be null", searchResult);
 		assertEquals("The size of the search result list should be " + SearchMockHelper.ITEM_COUNT,
@@ -36,7 +36,7 @@ public class SearchActivityTest {
 	@Test
 	public void listAvailableAttributes() throws Exception {
 		SearchActivity activity = new SearchActivity();
-		List<SearchAttribute> attributes = activity.listAvailableAttributes(SearchMockHelper.createEntityManagerMock(),
+		List<SearchAttribute> attributes = activity.listAvailableAttributes(SearchMockHelper.createContextMock(),
 				TestStep.class);
 		assertNotNull("test list should be not null", attributes);
 		assertEquals("The attributes list size should be " + SearchMockHelper.ITEM_COUNT, SearchMockHelper.ITEM_COUNT,

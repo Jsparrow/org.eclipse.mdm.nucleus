@@ -10,10 +10,10 @@
   *******************************************************************************/
 package org.eclipse.mdm.query.boundary;
 
-import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_NAMESERVICE;
-import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_PASSWORD;
-import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_SERVICENAME;
-import static org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory.PARAM_USER;
+import static org.eclipse.mdm.api.odsadapter.ODSContextFactory.PARAM_NAMESERVICE;
+import static org.eclipse.mdm.api.odsadapter.ODSContextFactory.PARAM_PASSWORD;
+import static org.eclipse.mdm.api.odsadapter.ODSContextFactory.PARAM_SERVICENAME;
+import static org.eclipse.mdm.api.odsadapter.ODSContextFactory.PARAM_USER;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,21 +23,21 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.mdm.api.base.ConnectionException;
+import org.eclipse.mdm.api.base.ServiceNotProvidedException;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.ModelManager;
+import org.eclipse.mdm.api.base.query.QueryService;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
-import org.eclipse.mdm.api.dflt.model.EntityFactory;
-import org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory;
+import org.eclipse.mdm.api.odsadapter.ODSContextFactory;
 import org.eclipse.mdm.query.entity.Column;
 import org.eclipse.mdm.query.entity.Row;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -55,16 +55,16 @@ public class QueryTest {
 	 * parent entity is deactivated!
 	 */
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(QueryTest.class);
-
 	private static final String NAME_SERVICE = "corbaloc::1.2@%s:%s/NameService";
 
 	private static final String USER = "sa";
 	private static final String PASSWORD = "sa";
 
+	private static ApplicationContext context;
 	private static EntityManager entityManager;
-	private static EntityFactory entityFactory;
-
+	private static ModelManager modelManager;
+	private static org.eclipse.mdm.api.base.query.QueryService queryService;
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws ConnectionException {
 		String nameServiceHost = System.getProperty("host");
@@ -90,9 +90,13 @@ public class QueryTest {
 		connectionParameters.put(PARAM_USER, USER);
 		connectionParameters.put(PARAM_PASSWORD, PASSWORD);
 
-		entityManager = new ODSEntityManagerFactory().connect(connectionParameters);
-		entityFactory = entityManager.getEntityFactory()
-				.orElseThrow(() -> new IllegalStateException("Entity manager factory not available."));
+		context = new ODSContextFactory().connect(connectionParameters);
+		entityManager = context.getEntityManager()
+				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+		modelManager = context.getModelManager()
+				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
+		queryService = context.getQueryService()
+				.orElseThrow(() -> new ServiceNotProvidedException(QueryService.class));
 	}
 
 	@AfterClass
@@ -105,12 +109,12 @@ public class QueryTest {
 	@org.junit.Test
 	@Ignore
 	public void test() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
-		ModelManager mm = entityManager.getModelManager().get();
+		
 
-		List<Result> result = mm.createQuery().select(mm.getEntityType("Test").getAttribute("Id"))
-				.select(mm.getEntityType("Test").getAttribute("Name"))
-				.select(mm.getEntityType("TestStep").getAttribute("Id"))
-				.select(mm.getEntityType("TestStep").getAttribute("Name")).fetch();
+		List<Result> result = queryService.createQuery().select(modelManager.getEntityType("Test").getAttribute("Id"))
+				.select(modelManager.getEntityType("Test").getAttribute("Name"))
+				.select(modelManager.getEntityType("TestStep").getAttribute("Id"))
+				.select(modelManager.getEntityType("TestStep").getAttribute("Name")).fetch();
 
 		List<Row> rows = new ArrayList<>();
 

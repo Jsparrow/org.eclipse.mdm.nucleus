@@ -11,18 +11,20 @@
 
 package org.eclipse.mdm.businessobjects.boundary;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
@@ -53,12 +55,13 @@ public class EnvironmentService {
 	 */
 	public List<Environment> getEnvironments() {
 		try {
-			List<Environment> environments = new ArrayList<>();
-			List<EntityManager> emList = this.connectorService.getEntityManagers();
-			for (EntityManager em : emList) {
-				environments.add(em.loadEnvironment());
-			}
-			return environments;
+			return this.connectorService.getContexts()
+					.stream()
+					.map(ApplicationContext::getEntityManager)
+					.filter(Optional::isPresent)
+				    .map(Optional::get)
+					.map(em -> em.loadEnvironment())
+					.collect(Collectors.toList());
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -74,7 +77,9 @@ public class EnvironmentService {
 	 */
 	public Environment getEnvironment(String sourceName) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 			return em.loadEnvironment();
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
@@ -126,9 +131,9 @@ public class EnvironmentService {
 	}
 
 	public List<Entity> search(String sourceName, String query) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+		ApplicationContext context = this.connectorService.getContextByName(sourceName);
 
-		return this.searchActivity.search(em, query);
+		return this.searchActivity.search(context, query);
 	}
 
 }

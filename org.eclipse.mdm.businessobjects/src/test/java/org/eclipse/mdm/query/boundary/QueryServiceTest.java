@@ -20,16 +20,17 @@ import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.groups.Tuple;
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.ValueType;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
-import org.eclipse.mdm.api.base.query.ModelManager;
 import org.eclipse.mdm.api.base.query.Query;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
-import org.eclipse.mdm.api.base.query.SearchService;
+import org.eclipse.mdm.api.base.search.SearchService;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -46,11 +47,9 @@ public class QueryServiceTest {
 	@org.junit.Test
 	public void testQuery() throws DataAccessException {
 
-		ModelManager mm = mockModelManager();
-		EntityManager em = mockEntityManager(mm);
-
+		ApplicationContext context = mockContext();
 		ConnectorService connectorService = Mockito.mock(ConnectorService.class);
-		when(connectorService.getEntityManagerByName("env1")).thenReturn(em);
+		when(connectorService.getContextByName("env1")).thenReturn(context);
 
 		QueryService queryService = new QueryService();
 		queryService.connectorService = connectorService;
@@ -78,12 +77,10 @@ public class QueryServiceTest {
 	@org.junit.Test
 	public void testQueryMissingEnvironmentShouldByIgnored() throws DataAccessException {
 
-		ModelManager mm = mockModelManager();
-		EntityManager em = mockEntityManager(mm);
-
+		ApplicationContext context = mockContext();
 		ConnectorService connectorService = Mockito.mock(ConnectorService.class);
-		when(connectorService.getEntityManagerByName("env1")).thenReturn(em);
-		doThrow(ConnectorServiceException.class).when(connectorService).getEntityManagerByName("env2");
+		when(connectorService.getContextByName("env1")).thenReturn(context);
+		doThrow(ConnectorServiceException.class).when(connectorService).getContextByName("env2");
 
 		QueryService queryService = new QueryService();
 		queryService.connectorService = connectorService;
@@ -114,40 +111,37 @@ public class QueryServiceTest {
 	@org.junit.Test
 	public void testQueryMissingEntitiesShouldBeIgnored() throws DataAccessException {
 
-		ModelManager mm1 = mockModelManager();
-		EntityManager em1 = mockEntityManager(mm1);
-
+		ApplicationContext context1 = mockContext();
+		ApplicationContext context2 = mockContext();
+		ConnectorService connectorService = Mockito.mock(ConnectorService.class);
+		when(connectorService.getContextByName("env1")).thenReturn(context1);
+		when(connectorService.getContextByName("env2")).thenReturn(context2);
+		
 		EntityType type = mockEntity("env2", "Test");
 		EntityType pool = mockEntity("env2", "Pool");
 
-		ModelManager mm2 = mock(ModelManager.class);
-		when(mm2.getEntityType(Test.class)).thenReturn(type);
-		when(mm2.getEntityType("Test")).thenReturn(type);
-		when(mm2.getEntityType(Pool.class)).thenReturn(pool);
-		when(mm2.getEntityType("Pool")).thenReturn(pool);
-
-		EntityManager em2 = mockEntityManager(mm2);
+		when(context2.getModelManager().get().getEntityType(Test.class)).thenReturn(type);
+		when(context2.getModelManager().get().getEntityType("Test")).thenReturn(type);
+		when(context2.getModelManager().get().getEntityType(Pool.class)).thenReturn(pool);
+		when(context2.getModelManager().get().getEntityType("Pool")).thenReturn(pool);
 
 		SearchService ss = mock(SearchService.class);
-		EntityType test = mm2.getEntityType(Test.class);
+		EntityType test = context2.getModelManager().get().getEntityType(Test.class);
 		when(ss.listEntityTypes(Mockito.eq(Test.class))).thenReturn(Arrays.asList(test, pool));
 		when(ss.listSearchableTypes()).thenReturn(Arrays.asList(Test.class));
 
-		Record recordTest = new Record(mm2.getEntityType(Test.class));
+		Record recordTest = new Record(context2.getModelManager().get().getEntityType(Test.class));
 		recordTest.addValue(ValueType.STRING.create("Id", "id1"));
 		recordTest.addValue(ValueType.STRING.create("Name", "Test-Name"));
 
-		Record recordPool = new Record(mm2.getEntityType(Pool.class));
+		Record recordPool = new Record(context2.getModelManager().get().getEntityType(Pool.class));
 		recordPool.addValue(ValueType.STRING.create("Name", "Pool-Name"));
 		Result result = new Result();
 		result.addRecord(recordPool);
 		result.addRecord(recordTest);
-		when(em2.getSearchService().get().fetchResults(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+		when(context2.getSearchService().get().fetchResults(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(Arrays.asList(result));
 
-		ConnectorService connectorService = Mockito.mock(ConnectorService.class);
-		when(connectorService.getEntityManagerByName("env1")).thenReturn(em1);
-		when(connectorService.getEntityManagerByName("env2")).thenReturn(em2);
 
 		QueryService queryService = new QueryService();
 		queryService.connectorService = connectorService;
@@ -211,14 +205,16 @@ public class QueryServiceTest {
 
 		return entity;
 	}
-
-	private EntityManager mockEntityManager(ModelManager mm) throws DataAccessException {
-
+	
+	private ApplicationContext mockContext() {
+		ModelManager mm = mockModelManager();
+		EntityManager em = Mockito.mock(EntityManager.class);
+		
 		SearchService ss = mock(SearchService.class);
 		EntityType type = mm.getEntityType(Test.class);
 		when(ss.listEntityTypes(Mockito.eq(Test.class))).thenReturn(Arrays.asList(type));
 		when(ss.listSearchableTypes()).thenReturn(Arrays.asList(Test.class));
-
+		
 		Record record = new Record(mm.getEntityType(Test.class));
 		record.addValue(ValueType.STRING.create("Id", "id1"));
 		record.addValue(ValueType.STRING.create("Name", "Test-Name"));
@@ -226,13 +222,14 @@ public class QueryServiceTest {
 		result.addRecord(record);
 		when(ss.fetchResults(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(Arrays.asList(result));
-
-		EntityManager em = mock(EntityManager.class);
-		when(em.getModelManager()).thenReturn(Optional.of(mm));
-		when(em.getSearchService()).thenReturn(Optional.of(ss));
-		return em;
+		
+		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		when(context.getEntityManager()).thenReturn(Optional.of(em));
+		when(context.getModelManager()).thenReturn(Optional.of(mm));
+		when(context.getSearchService()).thenReturn(Optional.of(ss));
+		return context;
 	}
-
+	
 	private ModelManager mockModelManager() {
 		EntityType type = mockEntity("env1", "Test");
 
@@ -245,10 +242,9 @@ public class QueryServiceTest {
 
 	@org.junit.Test
 	public void testGetSuggestions() throws Exception {
-		ModelManager mm = mockModelManager();
-		EntityManager em = mockEntityManager(mm);
+		ApplicationContext context = mockContext();
 
-		Record record = new Record(mm.getEntityType(Test.class));
+		Record record = new Record(context.getModelManager().get().getEntityType(Test.class));
 		record.addValue(ValueType.LONG.create("Id", 1L));
 		record.addValue(ValueType.STRING.create("Name", "Test-Name"));
 		Result result = new Result();
@@ -258,10 +254,13 @@ public class QueryServiceTest {
 		when(query.select(Mockito.any(Attribute.class))).thenReturn(query);
 		when(query.group(Mockito.any(Attribute.class))).thenReturn(query);
 		when(query.fetch()).thenReturn(Arrays.asList(result));
-		when(mm.createQuery()).thenReturn(query);
+		
+		org.eclipse.mdm.api.base.query.QueryService qs = mock(org.eclipse.mdm.api.base.query.QueryService.class);
+		when(qs.createQuery()).thenReturn(query);
+		when(context.getQueryService()).thenReturn(Optional.of(qs));
 
 		ConnectorService connectorService = Mockito.mock(ConnectorService.class);
-		when(connectorService.getEntityManagerByName("env1")).thenReturn(em);
+		when(connectorService.getContextByName("env1")).thenReturn(context);
 
 		QueryService queryService = new QueryService();
 		queryService.connectorService = connectorService;

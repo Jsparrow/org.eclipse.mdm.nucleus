@@ -21,10 +21,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import java.util.Set;
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 
-import org.eclipse.mdm.api.base.query.Attribute;
-import org.eclipse.mdm.api.base.query.EntityType;
+import java.util.Set;
 
 /**
  * I18NResponse (Container for {@link I18NLocalization}s)

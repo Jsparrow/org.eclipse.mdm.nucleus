@@ -16,10 +16,11 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Project;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
@@ -80,13 +81,16 @@ public class ProjectService {
 	public List<Project> getProjects(String sourceName, String filter) {
 
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			ApplicationContext context = this.connectorService.getContextByName(sourceName);
+			EntityManager em = context
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 
 			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(Project.class);
 			}
 
-			return this.searchActivity.search(em, Project.class, filter);
+			return this.searchActivity.search(context, Project.class, filter);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -101,8 +105,7 @@ public class ProjectService {
 	 * @return the found {@link SearchAttribute}s
 	 */
 	public List<SearchAttribute> getSearchAttributes(String sourceName) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		return this.searchActivity.listAvailableAttributes(em, Project.class);
+		return this.searchActivity.listAvailableAttributes(this.connectorService.getContextByName(sourceName), Project.class);
 	}
 
 	/**
@@ -118,7 +121,9 @@ public class ProjectService {
 	 */
 	public Project getProject(String sourceName, String projectId) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 			return em.load(Project.class, projectId);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);

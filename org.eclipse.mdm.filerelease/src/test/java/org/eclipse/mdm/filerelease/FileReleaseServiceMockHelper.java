@@ -11,6 +11,8 @@
 
 package org.eclipse.mdm.filerelease;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
@@ -28,12 +30,12 @@ import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.User;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.filerelease.control.FileConvertJobManager;
 import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class FileReleaseServiceMockHelper {
@@ -70,15 +72,15 @@ public class FileReleaseServiceMockHelper {
 
 	public static ConnectorService createConnectorServiceMock() throws Exception {
 		ConnectorService mockedConnectorService = Mockito.mock(ConnectorService.class);
-		EntityManager mockedEntityManager = createEntityManagerMock();
-		List<EntityManager> emList = new ArrayList<>();
-		emList.add(mockedEntityManager);
-		when(mockedConnectorService.getEntityManagers()).thenReturn(emList);
-		when(mockedConnectorService.getEntityManagerByName("MDMENV")).thenReturn(emList.get(0));
+		ApplicationContext mockedContext = createContextMock();
+		List<ApplicationContext> contextList = new ArrayList<>();
+		contextList.add(mockedContext);
+		when(mockedConnectorService.getContexts()).thenReturn(contextList);
+		when(mockedConnectorService.getContextByName("MDMENV")).thenReturn(contextList.get(0));
 		return mockedConnectorService;
 	}
 
-	public static EntityManager createEntityManagerMock() throws Exception {
+	public static ApplicationContext createContextMock() throws Exception {
 		EntityManager em = Mockito.mock(EntityManager.class);
 
 		Environment mockedEnv = createEntityMock(Environment.class, "MDMENV", "MDMENV", "1");
@@ -89,7 +91,7 @@ public class FileReleaseServiceMockHelper {
 
 		Test mockedTest = createEntityMock(Test.class, "Test", "MDMENV", "1");
 		mockedTest.setResponsiblePerson(mockedUser);
-		when(em.loadParent(Matchers.any(TestStep.class), Matchers.eq(TestStep.PARENT_TYPE_TEST)))
+		when(em.loadParent(any(TestStep.class), eq(TestStep.PARENT_TYPE_TEST)))
 				.thenReturn(Optional.of(mockedTest));
 
 		TestStep mockedTestStep1 = createEntityMock(TestStep.class, "Teststep", "MDMENV", "123");
@@ -98,7 +100,9 @@ public class FileReleaseServiceMockHelper {
 		TestStep mockedTestStep2 = createEntityMock(TestStep.class, "Teststep", "MDMENV", "1234");
 		when(em.load(TestStep.class, "1234")).thenReturn(mockedTestStep2);
 
-		return em;
+		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		when(context.getEntityManager()).thenReturn(Optional.of(em));
+		return context;
 	}
 
 	private static List<FileRelease> createFileReleaseMockList() {

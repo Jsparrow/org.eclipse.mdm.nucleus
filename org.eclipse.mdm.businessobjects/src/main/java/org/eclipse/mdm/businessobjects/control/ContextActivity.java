@@ -77,7 +77,9 @@ public class ContextActivity {
 			ContextType... contextTypes) {
 		try {
 
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 			TestStep testStep = em.load(TestStep.class, testStepID);
 
 			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, contextTypes);
@@ -121,7 +123,9 @@ public class ContextActivity {
 
 		try {
 
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 			Measurement measurement = em.load(Measurement.class, measurementID);
 
 			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, contextTypes);
@@ -155,7 +159,10 @@ public class ContextActivity {
 	public Map<String, List<ContextSensor>> getTestStepSensorContext(String sourceName, String testStepID) {
 
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
+			
 			TestStep testStep = em.load(TestStep.class, testStepID);
 
 			Map<ContextType, ContextRoot> orderedContext = em.loadContexts(testStep, ContextType.TESTEQUIPMENT);
@@ -184,7 +191,9 @@ public class ContextActivity {
 	public Map<String, List<ContextSensor>> getMeasurementSensorContext(String sourceName, String measurementID) {
 		try {
 
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 			Measurement measurement = em.load(Measurement.class, measurementID);
 
 			Map<ContextType, ContextRoot> measuredContext = em.loadContexts(measurement, ContextType.TESTEQUIPMENT);

@@ -20,11 +20,12 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.ValueType;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
-import org.eclipse.mdm.api.base.query.ModelManager;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.api.dflt.model.Project;
@@ -39,6 +40,7 @@ import org.mockito.Mockito;
 
 public class PoolServiceTest {
 
+	ApplicationContext context = Mockito.mock(ApplicationContext.class);
 	EntityManager em = Mockito.mock(EntityManager.class);
 	ModelManager mm = mockModelManager();
 	ConnectorService connectorService = Mockito.mock(ConnectorService.class);
@@ -50,8 +52,9 @@ public class PoolServiceTest {
 
 	@Before
 	public void init() {
-		when(connectorService.getEntityManagerByName("MDMTEST")).thenReturn(em);
-		when(em.getModelManager()).thenReturn(Optional.of(mm));
+		when(connectorService.getContextByName("MDMTEST")).thenReturn(context);
+		when(context.getEntityManager()).thenReturn(Optional.of(em));
+		when(context.getModelManager()).thenReturn(Optional.of(mm));
 	}
 
 	@Test
@@ -80,7 +83,7 @@ public class PoolServiceTest {
 
 	@Test(expected = MDMEntityAccessException.class)
 	public void testGetPoolsWrongEnvironment() {
-		doThrow(MDMEntityAccessException.class).when(connectorService).getEntityManagerByName("wrongEnvironment");
+		doThrow(MDMEntityAccessException.class).when(connectorService).getContextByName("wrongEnvironment");
 
 		service.getPools("wrongEnvironment", "Pool.Name eq crash");
 	}
@@ -97,14 +100,14 @@ public class PoolServiceTest {
 	public void testGetPools() {
 		service.getPools("MDMTEST", "Pool.Name eq crash");
 
-		verify(searchActivity).search(em, Pool.class, "Pool.Name eq crash");
+		verify(searchActivity).search(context, Pool.class, "Pool.Name eq crash");
 	}
 
 	@Test
 	public void testGetSearchAttributes() {
 		service.getSearchAttributes("MDMTEST");
 
-		verify(searchActivity).listAvailableAttributes(em, Pool.class);
+		verify(searchActivity).listAvailableAttributes(context, Pool.class);
 	}
 
 	@Test

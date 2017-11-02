@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.query.ComparisonOperator;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.junit.Test;
 

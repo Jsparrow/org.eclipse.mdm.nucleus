@@ -30,7 +30,7 @@ public class ServiceConfiguration {
 	 * The fully qualified class name of the entity manager factory for this
 	 * backend, never null.
 	 */
-	private final String entityManagerFactoryClass;
+	private final String contextFactoryClass;
 
 	/**
 	 * An unmodifiable map holding the connection parameters for this backend;
@@ -50,9 +50,9 @@ public class ServiceConfiguration {
 	 *            a map holding the connection parameters for this backend, or
 	 *            null to use an empty map instead
 	 */
-	public ServiceConfiguration(String entityManagerFactoryClass, Map<String, String> connectionParameters) {
-		this.entityManagerFactoryClass = Objects.requireNonNull(entityManagerFactoryClass,
-				"Null \"entityManagerFactoryClass\" argument passed to ServiceConfiguration constructor");
+	public ServiceConfiguration(String contextFactoryClass, Map<String, String> connectionParameters) {
+		this.contextFactoryClass = Objects.requireNonNull(contextFactoryClass,
+				"Null \"contextFactoryClass\" argument passed to ServiceConfiguration constructor");
 		this.connectionParameters = (connectionParameters == null ? Collections.emptyMap()
 				: Collections.unmodifiableMap(new LinkedHashMap<>(connectionParameters)));
 	}
@@ -64,8 +64,8 @@ public class ServiceConfiguration {
 	 * @return the entity manager factory class name passed to the constructor,
 	 *         never null
 	 */
-	public String getEntityManagerFactoryClass() {
-		return entityManagerFactoryClass;
+	public String getContextFactoryClass() {
+		return contextFactoryClass;
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class ServiceConfiguration {
 
 	@Override
 	public String toString() {
-		return this.entityManagerFactoryClass + "#" + connectionParameters;
+		return this.contextFactoryClass + "#" + connectionParameters;
 	}
 
 }

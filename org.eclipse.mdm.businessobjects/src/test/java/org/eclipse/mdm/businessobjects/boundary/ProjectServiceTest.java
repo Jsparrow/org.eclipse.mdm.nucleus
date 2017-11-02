@@ -15,29 +15,37 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.eclipse.mdm.api.base.query.DataAccessException;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Project;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
+import org.eclipse.mdm.businessobjects.control.NavigationActivity;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+
 public class ProjectServiceTest {
 
+	ApplicationContext context = Mockito.mock(ApplicationContext.class);
 	EntityManager em = Mockito.mock(EntityManager.class);
 	ConnectorService connectorService = Mockito.mock(ConnectorService.class);
 	SearchActivity searchActivity = Mockito.mock(SearchActivity.class);
+	NavigationActivity navigationActivity = Mockito.mock(NavigationActivity.class);
 	I18NActivity i18nActivity = Mockito.mock(I18NActivity.class);
 
 	ProjectService service = new ProjectService(connectorService, searchActivity, i18nActivity);
 
 	@Before
 	public void init() {
-		when(connectorService.getEntityManagerByName("MDMTEST")).thenReturn(em);
+		when(context.getEntityManager()).thenReturn(Optional.of(em));
+		when(connectorService.getContextByName("MDMTEST")).thenReturn(context);
 	}
 
 	@Test
@@ -66,7 +74,7 @@ public class ProjectServiceTest {
 
 	@Test(expected = MDMEntityAccessException.class)
 	public void testGetProjectsWrongEnvironment() {
-		doThrow(MDMEntityAccessException.class).when(connectorService).getEntityManagerByName("wrongEnvironment");
+		doThrow(MDMEntityAccessException.class).when(connectorService).getContextByName("wrongEnvironment");
 
 		service.getProjects("wrongEnvironment", "Project.Name eq crash");
 	}
@@ -75,14 +83,14 @@ public class ProjectServiceTest {
 	public void testGetProjects() {
 		service.getProjects("MDMTEST", "Project.Name eq crash");
 
-		verify(searchActivity).search(em, Project.class, "Project.Name eq crash");
+		verify(searchActivity).search(context, Project.class, "Project.Name eq crash");
 	}
 
 	@Test
 	public void testGetSearchAttributes() {
 		service.getSearchAttributes("MDMTEST");
 
-		verify(searchActivity).listAvailableAttributes(em, Project.class);
+		verify(searchActivity).listAvailableAttributes(context, Project.class);
 	}
 
 	@Test
