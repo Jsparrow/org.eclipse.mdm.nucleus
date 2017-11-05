@@ -26,6 +26,8 @@ public class ValueListResourceIntegrationTest extends EntityResourceIntegrationT
 
 	@BeforeClass
 	public static void prepareTestData() {
+		getLogger().debug("Preparing ValueListResourceIntegrationTest");
+
 		// set up test data
 		setContextClass(ValueListResourceIntegrationTest.class);
 

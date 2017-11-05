@@ -28,6 +28,8 @@ public class CatalogComponentUUTResourceIntegrationTest extends EntityResourceIn
 
 	@BeforeClass
 	public static void prepareTestData() {
+		getLogger().debug("Preparing CatalogComponentUUTResourceIntegrationTest");
+
 		// set up test data
 		setContextClass(CatalogComponentUUTResourceIntegrationTest.class);
 

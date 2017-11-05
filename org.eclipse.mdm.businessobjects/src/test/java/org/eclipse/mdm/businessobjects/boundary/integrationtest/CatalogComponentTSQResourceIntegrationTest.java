@@ -27,6 +27,8 @@ public class CatalogComponentTSQResourceIntegrationTest extends EntityResourceIn
 
 	@BeforeClass
 	public static void prepareTestData() {
+		getLogger().debug("Preparing CatalogComponentTSQResourceIntegrationTest");
+
 		// set up test data
 		setContextClass(CatalogComponentTSQResourceIntegrationTest.class);
 

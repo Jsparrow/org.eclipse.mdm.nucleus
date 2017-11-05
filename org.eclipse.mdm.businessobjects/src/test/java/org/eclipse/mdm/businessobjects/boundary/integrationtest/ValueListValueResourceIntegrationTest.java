@@ -27,6 +27,8 @@ public class ValueListValueResourceIntegrationTest extends EntityResourceIntegra
 
 	@BeforeClass
 	public static void prepareTestData() {
+		getLogger().debug("Preparing ValueListValueResourceIntegrationTest");
+
 		// prepare test data for creating the ValueList
 		ValueListResourceIntegrationTest.prepareTestData();
 		ValueListResourceIntegrationTest.createEntity();
@@ -47,7 +49,7 @@ public class ValueListValueResourceIntegrationTest extends EntityResourceIntegra
 
 	@AfterClass
 	public static void tearDownAfterClass() {
-		ValueListResourceIntegrationTest.prepareTestData();
+		setContextClass(ValueListResourceIntegrationTest.class);
 		ValueListResourceIntegrationTest.deleteEntity();
 	}
 }

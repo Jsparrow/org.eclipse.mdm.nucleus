@@ -113,7 +113,7 @@ public abstract class EntityResourceIntegrationTest {
 		if (isTestDataValuePresent(TESTDATA_ENTITY_ID)) {
 			LOGGER.debug(getContextClass().getSimpleName() + ".create() aborted as entity "
 					+ getTestDataValue(TESTDATA_ENTITY_NAME) + " of type " + getTestDataValue(TESTDATA_ENTITY_TYPE)
-					+ " was already created" + getTestDataValue(TESTDATA_RESOURCE_URI));
+					+ " was already created");
 			return;
 		}
 
@@ -140,9 +140,8 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test2Find() {
-		LOGGER.debug(
-				getContextClass().getSimpleName() + ".find() sending GET to "
-						+ getTestDataValue(TESTDATA_RESOURCE_URI));
+		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to "
+				+ getTestDataValue(TESTDATA_RESOURCE_URI));
 
 		ExtractableResponse<Response> response = given()
 				.get(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
@@ -175,9 +174,8 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test4Update() {
-		LOGGER.debug(
-				getContextClass().getSimpleName() + ".update() sending PUT to "
-						+ getTestDataValue(TESTDATA_RESOURCE_URI));
+		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to "
+				+ getTestDataValue(TESTDATA_RESOURCE_URI));
 
 		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
 				// TODO the update should use different data but as the returned JSON represents
@@ -222,10 +220,12 @@ public abstract class EntityResourceIntegrationTest {
 				.extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " deleted " + response.asString());
+
+		removeTestDataValue(TESTDATA_ENTITY_ID);
 	}
 
 	/**
-	 * Get value with key from the testDataMap. The value map is thereby
+	 * Gets value with key from the testDataMap. The value map is thereby
 	 * automatically identified by the implementing class.
 	 * 
 	 * @param key
@@ -237,7 +237,7 @@ public abstract class EntityResourceIntegrationTest {
 	}
 
 	/**
-	 * Get value with key from the testDataMap using the context specified by
+	 * Gets value with key from the testDataMap using the context specified by
 	 * contextClass
 	 * 
 	 * @param contextClass
@@ -255,6 +255,13 @@ public abstract class EntityResourceIntegrationTest {
 				.get();
 	}
 
+	/**
+	 * Checks if a test data value is present for the given key
+	 * 
+	 * @param key
+	 *            key to check presence of test data value for
+	 * @return true, if a test data value for the given key exists, false if not
+	 */
 	public static boolean isTestDataValuePresent(String key) {
 		return testDataMap.get(getContextClass())
 				.map(valueMap -> valueMap.get(key)
@@ -263,8 +270,21 @@ public abstract class EntityResourceIntegrationTest {
 	}
 
 	/**
-	 * Put value with key in the testDataMap. The value map is thereby automatically
-	 * identified by the implementing class.
+	 * Removes the test data value for the given key. If the key is not present,
+	 * nothing happens.
+	 * 
+	 * @param key
+	 *            key to remove test data value for
+	 */
+	public static void removeTestDataValue(String key) {
+		testDataMap.get(getContextClass())
+				.map(valueMap -> valueMap.remove(key))
+				.map(newValueMap -> testDataMap = testDataMap.put(getContextClass(), newValueMap));
+	}
+
+	/**
+	 * Puts value with key in the testDataMap. The value map is thereby
+	 * automatically identified by the implementing class.
 	 * 
 	 * @param key
 	 *            key to store value under
@@ -278,7 +298,7 @@ public abstract class EntityResourceIntegrationTest {
 	}
 
 	/**
-	 * Get the context class set by a test implementation used to store context
+	 * Gets the context class set by a test implementation used to store context
 	 * aware test data
 	 * 
 	 * @return the context class of the test implementation
@@ -289,9 +309,9 @@ public abstract class EntityResourceIntegrationTest {
 	}
 
 	/**
-	 * Set the context class used to store context aware test data. This method must
-	 * be called by any test implementation before using {@link getTestDataValue} or
-	 * {@link putTestDataValue}
+	 * Sets the context class used to store context aware test data. This method
+	 * must be called by any test implementation before using
+	 * {@link getTestDataValue} or {@link putTestDataValue}
 	 * 
 	 * @param contextClass
 	 *            the context class set by a test implementation
@@ -299,5 +319,14 @@ public abstract class EntityResourceIntegrationTest {
 	public static void setContextClass(Class<?> contextClass) {
 		EntityResourceIntegrationTest.contextClass = contextClass;
 		LOGGER = LoggerFactory.getLogger(contextClass);
+	}
+
+	/**
+	 * Gets the logger
+	 * 
+	 * @return logger configured to current context class
+	 */
+	public static Logger getLogger() {
+		return LOGGER;
 	}
 }

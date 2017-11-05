@@ -17,25 +17,24 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Test class for CatalogComponentResource for TestEquipment
- * {@link ContextType}.
+ * Test class for TemplateRootResource for TestSequence {@link ContextType}.
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  * @see EntityResourceIntegrationTest
  *
  */
-public class CatalogComponentTEQResourceIntegrationTest extends EntityResourceIntegrationTest {
+public class TemplateRootTSQResourceIntegrationTest extends EntityResourceIntegrationTest {
 
 	@BeforeClass
 	public static void prepareTestData() {
-		getLogger().debug("Preparing CatalogComponentTEQResourceIntegrationTest");
+		getLogger().debug("Preparing TemplateRootTSQResourceIntegrationTest");
 
 		// set up test data
-		setContextClass(CatalogComponentTEQResourceIntegrationTest.class);
+		setContextClass(TemplateRootTSQResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/testequipment");
-		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatCompTEQ");
-		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogComponent");
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testsequence");
+		putTestDataValue(TESTDATA_ENTITY_NAME, "testTplRootTSQ");
+		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateRoot");
 
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));

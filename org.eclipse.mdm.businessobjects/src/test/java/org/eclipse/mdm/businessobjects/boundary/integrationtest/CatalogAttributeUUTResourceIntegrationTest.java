@@ -11,34 +11,47 @@
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import org.eclipse.mdm.api.base.model.ContextType;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Test class for CatalogComponentResource for TestEquipment
+ * Test class for CatalogAttributeResource for UnitUnderTest
  * {@link ContextType}.
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  * @see EntityResourceIntegrationTest
  *
  */
-public class CatalogComponentTEQResourceIntegrationTest extends EntityResourceIntegrationTest {
+public class CatalogAttributeUUTResourceIntegrationTest extends EntityResourceIntegrationTest {
 
 	@BeforeClass
 	public static void prepareTestData() {
-		getLogger().debug("Preparing CatalogComponentTEQResourceIntegrationTest");
+		getLogger().debug("Preparing CatalogAttributeUUTResourceIntegrationTest");
+
+		// prepare test data for creating the CatalogComponent
+		CatalogComponentUUTResourceIntegrationTest.prepareTestData();
+		CatalogComponentUUTResourceIntegrationTest.createEntity();
 
 		// set up test data
-		setContextClass(CatalogComponentTEQResourceIntegrationTest.class);
+		setContextClass(CatalogAttributeUUTResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/testequipment");
-		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatCompTEQ");
-		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogComponent");
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/unitundertest/"
+				+ getTestDataValue(CatalogComponentUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/catattrs");
+		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatAttrUUT");
+		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogAttribute");
 
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add("datatype", new JsonPrimitive("STRING"));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		setContextClass(CatalogComponentUUTResourceIntegrationTest.class);
+		CatalogComponentUUTResourceIntegrationTest.deleteEntity();
 	}
 }
