@@ -107,7 +107,10 @@ public class EntityService {
 	 *            id of the {@link Entity} to find
 	 * @return found {@link Entity}
 	 */
-	// TODO needed?
+	// TODO this method should handle access to CatalogAttribute, TemplateComponent,
+	// TemplateAttribute and ContextComponent via implicitly using their roots, i.e.
+	// CatalogComponent, TemplateRoot and ContextRoot. The access to those "nested"
+	// entities should be transparent to a client of this service
 	public <T extends Entity> Option<T> find(Class<T> entityClass, ContextType contextType, String sourceName,
 			String id) {
 		// TODO error handling: how to inform caller about what happened? Try?
@@ -484,12 +487,16 @@ public class EntityService {
 		Try<EntityManager> entityManager = Try.of(() -> connectorService.getEntityManagerByName(sourceName));
 
 		// return updated entity
-		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, contextType, id))
+		// return (Option<T>) entityManager.mapTry(em -> em.load(entityClass,
+		// contextType, id))
+		// TODO use this method throughout this class
+		return (Option<T>) find(entityClass, id, contextType)
 				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// persist entity
 				// TODO remove toTry()
-				.mapTry(entity -> entity.toTry()
+				.toTry()
+				.map(entity -> entity.toTry()
 						.mapTry(e -> DataAccessHelper.execute()
 								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
 						// TODO try to get rid of inner onFailure
@@ -501,6 +508,13 @@ public class EntityService {
 				// flatMap()?
 				.map(e -> e.get())
 				.toOption();
+	}
+
+	private <T extends Entity> Option<T> find(Class<T> entityClass, String id, ContextType contextType) {
+		GEH ÜBER ROOT ;-)
+
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**
@@ -771,6 +785,46 @@ public class EntityService {
 			Try.of(() -> {
 				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
 						.set(relatedEntity);
+				return null;
+			})
+					.onFailure(ResourceHelper.rethrowException);
+
+		}
+	}
+
+	/**
+	 * Sets the parent {@link Entity} for a given {@link Entity}. A
+	 * {@link ContextType} can be specified for the parent entity.
+	 * 
+	 * @param entity
+	 *            entity to set as parent
+	 * @param parent
+	 *            parent entity to set
+	 * @param contextType
+	 *            contextType of parent entity or null if not applicable
+	 */
+	public static void setParentEntity(Entity entity, Entity parent, ContextType contextType) {
+		Method GET_CORE_METHOD;
+		try {
+			GET_CORE_METHOD = BaseEntity.class.getDeclaredMethod("getCore");
+			GET_CORE_METHOD.setAccessible(true);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new IllegalStateException(
+					"Unable to load 'getCore()' in class '" + BaseEntity.class.getSimpleName() + "'.", e);
+		}
+		// use appropriate set-method
+		if (contextType != null) {
+			Try.of(() -> {
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
+						.set(parent, contextType);
+				return null;
+			})
+					// TODO onFailure not triggering
+					.onFailure(ResourceHelper.rethrowException);
+		} else {
+			Try.of(() -> {
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
+						.set(parent);
 				return null;
 			})
 					.onFailure(ResourceHelper.rethrowException);
