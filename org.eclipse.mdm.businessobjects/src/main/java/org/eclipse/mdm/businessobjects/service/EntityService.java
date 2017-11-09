@@ -93,7 +93,9 @@ public class EntityService {
 		// TODO handle "Connector Service not found", "Source not found"
 		return Try.of(() -> this.connectorService.getEntityManagerByName(sourceName))
 				// TODO handle "Entity not found"
-				.mapTry(em -> em.load(entityClass, id)).onFailure(throwException).toOption();
+				.mapTry(em -> em.load(entityClass, id))
+				.onFailure(throwException)
+				.toOption();
 	}
 
 	/**
@@ -104,6 +106,8 @@ public class EntityService {
 	 * {@link CatalogComponent}, {@link TemplateRoot} or {@link ContextRoot} are
 	 * used to get the entity to find.
 	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @param entityClass
 	 *            entityType
 	 * @param id
@@ -128,8 +132,10 @@ public class EntityService {
 			if (parentIds.length != 1) {
 				throw new IllegalArgumentException("Id of CatalogComponent not set as parentId");
 			}
-			return (Option<T>) find(sourceName, CatalogComponent.class, parentIds[0], contextType).map(
-					catComp -> Stream.ofAll(catComp.getCatalogAttributes()).find(catAttr -> catAttr.getID().equals(id))
+			return (Option<T>) find(sourceName, CatalogComponent.class, parentIds[0], contextType)
+					.map(catComp -> Stream.ofAll(catComp.getCatalogAttributes())
+							.find(catAttr -> catAttr.getID()
+									.equals(id))
 							.getOrElseThrow(() -> new NoSuchElementException()));
 
 		} else if (entityClass.equals(TemplateComponent.class)) {
@@ -157,7 +163,9 @@ public class EntityService {
 		// TODO handle "Connector Service not found", "Source not found"
 		return Try.of(() -> this.connectorService.getEntityManagerByName(sourceName))
 				// TODO handle "Entity not found"
-				.mapTry(em -> em.load(entityClass, contextType, id)).onFailure(throwException).toOption();
+				.mapTry(em -> em.load(entityClass, contextType, id))
+				.onFailure(throwException)
+				.toOption();
 	}
 
 	/**
@@ -178,8 +186,47 @@ public class EntityService {
 			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
 
 			List<T> entities = null;
-			if (filter == null || filter.trim().length() <= 0) {
+			if (filter == null || filter.trim()
+					.length() <= 0) {
 				entities = List.ofAll(em.loadAll(entityClass));
+
+			} else {
+				entities = List.ofAll(this.searchActivity.search(em, entityClass, filter));
+			}
+
+			// return empty list if nothing was found just in case the backend methods would
+			// return null
+			return entities != null ? entities : List.empty();
+		} catch (DataAccessException e) {
+			throw new MDMEntityAccessException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Returns the matching {@link Entity}s of the given contextType using the given
+	 * filter or all {@link Entity}s of the given contextType if no filter is
+	 * available
+	 * 
+	 * @param entityClass
+	 *            class of the {@link Entity} to find
+	 * @param contextType
+	 *            the {@link ContextType) of the entities to find
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param filter
+	 *            filter string to filter the {@link Entity} result
+	 * @return found {@link Entity}
+	 */
+	// TODO check if needed after reworking resources to get children via root
+	public <T extends Entity> List<T> findAll(Class<T> entityClass, ContextType contextType, String sourceName,
+			String filter) {
+		try {
+			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+
+			List<T> entities = null;
+			if (filter == null || filter.trim()
+					.length() <= 0) {
+				entities = List.ofAll(em.loadAll(entityClass, contextType));
 
 			} else {
 				entities = List.ofAll(this.searchActivity.search(em, entityClass, filter));
@@ -213,10 +260,12 @@ public class EntityService {
 		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
 		// TODO handle "Entity not found"
 		// TODO is that messy functional style and should I just use a function chain
-		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, parentId)).onFailure(throwException)
+		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, parentId))
+				.onFailure(throwException)
 				.get();
 		List<T> children = entityManager.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass)))
-				.onFailure(throwException).get();
+				.onFailure(throwException)
+				.get();
 
 		return children;
 	}
@@ -244,11 +293,13 @@ public class EntityService {
 		Try<EntityManager> entityManager = Try.of(() -> this.connectorService.getEntityManagerByName(sourceName));
 		// TODO handle "Entity not found"
 		// TODO is that messy functional style and should I just use a function chain
-		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, parentId)).onFailure(throwException)
+		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, parentId))
+				.onFailure(throwException)
 				.get();
 
 		Try<List<T>> children;
-		if (filter == null || filter.trim().length() <= 0) {
+		if (filter == null || filter.trim()
+				.length() <= 0) {
 			children = entityManager.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass)));
 
 		} else {
@@ -257,7 +308,8 @@ public class EntityService {
 					.mapTry(em -> List.ofAll(this.searchActivity.search(em, childrenEntityClass, filter)));
 		}
 
-		return children.onFailure(throwException).get();
+		return children.onFailure(throwException)
+				.get();
 	}
 
 	/**
@@ -284,10 +336,12 @@ public class EntityService {
 		// TODO handle "Entity not found"
 		// TODO is that messy functional style and should I just use a function chain
 		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, contextType, parentId))
-				.onFailure(throwException).get();
+				.onFailure(throwException)
+				.get();
 		List<T> children = entityManager
 				.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass, contextType)))
-				.onFailure(throwException).get();
+				.onFailure(throwException)
+				.get();
 
 		return children;
 	}
@@ -317,10 +371,12 @@ public class EntityService {
 		// TODO handle "Entity not found"
 		// TODO is that messy functional style and should I just use a function chain
 		Entity parent = entityManager.mapTry(em -> em.load(parentEntityClass, contextType, parentId))
-				.onFailure(throwException).get();
+				.onFailure(throwException)
+				.get();
 
 		Try<List<T>> children;
-		if (filter == null || filter.trim().length() <= 0) {
+		if (filter == null || filter.trim()
+				.length() <= 0) {
 			children = entityManager
 					.mapTry(em -> List.ofAll(em.loadChildren(parent, childrenEntityClass, contextType)));
 
@@ -331,44 +387,8 @@ public class EntityService {
 					.mapTry(em -> List.ofAll(this.searchActivity.search(em, childrenEntityClass, filter)));
 		}
 
-		return children.onFailure(throwException).get();
-	}
-
-	/**
-	 * Returns the matching {@link Entity}s of the given contextType using the given
-	 * filter or all {@link Entity}s of the given contextType if no filter is
-	 * available
-	 * 
-	 * @param entityClass
-	 *            class of the {@link Entity} to find
-	 * @param contextType
-	 *            the {@link ContextType) of the entities to find
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @param filter
-	 *            filter string to filter the {@link Entity} result
-	 * @return found {@link Entity}
-	 */
-	// TODO needed?
-	public <T extends Entity> List<T> findAll(Class<T> entityClass, ContextType contextType, String sourceName,
-			String filter) {
-		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-
-			List<T> entities = null;
-			if (filter == null || filter.trim().length() <= 0) {
-				entities = List.ofAll(em.loadAll(entityClass, contextType));
-
-			} else {
-				entities = List.ofAll(this.searchActivity.search(em, entityClass, filter));
-			}
-
-			// return empty list if nothing was found just in case the backend methods would
-			// return null
-			return entities != null ? entities : List.empty();
-		} catch (DataAccessException e) {
-			throw new MDMEntityAccessException(e.getMessage(), e);
-		}
+		return children.onFailure(throwException)
+				.get();
 	}
 
 	/**
@@ -391,28 +411,38 @@ public class EntityService {
 		Option<T> entity;
 
 		// gather classes of method args
-		List<Class<? extends Object>> argClasses = List.of(createMethodArgs).map(o -> o.getClass());
+		List<Class<? extends Object>> argClasses = List.of(createMethodArgs)
+				.map(o -> o.getClass());
 
 		// get corresponding create method for Entity from EntityFactory
-		entity = Option.ofOptional(em.getEntityFactory()).map(factory -> {
-			try {
-				return (T) Stream.of(EntityFactory.class.getMethods())
-						// find method with the return type matching entityClass
-						.filter(m -> m.getReturnType().equals(entityClass))
-						.filter(m -> Arrays.asList(m.getParameterTypes()).equals(argClasses.toJavaList()))
-						.getOrElseThrow(() -> {
-							throw new MDMEntityAccessException(
-									"No matching create()-method found for EntityType " + entityClass.getSimpleName()
-											+ " taking the parameters " + Stream.of(createMethodArgs)
-													.map(o -> o.getClass().getName()).collect(Collectors.toList()));
-						}).invoke(factory, createMethodArgs);
-			} catch (Exception e) {
-				throw new MDMEntityAccessException(e.getMessage(), e);
-			}
-		});
+		entity = Option.ofOptional(em.getEntityFactory())
+				.map(factory -> {
+					try {
+						return (T) Stream.of(EntityFactory.class.getMethods())
+								// find method with the return type matching entityClass
+								.filter(m -> m.getReturnType()
+										.equals(entityClass))
+								.filter(m -> Arrays.asList(m.getParameterTypes())
+										.equals(argClasses.toJavaList()))
+								.getOrElseThrow(() -> {
+									throw new MDMEntityAccessException(
+											"No matching create()-method found for EntityType "
+													+ entityClass.getSimpleName() + " taking the parameters "
+													+ Stream.of(createMethodArgs)
+															.map(o -> o.getClass()
+																	.getName())
+															.collect(Collectors.toList()));
+								})
+								.invoke(factory, createMethodArgs);
+					} catch (Exception e) {
+						throw new MDMEntityAccessException(e.getMessage(), e);
+					}
+				});
 
 		// start transaction to create the entity
-		entity.toTry().mapTry(e -> DataAccessHelper.execute().apply(em, e, DataAccessHelper.create()))
+		entity.toTry()
+				.mapTry(e -> DataAccessHelper.execute()
+						.apply(em, e, DataAccessHelper.create()))
 				.onFailure(throwException);
 
 		return entity;
@@ -443,24 +473,30 @@ public class EntityService {
 				.map(entity -> {
 					// TODO make attaching related enties generic
 					// related entities in a generic way
-					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTUNITUNDERTEST_ID).map(value -> entityManager
-							.mapTry(em -> em.load(TemplateRoot.class, ContextType.UNITUNDERTEST, value.toString()))
-							.onFailure(ResourceHelper.rethrowException).get())
+					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTUNITUNDERTEST_ID)
+							.map(value -> entityManager.mapTry(
+									em -> em.load(TemplateRoot.class, ContextType.UNITUNDERTEST, value.toString()))
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
 							.peek(tplRoot -> setRelatedEntity(entity.get(), tplRoot, ContextType.UNITUNDERTEST));
-					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTTESTSEQUENCE_ID).map(value -> entityManager
-							.mapTry(em -> em.load(TemplateRoot.class, ContextType.TESTSEQUENCE, value.toString()))
-							.onFailure(ResourceHelper.rethrowException).get())
+					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTTESTSEQUENCE_ID)
+							.map(value -> entityManager.mapTry(
+									em -> em.load(TemplateRoot.class, ContextType.TESTSEQUENCE, value.toString()))
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
 							.peek(tplRoot -> setRelatedEntity(entity.get(), tplRoot, ContextType.TESTSEQUENCE));
-					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTTESTEQUIPMENT_ID).map(value -> entityManager
-							.mapTry(em -> em.load(TemplateRoot.class, ContextType.TESTEQUIPMENT, value.toString()))
-							.onFailure(ResourceHelper.rethrowException).get())
+					values.get(ResourceConstants.ENTITYATTRIBUTE_TPLROOTTESTEQUIPMENT_ID)
+							.map(value -> entityManager.mapTry(
+									em -> em.load(TemplateRoot.class, ContextType.TESTEQUIPMENT, value.toString()))
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
 							.peek(tplRoot -> setRelatedEntity(entity.get(), tplRoot, ContextType.TESTEQUIPMENT));
 					return entity;
 				})
 				// persist entity
 				.mapTry(entity -> entity.toTry()
-						.mapTry(e -> DataAccessHelper.execute().apply(entityManager.get(), entity.get(),
-								DataAccessHelper.UPDATE))
+						.mapTry(e -> DataAccessHelper.execute()
+								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
 						// TODO try to get rid of inner onFailure
 						.onFailure(ResourceHelper.rethrowException))
 				.onFailure(ResourceHelper.rethrowException)
@@ -468,7 +504,8 @@ public class EntityService {
 				// TODO check if that's the way to handle a potential error and thus null return
 				// value of the mapTry. To just call e.get() doesn't seem right also. What about
 				// flatMap()?
-				.map(e -> e.get()).toOption();
+				.map(e -> e.get())
+				.toOption();
 	}
 
 	/**
@@ -506,8 +543,8 @@ public class EntityService {
 				// TODO remove toTry()
 				.toTry()
 				.map(entity -> entity.toTry()
-						.mapTry(e -> DataAccessHelper.execute().apply(entityManager.get(), entity.get(),
-								DataAccessHelper.UPDATE))
+						.mapTry(e -> DataAccessHelper.execute()
+								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
 						// TODO try to get rid of inner onFailure
 						.onFailure(ResourceHelper.rethrowException))
 				.onFailure(ResourceHelper.rethrowException)
@@ -515,7 +552,8 @@ public class EntityService {
 				// TODO check if that's the way to handle a potential error and thus null return
 				// value of the mapTry. To just call e.get() doesn't seem right also. What about
 				// flatMap()?
-				.map(e -> e.get()).toOption();
+				.map(e -> e.get())
+				.toOption();
 	}
 
 	/**
@@ -545,26 +583,31 @@ public class EntityService {
 		Try<EntityManager> entityManager = Try.of(() -> connectorService.getEntityManagerByName(sourceName));
 
 		// return updated entity
-		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, contextType, id)).mapTry(e -> {
-			// reload from parent in case of CatalogAttribute as it can only be deleted
-			// if the parent is set
-			// TODO rewrite that mess: put in separate method reloadFromParent()
-			// TODO or check ODSModelManager for non-declared mandatory relation from
-			// CatAttr to CatComp as EntityRequest.load() loads all mandatory and
-			// optional related entities
-			// UPDATE: currently the mandatory relation from CatAttr to CatComp cannot be
-			// defined as this leads to a circular call when loading a CatComp
-			if (CatalogAttribute.class.isAssignableFrom(entityClass)
-					&& CatalogComponent.class.isAssignableFrom(parentClass)) {
-				// TODO verify existence of parent
-				return entityManager.mapTry(em -> em.load(CatalogComponent.class, contextType, parentId))
-						.map(catComp -> catComp.getCatalogAttributes().stream()
-								.filter(attr -> attr.getName().equals(e.getName())).findFirst().get())
-						.getOrElse((CatalogAttribute) e);
-			} else {
-				return e;
-			}
-		})
+		return (Option<T>) entityManager.mapTry(em -> em.load(entityClass, contextType, id))
+				.mapTry(e -> {
+					// reload from parent in case of CatalogAttribute as it can only be deleted
+					// if the parent is set
+					// TODO rewrite that mess: put in separate method reloadFromParent()
+					// TODO or check ODSModelManager for non-declared mandatory relation from
+					// CatAttr to CatComp as EntityRequest.load() loads all mandatory and
+					// optional related entities
+					// UPDATE: currently the mandatory relation from CatAttr to CatComp cannot be
+					// defined as this leads to a circular call when loading a CatComp
+					if (CatalogAttribute.class.isAssignableFrom(entityClass)
+							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
+						// TODO verify existence of parent
+						return entityManager.mapTry(em -> em.load(CatalogComponent.class, contextType, parentId))
+								.map(catComp -> catComp.getCatalogAttributes()
+										.stream()
+										.filter(attr -> attr.getName()
+												.equals(e.getName()))
+										.findFirst()
+										.get())
+								.getOrElse((CatalogAttribute) e);
+					} else {
+						return e;
+					}
+				})
 				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// TODO make attaching related enties generic
@@ -574,15 +617,16 @@ public class EntityService {
 					// related entities in a generic way
 					values.get(ResourceConstants.ENTITYATTRIBUTE_VALUELISTID)
 							.map(value -> entityManager.mapTry(em -> em.load(ValueList.class, value.toString()))
-									.onFailure(ResourceHelper.rethrowException).get())
+									.onFailure(ResourceHelper.rethrowException)
+									.get())
 							.peek(valueList -> setRelatedEntity(entity.get(), valueList, null));
 					return entity;
 				})
 				// persist entity
 				// TODO remove toTry()
 				.mapTry(entity -> entity.toTry()
-						.mapTry(e -> DataAccessHelper.execute().apply(entityManager.get(), entity.get(),
-								DataAccessHelper.UPDATE))
+						.mapTry(e -> DataAccessHelper.execute()
+								.apply(entityManager.get(), entity.get(), DataAccessHelper.UPDATE))
 						// TODO try to get rid of inner onFailure
 						.onFailure(ResourceHelper.rethrowException))
 				.onFailure(ResourceHelper.rethrowException)
@@ -590,7 +634,8 @@ public class EntityService {
 				// TODO check if that's the way to handle a potential error and thus null return
 				// value of the mapTry. To just call e.get() doesn't seem right also. What about
 				// flatMap()?
-				.map(e -> e.get()).toOption();
+				.map(e -> e.get())
+				.toOption();
 	}
 
 	/**
@@ -612,31 +657,39 @@ public class EntityService {
 	public <T extends Entity> Option<T> delete(Class<T> entityClass, Class<? extends Entity> parentClass,
 			String sourceName, ContextType contextType, String id, String parentId) {
 		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-		return Try.of(() -> entityManager.load(entityClass, contextType, id)).mapTry(e -> {
-			// reload from parent in case of CatalogAttribute as it can only be deleted
-			// if the parent is set
-			// TODO rewrite that mess: put in separate method reloadFromParent()
-			// TODO or check ODSModelManager for non-declared mandatory relation from
-			// CatAttr to CatComp as EntityRequest.load() loads all mandatory and
-			// optional related entities
-			// UPDATE: currently the mandatory relation from CatAttr to CatComp cannot be
-			// defined as this leads to a circular call when loading a CatComp
-			if (CatalogAttribute.class.isAssignableFrom(entityClass)
-					&& CatalogComponent.class.isAssignableFrom(parentClass)) {
-				// TODO verify existence of parent
-				Entity parent = entityManager.load(CatalogComponent.class, contextType, parentId);
-				return ((CatalogComponent) parent).getCatalogAttributes().stream()
-						.filter(attr -> attr.getName().equals(e.getName())).findFirst().get();
-			} else {
-				return e;
-			}
-		})
+		return Try.of(() -> entityManager.load(entityClass, contextType, id))
+				.mapTry(e -> {
+					// reload from parent in case of CatalogAttribute as it can only be deleted
+					// if the parent is set
+					// TODO rewrite that mess: put in separate method reloadFromParent()
+					// TODO or check ODSModelManager for non-declared mandatory relation from
+					// CatAttr to CatComp as EntityRequest.load() loads all mandatory and
+					// optional related entities
+					// UPDATE: currently the mandatory relation from CatAttr to CatComp cannot be
+					// defined as this leads to a circular call when loading a CatComp
+					if (CatalogAttribute.class.isAssignableFrom(entityClass)
+							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
+						// TODO verify existence of parent
+						Entity parent = entityManager.load(CatalogComponent.class, contextType, parentId);
+						return ((CatalogComponent) parent).getCatalogAttributes()
+								.stream()
+								.filter(attr -> attr.getName()
+										.equals(e.getName()))
+								.findFirst()
+								.get();
+					} else {
+						return e;
+					}
+				})
 				// TODO add null check for parent class
-				.onFailure(throwException).mapTry(e ->
+				.onFailure(throwException)
+				.mapTry(e ->
 				// start transaction and delete the entity
 				// TODO this causes the unchecked warning. Why is apply() not returning T?
-				(T) DataAccessHelper.execute().apply(entityManager, e, DataAccessHelper.delete()))
-				.onFailure(throwException).toOption();
+				(T) DataAccessHelper.execute()
+						.apply(entityManager, e, DataAccessHelper.delete()))
+				.onFailure(throwException)
+				.toOption();
 	}
 
 	/**
@@ -656,10 +709,14 @@ public class EntityService {
 	public <T extends Entity> Option<T> delete(Class<T> entityClass, String sourceName, ContextType contextType,
 			String id) {
 		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-		return Try.of(() -> entityManager.load(entityClass, contextType, id)).onFailure(throwException).mapTry(e ->
-		// start transaction and delete the entity
-		// TODO this causes the unchecked warning. Why is apply() not returning T?
-		(T) DataAccessHelper.execute().apply(entityManager, e, DataAccessHelper.delete())).onFailure(throwException)
+		return Try.of(() -> entityManager.load(entityClass, contextType, id))
+				.onFailure(throwException)
+				.mapTry(e ->
+				// start transaction and delete the entity
+				// TODO this causes the unchecked warning. Why is apply() not returning T?
+				(T) DataAccessHelper.execute()
+						.apply(entityManager, e, DataAccessHelper.delete()))
+				.onFailure(throwException)
 				.toOption();
 	}
 
@@ -677,10 +734,14 @@ public class EntityService {
 	@SuppressWarnings("unchecked")
 	public <T extends Entity> Option<T> delete(Class<T> entityClass, String sourceName, String id) {
 		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-		return Try.of(() -> entityManager.load(entityClass, id)).onFailure(throwException).mapTry(e ->
-		// start transaction and delete the entity
-		// TODO this causes the unchecked warning. Why is apply() not returning T?
-		(T) DataAccessHelper.execute().apply(entityManager, e, DataAccessHelper.delete())).onFailure(throwException)
+		return Try.of(() -> entityManager.load(entityClass, id))
+				.onFailure(throwException)
+				.mapTry(e ->
+				// start transaction and delete the entity
+				// TODO this causes the unchecked warning. Why is apply() not returning T?
+				(T) DataAccessHelper.execute()
+						.apply(entityManager, e, DataAccessHelper.delete()))
+				.onFailure(throwException)
 				.toOption();
 	}
 
@@ -754,14 +815,18 @@ public class EntityService {
 		// use appropriate set-method
 		if (contextType != null) {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore().set(relatedEntity, contextType);
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
+						.set(relatedEntity, contextType);
 				return null;
-			}).onFailure(ResourceHelper.rethrowException);
+			})
+					.onFailure(ResourceHelper.rethrowException);
 		} else {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore().set(relatedEntity);
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
+						.set(relatedEntity);
 				return null;
-			}).onFailure(ResourceHelper.rethrowException);
+			})
+					.onFailure(ResourceHelper.rethrowException);
 
 		}
 	}
@@ -789,16 +854,19 @@ public class EntityService {
 		// use appropriate set-method
 		if (contextType != null) {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore().set(parent, contextType);
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
+						.set(parent, contextType);
 				return null;
 			})
 					// TODO onFailure not triggering
 					.onFailure(ResourceHelper.rethrowException);
 		} else {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore().set(parent);
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
+						.set(parent);
 				return null;
-			}).onFailure(ResourceHelper.rethrowException);
+			})
+					.onFailure(ResourceHelper.rethrowException);
 
 		}
 	}

@@ -113,10 +113,13 @@ public class CatalogAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String catCompId,
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.findChildren(CatalogComponent.class, CatalogAttribute.class,
-						contextType, sourceName, catCompId, filter))
+				// get CatalogAttributes from CatalogComponent
+				.map(contextType -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType,
+						filter, null)
+						.map(catComp -> catComp.getCatalogAttributes())
+						.get())
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e.toJavaList()))
+				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowException)
 				.get();
