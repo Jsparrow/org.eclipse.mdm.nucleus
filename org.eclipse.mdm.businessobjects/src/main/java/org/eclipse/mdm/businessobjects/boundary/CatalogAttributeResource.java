@@ -79,11 +79,13 @@ public class CatalogAttributeResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String catCompId,
+			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(CatalogAttribute.class, contextType, sourceName, id))
+				.map(contextType -> this.entityService.find(sourceName, CatalogAttribute.class, id, contextType,
+						catCompId))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -165,7 +167,7 @@ public class CatalogAttributeResource {
 
 		// get catalog component
 		Option<CatalogComponent> catComp = Try
-				.of(() -> this.entityService.find(CatalogComponent.class, contextType.get(), sourceName, catCompId))
+				.of(() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType.get()))
 				.get();
 
 		// create catalog attribute

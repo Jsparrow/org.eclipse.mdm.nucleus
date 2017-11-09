@@ -77,7 +77,7 @@ public class CatalogComponentResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(CatalogComponent.class, contextType, sourceName, id))
+				.map(contextType -> this.entityService.find(sourceName, CatalogComponent.class, id, contextType))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(CatalogComponent.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
