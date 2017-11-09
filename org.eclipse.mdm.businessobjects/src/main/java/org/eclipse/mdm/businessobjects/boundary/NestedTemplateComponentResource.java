@@ -86,7 +86,8 @@ public class NestedTemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(TemplateRoot.class, contextType, sourceName, tplRootId))
+				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, id, contextType, tplRootId,
+						parentTplCompId))
 				// get matching parent
 				// TODO not so beautiful to do that get() at the end
 				.map(root -> root.map(r -> Stream.ofAll(r.getTemplateComponents())
@@ -128,7 +129,7 @@ public class NestedTemplateComponentResource {
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				// find the TemplateRoot
-				.map(ct -> this.entityService.find(TemplateRoot.class, ct, sourceName, tplRootId))
+				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
 				// get matching parent
 				// TODO not so beautiful to do that get() at the end
 				.map(root -> root.map(r -> Stream.ofAll(r.getTemplateComponents())
@@ -187,12 +188,12 @@ public class NestedTemplateComponentResource {
 		// get catalog component
 		// TODO handle non-existing catComp
 		Option<CatalogComponent> catComp = Try.of(
-				() -> this.entityService.find(CatalogComponent.class, contextType.get(), sourceName, catCompId.get()))
+				() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId.get(), contextType.get()))
 				.get();
 
 		// get template root
 		Option<TemplateRoot> tplRoot = Try
-				.of(() -> this.entityService.find(TemplateRoot.class, contextType.get(), sourceName, tplRootId))
+				.of(() -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType.get()))
 				.get();
 
 		// get parent component

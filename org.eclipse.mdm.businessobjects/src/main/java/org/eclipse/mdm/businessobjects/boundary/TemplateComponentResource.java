@@ -84,7 +84,7 @@ public class TemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(TemplateRoot.class, contextType, sourceName, tplRootId))
+				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
 				.map(ro -> ro.map(r -> Stream.ofAll(r.getTemplateComponents())
 						.find(c -> c.getID()
 								.equals(id))))
@@ -118,7 +118,7 @@ public class TemplateComponentResource {
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				// find the TemplateRoot
-				.map(ct -> this.entityService.find(TemplateRoot.class, ct, sourceName, tplRootId))
+				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
 				// find the TemplateComponents
 				// TODO findChildren finds also the recursive TplComps as implemented in
 				// EntityRequest.load(Filter):273
@@ -178,13 +178,13 @@ public class TemplateComponentResource {
 		// get catalog component
 		// TODO handle non-existing catComp
 		Option<CatalogComponent> catComp = Try.of(
-				() -> this.entityService.find(CatalogComponent.class, contextType.get(), sourceName, catCompId.get()))
+				() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId.get(), contextType.get()))
 				.get();
 
 		// get template root
 		// TODO handle non-existing TplRoot
 		Option<TemplateRoot> tplRoot = Try
-				.of(() -> this.entityService.find(TemplateRoot.class, contextType.get(), sourceName, tplRootId))
+				.of(() -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType.get()))
 				.get();
 
 		// create

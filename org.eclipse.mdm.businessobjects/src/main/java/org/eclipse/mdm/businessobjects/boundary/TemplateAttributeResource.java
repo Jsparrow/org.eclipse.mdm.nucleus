@@ -81,7 +81,7 @@ public class TemplateAttributeResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(TemplateAttribute.class, contextType, sourceName, id))
+				.map(contextType -> this.entityService.find(sourceName, TemplateAttribute.class, id, contextType))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -157,7 +157,7 @@ public class TemplateAttributeResource {
 
 		// get TemplateComponent
 		Option<TemplateComponent> tplComp = Try
-				.of(() -> this.entityService.find(TemplateComponent.class, contextType.get(), sourceName, tplCompId))
+				.of(() -> this.entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType.get()))
 				.get();
 
 		// create TemplateAttribute

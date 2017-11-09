@@ -349,7 +349,7 @@ public class EntityService {
 	 *            filter string to filter the {@link Entity} result
 	 * @return found {@link Entity}
 	 */
-
+	// TODO needed?
 	public <T extends Entity> List<T> findAll(Class<T> entityClass, ContextType contextType, String sourceName,
 			String filter) {
 		try {
