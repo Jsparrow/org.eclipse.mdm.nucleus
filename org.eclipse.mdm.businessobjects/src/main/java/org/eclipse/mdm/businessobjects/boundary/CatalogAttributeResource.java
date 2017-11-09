@@ -86,10 +86,11 @@ public class CatalogAttributeResource {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.find(sourceName, CatalogAttribute.class, id, contextType,
 						catCompId))
-				// error messages from down the callstack? Use Exceptions or some Vavr magic?
+				// TODO error messages from down the callstack? Use Exceptions or some Vavr
+				// magic?
 				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
@@ -113,15 +114,16 @@ public class CatalogAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String catCompId,
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				// get CatalogAttributes from CatalogComponent
-				.map(contextType -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType,
-						filter, null)
+				// get CatalogAttributes from CatalogComponent as the request is made in the
+				// context of one
+				// TODO anehmer on 2017-11-09: add filter
+				.map(contextType -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType)
 						.map(catComp -> catComp.getCatalogAttributes())
 						.get())
-				// TODO what if e is not found? Test!
+				// TODO anehmer on 2017-11-09: what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(CatalogAttribute.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -178,7 +180,7 @@ public class CatalogAttributeResource {
 				.of(() -> entityService
 						.create(CatalogAttribute.class, sourceName, name.get(), valueType.get(), catComp.get())
 						.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, entity),
 						Status.OK))
 				.get();
@@ -204,13 +206,13 @@ public class CatalogAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
 			@PathParam(REQUESTPARAM_ID) String catCompId, String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(CatalogAttribute.class, CatalogComponent.class,
-						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, catCompId, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, CatalogAttribute.class, id, valueMap,
+						ResourceHelper.mapContextType(contextTypeParam), catCompId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -231,7 +233,7 @@ public class CatalogAttributeResource {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.delete(CatalogAttribute.class, CatalogComponent.class,
 						sourceName, contextType, id, catCompId))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO add check for result.isPresent()
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, result.get()),
 						Status.OK))

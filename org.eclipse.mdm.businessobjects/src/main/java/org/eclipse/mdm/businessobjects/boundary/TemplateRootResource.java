@@ -81,7 +81,7 @@ public class TemplateRootResource {
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
@@ -104,11 +104,11 @@ public class TemplateRootResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.findAll(TemplateRoot.class, contextType, sourceName, filter))
+				.map(contextType -> this.entityService.findAll(sourceName, TemplateRoot.class, filter, contextType))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -134,7 +134,7 @@ public class TemplateRootResource {
 					// TODO correct to use onFailure instead of getOrThrow
 				}))
 				// TODO do we really need this or is the failure handled later nevertheless
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.toOption()
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
 				// TODO handle non existing value
@@ -145,7 +145,7 @@ public class TemplateRootResource {
 				// create catalog component
 				.map(tuple -> entityService.create(TemplateRoot.class, sourceName, tuple._2, tuple._1)
 						.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, entity), Status.OK))
 				.get();
 	}
@@ -170,13 +170,13 @@ public class TemplateRootResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(TemplateRoot.class,
-						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, TemplateRoot.class, id, valueMap,
+						ResourceHelper.mapContextType(contextTypeParam)))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -196,7 +196,7 @@ public class TemplateRootResource {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.delete(TemplateRoot.class, sourceName, contextType, id)
 						.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, result), Status.OK))
 				.get();
 	}

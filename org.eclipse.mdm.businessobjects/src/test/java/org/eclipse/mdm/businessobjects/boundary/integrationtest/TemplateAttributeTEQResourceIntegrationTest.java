@@ -39,11 +39,7 @@ public class TemplateAttributeTEQResourceIntegrationTest extends EntityResourceI
 		TemplateComponentTEQResourceIntegrationTest.prepareTestData();
 		TemplateComponentTEQResourceIntegrationTest.createEntity();
 
-
 		setContextClass(TemplateAttributeTEQResourceIntegrationTest.class);
-
-		// delete the implicitly created TemplateAttribute
-		TemplateAttributeTEQResourceIntegrationTest.deleteEntity();
 
 		// set up test data
 		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/"
@@ -51,7 +47,8 @@ public class TemplateAttributeTEQResourceIntegrationTest extends EntityResourceI
 				+ getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class,
 						TESTDATA_ENTITY_ID)
 				+ "/tplattrs");
-		putTestDataValue(TESTDATA_ENTITY_NAME, "testTplAttrTEQ");
+		putTestDataValue(TESTDATA_ENTITY_NAME,
+				getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME));
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateAttribute");
 
 		JsonObject json = new JsonObject();
@@ -60,6 +57,11 @@ public class TemplateAttributeTEQResourceIntegrationTest extends EntityResourceI
 		json.add("catalogattribute", new JsonPrimitive(
 				getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+
+		// delete the implicitly created TemplateAttribute
+		// TODO anehmer on 2017-11-09: not working
+		TemplateAttributeTEQResourceIntegrationTest.findFirst();
+		TemplateAttributeTEQResourceIntegrationTest.deleteEntity();
 	}
 
 	@AfterClass

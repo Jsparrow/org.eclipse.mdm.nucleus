@@ -156,6 +156,30 @@ public abstract class EntityResourceIntegrationTest {
 		LOGGER.debug(getContextClass().getSimpleName() + " found " + response.asString());
 	}
 
+	/**
+	 * Finds the first entity of the {@code EntityType} set in the context and put
+	 * the found ID in the context for further usage
+	 */
+	public static void findFirst() {
+		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to "
+				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+
+		String id = given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
+				.then()
+				.log()
+				.ifError()
+				.contentType(ContentType.JSON)
+				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+				.extract()
+				.path("data.first().id");
+
+		LOGGER.debug(getContextClass().getSimpleName() + " found " + getTestDataValue(TESTDATA_ENTITY_TYPE)
+				+ " with ID " + id);
+
+		putTestDataValue(TESTDATA_ENTITY_ID, id);
+	}
+
 	@Test
 	public void test3FindAll() {
 		LOGGER.debug(getContextClass().getSimpleName() + ".findAll() sending GET to "
@@ -171,6 +195,8 @@ public abstract class EntityResourceIntegrationTest {
 
 		LOGGER.debug(getContextClass().getSimpleName() + " found all " + response.asString());
 	}
+
+	// TODO anehmer on 2017-11-09: test findAll with filter
 
 	@Test
 	public void test4Update() {
@@ -207,11 +233,13 @@ public abstract class EntityResourceIntegrationTest {
 	 * called indirectly by JUnit
 	 */
 	public static void deleteEntity() {
+		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
+
 		LOGGER.debug(getContextClass().getSimpleName() + ".delete() sending DELETE to "
-				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+				+ uri);
 
 		ExtractableResponse<Response> response = given()
-				.delete(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
+				.delete(uri)
 				.then()
 				.log()
 				.ifError()

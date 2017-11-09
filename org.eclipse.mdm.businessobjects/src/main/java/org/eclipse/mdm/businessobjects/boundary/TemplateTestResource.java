@@ -70,12 +70,12 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(TemplateTest.class, sourceName, id))
+		return Try.of(() -> this.entityService.find(sourceName, TemplateTest.class, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateTest.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
@@ -95,11 +95,11 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(TemplateTest.class, sourceName, filter))
+		return Try.of(() -> this.entityService.findAll(sourceName, TemplateTest.class, sourceName))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateTest.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -121,14 +121,14 @@ public class TemplateTestResource {
 					// TODO correct to use onFailure instead of getOrThrow
 				}))
 				// TODO do we really need this or is the failure handled later nevertheless
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.toOption()
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
 				// TODO handle non existing value
 				.toTry()
 				.map(name -> entityService.create(TemplateTest.class, sourceName, name.toString())
 						.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, entity), Status.OK))
 				.get();
 	}
@@ -152,12 +152,12 @@ public class TemplateTestResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(TemplateTest.class, sourceName, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, TemplateTest.class, id, valueMap))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -176,7 +176,7 @@ public class TemplateTestResource {
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.delete(TemplateTest.class, sourceName, id)
 				.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, result), Status.OK))
 				.get();
 	}

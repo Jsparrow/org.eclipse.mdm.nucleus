@@ -13,6 +13,7 @@ package org.eclipse.mdm.businessobjects.service;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.mdm.api.base.Transaction;
@@ -20,6 +21,8 @@ import org.eclipse.mdm.api.base.model.Deletable;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vavr.CheckedFunction2;
 import io.vavr.CheckedFunction3;
@@ -32,6 +35,9 @@ import io.vavr.collection.Stream;
  *
  */
 public final class DataAccessHelper {
+
+	// TODO use logger from caller to preserve the error context
+	private static final Logger LOG = LoggerFactory.getLogger(DataAccessHelper.class);
 
 	/**
 	 * Just hide the default constructor
@@ -125,4 +131,17 @@ public final class DataAccessHelper {
 
 		return entity;
 	};
+
+	/**
+	 * Handles a {@link Throwable} by loggging the exception message and rethrowing
+	 * a {@link MDMEntityAccessException}
+	 */
+	// TODO should be replaced in Resources by buildErrorResponse()
+	public static final Consumer<? super Throwable> rethrowAsMDMEntityAccessException = e -> {
+		// TODO anehmer on 2017-11-09: check if logging is necessary depending on how we
+		// handle error logging and client response in general
+		LOG.error(e.getMessage(), e);
+		throw new MDMEntityAccessException(e.getMessage(), e);
+	};
+
 }

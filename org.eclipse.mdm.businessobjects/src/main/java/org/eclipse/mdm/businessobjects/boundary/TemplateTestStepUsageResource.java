@@ -71,11 +71,11 @@ public class TemplateTestStepUsageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(TemplateTestStepUsage.class, sourceName, id))
+		return Try.of(() -> this.entityService.find(sourceName, TemplateTestStepUsage.class, id))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateTestStepUsage.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
@@ -95,11 +95,11 @@ public class TemplateTestStepUsageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(TemplateTestStepUsage.class, sourceName, filter))
+		return Try.of(() -> this.entityService.findAll(sourceName, TemplateTestStepUsage.class, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateTestStepUsage.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -122,7 +122,7 @@ public class TemplateTestStepUsageResource {
 
 		// get TemplateTest
 		TemplateTest tplTest = mapper
-				.mapTry(m -> this.entityService.find(TemplateTest.class, sourceName,
+				.mapTry(m -> this.entityService.find(sourceName, TemplateTest.class,
 						m.get(ENTITYATTRIBUTE_TEMPLATETEST_ID)
 								.get()
 								.toString()))
@@ -131,7 +131,7 @@ public class TemplateTestStepUsageResource {
 
 		// get TemplateTest
 		TemplateTestStep tplTestStep = mapper
-				.mapTry(m -> this.entityService.find(TemplateTestStep.class, sourceName,
+				.mapTry(m -> this.entityService.find(sourceName, TemplateTestStep.class,
 						m.get(ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID)
 								.get()
 								.toString()))
@@ -143,7 +143,7 @@ public class TemplateTestStepUsageResource {
 		entityService.create(TemplateTestStepUsage.class, sourceName, UUID.randomUUID()
 				.toString(), tplTest, tplTestStep)
 				.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStepUsage.class, entity),
 						Status.OK))
 				.get();
@@ -168,12 +168,12 @@ public class TemplateTestStepUsageResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(TemplateTestStepUsage.class, sourceName, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, TemplateTestStepUsage.class, id, valueMap))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStepUsage.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -192,7 +192,7 @@ public class TemplateTestStepUsageResource {
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.delete(TemplateTestStepUsage.class, sourceName, id)
 				.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStepUsage.class, result),
 						Status.OK))
 				.get();

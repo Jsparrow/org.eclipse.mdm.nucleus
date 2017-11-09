@@ -47,7 +47,6 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 /**
@@ -79,14 +78,17 @@ public class TemplateAttributeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID3 + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String tplCompId, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateAttribute.class, id, contextType))
+				.map(contextType -> this.entityService.find(sourceName, TemplateAttribute.class, id, contextType,
+						tplRootId, tplCompId))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
-				// TODO send reponse or error regarding error expressiveness
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				// TODO anehmer on 2017-11-09: send reponse or error regarding error
+				// expressiveness
 				.get();
 
 	}
@@ -106,16 +108,19 @@ public class TemplateAttributeResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String tplCompId,
-			@QueryParam("filter") String filter) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String tplCompId, @QueryParam("filter") String filter) {
 
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.findChildren(TemplateComponent.class, TemplateAttribute.class,
-						contextType, sourceName, tplCompId, filter))
+				.map(contextType -> this.entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
+						tplRootId))
+				.map(maybeTplComp -> maybeTplComp.map(TemplateComponent::getTemplateAttributes)
+						.get())
+				// TODO anehmer on 2017-11-09: filter results
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e.toJavaList()))
+				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -133,8 +138,8 @@ public class TemplateAttributeResource {
 	// TODO test with already existing CatComp -> error handling onFailure in
 	// EntityService seems not to trigger
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String tplCompId,
-			String body) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String tplCompId, String body) {
 		// deserialize JSON into object map
 		@SuppressWarnings("unchecked")
 		Map<String, Object> mapping = (Map<String, Object>) Try
@@ -142,28 +147,18 @@ public class TemplateAttributeResource {
 				}))
 				.get();
 
-		// TODO clean up that mess
-
-		// TODO error handling
-		// TODO name is redundant to CatAttr id
 		// get name
-		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
-				.toString())
-				.toOption();
+		String name = mapping.get(ENTITYATTRIBUTE_NAME)
+				.toString();
 
-		// get ContextType
-		Option<ContextType> contextType = Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.toOption();
-
-		// get TemplateComponent
-		Option<TemplateComponent> tplComp = Try
-				.of(() -> this.entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType.get()))
-				.get();
-
-		// create TemplateAttribute
-		return Try.of(() -> entityService.create(TemplateAttribute.class, sourceName, name.get(), tplComp.get())
-				.get())
-				.onFailure(ResourceHelper.rethrowException)
+		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+				.map(contextType -> this.entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
+						tplRootId))
+				.map(maybeTplComp -> maybeTplComp
+						.map(tplComp -> entityService.create(TemplateAttribute.class, sourceName, name, tplComp)
+								.get())
+						.get())
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, entity),
 						Status.OK))
 				.get();
@@ -186,16 +181,17 @@ public class TemplateAttributeResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID3 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String tplCompId, @PathParam(REQUESTPARAM_ID3) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(TemplateAttribute.class,
-						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, TemplateAttribute.class, id, valueMap,
+						ResourceHelper.mapContextType(contextTypeParam), tplRootId, tplCompId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -214,7 +210,7 @@ public class TemplateAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.delete(TemplateAttribute.class, sourceName, contextType, id))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO add check for result.isPresent()
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, result.get()),
 						Status.OK))

@@ -75,12 +75,12 @@ public class ValueListValueResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(ValueListValue.class, sourceName, id))
+		return Try.of(() -> this.entityService.find(sourceName, ValueListValue.class, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(ValueListValue.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
@@ -102,12 +102,14 @@ public class ValueListValueResource {
 			@PathParam(REQUESTPARAM_ID) String valueListId, @QueryParam("filter") String filter) {
 
 		return Try
-				.of(() -> this.entityService.findChildren(ValueList.class, ValueListValue.class, sourceName,
-						valueListId, filter))
+				.of(() -> this.entityService.find(sourceName, ValueList.class, valueListId))
+				.map(maybeValueList -> maybeValueList.map(ValueList::getValueListValues)
+						.get())
+				// TODO anehmer on 2017-11-09: filter values
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(ValueListValue.class, e.toJavaList()))
+				.map(values -> new MDMEntityResponse(ValueListValue.class, values))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -134,7 +136,7 @@ public class ValueListValueResource {
 					// TODO correct to use onFailure instead of getOrThrow
 				})))
 				// TODO do we really need this or is the failure handleed later nevertheless
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
 				// create tuple with name of ValueListValue and null as the ValueList
 				.map(name -> Tuple.of(name.map(n -> n.toString())
@@ -142,7 +144,7 @@ public class ValueListValueResource {
 				// TODO handle non existing value
 				// get the ValueList
 				.mapTry((Tuple2<String, Object> paramTuple) -> this.entityService
-						.find(ValueList.class, sourceName, valueListId)
+						.find(sourceName, ValueList.class, valueListId)
 						.map(valueList -> {
 							return paramTuple.update2(valueList);
 						}))
@@ -151,7 +153,7 @@ public class ValueListValueResource {
 					return entityService.<ValueListValue>create(ValueListValue.class, sourceName, paramTuple.get()._1,
 							(ValueList) paramTuple.get()._2);
 				})
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO can't we solve this with transform() according to
 				// http://www.baeldung.com/vavr-try
 				.get()
@@ -180,10 +182,10 @@ public class ValueListValueResource {
 
 		// update entity
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(ValueListValue.class, sourceName, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, ValueListValue.class, id, valueMap))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -204,7 +206,7 @@ public class ValueListValueResource {
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.delete(ValueListValue.class, sourceName, id)
 				.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, result), Status.OK))
 				.get();
 	}

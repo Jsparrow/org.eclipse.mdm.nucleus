@@ -93,7 +93,7 @@ public class TemplateComponentResource {
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateComponent.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
@@ -124,12 +124,13 @@ public class TemplateComponentResource {
 				// EntityRequest.load(Filter):273
 				// How to deal with that? reduce RESTAPI just to root objects, so no TplComps,
 				// Attrs etc.
-				.map(parent -> this.entityService.findChildren(TemplateRoot.class, TemplateComponent.class,
-						ResourceHelper.mapContextType(contextTypeParam), sourceName, tplRootId))
+				.map(maybeTplRoot -> maybeTplRoot.map(TemplateRoot::getTemplateComponents)
+						.get())
+				// TODO anehmer on 2017-11-09: filter result
 				// prepare the result
-				.map(e -> new MDMEntityResponse(TemplateComponent.class, e.toJavaList()))
+				.map(e -> new MDMEntityResponse(TemplateComponent.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -192,7 +193,7 @@ public class TemplateComponentResource {
 				.of(() -> entityService
 						.create(TemplateComponent.class, sourceName, name.get(), tplRoot.get(), catComp.get())
 						.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, entity),
 						Status.OK))
 				.get();
@@ -215,16 +216,17 @@ public class TemplateComponentResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(TemplateComponent.class,
-						ResourceHelper.mapContextType(contextTypeParam), sourceName, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, TemplateComponent.class, id, valueMap,
+						ResourceHelper.mapContextType(contextTypeParam), tplRootId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -244,7 +246,7 @@ public class TemplateComponentResource {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				.map(contextType -> this.entityService.delete(TemplateComponent.class, sourceName, contextType, id)
 						.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, result),
 						Status.OK))
 				.get();

@@ -66,12 +66,12 @@ public class ValueListResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(ValueList.class, sourceName, id))
+		return Try.of(() -> this.entityService.find(sourceName, ValueList.class, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(ValueList.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
@@ -91,11 +91,11 @@ public class ValueListResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(ValueList.class, sourceName, filter))
+		return Try.of(() -> this.entityService.findAll(sourceName, ValueList.class, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(ValueList.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -117,7 +117,7 @@ public class ValueListResource {
 						.map(name -> name.toString()))
 				.map(name -> entityService.create(ValueList.class, sourceName, name.get()))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, entity.get()), Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -140,9 +140,9 @@ public class ValueListResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(ValueList.class, sourceName, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, ValueList.class, id, valueMap))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, entity.get()), Status.OK))
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 
@@ -163,7 +163,7 @@ public class ValueListResource {
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.delete(ValueList.class, sourceName, id)
 				.get())
-				.onFailure(ResourceHelper.rethrowException)
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, result), Status.OK))
 				.get();
 	}
