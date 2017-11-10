@@ -58,6 +58,9 @@ public class NestedTemplateComponentTSQResourceIntegrationTest extends EntityRes
 
 	@AfterClass
 	public static void tearDownAfterClass() {
+		setContextClass(TemplateComponentTSQResourceIntegrationTest.class);
+		TemplateComponentTSQResourceIntegrationTest.deleteEntity();
+
 		setContextClass(TemplateRootTSQResourceIntegrationTest.class);
 		TemplateRootTSQResourceIntegrationTest.deleteEntity();
 

@@ -48,7 +48,6 @@ import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 
@@ -84,12 +83,8 @@ public class TemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
-				.map(ro -> ro.map(r -> Stream.ofAll(r.getTemplateComponents())
-						.find(c -> c.getID()
-								.equals(id))))
-				// TODO not so beautiful to do that get()
-				.map(to -> to.get())
+				.map(contextType -> this.entityService.find(sourceName, TemplateComponent.class, id, contextType,
+						tplRootId))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateComponent.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -217,8 +212,7 @@ public class TemplateComponentResource {
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
-			@PathParam(REQUESTPARAM_ID2) String id,
-			String body) {
+			@PathParam(REQUESTPARAM_ID2) String id, String body) {
 		return ResourceHelper.deserializeJSON(body)
 				.map(valueMap -> this.entityService.update(sourceName, TemplateComponent.class, id, valueMap,
 						ResourceHelper.mapContextType(contextTypeParam), tplRootId))
