@@ -195,7 +195,7 @@ public class CatalogComponentResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(CatalogComponent.class, sourceName, contextType, id)
+				.map(contextType -> this.entityService.delete(sourceName, CatalogComponent.class, id, contextType)
 						.get())
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, result),
 						Status.OK))

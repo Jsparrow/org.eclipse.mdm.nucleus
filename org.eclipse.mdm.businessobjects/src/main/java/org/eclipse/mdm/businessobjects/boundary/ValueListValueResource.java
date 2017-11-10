@@ -204,7 +204,7 @@ public class ValueListValueResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(ValueListValue.class, sourceName, id)
+		return Try.of(() -> this.entityService.delete(sourceName, ValueListValue.class, id)
 				.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, result), Status.OK))

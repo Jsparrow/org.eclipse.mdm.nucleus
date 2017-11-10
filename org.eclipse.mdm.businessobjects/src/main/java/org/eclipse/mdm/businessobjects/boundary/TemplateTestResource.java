@@ -174,7 +174,7 @@ public class TemplateTestResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(TemplateTest.class, sourceName, id)
+		return Try.of(() -> this.entityService.delete(sourceName, TemplateTest.class, id)
 				.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, result), Status.OK))

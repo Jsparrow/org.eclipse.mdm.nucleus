@@ -194,7 +194,7 @@ public class TemplateRootResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(TemplateRoot.class, sourceName, contextType, id)
+				.map(contextType -> this.entityService.delete(sourceName, TemplateRoot.class, id, contextType)
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, result), Status.OK))

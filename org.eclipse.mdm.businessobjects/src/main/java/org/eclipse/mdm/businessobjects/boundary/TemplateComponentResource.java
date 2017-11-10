@@ -242,9 +242,11 @@ public class TemplateComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(TemplateComponent.class, sourceName, contextType, id)
+				.map(contextType -> this.entityService
+						.delete(sourceName, TemplateComponent.class, id, contextType, tplRootId)
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, result),

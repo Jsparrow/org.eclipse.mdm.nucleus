@@ -77,16 +77,14 @@ public class EntityService {
 		throw new MDMEntityAccessException(e.getMessage(), e);
 	};
 
-	// TODO unify NON-ContextType and ContextType methods
-
 	/**
 	 * 
 	 * Returns a {@link Entity} identified by the given id.
 	 * 
-	 * @param entityClass
-	 *            class of the {@link Entity} to find
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
+	 * @param entityClass
+	 *            class of the {@link Entity} to find
 	 * @param id
 	 *            id of the {@link Entity} to find
 	 * @return found {@link Entity}
@@ -115,16 +113,25 @@ public class EntityService {
 	 * @param parentIds
 	 *            id(s) of parent(s). For {@link CatalogAttribute} the parentId must
 	 *            be the id of the {@link CatalogComponent}, for
-	 *            {@link TemplateComponent} ti must be the id of the
+	 *            {@link TemplateComponent} it must be the id of the
 	 *            {@link TemplateRoot}, for {@link TemplateAttribute} it must be the
 	 *            id of the {@link TemplateRoot} first and also the
-	 *            {@link TemplateComponent} and for {@link ContextComponent} it must
-	 *            be the id of the {@link ContextRoot}.
+	 *            {@link TemplateComponent}, for a nested {@link TemplateComponent}
+	 *            it must be the id of the {@link TemplateRoot} first and the id of
+	 *            the parent {@link TemplateComponent} second, for a
+	 *            {@link TemplateAttribute} within a nested
+	 *            {@link TemplateComponent} it must be the id of the
+	 *            {@link TemplateRoot} first, the id of the parent
+	 *            {@link TemplateComponent} second and the id of the
+	 *            {@link TemplateComponent} last and for {@link ContextComponent} it
+	 *            must be the id of the {@link ContextRoot}.
 	 * @return the found entity
 	 */
-	// TODO anehmer on 2017-11-09: parentIds should be removed from the signature if
-	// the ODSAdapter is able to handle load on CatalogAttributes etc. without using
-	// the root/parent entity
+	// TODO add comment for parentIds for TplSensors and nested TplSensors as well
+	// as for TplSensorAttrs and nested TplSensorAttrs
+	// TODO anehmer on 2017-11-09: parentIds and entity specific code should be
+	// removed from the signature if the ODSAdapter is able to handle load on
+	// CatalogAttributes etc. without using the root/parent entity
 	@SuppressWarnings("unchecked")
 	public <T extends Entity> Option<T> find(String sourceName, Class<T> entityClass, String id,
 			ContextType contextType, String... parentIds) {
@@ -142,14 +149,36 @@ public class EntityService {
 										.equals(id))
 								.getOrElseThrow(() -> new NoSuchElementException()));
 			} else if (entityClass.equals(TemplateComponent.class)) {
-				if (parentIds.length != 1) {
-					throw new IllegalArgumentException("Id of TemplateRoot not set as parentId");
+				// nested TemplateComponents do not need to be retrieved via their
+				// parentTemplateComponent as getting TemplateComponents from a TemplateRoot
+				// does also return the nested TemplateComponents
+				if (parentIds.length != 1 && parentIds.length != 2) {
+					throw new IllegalArgumentException(
+							"Id of TemplateRoot (and ParentTemplateComponent) not set as parentId");
 				}
-				return (Option<T>) find(sourceName, TemplateRoot.class, parentIds[0], contextType)
-						.map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
-								.find(tplComp -> tplComp.getID()
-										.equals(id))
-								.getOrElseThrow(() -> new NoSuchElementException()));
+
+				// if non-nested TemplateComponent has to be found
+				Option<TemplateComponent> templateComponent = find(sourceName, TemplateRoot.class, parentIds[0],
+						contextType).map(
+								tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
+										.find(tplComp -> tplComp.getID()
+												// if a nested TemplateComponent has to be found, the
+												// ParentTemplateComponent has to be retrieved
+												.equals(parentIds.length == 1 ? id : parentIds[1]))
+										.getOrElseThrow(() -> new NoSuchElementException(
+												"TemplateComponent with ID " + id + " not found")));
+				if (parentIds.length == 1) {
+					return (Option<T>) templateComponent;
+				}
+
+				// if nested TemplateComponent has to be found
+				if (parentIds.length == 2) {
+					return (Option<T>) templateComponent.map(tplComp -> Stream.ofAll(tplComp.getTemplateComponents())
+							.find(nestedTplComp -> nestedTplComp.getID()
+									.equals(id))
+							.getOrElseThrow(() -> new NoSuchElementException(
+									"TemplateComponent with ID " + id + " not found")));
+				}
 			} else if (entityClass.equals(TemplateAttribute.class)) {
 				if (parentIds.length != 2) {
 					throw new IllegalArgumentException(
@@ -337,10 +366,15 @@ public class EntityService {
 	 * Updates the {@link Entity} with the given identifier with the values in the
 	 * given map.
 	 * 
-	 * @param entityClass
-	 *            the class of the entity to update
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
+	 * @param entityClass
+	 *            the class of the entity to update
+	 * @param id
+	 *            id of the {@link Entity} to update
+	 * @param values
+	 *            map of values to update the entity with according to matching
+	 *            attribute values by name case sensitive
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends Entity> Option<T> update(String sourceName, Class<T> entityClass, String id,
@@ -356,7 +390,7 @@ public class EntityService {
 	 * @param entityClass
 	 *            the class of the entity to update
 	 * @param contextType
-	 *            the {@link ContextType) of the entities to find
+	 *            the {@link ContextType) of the entities to update
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
@@ -364,6 +398,12 @@ public class EntityService {
 	 * @param values
 	 *            map of values to update the entity with according to matching
 	 *            attribute values by name case sensitive
+	 * @param contextType
+	 *            the {@link ContextType) of the entities to update
+	 * @param parentIds
+	 *            see
+	 *            {@link EntityService#find(String, Class, String, ContextType, String...)}
+	 * 
 	 */
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
 	@SuppressWarnings("unchecked")
@@ -387,106 +427,44 @@ public class EntityService {
 	/**
 	 * Deletes the {@link Entity} with the given identifier.
 	 * 
-	 * @param entityClass
-	 *            class of the {@link Entity} to delete
-	 * @param parentClass
-	 *            class of the {@link Entity}'s parent. Can be null.
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @param contextType
-	 *            the {@link ContextType) of the entities to find
-	 * @param identifier
-	 *            The id of the {@link Entity} to delete.
+	 * @param entityClass
+	 *            class of the {@link Entity} to delete
+	 * @param id
+	 *            id of the entity to delete
 	 */
-	// TODO handle erroneous call to delete on complete lists of ValueList etc.
-	@SuppressWarnings("unchecked")
-	public <T extends Entity> Option<T> delete(Class<T> entityClass, Class<? extends Entity> parentClass,
-			String sourceName, ContextType contextType, String id, String parentId) {
-		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-		return Try.of(() -> entityManager.load(entityClass, contextType, id))
-				.mapTry(e -> {
-					// reload from parent in case of CatalogAttribute as it can only be deleted
-					// if the parent is set
-					// TODO rewrite that mess: put in separate method reloadFromParent()
-					// TODO or check ODSModelManager for non-declared mandatory relation from
-					// CatAttr to CatComp as EntityRequest.load() loads all mandatory and
-					// optional related entities
-					// UPDATE: currently the mandatory relation from CatAttr to CatComp cannot be
-					// defined as this leads to a circular call when loading a CatComp
-					if (CatalogAttribute.class.isAssignableFrom(entityClass)
-							&& CatalogComponent.class.isAssignableFrom(parentClass)) {
-						// TODO verify existence of parent
-						Entity parent = entityManager.load(CatalogComponent.class, contextType, parentId);
-						return ((CatalogComponent) parent).getCatalogAttributes()
-								.stream()
-								.filter(attr -> attr.getName()
-										.equals(e.getName()))
-								.findFirst()
-								.get();
-					} else {
-						return e;
-					}
-				})
-				// TODO add null check for parent class
-				.onFailure(throwException)
-				.mapTry(e ->
-				// start transaction and delete the entity
-				// TODO this causes the unchecked warning. Why is apply() not returning T?
-				(T) DataAccessHelper.execute()
-						.apply(entityManager, e, DataAccessHelper.delete()))
-				.onFailure(throwException)
-				.toOption();
+	public <T extends Entity> Option<T> delete(String sourceName, Class<T> entityClass, String id) {
+		return find(sourceName, entityClass, id, null);
 	}
 
 	/**
 	 * Deletes the {@link Entity} with the given identifier.
 	 * 
-	 * @param entityClass
-	 *            class of the {@link Entity} to delete
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
+	 * @param entityClass
+	 *            class of the {@link Entity} to delete
+	 * @param id
+	 *            id of the entity to delete
 	 * @param contextType
-	 *            the {@link ContextType) of the entities to find
-	 * @param identifier
-	 *            The id of the {@link Entity} to delete.
-	 */
-	// TODO handle erroneous call to delete on complete lists of ValueList etc.
-	@SuppressWarnings("unchecked")
-	public <T extends Entity> Option<T> delete(Class<T> entityClass, String sourceName, ContextType contextType,
-			String id) {
-		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-		return Try.of(() -> entityManager.load(entityClass, contextType, id))
-				.onFailure(throwException)
-				.mapTry(e ->
-				// start transaction and delete the entity
-				// TODO this causes the unchecked warning. Why is apply() not returning T?
-				(T) DataAccessHelper.execute()
-						.apply(entityManager, e, DataAccessHelper.delete()))
-				.onFailure(throwException)
-				.toOption();
-	}
-
-	/**
-	 * Deletes the {@link Entity} with the given identifier.
+	 *            the {@link ContextType) of the entities to delete
+	 * @param parentIds
+	 *            see
+	 *            {@link EntityService#find(String, Class, String, ContextType, String...)}
 	 * 
-	 * @param entityClass
-	 *            class of the {@link Entity} to delete
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @param identifier
-	 *            The id of the {@link Entity} to delete.
 	 */
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
 	@SuppressWarnings("unchecked")
-	public <T extends Entity> Option<T> delete(Class<T> entityClass, String sourceName, String id) {
+	public <T extends Entity> Option<T> delete(String sourceName, Class<T> entityClass, String id,
+			ContextType contextType, String... parentIds) {
 		EntityManager entityManager = connectorService.getEntityManagerByName(sourceName);
-		return Try.of(() -> entityManager.load(entityClass, id))
-				.onFailure(throwException)
-				.mapTry(e ->
+		return (Option<T>) find(sourceName, entityClass, id, contextType, parentIds).toTry()
+				.mapTry(entity ->
 				// start transaction and delete the entity
 				// TODO this causes the unchecked warning. Why is apply() not returning T?
 				(T) DataAccessHelper.execute()
-						.apply(entityManager, e, DataAccessHelper.delete()))
+						.apply(entityManager, entity, DataAccessHelper.delete()))
 				.onFailure(throwException)
 				.toOption();
 	}

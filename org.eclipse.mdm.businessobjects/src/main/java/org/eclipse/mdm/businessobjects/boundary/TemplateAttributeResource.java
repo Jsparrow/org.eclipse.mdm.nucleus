@@ -207,9 +207,11 @@ public class TemplateAttributeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID3 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String tplCompId, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(TemplateAttribute.class, sourceName, contextType, id))
+				.map(contextType -> this.entityService.delete(sourceName, TemplateAttribute.class, id, contextType,
+						tplRootId, tplCompId))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO add check for result.isPresent()
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, result.get()),

@@ -59,7 +59,6 @@ public class TemplateAttributeTEQResourceIntegrationTest extends EntityResourceI
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		// delete the implicitly created TemplateAttribute
-		// TODO anehmer on 2017-11-09: not working
 		TemplateAttributeTEQResourceIntegrationTest.findFirst();
 		TemplateAttributeTEQResourceIntegrationTest.deleteEntity();
 	}

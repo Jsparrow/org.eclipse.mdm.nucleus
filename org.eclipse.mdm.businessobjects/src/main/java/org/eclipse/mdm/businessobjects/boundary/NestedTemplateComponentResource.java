@@ -86,19 +86,11 @@ public class NestedTemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, id, contextType, tplRootId,
-						parentTplCompId))
-				// get matching parent
-				// TODO not so beautiful to do that get() at the end
-				.map(root -> root.map(r -> Stream.ofAll(r.getTemplateComponents())
-						.find(tplComp -> tplComp.getID()
-								.equals(parentTplCompId))
-						.get()))
-				// get nested tplComp
-				.map(parentTplComp -> parentTplComp.map(comp -> Stream.ofAll(comp.getTemplateComponents())
-						.find(nestedTplComp -> nestedTplComp.getID()
-								.equals(id))
-						.get())
+				// TODO anehmer on 2017-11-10: comment needed?
+				// parentTplCompId not needed as nested TemplateComponent is directly found in
+				// TemplateRoot
+				.map(contextType -> this.entityService
+						.find(sourceName, TemplateComponent.class, id, contextType, tplRootId, parentTplCompId)
 						.get())
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateComponent.class, e))
@@ -125,13 +117,11 @@ public class NestedTemplateComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
-			@PathParam(REQUESTPARAM_ID2) String parentTplCompId,
-			@QueryParam("filter") String filter) {
+			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				// find the TemplateRoot
 				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
-				// get matching parent
-				// TODO not so beautiful to do that get() at the end
+				// get matching parentTemplateComponent
 				.map(root -> root.map(r -> Stream.ofAll(r.getTemplateComponents())
 						.find(tplComp -> tplComp.getID()
 								.equals(parentTplCompId))
@@ -239,11 +229,10 @@ public class NestedTemplateComponentResource {
 	@Path("/{" + REQUESTPARAM_ID3 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
-			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String id,
-			String body) {
+			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String id, String body) {
 		return ResourceHelper.deserializeJSON(body)
 				.map(valueMap -> this.entityService.update(sourceName, TemplateComponent.class, id, valueMap,
-						ResourceHelper.mapContextType(contextTypeParam), parentTplCompId, tplRootId))
+						ResourceHelper.mapContextType(contextTypeParam), tplRootId, parentTplCompId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, entity.get()),
@@ -264,9 +253,11 @@ public class NestedTemplateComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID3 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID3) String id) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
+			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(TemplateComponent.class, sourceName, contextType, id)
+				.map(contextType -> this.entityService
+						.delete(sourceName, TemplateComponent.class, id, contextType, tplRootId, parentTplCompId)
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateComponent.class, result),

@@ -13,7 +13,6 @@ package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -26,7 +25,6 @@ import com.google.gson.JsonPrimitive;
  * @see EntityResourceIntegrationTest
  *
  */
-@Ignore
 public class NestedTemplateComponentTEQResourceIntegrationTest extends EntityResourceIntegrationTest {
 
 	@BeforeClass

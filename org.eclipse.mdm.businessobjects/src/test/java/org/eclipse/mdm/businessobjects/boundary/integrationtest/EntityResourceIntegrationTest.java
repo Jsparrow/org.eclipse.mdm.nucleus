@@ -140,11 +140,13 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test2Find() {
+		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
+
 		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to "
-				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+				+ uri);
 
 		ExtractableResponse<Response> response = given()
-				.get(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
+				.get(uri)
 				.then()
 				.log()
 				.ifError()
@@ -200,8 +202,10 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test4Update() {
+		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
+
 		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to "
-				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+				+ uri);
 
 		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
 				// TODO the update should use different data but as the returned JSON represents
@@ -211,7 +215,7 @@ public abstract class EntityResourceIntegrationTest {
 				// mean to perform another get as the ODSTransaction.update() does not return
 				// the updated entity
 				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
-				.put(getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID))
+				.put(uri)
 				.then()
 				.log()
 				.ifError()

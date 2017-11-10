@@ -228,11 +228,11 @@ public class CatalogAttributeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
-			@PathParam(REQUESTPARAM_ID) String catCompId) {
+			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String catCompId,
+			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(CatalogAttribute.class, CatalogComponent.class,
-						sourceName, contextType, id, catCompId))
+				.map(contextType -> this.entityService.delete(sourceName, CatalogAttribute.class, id, contextType,
+						catCompId))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO add check for result.isPresent()
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogAttribute.class, result.get()),
