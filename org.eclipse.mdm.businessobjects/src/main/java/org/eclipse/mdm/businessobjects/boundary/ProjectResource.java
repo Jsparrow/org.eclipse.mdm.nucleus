@@ -10,11 +10,18 @@
   *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
+
 import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJB;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -28,13 +35,23 @@ import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.model.Project;
+import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.entity.SearchAttributeResponse;
+import org.eclipse.mdm.businessobjects.service.EntityService;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.vavr.control.Option;
+import io.vavr.control.Try;
+
+// TODO: Use entityService (and vavr) in all Methods
 
 /**
  * {@link Project} resource
@@ -50,6 +67,9 @@ public class ProjectResource {
 	@EJB
 	private ProjectService projectService;
 
+	@EJB
+	private EntityService entityService;
+	
 	/**
 	 * delegates the request to the {@link ProjectService}
 	 * 
@@ -136,4 +156,51 @@ public class ProjectResource {
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	/**
+	 * 
+	 * creates new {@link Project}
+	 * 
+	 * @param sourceName
+	 * 			name of the source (MDM {@link Environment} name)
+	 * @param body
+	 * 			The {@link Project} to create
+	 * @return
+	 * 			The created {@link Project} as {@link Response}
+	 */
+	
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, String body) {
+		// deserialize JSON into object map
+		@SuppressWarnings("unchecked")
+		Map<String, Object> mapping = (Map<String, Object>) Try
+				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
+				}))
+				.get();
+		
+		// read name of Project
+		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
+				.toString())
+				.toOption();
+				
+		return Try.of( () -> this.entityService.create(Project.class, sourceName, name.get())
+				.get())
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Project.class, entity), Status.OK))
+				.get();
+	}
+	
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID + "}")
+	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_ID) String id) {
+		return Try.of(() -> this.entityService.delete(sourceName, Project.class, id).get())
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.map( entity -> ServiceUtils.toResponse(new MDMEntityResponse(Project.class, entity), Status.OK))
+				.get();
+	}
+	
 }

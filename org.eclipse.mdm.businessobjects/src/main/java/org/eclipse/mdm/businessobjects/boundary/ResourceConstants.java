@@ -1,6 +1,8 @@
 package org.eclipse.mdm.businessobjects.boundary;
 
 import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.api.base.model.Quantity;
+import org.eclipse.mdm.api.base.model.Unit;
 import org.eclipse.mdm.api.dflt.model.CatalogAttribute;
 import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateAttribute;
@@ -70,7 +72,19 @@ public final class ResourceConstants {
 	 * {@link TemplateAttribute} in the request body
 	 */
 	public static final String ENTITYATTRIBUTE_CATALOGATTRIBUTE_ID = "catalogattribute";
-
+	
+	/**
+	 * Parameter holding the id of the {@link Unit} of e.g. the
+	 * {@link Quantity} in the request body
+	 */
+	public static final String ENTITYATTRIBUTE_UNIT_ID = "unit";
+	
+	/**
+	 * Parameter holding the id of the {@link Unit} of e.g. the
+	 * {@link Quantity} in the request body
+	 */
+	public static final String ENTITYATTRIBUTE_PHYSICALDIMENSION_ID = "physicaldimension";
+	
 	/**
 	 * Parameter holding the id of the {@link TemplateTest} of e.g. the
 	 * {@link TemplateTestStepUsage} in the request body
