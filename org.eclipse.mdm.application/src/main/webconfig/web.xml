@@ -42,7 +42,7 @@
 	</security-role>
 
 	<login-config>
-		<auth-method>FORM</auth-method>
+		<auth-method>BASIC</auth-method>
 		<realm-name>MDMLoginRealm</realm-name>
 		<form-login-config>
 			<form-login-page>/login.jsp</form-login-page>

@@ -44,6 +44,7 @@ public class MDMEntityResponse {
 	 * @param entries
 	 *            list of {@link MDMEntity}
 	 */
+	// TODO move to Vavr List
 	public <T extends Entity> MDMEntityResponse(Class<? extends Entity> type, List<T> businessObjects) {
 		this.type = type.getSimpleName();
 		this.data = toTransferable(businessObjects);

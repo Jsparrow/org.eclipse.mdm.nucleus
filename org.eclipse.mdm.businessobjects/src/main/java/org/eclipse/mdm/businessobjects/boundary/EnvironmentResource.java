@@ -11,6 +11,8 @@
 
 package org.eclipse.mdm.businessobjects.boundary;
 
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
+
 import java.util.List;
 import java.util.Map;
 
@@ -75,8 +77,8 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}")
-	public Response getEnvironment(@PathParam("SOURCENAME") String sourceName) {
+	@Path("/{" + REQUESTPARAM_SOURCENAME + "}")
+	public Response getEnvironment(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
 		try {
 			Environment environment = this.environmentService.getEnvironment(sourceName);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);
@@ -95,8 +97,8 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/localizations")
-	public Response localize(@PathParam("SOURCENAME") String sourceName, @QueryParam("all") boolean all) {
+	@Path("/{" + REQUESTPARAM_SOURCENAME + "}/localizations")
+	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @QueryParam("all") boolean all) {
 
 		try {
 
@@ -120,8 +122,8 @@ public class EnvironmentResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/search")
-	public Response search(@PathParam("SOURCENAME") String sourceName, @QueryParam("q") String query) {
+	@Path("/{" + REQUESTPARAM_SOURCENAME + "}/search")
+	public Response search(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @QueryParam("q") String query) {
 		List<Entity> searchResults = environmentService.search(sourceName, query);
 		return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, searchResults), Status.OK);
 	}
