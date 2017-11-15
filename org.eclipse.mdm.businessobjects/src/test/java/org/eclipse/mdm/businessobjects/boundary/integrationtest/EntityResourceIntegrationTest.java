@@ -61,6 +61,8 @@ public abstract class EntityResourceIntegrationTest {
 	protected final static String TESTDATA_CREATE_JSON_BODY = "createJSONBody";
 	protected final static String TESTDATA_RESOURCE_URI = "resourceURI";
 
+	private static final String RANDOM_ENTITY_NAME_SUFFIX = "_" + Long.toHexString(System.currentTimeMillis());
+
 	private static Map<Class<?>, Map<String, String>> testDataMap = HashMap.empty();
 
 	/**
@@ -326,7 +328,11 @@ public abstract class EntityResourceIntegrationTest {
 		// randomize name to allow failure runs not to require to reset the
 		// database in case the name of the entity must be unique
 		if (key.equals(TESTDATA_ENTITY_NAME)) {
-			value = value + "_" + Long.toHexString(System.currentTimeMillis());
+			// append suffix if it was not already appended or an already suffixed value was
+			// used for a new one (e.g: TplAttr.name and CatAttr.name)
+			if (!value.endsWith(RANDOM_ENTITY_NAME_SUFFIX)) {
+				value = value + RANDOM_ENTITY_NAME_SUFFIX;
+			}
 		}
 
 		entityTestData = entityTestData.put(key, value);
