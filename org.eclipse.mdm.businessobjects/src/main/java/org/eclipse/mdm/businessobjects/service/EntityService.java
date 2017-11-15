@@ -324,7 +324,7 @@ public class EntityService {
 
         // start transaction to create the entity
         entity.toTry().mapTry((Entity e) -> DataAccessHelper.execute().apply(getEntityManager(sourceName).get(), e,
-                DataAccessHelper.create()));
+				DataAccessHelper.create())).onFailure(DataAccessHelper.handleException);
 
         return entity;
     }
@@ -396,7 +396,7 @@ public class EntityService {
      *            id of the entity to delete
      */
     public <T extends Entity> Option<T> delete(String sourceName, Class<T> entityClass, String id) {
-        return find(sourceName, entityClass, id, null);
+		return delete(sourceName, entityClass, id, null);
     }
 
     /**
