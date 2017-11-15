@@ -142,11 +142,9 @@ public abstract class EntityResourceIntegrationTest {
 	public void test2Find() {
 		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to "
-				+ uri);
+		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to " + uri);
 
-		ExtractableResponse<Response> response = given()
-				.get(uri)
+		ExtractableResponse<Response> response = given().get(uri)
 				.then()
 				.log()
 				.ifError()
@@ -204,8 +202,7 @@ public abstract class EntityResourceIntegrationTest {
 	public void test4Update() {
 		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to "
-				+ uri);
+		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to " + uri);
 
 		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
 				// TODO anehmer on 2017-11-15: the update should use different data but as the
@@ -241,11 +238,9 @@ public abstract class EntityResourceIntegrationTest {
 	public static void deleteEntity() {
 		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".delete() sending DELETE to "
-				+ uri);
+		LOGGER.debug(getContextClass().getSimpleName() + ".delete() sending DELETE to " + uri);
 
-		ExtractableResponse<Response> response = given()
-				.delete(uri)
+		ExtractableResponse<Response> response = given().delete(uri)
 				.then()
 				.log()
 				.ifError()
@@ -327,7 +322,15 @@ public abstract class EntityResourceIntegrationTest {
 	 */
 	public static void putTestDataValue(String key, String value) {
 		Map<String, String> entityTestData = testDataMap.getOrElse(getContextClass(), HashMap.empty());
+
+		// randomize name to allow failure runs not to require to reset the
+		// database in case the name of the entity must be unique
+		if (key.equals(TESTDATA_ENTITY_NAME)) {
+			value = value + "_" + Long.toHexString(System.currentTimeMillis());
+		}
+
 		entityTestData = entityTestData.put(key, value);
+
 		testDataMap = testDataMap.put(getContextClass(), entityTestData);
 	}
 
