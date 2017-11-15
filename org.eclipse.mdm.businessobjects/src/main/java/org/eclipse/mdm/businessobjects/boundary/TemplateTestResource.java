@@ -95,7 +95,7 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(sourceName, TemplateTest.class, sourceName))
+		return Try.of(() -> this.entityService.findAll(sourceName, TemplateTest.class, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateTest.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))

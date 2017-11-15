@@ -208,12 +208,14 @@ public abstract class EntityResourceIntegrationTest {
 				+ uri);
 
 		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
-				// TODO the update should use different data but as the returned JSON represents
+				// TODO anehmer on 2017-11-15: the update should use different data but as the
+				// returned JSON represents
 				// the entity prior update it does not make any difference as the update is
 				// performed just based on identical data. We should discuss the PUT-behaviour
 				// instead: return the old or updated object as returning the updated one would
 				// mean to perform another get as the ODSTransaction.update() does not return
 				// the updated entity
+				// TODO anehmer on 2017-11-15: use Description to test update
 				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
 				.put(uri)
 				.then()

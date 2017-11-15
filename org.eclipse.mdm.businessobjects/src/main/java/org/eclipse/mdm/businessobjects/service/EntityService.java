@@ -260,6 +260,7 @@ public class EntityService {
                     .onFailure(DataAccessHelper.handleException).map(list -> List.ofAll(list))
                     .getOrElse(List.empty());
         } else {
+			// TODO anehmer on 2017-11-15: not tested
             return (List<T>) Try
                     .of(() -> this.searchActivity.search(connectorService.getContextByName(sourceName), entityClass,
                             filter))
@@ -276,7 +277,7 @@ public class EntityService {
     private <T extends Entity> CheckedFunction0<java.util.List<T>> getLoadAllEntitiesMethod(EntityManager entityManager,
             Class<T> entityClass, ContextType... contextType) {
         // if contextType is specified
-        if (contextType != null && contextType.length > 0) {
+		if (contextType != null && contextType.length > 0 && contextType[0] != null) {
             return (() -> entityManager.loadAll(entityClass, contextType[0]));
 
         }
