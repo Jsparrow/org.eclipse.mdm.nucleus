@@ -13,8 +13,8 @@ package org.eclipse.mdm.connector.boundary;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +54,6 @@ public class ConnectorService {
 
 	private static final String CONNECTION_PARAM_USER = "user";
 	private static final String CONNECTION_PARAM_PASSWORD = "password";
-	private static final String CONNECTION_PARAM_ELASTIC_SEARCH_URL = "elasticsearch.url";
 
 	@Resource
 	private SessionContext sessionContext;
@@ -62,8 +61,8 @@ public class ConnectorService {
 	private ServiceConfigurationActivity serviceConfigurationActivity;
 
 	@Inject
-	@GlobalProperty("elasticsearch.url")
-	private String elasticSearchURL;
+	@GlobalProperty()
+	private Map<String, String> globalProperties = Collections.emptyMap();
 
 	private Map<Principal, List<ApplicationContext>> connectionMap = new HashMap<>();
 
@@ -77,7 +76,7 @@ public class ConnectorService {
 
 		List<ApplicationContext> contextList = connectionMap.get(principal);
 
-		if (contextList == null || contextList.size() <= 0) {
+		if (contextList == null || contextList.isEmpty()) {
 			String errorMessage = "no connections available for user with name '" + principal.getName() + "'";
 			throw new ConnectorServiceException(errorMessage);
 		}
@@ -94,13 +93,13 @@ public class ConnectorService {
 	public ApplicationContext getContextByName(String name) {
 		try {
 
-			List<ApplicationContext> emList = getContexts();
-			for (ApplicationContext em : emList) {
-				String sourceName = em.getEntityManager()
+			List<ApplicationContext> contextList = getContexts();
+			for (ApplicationContext context : contextList) {
+				String sourceName = context.getEntityManager()
 						.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class))
 						.loadEnvironment().getSourceName();
 				if (sourceName.equals(name)) {
-					return em;
+					return context;
 				}
 			}
 
@@ -132,7 +131,7 @@ public class ConnectorService {
 		List<ServiceConfiguration> serviceConfigurations = serviceConfigurationActivity.readServiceConfigurations();
 
 		for (ServiceConfiguration serviceConfiguration : serviceConfigurations) {
-			connectContexts(user, password, serviceConfiguration, contextList);
+			connectContexts(user, password, serviceConfiguration, globalProperties, contextList);
 		}
 
 		return contextList;
@@ -145,22 +144,32 @@ public class ConnectorService {
 	 * @return a list connected {@link ApplicationContext}s
 	 * 
 	 */
-	public List<ApplicationContext> connectFreetextSearch(String userParamName, String passwordParamName) {
+	public List<ApplicationContext> connectFreetextSearch(String userParamName, String passwordParamName, String freetextActiveName) {
 
 		List<ApplicationContext> contextList = new ArrayList<>();
 
 		List<ServiceConfiguration> serviceConfigurations = serviceConfigurationActivity.readServiceConfigurations();
 
 		for (ServiceConfiguration serviceConfiguration : serviceConfigurations) {
-			String user = serviceConfiguration.getConnectionParameters().get(userParamName);
-			String password = serviceConfiguration.getConnectionParameters().get(passwordParamName);
-			if (user == null || user.isEmpty() || password == null || password.isEmpty()) {
-				throw new IllegalArgumentException(String.format(
-						"Cannot login user for freetextindexer! Please provide valid values for the parameters %s and %s.",
-						userParamName,
-						passwordParamName));
+			boolean active = Boolean.parseBoolean(serviceConfiguration.getConnectionParameters().get(freetextActiveName));
+			
+			if (active) {
+				String user = serviceConfiguration.getConnectionParameters().get(userParamName);
+				String password = serviceConfiguration.getConnectionParameters().get(passwordParamName);
+				LOG.debug("Connecting freetext search user for user {}.", user);
+				if (user == null || user.isEmpty() || password == null || password.isEmpty()) {
+					throw new IllegalArgumentException(String.format(
+							"Cannot login user for freetextindexer! Please provide valid values for the parameters %s and %s.",
+							userParamName,
+							passwordParamName));
+				}
+				Map<String, String> properties = new HashMap<>(globalProperties);
+				properties.put(freetextActiveName, Boolean.toString(active));
+				
+				connectContexts(user, password, serviceConfiguration, properties, contextList);
+			} else {
+				LOG.debug("Skipping connect to freetext search!");
 			}
-			connectContexts(user, password, serviceConfiguration, contextList);
 		}
 
 		return contextList;
@@ -178,7 +187,7 @@ public class ConnectorService {
 	 */
 	public void registerConnections(Principal principal, List<ApplicationContext> contextList) {
 
-		if (contextList == null || contextList.size() <= 0) {
+		if (contextList == null || contextList.isEmpty()) {
 			String errorMessage = "no connections for user with name '" + principal.getName() + "' available!";
 			throw new ConnectorServiceException(errorMessage);
 		}
@@ -204,13 +213,15 @@ public class ConnectorService {
 			List<ApplicationContext> contextList = connectionMap.remove(principal);
 			disconnectContexts(contextList);
 			LOG.info("user with name '" + principal.getName() + "' has been disconnected!");
-			LOG.debug("number of active users: " + connectionMap.keySet().size());
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("number of active users: {}", connectionMap.keySet().size());
+			}
 		}
 
 	}
 
 	private void connectContexts(String user, String password, ServiceConfiguration source,
-			List<ApplicationContext> emList) {
+			Map<String, String> globalProperties, List<ApplicationContext> contextList) {
 
 		try {
 
@@ -219,18 +230,14 @@ public class ConnectorService {
 					.asSubclass(ApplicationContextFactory.class);
 			ApplicationContextFactory contextFactory = contextFactoryClass.newInstance();
 
-			Map<String, String> staticConnectionParameters = source.getConnectionParameters();
-			Map<String, String> dynamicConnectionParameters = new LinkedHashMap<>(
-					staticConnectionParameters.size() + 3);
-			dynamicConnectionParameters.putAll(staticConnectionParameters);
-			dynamicConnectionParameters.put(CONNECTION_PARAM_USER, user);
-			dynamicConnectionParameters.put(CONNECTION_PARAM_PASSWORD, password);
-			if (elasticSearchURL != null && !elasticSearchURL.isEmpty()) {
-				dynamicConnectionParameters.put(CONNECTION_PARAM_ELASTIC_SEARCH_URL, elasticSearchURL);
-			}
+			Map<String, String> connectionParameters = new HashMap<>();
+			connectionParameters.putAll(globalProperties);
+			connectionParameters.putAll(source.getConnectionParameters());
+			connectionParameters.put(CONNECTION_PARAM_USER, user);
+			connectionParameters.put(CONNECTION_PARAM_PASSWORD, password);
 
-			ApplicationContext context = contextFactory.connect(dynamicConnectionParameters);
-			emList.add(context);
+			ApplicationContext context = contextFactory.connect(connectionParameters);
+			contextList.add(context);
 
 		} catch (ConnectionException e) {
 			LOG.warn("unable to logon user with name '" + user + "' at data source '" + source.toString()

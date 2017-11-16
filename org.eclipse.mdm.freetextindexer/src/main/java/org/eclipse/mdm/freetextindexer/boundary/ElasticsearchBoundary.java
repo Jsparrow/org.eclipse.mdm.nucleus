@@ -64,8 +64,10 @@ public class ElasticsearchBoundary {
 			put.setRequestEntity(new ByteArrayRequestEntity(json, "application/json"));
 
 			execute(put);
-
-			LOGGER.info("Document {}: {}", getPath(document), new String(json));
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Document {} indexed: {}", getPath(document), new String(json));
+			}
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
@@ -78,36 +80,44 @@ public class ElasticsearchBoundary {
 	private void execute(HttpMethod put) {
 		try {
 			int status = client.executeMethod(put);
-			checkError(status);
+			
+			checkError(status, put);
 		} catch (IOException e) {
 			throw new IllegalStateException("Problems querying ElasticSearch.", e);
 		}
 	}
 
-	private void checkError(int status) {
+	private void checkError(int status, HttpMethod method) {
 		String text = String.format("ElasticSearch answered %d. ", status);
 
 		int httpCategory = status / 100;
 		switch (httpCategory) {
 		case 4:
-			text = text + "This indicates a Client error";
+			text = text + "This indicates a Client error: ";
 			break;
 		case 5:
-			text = text + "This indicates a Server error. The ES instance must be checked (" + esAddress + ")";
+			text = text + "This indicates a Server error. The ES instance must be checked (" + esAddress + "): ";
 			break;
 		}
 
-		if (httpCategory != 2) {
-			throw new IllegalStateException(text);
+		try {
+			if (httpCategory != 2) {
+				throw new IllegalStateException(text + method.getResponseBodyAsString());
+			}
+		} catch (IOException e) {
+			throw new IllegalStateException(text + "\nError occured during reading the elastic search response!", e);
 		}
 	}
 
 	public void delete(String api, String type, String id) {
-		DeleteMethod put = new DeleteMethod(esAddress + api.toLowerCase() + "/" + type + "/" + id);
+		String path = api.toLowerCase() + "/" + type + "/" + id;
+		DeleteMethod put = new DeleteMethod(esAddress + path);
 
 		execute(put);
 
-		LOGGER.info("Document with Id " + id + " has been deleted!");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Document '{}' has been deleted!", path);
+		}
 	}
 
 	public boolean hasIndex(String source) {

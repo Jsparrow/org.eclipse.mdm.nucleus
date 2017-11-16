@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -94,6 +96,23 @@ public class GlobalPropertyService {
 			return "";
 		}
 		return globalProperties.getProperty(propertyName);
+	}
+	
+	/**
+	 * Producer method for a global property map.
+	 * 
+	 * @param ip
+	 *            The injection point.
+	 * @return A map with the global properties 
+	 */
+	@Produces
+	@GlobalProperty
+	public Map<String, String> getGlobalPropertyMap(InjectionPoint ip) {
+		Map<String, String> map = new HashMap<>();
+		for (String key : globalProperties.stringPropertyNames()) {
+			map.put(key, globalProperties.getProperty(key));
+		}
+		return map;
 	}
 
 	private void closeInputStream(InputStream is) {
