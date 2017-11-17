@@ -108,8 +108,7 @@ public class CatalogComponentResource {
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(CatalogComponent.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
 	}
 
 	/**
@@ -134,8 +133,7 @@ public class CatalogComponentResource {
 					// TODO correct to use onFailure instead of getOrThrow
 				}))
 				// TODO do we really need this or is the failure handled later nevertheless
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.toOption()
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException).toOption()
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
 				// TODO handle non existing value
 				// create tuple for name and contextType
@@ -143,8 +141,7 @@ public class CatalogComponentResource {
 						ResourceHelper.mapContextType(contextTypeParam)))
 				.toTry()
 				// create catalog component
-				.map(tuple -> entityService.create(CatalogComponent.class, sourceName, tuple._2, tuple._1)
-						.get())
+				.map(tuple -> entityService.create(CatalogComponent.class, sourceName, tuple._2, tuple._1).get())
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, entity),
 						Status.OK))
 				// TODO seems not to work: test! and use throughout Resources
@@ -177,8 +174,7 @@ public class CatalogComponentResource {
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
 	}
 
 	/**
@@ -195,12 +191,10 @@ public class CatalogComponentResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(sourceName, CatalogComponent.class, id, contextType)
-						.get())
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, result),
+				.map(contextType -> this.entityService.delete(sourceName, CatalogComponent.class, id, contextType))
+				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogComponent.class, result.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
 	}
 
 	/**

@@ -140,8 +140,7 @@ public class EntityService {
 				}
 				return (Option<T>) find(sourceName, CatalogComponent.class, parentIds[0], contextType)
 						.map(catComp -> Stream.ofAll(catComp.getCatalogAttributes())
-								.find(catAttr -> catAttr.getID()
-										.equals(id))
+								.find(catAttr -> catAttr.getID().equals(id))
 								.getOrElseThrow(() -> new NoSuchElementException()));
 			} else if (entityClass.equals(TemplateComponent.class)) {
 				// nested TemplateComponents do not need to be retrieved via their
@@ -169,8 +168,7 @@ public class EntityService {
 				// if nested TemplateComponent has to be found
 				if (parentIds.length == 2) {
 					return (Option<T>) templateComponent.map(tplComp -> Stream.ofAll(tplComp.getTemplateComponents())
-							.find(nestedTplComp -> nestedTplComp.getID()
-									.equals(id))
+							.find(nestedTplComp -> nestedTplComp.getID().equals(id))
 							.getOrElseThrow(() -> new NoSuchElementException(
 									"TemplateComponent with ID " + id + " not found")));
 				}
@@ -186,21 +184,15 @@ public class EntityService {
 				})
 						// get TemplateComponents from TemplateRoot
 						.map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
-								.find(tplComp -> tplComp.getID()
-										.equals(parentIds[1]))
-								.onEmpty(() -> {
+								.find(tplComp -> tplComp.getID().equals(parentIds[1])).onEmpty(() -> {
 									throw new NoSuchElementException(
 											"TemplateComponent with ID " + parentIds[1] + " not found");
-								})
-								.get())
+								}).get())
 						// get TemplateAttributes from TemplateComponent
 						.map(tplComp -> Stream.ofAll(tplComp.getTemplateAttributes())
-								.find(tplAttr -> tplAttr.getID()
-										.equals(id))
-								.onEmpty(() -> {
+								.find(tplAttr -> tplAttr.getID().equals(id)).onEmpty(() -> {
 									throw new NoSuchElementException("TemplateAttribute with ID " + id + " not found");
-								})
-								.get());
+								}).get());
 			} else if (entityClass.equals(ContextComponent.class)) {
 				if (parentIds.length != 1) {
 					throw new IllegalArgumentException("Id of ContextRoot not set as parentId");
@@ -216,8 +208,7 @@ public class EntityService {
 			// found"
 			return getEntityManager(sourceName)
 					// TODO handle "Entity not found"
-					.mapTry(em -> em.load(entityClass, contextType, id))
-					.toOption();
+					.mapTry(em -> em.load(entityClass, contextType, id)).toOption();
 		}
 
 		// if the find is not contextType specific
@@ -227,8 +218,7 @@ public class EntityService {
 		// found"
 		return getEntityManager(sourceName)
 				// TODO handle "Entity not found"
-				.mapTry(em -> em.load(entityClass, id))
-				.toOption();
+				.mapTry(em -> em.load(entityClass, id)).toOption();
 	}
 
 	/**
@@ -265,20 +255,16 @@ public class EntityService {
 			ContextType contextType) {
 		// TODO do we need to implement the navigationActivity filter shortcut like in
 		// ChannelGroupService.getChannelGroups()…
-		if (filter == null || filter.trim()
-				.length() <= 0) {
+		if (filter == null || filter.trim().length() <= 0) {
 			return (List<T>) Try
 					.of(getLoadAllEntitiesMethod(getEntityManager(sourceName).get(), entityClass, contextType))
-					.onFailure(DataAccessHelper.handleException)
-					.map(list -> List.ofAll(list))
-					.getOrElse(List.empty());
+					.onFailure(DataAccessHelper.handleException).map(list -> List.ofAll(list)).getOrElse(List.empty());
 		} else {
 			// TODO anehmer on 2017-11-15: not tested
 			return (List<T>) Try
 					.of(() -> this.searchActivity.search(connectorService.getContextByName(sourceName), entityClass,
 							filter))
-					.onFailure(DataAccessHelper.rethrowAsMDMEntityAccessException)
-					.map(list -> List.ofAll(list))
+					.onFailure(DataAccessHelper.rethrowAsMDMEntityAccessException).map(list -> List.ofAll(list))
 					.getOrElse(List.empty());
 		}
 	}
@@ -317,40 +303,29 @@ public class EntityService {
 		Option<T> entity;
 
 		// gather classes of method args
-		List<Class<? extends Object>> argClasses = List.of(createMethodArgs)
-				.map(o -> o.getClass());
+		List<Class<? extends Object>> argClasses = List.of(createMethodArgs).map(o -> o.getClass());
 
 		// get corresponding create method for Entity from EntityFactory
-		entity = Option.ofOptional(connectorService.getContextByName(sourceName)
-				.getEntityFactory())
-				.map(factory -> {
-					try {
-						return (T) Stream.of(EntityFactory.class.getMethods())
-								// find method with the return type matching entityClass
-								.filter(m -> m.getReturnType()
-										.equals(entityClass))
-								.filter(m -> Arrays.asList(m.getParameterTypes())
-										.equals(argClasses.toJavaList()))
-								.getOrElseThrow(() -> {
-									throw new MDMEntityAccessException(
-											"No matching create()-method found for EntityType "
-													+ entityClass.getSimpleName() + " taking the parameters "
-													+ Stream.of(createMethodArgs)
-															.map(o -> o.getClass()
-																	.getName())
-															.collect(Collectors.toList()));
-								})
-								.invoke(factory, createMethodArgs);
-					} catch (Exception e) {
-						throw new MDMEntityAccessException(e.getMessage(), e);
-					}
-				});
+		entity = Option.ofOptional(connectorService.getContextByName(sourceName).getEntityFactory()).map(factory -> {
+			try {
+				return (T) Stream.of(EntityFactory.class.getMethods())
+						// find method with the return type matching entityClass
+						.filter(m -> m.getReturnType().equals(entityClass))
+						.filter(m -> Arrays.asList(m.getParameterTypes()).equals(argClasses.toJavaList()))
+						.getOrElseThrow(() -> {
+							throw new MDMEntityAccessException(
+									"No matching create()-method found for EntityType " + entityClass.getSimpleName()
+											+ " taking the parameters " + Stream.of(createMethodArgs)
+													.map(o -> o.getClass().getName()).collect(Collectors.toList()));
+						}).invoke(factory, createMethodArgs);
+			} catch (Exception e) {
+				throw new MDMEntityAccessException(e.getMessage(), e);
+			}
+		});
 
 		// start transaction to create the entity
-		entity.toTry()
-				.mapTry((Entity e) -> DataAccessHelper.execute()
-						.apply(getEntityManager(sourceName).get(), e, DataAccessHelper.create()))
-				.onFailure(DataAccessHelper.handleException);
+		entity.toTry().mapTry((Entity e) -> DataAccessHelper.execute().apply(getEntityManager(sourceName).get(), e,
+				DataAccessHelper.create())).onFailure(DataAccessHelper.handleException);
 
 		return entity;
 	}
@@ -407,8 +382,8 @@ public class EntityService {
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// persist entity
 				.toTry()
-				.mapTry(entity -> DataAccessHelper.execute()
-						.apply(getEntityManager(sourceName).get(), entity.get(), DataAccessHelper.UPDATE))
+				.mapTry(entity -> DataAccessHelper.execute().apply(getEntityManager(sourceName).get(), entity.get(),
+						DataAccessHelper.UPDATE))
 				.toOption();
 	}
 
@@ -444,14 +419,14 @@ public class EntityService {
 	 */
 	// TODO handle erroneous call to delete on complete lists of ValueList etc.
 	@SuppressWarnings("unchecked")
+	// TODO anehmer on 2017-11-17: add onFailure or return Try to have a handle on
+	// an occurred exception
 	public <T extends Entity> Option<T> delete(String sourceName, Class<T> entityClass, String id,
 			ContextType contextType, String... parentIds) {
-		return (Option<T>) find(sourceName, entityClass, id, contextType, parentIds).toTry()
-				.mapTry(entity ->
-				// start transaction and delete the entity
-				// TODO this causes the unchecked warning. Why is apply() not returning T?
-				(T) DataAccessHelper.execute()
-						.apply(getEntityManager(sourceName).get(), entity, DataAccessHelper.delete()))
+		return (Option<T>) find(sourceName, entityClass, id, contextType, parentIds).toTry().mapTry(entity ->
+		// start transaction and delete the entity
+		// TODO this causes the unchecked warning. Why is apply() not returning T?
+		(T) DataAccessHelper.execute().apply(getEntityManager(sourceName).get(), entity, DataAccessHelper.delete()))
 				.toOption();
 	}
 
@@ -525,18 +500,14 @@ public class EntityService {
 		// use appropriate set-method
 		if (contextType != null) {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
-						.set(relatedEntity, contextType);
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore().set(relatedEntity, contextType);
 				return null;
-			})
-					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
+			}).onFailure(ResourceHelper.rethrowAsWebApplicationException);
 		} else {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
-						.set(relatedEntity);
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore().set(relatedEntity);
 				return null;
-			})
-					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
+			}).onFailure(ResourceHelper.rethrowAsWebApplicationException);
 
 		}
 	}
@@ -564,19 +535,16 @@ public class EntityService {
 		// use appropriate set-method
 		if (contextType != null) {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
-						.set(parent, contextType);
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore().set(parent, contextType);
 				return null;
 			})
 					// TODO onFailure not triggering
 					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
 		} else {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
-						.set(parent);
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore().set(parent);
 				return null;
-			})
-					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
+			}).onFailure(ResourceHelper.rethrowAsWebApplicationException);
 
 		}
 	}
@@ -590,8 +558,7 @@ public class EntityService {
 	 *         not found.
 	 */
 	private Try<EntityManager> getEntityManager(String sourceName) {
-		return Try.of(() -> this.connectorService.getContextByName(sourceName)
-				.getEntityManager()
+		return Try.of(() -> this.connectorService.getContextByName(sourceName).getEntityManager()
 				.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present")));
 	}
 }

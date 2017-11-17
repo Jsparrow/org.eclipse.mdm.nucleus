@@ -97,6 +97,8 @@ public class CatalogSensorResource {
 	 *            filter string to filter the {@link CatalogSensor} result
 	 * @return the (filtered) {@link CatalogSensor}s as {@link Response}
 	 */
+	// TODO anehmer on 2017-11-17: fix -> returns all CatalogSensors and not only
+	// the ones in the superordinate CatalogComponent
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
@@ -105,8 +107,7 @@ public class CatalogSensorResource {
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(CatalogSensor.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
 	}
 
 	/**
@@ -128,31 +129,22 @@ public class CatalogSensorResource {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> mapping = (Map<String, Object>) Try
 				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
-				}))
-				.get();
+				})).get();
 
 		// get name
-		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
-				.toString())
-				.toOption();
+		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME).toString()).toOption();
 
 		// get contextType
-		Option<ContextType> contextType = Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.toOption();
+		Option<ContextType> contextType = Try.of(() -> ResourceHelper.mapContextType(contextTypeParam)).toOption();
 
 		// get catalog component
 		Option<CatalogComponent> catComp = Try
 				.of(() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType.get()))
 				.get();
 
-
-		return Try
-				.of(() -> entityService
-						.create(CatalogSensor.class, sourceName, name.get(), catComp.get())
-						.get())
+		return Try.of(() -> entityService.create(CatalogSensor.class, sourceName, name.get(), catComp.get()).get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, entity),
-						Status.OK))
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, entity), Status.OK))
 				.get();
 	}
 
@@ -178,8 +170,7 @@ public class CatalogSensorResource {
 				.map(valueMap -> this.entityService.update(sourceName, CatalogSensor.class, id, valueMap))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
 	}
 
 	/**
@@ -197,9 +188,10 @@ public class CatalogSensorResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, CatalogSensor.class, id).get())
+		return Try.of(() -> this.entityService.delete(sourceName, CatalogSensor.class, id))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, result), Status.OK))
+				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, result.get()),
+						Status.OK))
 				.get();
 	}
 
