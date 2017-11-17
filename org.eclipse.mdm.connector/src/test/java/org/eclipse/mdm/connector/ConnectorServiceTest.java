@@ -30,7 +30,7 @@ import java.util.Optional;
 import javax.ejb.SessionContext;
 
 import org.eclipse.mdm.api.base.ConnectionException;
-import org.eclipse.mdm.api.base.model.Core;
+import org.eclipse.mdm.api.base.core.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Value;
