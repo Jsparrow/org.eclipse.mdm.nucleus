@@ -76,6 +76,7 @@ public class CatalogSensorResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
+		// TODO anehmer on 2017-11-17: why does this work without passing the CatComp?
 		return Try.of(() -> this.entityService.find(sourceName, CatalogSensor.class, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?

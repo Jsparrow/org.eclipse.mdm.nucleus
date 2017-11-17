@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
-import org.eclipse.mdm.api.base.model.ContextType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -18,7 +17,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Test class for CatalogSensorResource for TestEquipment {@link ContextType}.
+ * Test class for CatalogSensorResource
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  * @see EntityResourceIntegrationTest

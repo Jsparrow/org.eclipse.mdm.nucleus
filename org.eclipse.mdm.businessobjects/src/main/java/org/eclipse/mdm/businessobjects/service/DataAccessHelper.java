@@ -155,5 +155,4 @@ public final class DataAccessHelper {
     private static Consumer<? super Throwable> throwException = e -> {
         throw new MDMEntityAccessException(e.getMessage(), e);
     };
-
 }

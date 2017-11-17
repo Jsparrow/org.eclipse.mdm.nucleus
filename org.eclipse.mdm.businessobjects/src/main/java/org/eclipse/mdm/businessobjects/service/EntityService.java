@@ -34,6 +34,7 @@ import org.eclipse.mdm.api.dflt.model.EntityFactory;
 import org.eclipse.mdm.api.dflt.model.TemplateAttribute;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateRoot;
+import org.eclipse.mdm.api.dflt.model.TemplateSensor;
 import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
@@ -172,6 +173,27 @@ public class EntityService {
 							.getOrElseThrow(() -> new NoSuchElementException(
 									"TemplateComponent with ID " + id + " not found")));
 				}
+			} else if (entityClass.equals(TemplateSensor.class)) {
+				if (parentIds.length != 2) {
+					throw new IllegalArgumentException(
+							"Id of TemplateComponent and id of TemplateRoot not set as parentIds");
+				}
+				return (Option<T>)
+				// get TemplateRoot
+				find(sourceName, TemplateRoot.class, parentIds[0], ContextType.TESTEQUIPMENT).onEmpty(() -> {
+					throw new NoSuchElementException("TemplateComponent with ID " + parentIds[0] + " not found");
+				})
+						// get TemplateComponents from TemplateRoot
+						.map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
+								.find(tplComp -> tplComp.getID().equals(parentIds[1])).onEmpty(() -> {
+									throw new NoSuchElementException(
+											"TemplateComponent with ID " + parentIds[1] + " not found");
+								}).get())
+						// get TemplateSensors from TemplateComponent
+						.map(tplComp -> Stream.ofAll(tplComp.getTemplateSensors())
+								.find(tplSensor -> tplSensor.getID().equals(id)).onEmpty(() -> {
+									throw new NoSuchElementException("TemplateSensor with ID " + id + " not found");
+								}).get());
 			} else if (entityClass.equals(TemplateAttribute.class)) {
 				if (parentIds.length != 2) {
 					throw new IllegalArgumentException(
@@ -381,9 +403,8 @@ public class EntityService {
 				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// persist entity
-				.toTry()
-				.mapTry(entity -> DataAccessHelper.execute().apply(getEntityManager(sourceName).get(), entity.get(),
-						DataAccessHelper.UPDATE))
+				.toTry().mapTry(entity -> DataAccessHelper.execute().apply(getEntityManager(sourceName).get(),
+						entity.get(), DataAccessHelper.UPDATE))
 				.toOption();
 	}
 
