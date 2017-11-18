@@ -47,6 +47,15 @@ public final class ResourceConstants {
 	public static final String REQUESTPARAM_ID3 = "ID3";
 
 	/**
+	 * Parameter holding an additional {@link Entity}s id in the URI path, e.g. for
+	 * a {@link TemplateAttribute} when {@link REQUESTPARAM_ID} holds the id of the
+	 * {@link TemplateRoot}, {@link REQUESTPARAM_ID2} holds the id of the parent
+	 * {@link TemplateComponent} and {@link REQUESTPARAM_ID3} holds the id of the
+	 * nested {@link TemplateComponent}.
+	 */
+	public static final String REQUESTPARAM_ID4 = "ID4";
+
+	/**
 	 * Parameter holding the {@link ContextType} of the {@link Entity} in the URI
 	 * path
 	 */
@@ -80,7 +89,7 @@ public final class ResourceConstants {
 	 * {@link TemplateAttribute} in the request body
 	 */
 	public static final String ENTITYATTRIBUTE_CATALOGATTRIBUTE_ID = "catalogattribute";
-	
+
 	/**
 	 * Parameter holding the id of the {@link Quantity} of e.g. the {@link Unit} in
 	 * the request body
@@ -92,13 +101,13 @@ public final class ResourceConstants {
 	 * the request body
 	 */
 	public static final String ENTITYATTRIBUTE_UNIT_ID = "unit";
-	
+
 	/**
-	 * Parameter holding the id of the {@link Unit} of e.g. the
-	 * {@link Quantity} in the request body
+	 * Parameter holding the id of the {@link Unit} of e.g. the {@link Quantity} in
+	 * the request body
 	 */
 	public static final String ENTITYATTRIBUTE_PHYSICALDIMENSION_ID = "physicaldimension";
-	
+
 	/**
 	 * Parameter holding the id of the {@link TemplateTest} of e.g. the
 	 * {@link TemplateTestStepUsage} in the request body

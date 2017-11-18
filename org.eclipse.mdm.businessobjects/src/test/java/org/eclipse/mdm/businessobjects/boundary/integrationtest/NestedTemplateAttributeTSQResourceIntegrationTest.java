@@ -18,34 +18,36 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Test class for TemplateAttributeResource for TestSequence
+ * Test class for NestedTemplateAttributeResource for TestSequence
  * {@link ContextType}.
  * 
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  * @see EntityResourceIntegrationTest
  *
  */
-public class TemplateAttributeTSQResourceIntegrationTest extends EntityResourceIntegrationTest {
+public class NestedTemplateAttributeTSQResourceIntegrationTest extends EntityResourceIntegrationTest {
 
 	@BeforeClass
 	public static void prepareTestData() {
-		getLogger().debug("Preparing TemplateAttributeTSQResourceIntegrationTest");
+		getLogger().debug("Preparing NestedTemplateAttributeTSQResourceIntegrationTest");
 
 		// prepare test data for creating the CatalogAttribute
 		CatalogAttributeTSQResourceIntegrationTest.prepareTestData();
 		CatalogAttributeTSQResourceIntegrationTest.createEntity();
 
-		// prepare test data for creating the TemplateComponent
-		TemplateComponentTSQResourceIntegrationTest.prepareTestData();
-		TemplateComponentTSQResourceIntegrationTest.createEntity();
+		// prepare test data for creating the NestedTemplateComponent
+		NestedTemplateComponentTSQResourceIntegrationTest.prepareTestData();
+		NestedTemplateComponentTSQResourceIntegrationTest.createEntity();
 
-		setContextClass(TemplateAttributeTSQResourceIntegrationTest.class);
+		setContextClass(NestedTemplateAttributeTSQResourceIntegrationTest.class);
 
 		// set up test data
 		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testsequence/"
 				+ getTestDataValue(TemplateRootTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/"
 				+ getTestDataValue(TemplateComponentTSQResourceIntegrationTest.class,
 						TESTDATA_ENTITY_ID)
+				+ "/tplcomps/"
+				+ getTestDataValue(NestedTemplateComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
 				+ "/tplattrs");
 		putTestDataValue(TESTDATA_ENTITY_NAME,
 				getTestDataValue(CatalogAttributeTSQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME));
@@ -58,13 +60,16 @@ public class TemplateAttributeTSQResourceIntegrationTest extends EntityResourceI
 				getTestDataValue(CatalogAttributeTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
-		// delete the implicitly created TemplateAttribute
-		TemplateAttributeTSQResourceIntegrationTest.findFirst();
-		TemplateAttributeTSQResourceIntegrationTest.deleteEntity();
+		// delete the implicitly created NestedTemplateAttribute
+		NestedTemplateAttributeTSQResourceIntegrationTest.findFirst();
+		NestedTemplateAttributeTSQResourceIntegrationTest.deleteEntity();
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() {
+		setContextClass(NestedTemplateComponentTSQResourceIntegrationTest.class);
+		NestedTemplateComponentTSQResourceIntegrationTest.deleteEntity();
+
 		setContextClass(TemplateComponentTSQResourceIntegrationTest.class);
 		TemplateComponentTSQResourceIntegrationTest.deleteEntity();
 
