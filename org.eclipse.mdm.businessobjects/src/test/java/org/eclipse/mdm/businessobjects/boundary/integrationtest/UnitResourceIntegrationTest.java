@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
@@ -28,6 +29,10 @@ public class UnitResourceIntegrationTest extends EntityResourceIntegrationTest {
 	public static void prepareTestData() {
 		getLogger().debug("Preparing UnitResourceIntegrationTest");
 
+		// prepare test data for creating the TemplateComponent
+		PhysicalDimensionResourceIntegrationTest.prepareTestData();
+		PhysicalDimensionResourceIntegrationTest.createEntity();
+
 		// set up test data
 		setContextClass(UnitResourceIntegrationTest.class);
 
@@ -39,5 +44,14 @@ public class UnitResourceIntegrationTest extends EntityResourceIntegrationTest {
 		json.add("name",
 				new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+		json.add("physicaldimension", new JsonPrimitive(
+				getTestDataValue(PhysicalDimensionResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		setContextClass(PhysicalDimensionResourceIntegrationTest.class);
+		PhysicalDimensionResourceIntegrationTest.deleteEntity();
 	}
 }
