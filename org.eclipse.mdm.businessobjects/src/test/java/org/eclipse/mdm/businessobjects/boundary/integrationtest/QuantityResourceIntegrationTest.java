@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
@@ -28,6 +29,10 @@ public class QuantityResourceIntegrationTest extends EntityResourceIntegrationTe
 	public static void prepareTestData() {
 		getLogger().debug("Preparing QuantityResourceIntegrationTest");
 
+		// prepare test data for creating the Unit
+		UnitResourceIntegrationTest.prepareTestData();
+		UnitResourceIntegrationTest.createEntity();
+
 		// set up test data
 		setContextClass(QuantityResourceIntegrationTest.class);
 
@@ -41,5 +46,13 @@ public class QuantityResourceIntegrationTest extends EntityResourceIntegrationTe
 		// one
 		json.add("unit", new JsonPrimitive("1"));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+		json.add("unit", new JsonPrimitive(getTestDataValue(UnitResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		setContextClass(UnitResourceIntegrationTest.class);
+		UnitResourceIntegrationTest.deleteEntity();
 	}
 }

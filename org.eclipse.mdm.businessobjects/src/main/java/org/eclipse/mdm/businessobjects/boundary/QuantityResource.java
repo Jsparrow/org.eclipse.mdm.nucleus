@@ -23,6 +23,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,6 +36,7 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Quantity;
 import org.eclipse.mdm.api.base.model.Unit;
+import org.eclipse.mdm.api.dflt.model.ValueListValue;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
@@ -128,10 +130,13 @@ public class QuantityResource {
 				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
 				}))
 				.get();
+
 		// read name of Quantity
 		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME).toString()).toOption();
+
 		// read default unit id
 		Option<String> defaultUnitId = Try.of(() -> mapping.get(ENTITYATTRIBUTE_UNIT_ID).toString()).toOption();
+
 		// load default unit
 		Option<Unit> defaultUnit = Try.of(() -> this.entityService.find(sourceName, Unit.class, defaultUnitId.get()))
 				.get();
@@ -142,6 +147,31 @@ public class QuantityResource {
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Quantity.class, entity), Status.OK))
 				.get();
 
+	}
+
+	/**
+	 * Updates the Quantity with all parameters set in the given JSON body of the
+	 * request
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link Quantity} to update.
+	 * @param body
+	 *            the body of the request containing the attributes to update
+	 * @return the updated {@link ValueListValue}
+	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
+			String body) {
+		return ResourceHelper.deserializeJSON(body)
+				.map(valueMap -> this.entityService.update(sourceName, Quantity.class, id, valueMap))
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Quantity.class, entity.get()), Status.OK))
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.get();
 	}
 
 	/**

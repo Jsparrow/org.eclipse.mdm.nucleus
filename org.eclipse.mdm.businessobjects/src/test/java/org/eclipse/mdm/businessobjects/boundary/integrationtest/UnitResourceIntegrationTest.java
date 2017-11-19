@@ -29,7 +29,7 @@ public class UnitResourceIntegrationTest extends EntityResourceIntegrationTest {
 	public static void prepareTestData() {
 		getLogger().debug("Preparing UnitResourceIntegrationTest");
 
-		// prepare test data for creating the TemplateComponent
+		// prepare test data for creating the PhysicalDimension
 		PhysicalDimensionResourceIntegrationTest.prepareTestData();
 		PhysicalDimensionResourceIntegrationTest.createEntity();
 

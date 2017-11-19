@@ -126,6 +126,7 @@ public class UnitResource {
 				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
 				}))
 				.get();
+
 		// read name of Quantity
 		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME).toString()).toOption();
 
