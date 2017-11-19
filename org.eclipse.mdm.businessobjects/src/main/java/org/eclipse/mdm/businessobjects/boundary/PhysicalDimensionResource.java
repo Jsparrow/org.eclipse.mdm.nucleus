@@ -11,7 +11,6 @@
 package org.eclipse.mdm.businessobjects.boundary;
 
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
-import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_PHYSICALDIMENSION_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
 
@@ -22,6 +21,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -51,7 +51,7 @@ import io.vavr.control.Try;
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
-@Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/physDimensions")
+@Path("/environments/{" + REQUESTPARAM_SOURCENAME + "}/physicaldimensions")
 public class PhysicalDimensionResource {
 
 	@EJB
@@ -124,21 +124,41 @@ public class PhysicalDimensionResource {
 				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
 				}))
 				.get();
-		// read name of Quantity
+		// read name of PhysicalDimension
 		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME).toString()).toOption();
-		// read default unit id
-		Option<String> physDimId = Try.of(() -> mapping.get(ENTITYATTRIBUTE_PHYSICALDIMENSION_ID).toString()).toOption();
-		// load default unit
-		Option<PhysicalDimension> physDim = Try
-				.of(() -> this.entityService.find(sourceName, PhysicalDimension.class, physDimId.get()))
-				.get();
 
 		return Try
-				.of(() -> this.entityService.create(PhysicalDimension.class, sourceName, name.get(), physDim.get())
+				.of(() -> this.entityService.create(PhysicalDimension.class, sourceName, name.get())
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(PhysicalDimension.class, entity),
 						Status.OK))
+				.get();
+	}
+
+	/**
+	 * Updates the PhysicalDimension with all parameters set in the given JSON body
+	 * of the request
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link PhysicalDimension} to update.
+	 * @param body
+	 *            the body of the request containing the attributes to update
+	 * @return the updated {@link PhysicalDimension}
+	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
+			String body) {
+		return ResourceHelper.deserializeJSON(body)
+				.map(valueMap -> this.entityService.update(sourceName, PhysicalDimension.class, id, valueMap))
+				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(PhysicalDimension.class, entity.get()),
+						Status.OK))
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
 	}
 

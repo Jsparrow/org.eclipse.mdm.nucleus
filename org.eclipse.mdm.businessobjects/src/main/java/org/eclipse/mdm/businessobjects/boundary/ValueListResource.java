@@ -128,10 +128,10 @@ public class ValueListResource {
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
-	 *            the identifier of the {@link ValueListValue} to delete.
+	 *            the identifier of the {@link ValueListValue} to update.
 	 * @param body
 	 *            the body of the request containing the attributes to update
-	 * @return the updated {@link ValueListValue}
+	 * @return the updated {@link ValueList}
 	 */
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
