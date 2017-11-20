@@ -49,20 +49,24 @@ public class MdmApiBoundary {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MdmApiBoundary.class);
 
+	private static final String FREETEXT_NOTIFICATION_NAME = "freetext.notificationName";
+
 	public class FreeTextNotificationListener implements NotificationListener {
 		@Override
 		public void instanceCreated(List<? extends Entity> entities, User arg1) {
+			LOGGER.debug("{} entities created: {}", entities.size(), entities);
 			entities.forEach(e -> update.change(MDMEntityResponse.build(e.getClass(), e, entityManager)));
 		}
 
 		@Override
 		public void instanceDeleted(EntityType entityType, List<String> ids, User user) {
-			ids.forEach(id -> update.delete(getApiName(), entityType.getName(), id));
+			LOGGER.debug("{} entities deleted: {}", ids.size(), ids);
+			ids.forEach(id -> update.delete(getApiName(), workaroundForTypeMapping(entityType), id));
 		}
 
 		@Override
 		public void instanceModified(List<? extends Entity> entities, User arg1) {
-			LOGGER.debug(entities.size() + " entities found: " + entities);
+			LOGGER.debug("{} entities modified: {}", entities.size(), entities);
 			entities.forEach(e -> update.change(MDMEntityResponse.build(e.getClass(), e, entityManager)));
 		}
 
@@ -84,30 +88,9 @@ public class MdmApiBoundary {
 	UpdateIndex update;
 
 	@Inject
-	@GlobalProperty(value = "freetext.notificationType")
-	private String notificationType;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationUrl")
-	private String notificationUrl;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationMimeType")
-	private String notificationMimeType;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationName")
-	private String notificationName;
-
-	@Inject
-	@GlobalProperty(value = "freetext.pollingInterval")
-	private String pollingInterval;
-
-	@Inject
 	@GlobalProperty(value = "freetext.active")
 	private String active = "false";
 
-	
 	private ApplicationContext context;
 	private EntityManager entityManager;
 	private NotificationService manager;
@@ -115,20 +98,15 @@ public class MdmApiBoundary {
 	
 	@PostConstruct
 	public void initalize() {
-		properties.put("freetext.active", active);
-		properties.put("freetext.notificationType", notificationType);
-		properties.put("freetext.notificationUrl", notificationUrl);
-		properties.put("freetext.notificationMimeType", notificationMimeType);
-		properties.put("freetext.notificationName", notificationName);
-		properties.put("freetext.pollingInterval", pollingInterval);
 		
-		if (isActive()) {
+		if (Boolean.valueOf(active)) {
 			try {
-				List<ApplicationContext> connectionList = service.connectFreetextSearch("freetext.user", "freetext.password");
+				List<ApplicationContext> connectionList = service.connectFreetextSearch("freetext.user", "freetext.password", "freetext.active");
 				if (connectionList.isEmpty()) {
 					throw new IllegalArgumentException("Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct.");
 				}
 
+				//TODO mkoller on 2017-11-14: Currently only the first Adapter is indexed.
 				context = connectionList.get(0);
 				properties.putAll(context.getParameters());
 				
@@ -136,9 +114,12 @@ public class MdmApiBoundary {
 						.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
 				manager = context.getNotificationService()
 						.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"));
-				manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener());
+				
+				String name = context.getParameters().getOrDefault(FREETEXT_NOTIFICATION_NAME, "mdm5");
+				LOGGER.debug("Registering with name '{}'", name);
+				manager.register(name, new NotificationFilter(), new FreeTextNotificationListener());
 
-				LOGGER.info("Successfully registered for new Notifications!");
+				LOGGER.info("Successfully registered for new notifications with name '{}'!", name);
 			} catch (ConnectionException | NotificationException e) {
 				throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed.",
 						e);
@@ -184,10 +165,33 @@ public class MdmApiBoundary {
 	}
 	
 	private boolean isActive() {
-		return Boolean.valueOf(properties.get("freetext.active"));
+		return Boolean.valueOf(context.getParameters().get("freetext.active"));
 	}
 	
 	private MDMEntityResponse buildEntity(Entity e) {
 		return MDMEntityResponse.build(e.getClass(), e, entityManager);
+	}
+	
+	/**
+	 * Simple workaround for naming mismatch between Adapter and Business object
+	 * names.
+	 * 
+	 * @param entityType
+	 *            entity type
+	 * @return MDM business object name
+	 */
+	private static String workaroundForTypeMapping(EntityType entityType) {
+		switch (entityType.getName()) {
+		case "StructureLevel":
+			return "Pool";
+		case "MeaResult":
+			return "Measurement";
+		case "SubMatrix":
+			return "ChannelGroup";
+		case "MeaQuantity":
+			return "Channel";
+		default:
+			return entityType.getName();
+		}
 	}
 }
