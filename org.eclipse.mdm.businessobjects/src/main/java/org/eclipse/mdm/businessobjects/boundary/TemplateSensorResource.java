@@ -36,9 +36,11 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Quantity;
+import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.CatalogSensor;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateSensor;
+import org.eclipse.mdm.businessobjects.boundary.utils.EntityNotFoundException;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
@@ -140,21 +142,21 @@ public class TemplateSensorResource {
 		String catSensorId = mapper.map(map -> map.get(ENTITYATTRIBUTE_CATALOGSENSOR_ID).get().toString())
 				.getOrElseThrow(x -> new IllegalArgumentException("Id of CatalogSensor missing in request"));
 
-		CatalogComponent
-		
-		CatalogSensor catSensor = entityService.find(sourceName, CatalogSensor.class, catSensorId)
+		TemplateComponent tplComp = entityService
+				.find(sourceName, TemplateComponent.class, tplCompId, ContextType.TESTEQUIPMENT, tplRootId)
+				.getOrElseThrow(() -> new EntityNotFoundException(TemplateComponent.class, tplCompId));
+
+		CatalogComponent catComp = tplComp.getCatalogComponent();
+
+		CatalogSensor catSensor = entityService
+				.find(sourceName, CatalogSensor.class, catSensorId, ContextType.TESTEQUIPMENT, catComp.getID())
 				.getOrElseThrow(() -> new IllegalArgumentException("CatalogSensor not found"));
 
 		Quantity quantity = entityService.find(sourceName, Quantity.class, quantityId)
 				.getOrElseThrow(() -> new IllegalArgumentException("Quantity not found"));
 
-
 		return Try
-				.of(() -> entityService.find(sourceName, TemplateComponent.class, tplCompId, ContextType.TESTEQUIPMENT,
-						tplRootId))
-				.map(maybeTplComp -> maybeTplComp
-						.map(tplComp -> entityService
-								.create(TemplateSensor.class, sourceName, name, tplComp, catSensor, quantity).get())
+				.of(() -> entityService.create(TemplateSensor.class, sourceName, name, tplComp, catSensor, quantity)
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateSensor.class, entity), Status.OK))
