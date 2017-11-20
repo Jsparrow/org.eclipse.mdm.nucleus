@@ -13,6 +13,7 @@ package org.eclipse.mdm.businessobjects.boundary;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_CONTEXTTYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
 
 import java.util.Map;
@@ -74,10 +75,13 @@ public class CatalogSensorResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
+	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_ID) String catCompId, @PathParam(REQUESTPARAM_ID2) String id) {
 		// TODO anehmer on 2017-11-17: why does this work without passing the CatComp?
-		return Try.of(() -> this.entityService.find(sourceName, CatalogSensor.class, id))
+		return Try
+				.of(() -> this.entityService.find(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
+						catCompId))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(CatalogSensor.class, e.get()))
@@ -103,10 +107,13 @@ public class CatalogSensorResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(sourceName, CatalogSensor.class, filter))
+			@PathParam(REQUESTPARAM_ID) String catCompId, @QueryParam("filter") String filter) {
+		return Try
+				.of(() -> this.entityService
+						.find(sourceName, CatalogComponent.class, catCompId, ContextType.TESTEQUIPMENT)
+						.map(catComp -> catComp.getCatalogSensors()).get())
 				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(CatalogSensor.class, e.toJavaList()))
+				.map(e -> new MDMEntityResponse(CatalogSensor.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
 	}
@@ -164,11 +171,12 @@ public class CatalogSensorResource {
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
-			String body) {
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_ID) String catCompId, @PathParam(REQUESTPARAM_ID2) String id, String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, CatalogSensor.class, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, CatalogSensor.class, id, valueMap,
+						ContextType.TESTEQUIPMENT, catCompId))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, entity.get()),
 						Status.OK))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
@@ -186,13 +194,14 @@ public class CatalogSensorResource {
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, CatalogSensor.class, id))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, result.get()),
-						Status.OK))
+			@PathParam(REQUESTPARAM_ID) String catCompId, @PathParam(REQUESTPARAM_ID2) String id) {
+		return Try
+				.of(() -> this.entityService.delete(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
+						catCompId))
+				.onFailure(ResourceHelper.rethrowAsWebApplicationException).map(result -> ServiceUtils
+						.toResponse(new MDMEntityResponse(CatalogSensor.class, result.get()), Status.OK))
 				.get();
 	}
 

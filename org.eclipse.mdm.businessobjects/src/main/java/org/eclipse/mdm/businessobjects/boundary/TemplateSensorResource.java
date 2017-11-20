@@ -140,11 +140,14 @@ public class TemplateSensorResource {
 		String catSensorId = mapper.map(map -> map.get(ENTITYATTRIBUTE_CATALOGSENSOR_ID).get().toString())
 				.getOrElseThrow(x -> new IllegalArgumentException("Id of CatalogSensor missing in request"));
 
+		CatalogComponent
+		
 		CatalogSensor catSensor = entityService.find(sourceName, CatalogSensor.class, catSensorId)
 				.getOrElseThrow(() -> new IllegalArgumentException("CatalogSensor not found"));
 
 		Quantity quantity = entityService.find(sourceName, Quantity.class, quantityId)
 				.getOrElseThrow(() -> new IllegalArgumentException("Quantity not found"));
+
 
 		return Try
 				.of(() -> entityService.find(sourceName, TemplateComponent.class, tplCompId, ContextType.TESTEQUIPMENT,
