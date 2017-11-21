@@ -60,6 +60,7 @@ public abstract class EntityResourceIntegrationTest {
 	protected final static String TESTDATA_ENTITY_TYPE = "entityType";
 	protected final static String TESTDATA_CREATE_JSON_BODY = "createJSONBody";
 	protected final static String TESTDATA_RESOURCE_URI = "resourceURI";
+	protected final static String TESTDATA_RANDOM_DATA = "RANDOM_DATA";
 
 	private static final String RANDOM_ENTITY_NAME_SUFFIX = "_" + Long.toHexString(System.currentTimeMillis());
 
@@ -129,8 +130,7 @@ public abstract class EntityResourceIntegrationTest {
 				.log()
 				.ifError()
 				.contentType(ContentType.JSON)
-				.and()
-				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
+				// do not check for name equality as that might be created randomly
 				.and()
 				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
 				.extract();
@@ -138,6 +138,7 @@ public abstract class EntityResourceIntegrationTest {
 		LOGGER.debug(getContextClass().getSimpleName() + " created " + response.asString());
 
 		putTestDataValue(TESTDATA_ENTITY_ID, response.path("data.first().id"));
+		putTestDataValue(TESTDATA_ENTITY_NAME, response.path("data.first().name"));
 	}
 
 	@Test
@@ -327,7 +328,13 @@ public abstract class EntityResourceIntegrationTest {
 
 		// randomize name to allow failure runs not to require to reset the
 		// database in case the name of the entity must be unique
-		if (key.equals(TESTDATA_ENTITY_NAME)) {
+		// do not append suffix if name is randomly generated
+		if (key.equals(TESTDATA_ENTITY_NAME) && !value.equals(TESTDATA_RANDOM_DATA)
+				&& (entityTestData.get(TESTDATA_ENTITY_NAME)
+						.isEmpty()
+						|| !entityTestData.get(TESTDATA_ENTITY_NAME)
+						.get()
+								.equals(TESTDATA_RANDOM_DATA))) {
 			// append suffix if it was not already appended or an already suffixed value was
 			// used for a new one (e.g: TplAttr.name and CatAttr.name)
 			if (!value.endsWith(RANDOM_ENTITY_NAME_SUFFIX)) {

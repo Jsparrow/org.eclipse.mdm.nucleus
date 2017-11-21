@@ -36,6 +36,8 @@ import org.eclipse.mdm.api.dflt.model.TemplateAttribute;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateRoot;
 import org.eclipse.mdm.api.dflt.model.TemplateSensor;
+import org.eclipse.mdm.api.dflt.model.TemplateTest;
+import org.eclipse.mdm.api.dflt.model.TemplateTestStepUsage;
 import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.api.dflt.model.ValueListValue;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
@@ -306,7 +308,23 @@ public class EntityService {
 							.find(valueListValue -> valueListValue.getID()
 									.equals(id)))
 					.get();
+		}
 
+		// if a TemplateTestStepUsage has to be found
+		else if (entityClass.equals(TemplateTestStepUsage.class)) {
+			if (parentIds.length != 1) {
+				throw new IllegalArgumentException("Id of TemplateTest not set as parentId");
+			}
+			return (Option<T>)
+			// get ValueList
+			find(sourceName, TemplateTest.class, parentIds[0]).onEmpty(() -> {
+				throw new NoSuchElementException("TemplateTest with ID " + parentIds[0] + " not found");
+			})
+					// get TemplateComponents from TemplateRoot
+					.map(templateTest -> Stream.ofAll(templateTest.getTemplateTestStepUsages())
+							.find(templateTestStepUsage -> templateTestStepUsage.getID()
+									.equals(id)))
+					.get();
 		}
 
 		// for all other cases

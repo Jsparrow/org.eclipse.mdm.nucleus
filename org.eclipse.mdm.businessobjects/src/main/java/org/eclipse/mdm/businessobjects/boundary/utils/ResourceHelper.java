@@ -112,9 +112,11 @@ public final class ResourceHelper {
 	};
 
 	/**
-	 * Handles a {œlink {@link Throwable} by loggging the exception message and
-	 * rethrowing a {@link WebApplicationException}
+	 * Builds an error response to be sent to the client
 	 */
+	// TODO anehmer on 2017-11-21: use this method if EntityService.find() etc.
+	// returns Try? Should return proper Error object in case of an error. Built
+	// externally?
 	public static final Function<? super Throwable, ? extends Response> buildErrorResponse(Status status) {
 		return e -> {
 			LOG.error(e.getMessage(), e);
