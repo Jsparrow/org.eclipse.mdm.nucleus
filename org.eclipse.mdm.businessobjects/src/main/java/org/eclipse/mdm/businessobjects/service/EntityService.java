@@ -37,6 +37,7 @@ import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateRoot;
 import org.eclipse.mdm.api.dflt.model.TemplateSensor;
 import org.eclipse.mdm.api.dflt.model.ValueList;
+import org.eclipse.mdm.api.dflt.model.ValueListValue;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
@@ -87,7 +88,25 @@ public class EntityService {
 	 * @return found {@link Entity}
 	 */
 	public <T extends Entity> Option<T> find(String sourceName, Class<T> entityClass, String id) {
-		return find(sourceName, entityClass, id, null);
+		return find(sourceName, entityClass, id, null, (String[]) null);
+	}
+
+	/**
+	 * 
+	 * Returns a {@link Entity} identified by the given id with the given parent(s).
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param entityClass
+	 *            class of the {@link Entity} to find
+	 * @param id
+	 *            id of the {@link Entity} to find
+	 * @param parentIds
+	 * @see #find(String, Class, String, ContextType, String...)
+	 * @return found {@link Entity}
+	 */
+	public <T extends Entity> Option<T> find(String sourceName, Class<T> entityClass, String id, String... parentIds) {
+		return find(sourceName, entityClass, id, null, parentIds);
 	}
 
 	/**
@@ -142,7 +161,8 @@ public class EntityService {
 				}
 				return (Option<T>) find(sourceName, CatalogComponent.class, parentIds[0], contextType)
 						.map(catComp -> Stream.ofAll(catComp.getCatalogAttributes())
-								.find(catAttr -> catAttr.getID().equals(id))
+								.find(catAttr -> catAttr.getID()
+										.equals(id))
 								.getOrElseThrow(() -> new NoSuchElementException()));
 
 			} else if (entityClass.equals(TemplateComponent.class)) {
@@ -154,15 +174,18 @@ public class EntityService {
 
 				// if non-nested TemplateComponent has to be found
 				Option<TemplateComponent> templateComponent = find(sourceName, TemplateRoot.class, parentIds[0],
-						contextType).map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents()).map(tplComp -> {
-							System.out.println(tplComp.getName());
-							return tplComp;
-						}).find(tplComp -> tplComp.getID()
-								// if a nested TemplateComponent has to be found, the
-								// ParentTemplateComponent has to be retrieved
-								.equals(parentIds.length == 1 ? id : parentIds[1]))
-								.getOrElseThrow(() -> new NoSuchElementException(
-										"TemplateComponent with ID " + id + " not found")));
+						contextType).map(
+								tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
+										.map(tplComp -> {
+											System.out.println(tplComp.getName());
+											return tplComp;
+										})
+										.find(tplComp -> tplComp.getID()
+												// if a nested TemplateComponent has to be found, the
+												// ParentTemplateComponent has to be retrieved
+												.equals(parentIds.length == 1 ? id : parentIds[1]))
+										.getOrElseThrow(() -> new NoSuchElementException(
+												"TemplateComponent with ID " + id + " not found")));
 				if (parentIds.length == 1) {
 					return (Option<T>) templateComponent;
 				}
@@ -170,7 +193,8 @@ public class EntityService {
 				// if nested TemplateComponent has to be found
 				if (parentIds.length == 2) {
 					return (Option<T>) templateComponent.map(tplComp -> Stream.ofAll(tplComp.getTemplateComponents())
-							.find(nestedTplComp -> nestedTplComp.getID().equals(id))
+							.find(nestedTplComp -> nestedTplComp.getID()
+									.equals(id))
 							.getOrElseThrow(() -> new NoSuchElementException(
 									"TemplateComponent with ID " + id + " not found")));
 				}
@@ -182,10 +206,10 @@ public class EntityService {
 				}
 				return (Option<T>) find(sourceName, CatalogComponent.class, parentIds[0], contextType)
 						.map(catComp -> Stream.ofAll(catComp.getCatalogSensors())
-								.find(catSensor -> catSensor.getID().equals(id))
+								.find(catSensor -> catSensor.getID()
+										.equals(id))
 								.getOrElseThrow(() -> new NoSuchElementException(
 										"CatalogSensor with ID " + id + " not found")));
-
 
 			} else if (entityClass.equals(TemplateAttribute.class)) {
 				if (parentIds.length != 2 && parentIds.length != 3) {
@@ -207,15 +231,19 @@ public class EntityService {
 				// if nested TemplateAttribute has to be found
 				if (parentIds.length == 3) {
 					templateComponent = templateComponent.map(tplComp -> Stream.ofAll(tplComp.getTemplateComponents())
-							.find(nestedTplComp -> nestedTplComp.getID().equals(parentIds[2]))
+							.find(nestedTplComp -> nestedTplComp.getID()
+									.equals(parentIds[2]))
 							.getOrElseThrow(() -> new NoSuchElementException(
 									"NestedTemplateComponent with ID " + parentIds[2] + " not found")));
 				}
 
 				return (Option<T>) templateComponent.map(tplComp -> Stream.ofAll(tplComp.getTemplateAttributes())
-						.find(tplAttr -> tplAttr.getID().equals(id)).onEmpty(() -> {
+						.find(tplAttr -> tplAttr.getID()
+								.equals(id))
+						.onEmpty(() -> {
 							throw new NoSuchElementException("TemplateAttribute with ID " + id + " not found");
-						}).get());
+						})
+						.get());
 
 			} else if (entityClass.equals(TemplateSensor.class)) {
 				if (parentIds.length != 2) {
@@ -229,23 +257,28 @@ public class EntityService {
 				})
 						// get TemplateComponents from TemplateRoot
 						.map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
-								.find(tplComp -> tplComp.getID().equals(parentIds[1])).onEmpty(() -> {
+								.find(tplComp -> tplComp.getID()
+										.equals(parentIds[1]))
+								.onEmpty(() -> {
 									throw new NoSuchElementException(
 											"TemplateComponent with ID " + parentIds[1] + " not found");
-								}).get())
+								})
+								.get())
 						// get TemplateSensors from TemplateComponent
 						.map(tplComp -> Stream.ofAll(tplComp.getTemplateSensors())
-								.find(tplSensor -> tplSensor.getID().equals(id)).onEmpty(() -> {
+								.find(tplSensor -> tplSensor.getID()
+										.equals(id))
+								.onEmpty(() -> {
 									throw new NoSuchElementException("TemplateSensor with ID " + id + " not found");
-								}).get());
+								})
+								.get());
+
 			} else if (entityClass.equals(ContextComponent.class)) {
 				if (parentIds.length != 1) {
 					throw new IllegalArgumentException("Id of ContextRoot not set as parentId");
 				}
 				// TODO anehmer on 2017-11-09: implement
 				throw new NotImplementedException("NOT IMPLEMENTED YET");
-			} else {
-
 			}
 			// TODO anehmer on 2017-11-09: error handling: how to inform caller about what
 			// happened? Try?
@@ -253,18 +286,39 @@ public class EntityService {
 			// found"
 			return getEntityManager(sourceName)
 					// TODO handle "Entity not found"
-					.mapTry(em -> em.load(entityClass, contextType, id)).onFailure(DataAccessHelper.handleException)
+					.mapTry(em -> em.load(entityClass, contextType, id))
+					.onFailure(DataAccessHelper.handleException)
 					.toOption();
 		}
 
-		// if the find is not contextType specific
+		// if a ValueListValue has to be found
+		else if (entityClass.equals(ValueListValue.class)) {
+			if (parentIds.length != 1) {
+				throw new IllegalArgumentException("Id of ValueList not set as parentId");
+			}
+			return (Option<T>)
+			// get ValueList
+			find(sourceName, ValueList.class, parentIds[0]).onEmpty(() -> {
+				throw new NoSuchElementException("ValueList with ID " + parentIds[0] + " not found");
+			})
+					// get TemplateComponents from TemplateRoot
+					.map(valueList -> Stream.ofAll(valueList.getValueListValues())
+							.find(valueListValue -> valueListValue.getID()
+									.equals(id)))
+					.get();
+
+		}
+
+		// for all other cases
 		// TODO anehmer on 2017-11-09: error handling: how to inform caller about what
 		// happened? Try?
 		// TODO anehmer on 2017-11-09: handle "Connector Service not found", "Source not
 		// found"
 		return getEntityManager(sourceName)
 				// TODO handle "Entity not found"
-				.mapTry(em -> em.load(entityClass, id)).onFailure(DataAccessHelper.handleException).toOption();
+				.mapTry(em -> em.load(entityClass, id))
+				.onFailure(DataAccessHelper.handleException)
+				.toOption();
 	}
 
 	/**
@@ -301,16 +355,20 @@ public class EntityService {
 			ContextType contextType) {
 		// TODO do we need to implement the navigationActivity filter shortcut like in
 		// ChannelGroupService.getChannelGroups()
-		if (filter == null || filter.trim().length() <= 0) {
+		if (filter == null || filter.trim()
+				.length() <= 0) {
 			return (List<T>) Try
 					.of(getLoadAllEntitiesMethod(getEntityManager(sourceName).get(), entityClass, contextType))
-					.onFailure(DataAccessHelper.handleException).map(list -> List.ofAll(list)).getOrElse(List.empty());
+					.onFailure(DataAccessHelper.handleException)
+					.map(list -> List.ofAll(list))
+					.getOrElse(List.empty());
 		} else {
 			// TODO anehmer on 2017-11-15: not tested
 			return (List<T>) Try
 					.of(() -> this.searchActivity.search(connectorService.getContextByName(sourceName), entityClass,
 							filter))
-					.onFailure(DataAccessHelper.rethrowAsMDMEntityAccessException).map(list -> List.ofAll(list))
+					.onFailure(DataAccessHelper.rethrowAsMDMEntityAccessException)
+					.map(list -> List.ofAll(list))
 					.getOrElse(List.empty());
 		}
 	}
@@ -351,29 +409,40 @@ public class EntityService {
 		Option<T> entity;
 
 		// gather classes of method args
-		List<Class<? extends Object>> argClasses = List.of(createMethodArgs).map(o -> o.getClass());
+		List<Class<? extends Object>> argClasses = List.of(createMethodArgs)
+				.map(o -> o.getClass());
 
 		// get corresponding create method for Entity from EntityFactory
-		entity = Option.ofOptional(connectorService.getContextByName(sourceName).getEntityFactory()).map(factory -> {
-			try {
-				return (T) Stream.of(EntityFactory.class.getMethods())
-						// find method with the return type matching entityClass
-						.filter(m -> m.getReturnType().equals(entityClass))
-						.filter(m -> Arrays.asList(m.getParameterTypes()).equals(argClasses.toJavaList()))
-						.getOrElseThrow(() -> {
-							throw new MDMEntityAccessException(
-									"No matching create()-method found for EntityType " + entityClass.getSimpleName()
-											+ " taking the parameters " + Stream.of(createMethodArgs)
-													.map(o -> o.getClass().getName()).collect(Collectors.toList()));
-						}).invoke(factory, createMethodArgs);
-			} catch (Exception e) {
-				throw new MDMEntityAccessException(e.getMessage(), e);
-			}
-		});
+		entity = Option.ofOptional(connectorService.getContextByName(sourceName)
+				.getEntityFactory())
+				.map(factory -> {
+					try {
+						return (T) Stream.of(EntityFactory.class.getMethods())
+								// find method with the return type matching entityClass
+								.filter(m -> m.getReturnType()
+										.equals(entityClass))
+								.filter(m -> Arrays.asList(m.getParameterTypes())
+										.equals(argClasses.toJavaList()))
+								.getOrElseThrow(() -> {
+									throw new MDMEntityAccessException(
+											"No matching create()-method found for EntityType "
+													+ entityClass.getSimpleName() + " taking the parameters "
+													+ Stream.of(createMethodArgs)
+															.map(o -> o.getClass()
+																	.getName())
+															.collect(Collectors.toList()));
+								})
+								.invoke(factory, createMethodArgs);
+					} catch (Exception e) {
+						throw new MDMEntityAccessException(e.getMessage(), e);
+					}
+				});
 
 		// start transaction to create the entity
-		entity.toTry().mapTry((Entity e) -> DataAccessHelper.execute().apply(getEntityManager(sourceName).get(), e,
-				DataAccessHelper.create())).onFailure(DataAccessHelper.handleException);
+		entity.toTry()
+				.mapTry((Entity e) -> DataAccessHelper.execute()
+						.apply(getEntityManager(sourceName).get(), e, DataAccessHelper.create()))
+				.onFailure(DataAccessHelper.handleException);
 
 		return entity;
 	}
@@ -395,7 +464,29 @@ public class EntityService {
 	public <T extends Entity> Option<T> update(String sourceName, Class<T> entityClass, String id,
 			Map<String, Object> values) {
 
-		return update(sourceName, entityClass, id, values, null);
+		return update(sourceName, entityClass, id, values, null, (String[]) null);
+	}
+
+	/**
+	 * Updates the {@link Entity} with the given identifier with the given parent(s)
+	 * with the values in the given map.
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param entityClass
+	 *            the class of the entity to update
+	 * @param id
+	 *            id of the {@link Entity} to update
+	 * @param values
+	 *            map of values to update the entity with according to matching
+	 *            attribute values by name case sensitive
+	 * @param parentIds
+	 * @see #update(String, Class, String, Map, ContextType, String...)
+	 */
+	public <T extends Entity> Option<T> update(String sourceName, Class<T> entityClass, String id,
+			Map<String, Object> values, String... parentIds) {
+
+		return update(sourceName, entityClass, id, values, null, parentIds);
 	}
 
 	/**
@@ -429,8 +520,9 @@ public class EntityService {
 				// update entity values
 				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
 				// persist entity
-				.toTry().mapTry(entity -> DataAccessHelper.execute().apply(getEntityManager(sourceName).get(),
-						entity.get(), DataAccessHelper.UPDATE))
+				.toTry()
+				.mapTry(entity -> DataAccessHelper.execute()
+						.apply(getEntityManager(sourceName).get(), entity.get(), DataAccessHelper.UPDATE))
 				.toOption();
 	}
 
@@ -445,7 +537,25 @@ public class EntityService {
 	 *            id of the entity to delete
 	 */
 	public <T extends Entity> Option<T> delete(String sourceName, Class<T> entityClass, String id) {
-		return delete(sourceName, entityClass, id, null);
+		return delete(sourceName, entityClass, id, null, (String[]) null);
+	}
+
+	/**
+	 * Deletes the {@link Entity} with the given identifier with the given
+	 * parent(s).
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param entityClass
+	 *            class of the {@link Entity} to delete
+	 * @param id
+	 *            id of the entity to delete
+	 * @param parentIds
+	 * @see #delete(String, Class, String, ContextType, String...)
+	 */
+	public <T extends Entity> Option<T> delete(String sourceName, Class<T> entityClass, String id,
+			String... parentIds) {
+		return delete(sourceName, entityClass, id, null, parentIds);
 	}
 
 	/**
@@ -470,10 +580,12 @@ public class EntityService {
 	// an occurred exception
 	public <T extends Entity> Option<T> delete(String sourceName, Class<T> entityClass, String id,
 			ContextType contextType, String... parentIds) {
-		return (Option<T>) find(sourceName, entityClass, id, contextType, parentIds).toTry().mapTry(entity ->
-		// start transaction and delete the entity
-		// TODO this causes the unchecked warning. Why is apply() not returning T?
-		(T) DataAccessHelper.execute().apply(getEntityManager(sourceName).get(), entity, DataAccessHelper.delete()))
+		return (Option<T>) find(sourceName, entityClass, id, contextType, parentIds).toTry()
+				.mapTry(entity ->
+				// start transaction and delete the entity
+				// TODO this causes the unchecked warning. Why is apply() not returning T?
+				(T) DataAccessHelper.execute()
+						.apply(getEntityManager(sourceName).get(), entity, DataAccessHelper.delete()))
 				.toOption();
 	}
 
@@ -547,14 +659,18 @@ public class EntityService {
 		// use appropriate set-method
 		if (contextType != null) {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore().set(relatedEntity, contextType);
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
+						.set(relatedEntity, contextType);
 				return null;
-			}).onFailure(ResourceHelper.rethrowAsWebApplicationException);
+			})
+					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
 		} else {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore().set(relatedEntity);
+				((Core) GET_CORE_METHOD.invoke(entity)).getMutableStore()
+						.set(relatedEntity);
 				return null;
-			}).onFailure(ResourceHelper.rethrowAsWebApplicationException);
+			})
+					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
 
 		}
 	}
@@ -582,16 +698,19 @@ public class EntityService {
 		// use appropriate set-method
 		if (contextType != null) {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore().set(parent, contextType);
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
+						.set(parent, contextType);
 				return null;
 			})
 					// TODO onFailure not triggering
 					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
 		} else {
 			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore().set(parent);
+				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
+						.set(parent);
 				return null;
-			}).onFailure(ResourceHelper.rethrowAsWebApplicationException);
+			})
+					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
 
 		}
 	}
@@ -605,7 +724,8 @@ public class EntityService {
 	 *         not found.
 	 */
 	private Try<EntityManager> getEntityManager(String sourceName) {
-		return Try.of(() -> this.connectorService.getContextByName(sourceName).getEntityManager()
+		return Try.of(() -> this.connectorService.getContextByName(sourceName)
+				.getEntityManager()
 				.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present")));
 	}
 }

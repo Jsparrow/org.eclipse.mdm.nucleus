@@ -73,9 +73,10 @@ public class ValueListValueResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
-	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(sourceName, ValueListValue.class, id))
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
+	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id) {
+		return Try.of(() -> this.entityService.find(sourceName, ValueListValue.class, id, valueListId))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(ValueListValue.class, e.get()))
@@ -178,11 +179,11 @@ public class ValueListValueResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID2) String id, String body) {
+			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id, String body) {
 
 		// update entity
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, ValueListValue.class, id, valueMap))
+				.map(valueMap -> this.entityService.update(sourceName, ValueListValue.class, id, valueMap, valueListId))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity.get()),
 						Status.OK))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
@@ -201,10 +202,10 @@ public class ValueListValueResource {
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{" + REQUESTPARAM_ID + "}")
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
-			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, ValueListValue.class, id)
+			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id) {
+		return Try.of(() -> this.entityService.delete(sourceName, ValueListValue.class, id, valueListId)
 				.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, result), Status.OK))
