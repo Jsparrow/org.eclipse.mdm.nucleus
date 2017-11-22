@@ -20,7 +20,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.mdm.api.base.adapter.Attribute;
@@ -33,8 +32,6 @@ import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.Record;
-import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.api.base.search.SearchService;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.mockito.Mockito;
@@ -69,23 +66,20 @@ public class SearchMockHelper {
 		when(searchService.listEntityTypes(TestStep.class)).thenReturn(etResultMock);
 		List<Attribute> attrList = new ArrayList<>();
 		attrList.add(Mockito.mock(Attribute.class));
-		Map<Entity, Result> mockedSearchResult = createMockedSearchRes(TestStep.class, "TestStep");
+		List<Entity> mockedSearchResult = createMockedSearchRes(TestStep.class, "TestStep");
 		when(searchService.fetch(any(), anyList(), any(Filter.class))).thenReturn(mockedSearchResult);
 		Optional<SearchService> ret = Optional.of(searchService);
 		return ret;
 	}
 
-	public static <T extends Entity> Map<Entity, Result> createMockedSearchRes(Class<T> clazz, String entityTypeName)
+	public static <T extends Entity> List<Entity> createMockedSearchRes(Class<T> clazz, String entityTypeName)
 			throws Exception {
 
-		Map<Entity, Result> mockedRes = new HashMap<>();
+		List<Entity> mockedRes = new ArrayList<>();
 
 		for (int i = 1; i <= ITEM_COUNT; i++) {
-			Result result = new Result();
-			EntityType etType = createEntityTypeMock(entityTypeName);
-			result.addRecord(new Record(etType));
 			T etMock = createEntityMock(clazz, entityTypeName + "_" + i, "Environment", Integer.toString(i));
-			mockedRes.put(etMock, result);
+			mockedRes.add(etMock);
 		}
 
 		return mockedRes;

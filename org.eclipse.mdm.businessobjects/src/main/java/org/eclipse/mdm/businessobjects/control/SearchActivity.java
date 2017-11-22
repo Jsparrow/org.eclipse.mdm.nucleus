@@ -29,7 +29,6 @@ import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.FilterItem;
-import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.api.base.search.SearchService;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
@@ -108,8 +107,7 @@ public class SearchActivity {
 			List<EntityType> searchable = searchService.listEntityTypes(resultType);
 			Filter filter = FilterParser.parseFilterString(searchable, filterString);
 			List<Attribute> attributesList = getAttributeListFromFilter(filter);
-			Map<T, Result> result = searchService.fetch(resultType, attributesList, filter);
-			return new ArrayList<>(result.keySet());
+			return searchService.fetch(resultType, attributesList, filter);
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
