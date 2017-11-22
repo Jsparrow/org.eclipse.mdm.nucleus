@@ -40,6 +40,9 @@ public class TemplateTestStepUsageResourceIntegrationTest extends EntityResource
 		// set up test data
 		setContextClass(TemplateTestStepUsageResourceIntegrationTest.class);
 
+		// skip the update as TemplateTestStepUsages cannot be updated
+		skipTest(TestType.UPDATE);
+
 		putTestDataValue(TESTDATA_RESOURCE_URI, "/tpltests/"
 				+ getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
 				+ "/tplteststepusages");

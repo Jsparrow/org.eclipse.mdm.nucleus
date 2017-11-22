@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.NoSuchElementException;
 
+import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -30,7 +31,9 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 
 /**
  * Abstract test class for Entity resources. Tests are executed in
@@ -63,6 +66,12 @@ public abstract class EntityResourceIntegrationTest {
 	protected final static String TESTDATA_RANDOM_DATA = "RANDOM_DATA";
 
 	private static final String RANDOM_ENTITY_NAME_SUFFIX = "_" + Long.toHexString(System.currentTimeMillis());
+
+	public enum TestType {
+		CREATE, FIND, FINDALL, UPDATE, DELETE;
+	}
+
+	private static Map<Class<?>, Set<TestType>> testsToSkip = HashMap.empty();
 
 	private static Map<Class<?>, Map<String, String>> testDataMap = HashMap.empty();
 
@@ -103,6 +112,11 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test1Create() {
+		// only execute if not skipped by implementing test class
+		Assume.assumeFalse(testsToSkip.get(getContextClass())
+				.get()
+				.contains(TestType.CREATE));
+
 		createEntity();
 	}
 
@@ -143,6 +157,11 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test2Find() {
+		// only execute if not skipped by implementing test class
+		Assume.assumeFalse(testsToSkip.get(getContextClass())
+				.get()
+				.contains(TestType.FIND));
+
 		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
 
 		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to " + uri);
@@ -185,6 +204,11 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test3FindAll() {
+		// only execute if not skipped by implementing test class
+		Assume.assumeFalse(testsToSkip.get(getContextClass())
+				.get()
+				.contains(TestType.FINDALL));
+
 		LOGGER.debug(getContextClass().getSimpleName() + ".findAll() sending GET to "
 				+ getTestDataValue(TESTDATA_RESOURCE_URI));
 
@@ -203,6 +227,11 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test4Update() {
+		// only execute if not skipped by implementing test class
+		Assume.assumeFalse(testsToSkip.get(getContextClass())
+				.get()
+				.contains(TestType.UPDATE));
+
 		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
 
 		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to " + uri);
@@ -231,6 +260,11 @@ public abstract class EntityResourceIntegrationTest {
 
 	@Test
 	public void test5Delete() {
+		// only execute if not skipped by implementing test class
+		Assume.assumeFalse(testsToSkip.get(getContextClass())
+				.get()
+				.contains(TestType.DELETE));
+
 		deleteEntity();
 	}
 
@@ -333,7 +367,7 @@ public abstract class EntityResourceIntegrationTest {
 				&& (entityTestData.get(TESTDATA_ENTITY_NAME)
 						.isEmpty()
 						|| !entityTestData.get(TESTDATA_ENTITY_NAME)
-						.get()
+								.get()
 								.equals(TESTDATA_RANDOM_DATA))) {
 			// append suffix if it was not already appended or an already suffixed value was
 			// used for a new one (e.g: TplAttr.name and CatAttr.name)
@@ -368,7 +402,14 @@ public abstract class EntityResourceIntegrationTest {
 	 */
 	public static void setContextClass(Class<?> contextClass) {
 		EntityResourceIntegrationTest.contextClass = contextClass;
+		testsToSkip = testsToSkip.put(contextClass, HashSet.empty());
 		LOGGER = LoggerFactory.getLogger(contextClass);
+	}
+
+	public static void skipTest(TestType testToSkip) {
+		testsToSkip.get(getContextClass())
+				.map(tests -> tests.add(testToSkip))
+				.map(newTests -> testsToSkip = testsToSkip.put(getContextClass(), newTests));
 	}
 
 	/**
