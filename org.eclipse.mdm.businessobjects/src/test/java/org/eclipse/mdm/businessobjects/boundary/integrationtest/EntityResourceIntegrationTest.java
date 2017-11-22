@@ -406,9 +406,15 @@ public abstract class EntityResourceIntegrationTest {
 		LOGGER = LoggerFactory.getLogger(contextClass);
 	}
 
-	public static void skipTest(TestType testToSkip) {
+	/**
+	 * Set the test with the given {@link TestType} to be skipped
+	 * 
+	 * @param testType
+	 *            the test to skip
+	 */
+	public static void skipTest(TestType test) {
 		testsToSkip.get(getContextClass())
-				.map(tests -> tests.add(testToSkip))
+				.map(tests -> tests.add(test))
 				.map(newTests -> testsToSkip = testsToSkip.put(getContextClass(), newTests));
 	}
 
