@@ -84,7 +84,7 @@ public class CatalogAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String catCompId,
 			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, CatalogAttribute.class, id, contextType,
+				.map(contextType -> entityService.find(sourceName, CatalogAttribute.class, id, contextType,
 						catCompId))
 				// TODO error messages from down the callstack? Use Exceptions or some Vavr
 				// magic?
@@ -117,7 +117,7 @@ public class CatalogAttributeResource {
 				// get CatalogAttributes from CatalogComponent as the request is made in the
 				// context of one
 				// TODO anehmer on 2017-11-09: add filter
-				.map(contextType -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType)
+				.map(contextType -> entityService.find(sourceName, CatalogComponent.class, catCompId, contextType)
 						.map(catComp -> catComp.getCatalogAttributes())
 						.get())
 				// TODO anehmer on 2017-11-09: what if e is not found? Test!
@@ -172,7 +172,7 @@ public class CatalogAttributeResource {
 
 		// get catalog component
 		Option<CatalogComponent> catComp = Try
-				.of(() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType.get()))
+				.of(() -> entityService.find(sourceName, CatalogComponent.class, catCompId, contextType.get()))
 				.get();
 
 		// create catalog attribute
@@ -206,7 +206,7 @@ public class CatalogAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID2) String id,
 			@PathParam(REQUESTPARAM_ID) String catCompId, String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, CatalogAttribute.class, id, valueMap,
+				.map(valueMap -> entityService.update(sourceName, CatalogAttribute.class, id, valueMap,
 						ResourceHelper.mapContextType(contextTypeParam), catCompId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
@@ -231,7 +231,7 @@ public class CatalogAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String catCompId,
 			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(sourceName, CatalogAttribute.class, id, contextType,
+				.map(contextType -> entityService.delete(sourceName, CatalogAttribute.class, id, contextType,
 						catCompId))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO add check for result.isPresent()

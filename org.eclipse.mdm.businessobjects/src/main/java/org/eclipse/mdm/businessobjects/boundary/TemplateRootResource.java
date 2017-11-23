@@ -77,7 +77,7 @@ public class TemplateRootResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, id, contextType))
+				.map(contextType -> entityService.find(sourceName, TemplateRoot.class, id, contextType))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -104,7 +104,7 @@ public class TemplateRootResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.findAll(sourceName, TemplateRoot.class, filter, contextType))
+				.map(contextType -> entityService.findAll(sourceName, TemplateRoot.class, filter, contextType))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -170,7 +170,7 @@ public class TemplateRootResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, TemplateRoot.class, id, valueMap,
+				.map(valueMap -> entityService.update(sourceName, TemplateRoot.class, id, valueMap,
 						ResourceHelper.mapContextType(contextTypeParam)))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
@@ -194,7 +194,7 @@ public class TemplateRootResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(sourceName, TemplateRoot.class, id, contextType)
+				.map(contextType -> entityService.delete(sourceName, TemplateRoot.class, id, contextType)
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, result), Status.OK))

@@ -83,7 +83,7 @@ public class TemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateComponent.class, id, contextType,
+				.map(contextType -> entityService.find(sourceName, TemplateComponent.class, id, contextType,
 						tplRootId))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateComponent.class, e.get()))
@@ -113,7 +113,7 @@ public class TemplateComponentResource {
 			@QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				// find the TemplateRoot
-				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
+				.map(contextType -> entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
 				// find the TemplateComponents
 				// TODO findChildren finds also the recursive TplComps as implemented in
 				// EntityRequest.load(Filter):273
@@ -174,13 +174,13 @@ public class TemplateComponentResource {
 		// get catalog component
 		// TODO handle non-existing catComp
 		Option<CatalogComponent> catComp = Try.of(
-				() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId.get(), contextType.get()))
+				() -> entityService.find(sourceName, CatalogComponent.class, catCompId.get(), contextType.get()))
 				.get();
 
 		// get template root
 		// TODO handle non-existing TplRoot
 		Option<TemplateRoot> tplRoot = Try
-				.of(() -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType.get()))
+				.of(() -> entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType.get()))
 				.get();
 
 		// create
@@ -214,7 +214,7 @@ public class TemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String id, String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, TemplateComponent.class, id, valueMap,
+				.map(valueMap -> entityService.update(sourceName, TemplateComponent.class, id, valueMap,
 						ResourceHelper.mapContextType(contextTypeParam), tplRootId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
@@ -239,7 +239,7 @@ public class TemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService
+				.map(contextType -> entityService
 						.delete(sourceName, TemplateComponent.class, id, contextType, tplRootId)
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)

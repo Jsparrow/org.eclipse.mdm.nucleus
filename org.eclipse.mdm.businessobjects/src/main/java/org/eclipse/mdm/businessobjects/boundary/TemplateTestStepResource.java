@@ -75,7 +75,7 @@ public class TemplateTestStepResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(sourceName, TemplateTestStep.class, id))
+		return Try.of(() -> entityService.find(sourceName, TemplateTestStep.class, id))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateTestStep.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -101,7 +101,7 @@ public class TemplateTestStepResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(sourceName, TemplateTestStep.class, filter))
+		return Try.of(() -> entityService.findAll(sourceName, TemplateTestStep.class, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateTestStep.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -162,7 +162,7 @@ public class TemplateTestStepResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, TemplateTestStep.class, id, valueMap))
+				.map(valueMap -> entityService.update(sourceName, TemplateTestStep.class, id, valueMap))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStep.class, entity.get()),
@@ -184,7 +184,7 @@ public class TemplateTestStepResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, TemplateTestStep.class, id)
+		return Try.of(() -> entityService.delete(sourceName, TemplateTestStep.class, id)
 				.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStep.class, result),

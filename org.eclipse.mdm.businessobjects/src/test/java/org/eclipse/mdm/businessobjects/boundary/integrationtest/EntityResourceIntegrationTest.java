@@ -44,6 +44,7 @@ import io.vavr.collection.Set;
  * @author Alexander Nehmer, science+computing AG Tuebingen (Atos SE)
  *
  */
+// TODO anehmer on 2017-11-23: test for specific return codes
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class EntityResourceIntegrationTest {
 

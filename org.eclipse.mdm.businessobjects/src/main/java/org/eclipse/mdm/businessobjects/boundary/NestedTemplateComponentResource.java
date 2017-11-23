@@ -89,7 +89,7 @@ public class NestedTemplateComponentResource {
 				// TODO anehmer on 2017-11-10: comment needed?
 				// parentTplCompId not needed as nested TemplateComponent is directly found in
 				// TemplateRoot
-				.map(contextType -> this.entityService
+				.map(contextType -> entityService
 						.find(sourceName, TemplateComponent.class, id, contextType, tplRootId, parentTplCompId)
 						.get())
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
@@ -120,7 +120,7 @@ public class NestedTemplateComponentResource {
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @QueryParam("filter") String filter) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
 				// find the TemplateRoot
-				.map(contextType -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
+				.map(contextType -> entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType))
 				// get matching parentTemplateComponent
 				.map(root -> root.map(r -> Stream.ofAll(r.getTemplateComponents())
 						.find(tplComp -> tplComp.getID()
@@ -178,12 +178,12 @@ public class NestedTemplateComponentResource {
 		// get catalog component
 		// TODO handle non-existing catComp
 		Option<CatalogComponent> catComp = Try.of(
-				() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId.get(), contextType.get()))
+				() -> entityService.find(sourceName, CatalogComponent.class, catCompId.get(), contextType.get()))
 				.get();
 
 		// get template root
 		Option<TemplateRoot> tplRoot = Try
-				.of(() -> this.entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType.get()))
+				.of(() -> entityService.find(sourceName, TemplateRoot.class, tplRootId, contextType.get()))
 				.get();
 
 		// get parent component
@@ -201,7 +201,7 @@ public class NestedTemplateComponentResource {
 
 		// create
 		return Try
-				.of(() -> this.entityService
+				.of(() -> entityService
 						.create(TemplateComponent.class, sourceName, name.get(), tplParent.get(), catComp.get())
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
@@ -231,7 +231,7 @@ public class NestedTemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String id, String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, TemplateComponent.class, id, valueMap,
+				.map(valueMap -> entityService.update(sourceName, TemplateComponent.class, id, valueMap,
 						ResourceHelper.mapContextType(contextTypeParam), tplRootId, parentTplCompId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
@@ -256,7 +256,7 @@ public class NestedTemplateComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService
+				.map(contextType -> entityService
 						.delete(sourceName, TemplateComponent.class, id, contextType, tplRootId, parentTplCompId)
 						.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)

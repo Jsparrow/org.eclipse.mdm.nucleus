@@ -84,7 +84,7 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String tplCompId,
 			@PathParam(REQUESTPARAM_ID4) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateAttribute.class, id, contextType,
+				.map(contextType -> entityService.find(sourceName, TemplateAttribute.class, id, contextType,
 						tplRootId, parentTplCompId, tplCompId))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e.get()))
@@ -118,7 +118,7 @@ public class NestedTemplateAttributeResource {
 			@QueryParam("filter") String filter) {
 
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
+				.map(contextType -> entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
 						tplRootId, parentTplCompId))
 				.map(maybeTplComp -> maybeTplComp.map(TemplateComponent::getTemplateAttributes)
 						.get())
@@ -159,7 +159,7 @@ public class NestedTemplateAttributeResource {
 				.toString();
 
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
+				.map(contextType -> entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
 						tplRootId, parentTplCompId))
 				.map(maybeTplComp -> maybeTplComp
 						.map(tplComp -> entityService.create(TemplateAttribute.class, sourceName, name, tplComp)
@@ -193,7 +193,7 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_ID4) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, TemplateAttribute.class, id, valueMap,
+				.map(valueMap -> entityService.update(sourceName, TemplateAttribute.class, id, valueMap,
 						ResourceHelper.mapContextType(contextTypeParam), tplRootId, parentTplCompId, tplCompId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
@@ -220,7 +220,7 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String tplCompId,
 			@PathParam(REQUESTPARAM_ID4) String id) {
 		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
-				.map(contextType -> this.entityService.delete(sourceName, TemplateAttribute.class, id,
+				.map(contextType -> entityService.delete(sourceName, TemplateAttribute.class, id,
 						contextType,
 						tplRootId, parentTplCompId, tplCompId))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)

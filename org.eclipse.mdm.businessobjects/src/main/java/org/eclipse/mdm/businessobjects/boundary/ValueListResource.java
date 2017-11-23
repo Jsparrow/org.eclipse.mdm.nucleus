@@ -29,15 +29,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.api.dflt.model.ValueListValue;
+import org.eclipse.mdm.businessobjects.boundary.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.service.EntityService;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
+import io.vavr.Function3;
 import io.vavr.control.Try;
 
 /**
@@ -66,15 +68,10 @@ public class ValueListResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(sourceName, ValueList.class, id))
-				// TODO handle failure and respond to client appropriately. How can we deliver
-				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(ValueList.class, e.get()))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				// TODO send reponse or error regarding error expressiveness
-				.get();
-
+		return entityService.find(sourceName, ValueList.class, id)
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ResourceHelper.respondToError())
+				.getOrElse(ResourceHelper.SERVER_ERROR);
 	}
 
 	/**
@@ -91,12 +88,10 @@ public class ValueListResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(sourceName, ValueList.class, filter))
-				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(ValueList.class, e.toJavaList()))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+		return entityService.findAll(sourceName, ValueList.class, filter)
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ResourceHelper.respondToError())
+				.getOrElse(ResourceHelper.SERVER_ERROR);
 	}
 
 	/**
@@ -111,14 +106,17 @@ public class ValueListResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, String body) {
-		return ResourceHelper.deserializeJSON(body)
-				// TODO what about deserialization errors and value not found?
-				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME)
-						.map(name -> name.toString()))
-				.map(name -> entityService.create(ValueList.class, sourceName, name.get()))
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, entity.get()), Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+		Function3<Class<? extends Entity>, String, Object[], Try<? extends Entity>> createMethod = (entityClass,
+				srcName, args) -> entityService.create(entityClass, srcName, args);
+
+		Try<RequestBody> requestBody = RequestBody.create(body);
+
+		createMethod.a
+		return entityService.create(ValueList.class, sourceName, requestBody.get()
+				.getString(ENTITYATTRIBUTE_NAME))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
+				.recover(ResourceHelper.respondToError())
+				.getOrElse(ResourceHelper.SERVER_ERROR);
 	}
 
 	/**
@@ -139,11 +137,17 @@ public class ValueListResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
-		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, ValueList.class, id, valueMap))
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, entity.get()), Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+		Try<RequestBody> requestBodyTry = RequestBody.create(body);
+		RequestBody requestBody;
+		if (requestBodyTry.isFailure()) {
+			return ServiceUtils.buildErrorResponse(requestBodyTry.getCause(), Status.BAD_REQUEST);
+		}
+		requestBody = requestBodyTry.get();
+
+		return entityService.update(sourceName, ValueList.class, id, requestBody.getMap())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ResourceHelper.respondToError())
+				.getOrElse(ResourceHelper.SERVER_ERROR);
 	}
 
 	/**
@@ -161,11 +165,10 @@ public class ValueListResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, ValueList.class, id)
-				.get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueList.class, result), Status.OK))
-				.get();
+		return entityService.delete(sourceName, ValueList.class, id)
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ResourceHelper.respondToError())
+				.getOrElse(ResourceHelper.SERVER_ERROR);
 	}
 
 	/**

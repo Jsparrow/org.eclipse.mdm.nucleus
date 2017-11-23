@@ -75,7 +75,7 @@ public class QuantityResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(sourceName, Quantity.class, id))
+		return Try.of(() -> entityService.find(sourceName, Quantity.class, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(Quantity.class, e.get()))
@@ -100,7 +100,7 @@ public class QuantityResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(sourceName, Quantity.class, filter))
+		return Try.of(() -> entityService.findAll(sourceName, Quantity.class, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(Quantity.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -138,7 +138,7 @@ public class QuantityResource {
 		Option<String> defaultUnitId = Try.of(() -> mapping.get(ENTITYATTRIBUTE_UNIT_ID).toString()).toOption();
 
 		// load default unit
-		Option<Unit> defaultUnit = Try.of(() -> this.entityService.find(sourceName, Unit.class, defaultUnitId.get()))
+		Option<Unit> defaultUnit = Try.of(() -> entityService.find(sourceName, Unit.class, defaultUnitId.get()))
 				.get();
 
 		// create
@@ -168,7 +168,7 @@ public class QuantityResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, Quantity.class, id, valueMap))
+				.map(valueMap -> entityService.update(sourceName, Quantity.class, id, valueMap))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Quantity.class, entity.get()), Status.OK))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
@@ -189,7 +189,7 @@ public class QuantityResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, Quantity.class, id).get())
+		return Try.of(() -> entityService.delete(sourceName, Quantity.class, id).get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(Quantity.class, result), Status.OK))
 				.get();

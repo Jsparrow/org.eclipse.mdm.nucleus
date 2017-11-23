@@ -183,7 +183,7 @@ public class TemplateSensorResource {
 			@PathParam(REQUESTPARAM_ID) String tplRootId, @PathParam(REQUESTPARAM_ID2) String tplCompId,
 			@PathParam(REQUESTPARAM_ID3) String id, String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, TemplateSensor.class, id, valueMap,
+				.map(valueMap -> entityService.update(sourceName, TemplateSensor.class, id, valueMap,
 						ContextType.TESTEQUIPMENT, tplRootId, tplCompId))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
@@ -207,7 +207,7 @@ public class TemplateSensorResource {
 			@PathParam(REQUESTPARAM_ID) String tplRootId, @PathParam(REQUESTPARAM_ID2) String tplCompId,
 			@PathParam(REQUESTPARAM_ID3) String id) {
 		return Try
-				.of(() -> this.entityService.delete(sourceName, TemplateSensor.class, id, ContextType.TESTEQUIPMENT,
+				.of(() -> entityService.delete(sourceName, TemplateSensor.class, id, ContextType.TESTEQUIPMENT,
 						tplRootId, tplCompId))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				// TODO add check for result.isPresent()

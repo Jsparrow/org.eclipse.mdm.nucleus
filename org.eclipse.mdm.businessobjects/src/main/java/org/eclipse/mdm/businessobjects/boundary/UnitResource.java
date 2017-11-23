@@ -73,7 +73,7 @@ public class UnitResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(sourceName, Unit.class, id))
+		return Try.of(() -> entityService.find(sourceName, Unit.class, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(Unit.class, e.get()))
@@ -98,7 +98,7 @@ public class UnitResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(sourceName, Unit.class, filter))
+		return Try.of(() -> entityService.findAll(sourceName, Unit.class, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(Unit.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -135,10 +135,10 @@ public class UnitResource {
 
 		// load default unit
 		Option<PhysicalDimension> physDim = Try
-				.of(() -> this.entityService.find(sourceName, PhysicalDimension.class, physDimId.get()))
+				.of(() -> entityService.find(sourceName, PhysicalDimension.class, physDimId.get()))
 				.get();
 
-		return Try.of(()-> this.entityService.create(Unit.class, sourceName, name.get(), physDim.get()).get())
+		return Try.of(()-> entityService.create(Unit.class, sourceName, name.get(), physDim.get()).get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Unit.class, entity), Status.OK))
 				.get();
@@ -163,7 +163,7 @@ public class UnitResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, Unit.class, id, valueMap))
+				.map(valueMap -> entityService.update(sourceName, Unit.class, id, valueMap))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Unit.class, entity.get()), Status.OK))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.get();
@@ -184,7 +184,7 @@ public class UnitResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, Unit.class, id)
+		return Try.of(() -> entityService.delete(sourceName, Unit.class, id)
 				.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(Unit.class, result), Status.OK))

@@ -12,6 +12,7 @@ package org.eclipse.mdm.businessobjects.boundary.utils;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -53,6 +54,9 @@ public final class ResourceHelper {
 	 */
 	private ResourceHelper() {
 	}
+
+	public final static Response SERVER_ERROR = Response.serverError()
+			.build();
 
 	/**
 	 * Creates a response holding the localized type and attributes of the given.
@@ -106,6 +110,15 @@ public final class ResourceHelper {
 	 * a {@link WebApplicationException}
 	 */
 	// TODO should be replaced in Resources by buildErrorResponse()
+	public static final Supplier<? extends Throwable> WEB_APPLICATION_EXCEPTION = () -> {
+		return new WebApplicationException("An error occurred on the server.", Status.INTERNAL_SERVER_ERROR);
+	};
+
+	/**
+	 * Handles a {@link Throwable} by loggging the exception message and rethrowing
+	 * a {@link WebApplicationException}
+	 */
+	// TODO should be replaced in Resources by buildErrorResponse()
 	public static final Consumer<? super Throwable> rethrowAsWebApplicationException = e -> {
 		LOG.error(e.getMessage(), e);
 		throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
@@ -114,13 +127,13 @@ public final class ResourceHelper {
 	/**
 	 * Builds an error response to be sent to the client
 	 */
-	// TODO anehmer on 2017-11-21: use this method if EntityService.find() etc.
-	// returns Try? Should return proper Error object in case of an error. Built
-	// externally?
-	public static final Function<? super Throwable, ? extends Response> buildErrorResponse(Status status) {
+	// TODO anehmer on 2017-11-23: make constant from method
+	public static final Function<? super Throwable, Response> respondToError() {
 		return e -> {
 			LOG.error(e.getMessage(), e);
-			return ServiceUtils.toResponse(e, status);
+			// TODO anehmer on 2017-11-22: build error response with respect to underlying
+			// Throwable, specifically the Status
+			return ServiceUtils.toResponse(e, Status.INTERNAL_SERVER_ERROR);
 		};
 	}
 

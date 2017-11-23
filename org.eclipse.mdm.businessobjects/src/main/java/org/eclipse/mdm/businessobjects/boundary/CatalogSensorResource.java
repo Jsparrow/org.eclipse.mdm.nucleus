@@ -80,7 +80,7 @@ public class CatalogSensorResource {
 			@PathParam(REQUESTPARAM_ID) String catCompId, @PathParam(REQUESTPARAM_ID2) String id) {
 		// TODO anehmer on 2017-11-17: why does this work without passing the CatComp?
 		return Try
-				.of(() -> this.entityService.find(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
+				.of(() -> entityService.find(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
 						catCompId))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
@@ -109,7 +109,7 @@ public class CatalogSensorResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String catCompId, @QueryParam("filter") String filter) {
 		return Try
-				.of(() -> this.entityService
+				.of(() -> entityService
 						.find(sourceName, CatalogComponent.class, catCompId, ContextType.TESTEQUIPMENT)
 						.map(catComp -> catComp.getCatalogSensors()).get())
 				// TODO what if e is not found? Test!
@@ -147,7 +147,7 @@ public class CatalogSensorResource {
 
 		// get catalog component
 		Option<CatalogComponent> catComp = Try
-				.of(() -> this.entityService.find(sourceName, CatalogComponent.class, catCompId, contextType.get()))
+				.of(() -> entityService.find(sourceName, CatalogComponent.class, catCompId, contextType.get()))
 				.get();
 
 		return Try.of(() -> entityService.create(CatalogSensor.class, sourceName, name.get(), catComp.get()).get())
@@ -175,7 +175,7 @@ public class CatalogSensorResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String catCompId, @PathParam(REQUESTPARAM_ID2) String id, String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, CatalogSensor.class, id, valueMap,
+				.map(valueMap -> entityService.update(sourceName, CatalogSensor.class, id, valueMap,
 						ContextType.TESTEQUIPMENT, catCompId))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, entity.get()),
 						Status.OK))
@@ -198,7 +198,7 @@ public class CatalogSensorResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String catCompId, @PathParam(REQUESTPARAM_ID2) String id) {
 		return Try
-				.of(() -> this.entityService.delete(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
+				.of(() -> entityService.delete(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
 						catCompId))
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException).map(result -> ServiceUtils
 						.toResponse(new MDMEntityResponse(CatalogSensor.class, result.get()), Status.OK))

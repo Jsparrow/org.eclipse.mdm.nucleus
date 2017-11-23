@@ -129,12 +129,12 @@ public class TemplateTestStepUsageResource {
 		// processing but here Option seems to fit better. BUT: do we want to use get()?
 		// Nope, must be another solution --> should return ErrorResponse as tplTest is
 		// not found -> does onEmpty() work to instantly return Response?
-		TemplateTest tplTest = this.entityService.find(sourceName, TemplateTest.class, tplTestId)
+		TemplateTest tplTest = entityService.find(sourceName, TemplateTest.class, tplTestId)
 				.get();
 
 		// get TemplateTest
 		TemplateTestStep tplTestStep = mapper
-				.mapTry(m -> this.entityService.find(sourceName, TemplateTestStep.class,
+				.mapTry(m -> entityService.find(sourceName, TemplateTestStep.class,
 						m.get(ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID)
 								.get()
 								.toString()))

@@ -22,12 +22,14 @@ import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
+
+import io.vavr.collection.List;
 
 public final class ServiceUtils {
 
 	/**
-	 * converts the given object to a {@link Response} with the given
-	 * {@link Status}
+	 * converts the given object to a {@link Response} with the given {@link Status}
 	 *
 	 * @param responseEntry
 	 *            object to convert
@@ -35,9 +37,77 @@ public final class ServiceUtils {
 	 *            {@link Status} of the {@link Response}
 	 * @return the created {@link Response}
 	 */
+	// TODO anehmer on 2017-11-22: move this method to ResourceHelper
 	public static Response toResponse(Object response, Status status) {
 		GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
-		return Response.status(status).entity(genEntity).type(MediaType.APPLICATION_JSON).build();
+		return Response.status(status)
+				.entity(genEntity)
+				.type(MediaType.APPLICATION_JSON)
+				.build();
+	}
+
+	/**
+	 * Builds {@Link Response} from given {@link Entity}
+	 * 
+	 * @param entity
+	 *            {@link Entity} to build {@link Response} from
+	 * @return the build {@link Response}
+	 */
+	// TODO anehmer on 2017-11-22: move this method to ResourceHelper
+	public static <T extends Entity> Response buildEntityResponse(T entity, Status status) {
+		if (entity != null) {
+			MDMEntityResponse response = new MDMEntityResponse(entity.getClass(), entity);
+			GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
+			return Response.status(status)
+					.entity(genEntity)
+					.type(MediaType.APPLICATION_JSON)
+					.build();
+		} else {
+			return Response.status(Status.NO_CONTENT)
+					.type(MediaType.APPLICATION_JSON)
+					.build();
+		}
+	}
+
+	/**
+	 * Builds {@Link Response} from given {@link Entity}
+	 * 
+	 * @param entity
+	 *            {@link Entity} to build {@link Response} from
+	 * @return the build {@link Response}
+	 */
+	// TODO anehmer on 2017-11-22: move this method to ResourceHelper
+	public static <T extends Entity> Response buildErrorResponse(Throwable t, Status status) {
+		return Response.status(status)
+				.entity(t)
+				.type(MediaType.APPLICATION_JSON)
+				.build();
+	}
+
+	/**
+	 * Builds {@Link Response} from given {@link Entity}
+	 * 
+	 * @param entity
+	 *            {@link Entity} to build {@link Response} from
+	 * @return the build {@link Response}
+	 */
+	// TODO anehmer on 2017-11-22: move this method to ResourceHelper
+	public static <T extends Entity> Response buildEntityResponse(List<T> entities, Status status) {
+		if (entities.nonEmpty()) {
+			@SuppressWarnings("unchecked")
+			Class<T> entityClass = (Class<T>) entities.get()
+					.getClass();
+			MDMEntityResponse response = new MDMEntityResponse(entityClass, entities.asJava());
+			GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
+			return Response.status(status)
+					.entity(genEntity)
+					.type(MediaType.APPLICATION_JSON)
+					.build();
+		} else {
+			return Response.status(Status.NO_CONTENT)
+					.type(MediaType.APPLICATION_JSON)
+					.build();
+		}
 	}
 
 	/**
@@ -52,11 +122,14 @@ public final class ServiceUtils {
 	 *            class of the parent entity
 	 * @return true if the give filter String is a parent filter
 	 */
-	public static boolean isParentFilter(ApplicationContext context, String filter, Class<? extends Entity> parentType) {
-		ModelManager mm = context.getModelManager().orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
+	public static boolean isParentFilter(ApplicationContext context, String filter,
+			Class<? extends Entity> parentType) {
+		ModelManager mm = context.getModelManager()
+				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 		EntityType et = mm.getEntityType(parentType);
 
-		String idAttributeName = et.getIDAttribute().getName();
+		String idAttributeName = et.getIDAttribute()
+				.getName();
 		String matcher = workaroundForTypeMapping(et) + "." + idAttributeName + " eq (\\w+)";
 		return filter.matches(matcher);
 	}
@@ -72,11 +145,14 @@ public final class ServiceUtils {
 	 *            parent type to identify the Id attribute name
 	 * @return the extracted business object Id
 	 */
-	public static String extactIdFromParentFilter(ApplicationContext context, String filter, Class<? extends Entity> parentType) {
-		ModelManager mm = context.getModelManager().orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
+	public static String extactIdFromParentFilter(ApplicationContext context, String filter,
+			Class<? extends Entity> parentType) {
+		ModelManager mm = context.getModelManager()
+				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 		EntityType et = mm.getEntityType(parentType);
 
-		String idAttributeName = et.getIDAttribute().getName();
+		String idAttributeName = et.getIDAttribute()
+				.getName();
 		return filter.replace(workaroundForTypeMapping(et) + "." + idAttributeName + " eq ", "");
 	}
 

@@ -70,7 +70,7 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.find(sourceName, TemplateTest.class, id))
+		return Try.of(() -> entityService.find(sourceName, TemplateTest.class, id))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateTest.class, e.get()))
@@ -95,7 +95,7 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> this.entityService.findAll(sourceName, TemplateTest.class, filter))
+		return Try.of(() -> entityService.findAll(sourceName, TemplateTest.class, filter))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateTest.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
@@ -152,7 +152,7 @@ public class TemplateTestResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> this.entityService.update(sourceName, TemplateTest.class, id, valueMap))
+				.map(valueMap -> entityService.update(sourceName, TemplateTest.class, id, valueMap))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, entity.get()),
@@ -174,7 +174,7 @@ public class TemplateTestResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, TemplateTest.class, id)
+		return Try.of(() -> entityService.delete(sourceName, TemplateTest.class, id)
 				.get())
 				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
 				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, result), Status.OK))
