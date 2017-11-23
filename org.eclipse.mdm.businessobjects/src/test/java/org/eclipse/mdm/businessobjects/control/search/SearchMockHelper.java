@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.Core;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.adapter.ModelManager;
-import org.eclipse.mdm.api.base.core.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.EnumRegistry;
 import org.eclipse.mdm.api.base.model.TestStep;

@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.mdm.api.base.core.Core;
-import org.eclipse.mdm.api.base.core.EntityStore;
+import org.eclipse.mdm.api.base.adapter.Core;
+import org.eclipse.mdm.api.base.adapter.EntityStore;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Test;
