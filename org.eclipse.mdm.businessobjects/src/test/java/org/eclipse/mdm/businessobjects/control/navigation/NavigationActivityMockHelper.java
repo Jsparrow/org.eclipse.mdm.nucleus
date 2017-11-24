@@ -11,9 +11,9 @@
 
 package org.eclipse.mdm.businessobjects.control.navigation;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
@@ -22,9 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.mdm.api.base.adapter.Core;
+import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
-import org.eclipse.mdm.api.base.model.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
@@ -32,8 +34,7 @@ import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
-import org.eclipse.mdm.api.base.query.EntityType;
-import org.eclipse.mdm.api.base.query.ModelManager;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.mockito.Mockito;
@@ -46,16 +47,16 @@ public final class NavigationActivityMockHelper {
 
 		ConnectorService connectorBean = Mockito.mock(ConnectorService.class);
 
-		List<EntityManager> emList = new ArrayList<>();
+		List<ApplicationContext> contextList = new ArrayList<>();
 		for (int i = 1; i <= ITEM_COUNT; i++) {
-			emList.add(createEntityManagerMock("MDMENV_" + i));
+			contextList.add(createContextMock("MDMENV_" + i));
 		}
-		when(connectorBean.getEntityManagers()).thenReturn(emList);
-		when(connectorBean.getEntityManagerByName(anyString())).thenReturn(emList.get(0));
+		when(connectorBean.getContexts()).thenReturn(contextList);
+		when(connectorBean.getContextByName(anyString())).thenReturn(contextList.get(0));
 		return connectorBean;
 	}
 
-	private static EntityManager createEntityManagerMock(String sourceName) throws Exception {
+	private static ApplicationContext createContextMock(String sourceName) throws Exception {
 
 		Environment env = createEntityMock(Environment.class, sourceName, sourceName, "1");
 
@@ -67,21 +68,23 @@ public final class NavigationActivityMockHelper {
 		when(em.loadAll(Test.class)).thenReturn(testMocks);
 
 		List<TestStep> testStepMocks = createTestStepMocks(ITEM_COUNT, sourceName);
-		when(em.loadChildren(anyObject(), eq(TestStep.class))).thenReturn(testStepMocks);
+		when(em.loadChildren(any(), eq(TestStep.class))).thenReturn(testStepMocks);
 
 		List<Measurement> measurementMocks = createMeasurementMocks(ITEM_COUNT, sourceName);
-		when(em.loadChildren(anyObject(), eq(Measurement.class))).thenReturn(measurementMocks);
+		when(em.loadChildren(any(), eq(Measurement.class))).thenReturn(measurementMocks);
 
 		List<ChannelGroup> channelGroupMocks = createChannelGroupMocks(ITEM_COUNT, sourceName);
-		when(em.loadChildren(anyObject(), eq(ChannelGroup.class))).thenReturn(channelGroupMocks);
+		when(em.loadChildren(any(), eq(ChannelGroup.class))).thenReturn(channelGroupMocks);
 
 		List<Channel> channelMocks = createChannelMocks(ITEM_COUNT, sourceName);
-		when(em.loadChildren(anyObject(), eq(Channel.class))).thenReturn(channelMocks);
+		when(em.loadChildren(any(), eq(Channel.class))).thenReturn(channelMocks);
 
-		Optional<ModelManager> modelManagerMock = createModelManagerMock();
-		when(em.getModelManager()).thenReturn(modelManagerMock);
+		ModelManager modelManagerMock = createModelManagerMock();
 
-		return em;
+		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		when(context.getEntityManager()).thenReturn(Optional.of(em));
+		when(context.getModelManager()).thenReturn(Optional.of(modelManagerMock));
+		return context;
 	}
 
 	private static List<Test> createTestMocks(int count, String sourceName) throws Exception {
@@ -124,7 +127,7 @@ public final class NavigationActivityMockHelper {
 		return list;
 	}
 
-	private static Optional<ModelManager> createModelManagerMock() throws Exception {
+	private static ModelManager createModelManagerMock() throws Exception {
 
 		EntityType envET = Mockito.mock(EntityType.class);
 		when(envET.getName()).thenReturn("Environment");
@@ -152,7 +155,7 @@ public final class NavigationActivityMockHelper {
 		when(modelManager.getEntityType(ChannelGroup.class)).thenReturn(channelGroupET);
 		when(modelManager.getEntityType(Channel.class)).thenReturn(channelET);
 
-		return Optional.of(modelManager);
+		return modelManager;
 	}
 
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)

@@ -1,6 +1,5 @@
 /*******************************************************************************
-*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
-*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
+*  Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others                    *
 *                                                                              *
 *  All rights reserved. This program and the accompanying materials            *
 *  are made available under the terms of the Eclipse Public License v1.0       *
@@ -246,11 +245,23 @@ export class SearchService {
   convertEnv(env: string, conditions: Condition[], attrs: SearchAttribute[], fullTextQuery: string): Filter {
 
     let filterString = conditions
-      .map(c => c.value.map(value => c.type + '.' + c.attribute + ' ' + OperatorUtil.toFilterString(c.operator) + ' ' + value).join(' or '))
+      .map(c => c.value.map(value => c.type + '.' + c.attribute + ' ' + OperatorUtil.toFilterString(c.operator) + ' ' + this.quoteValue(value, this.getValueType(c, attrs))).join(' or '))
       .filter(c => c.length > 0)
       .join(' and ');
 
     return new Filter(env, filterString, fullTextQuery);
+  }
+
+  quoteValue(value: string, valueType: string) {
+    if (valueType.toLowerCase() === 'string' || valueType.toLowerCase() === 'date') {
+      return "'" + value + "'";
+    } else {
+      return value;
+    }
+  }
+
+  getValueType(c: Condition, attrs: SearchAttribute[]) {
+    return attrs.find(a => a.boType == c.type && a.attrName == c.attribute).valueType;
   }
 
   isAttributeIgnored(attributeName: string, sa: SearchAttribute) {

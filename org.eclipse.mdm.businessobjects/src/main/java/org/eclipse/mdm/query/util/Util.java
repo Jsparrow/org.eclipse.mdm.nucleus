@@ -15,9 +15,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Value;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;

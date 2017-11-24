@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+ * Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,65 +11,75 @@
 
 package org.eclipse.mdm.businessobjects.control.search;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import org.eclipse.mdm.api.base.model.Core;
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.Core;
+import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.model.EnumRegistry;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
-import org.eclipse.mdm.api.base.query.Attribute;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.Record;
-import org.eclipse.mdm.api.base.query.Result;
-import org.eclipse.mdm.api.base.query.SearchService;
-import org.eclipse.mdm.api.dflt.EntityManager;
-import org.mockito.Matchers;
+import org.eclipse.mdm.api.base.search.SearchService;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 
 public class SearchMockHelper {
 
-	public static int ITEM_COUNT = 3;
+	public static int ITEM_COUNT = 27;
 
-	public static EntityManager createEntityManagerMock() throws Exception {
-		EntityManager em = Mockito.mock(EntityManager.class);
-		Optional<SearchService> mockedSearchService = createSearchServiceMock();
-		when(em.getSearchService()).thenReturn(mockedSearchService);
-		return em;
+	public static ApplicationContext createContextMock() throws Exception {
+		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		List<EntityType> etResultMock = createETListMock();
+		Optional<SearchService> mockedSearchService = createSearchServiceMock(etResultMock);
+		when(context.getSearchService()).thenReturn(mockedSearchService);
+		Optional<ModelManager> mockedModelManager = createModelManagerMock(etResultMock);
+		when(context.getModelManager()).thenReturn(mockedModelManager);
+		return context;
 	}
 
-	public static Optional<SearchService> createSearchServiceMock() throws Exception {
+	public static Optional<ModelManager> createModelManagerMock(List<EntityType> etResultMock) {
+		ModelManager modelManager = Mockito.mock(ModelManager.class);
+		
+		when(modelManager.getEntityType("Test")).thenReturn(etResultMock.get(0));
+		when(modelManager.getEntityType("TestStep")).thenReturn(etResultMock.get(1));
+		when(modelManager.getEntityType("Measurement")).thenReturn(etResultMock.get(2));
+		
+		return Optional.of(modelManager);
+	}
+	
+	public static Optional<SearchService> createSearchServiceMock(List<EntityType> etResultMock) throws Exception {
 		SearchService searchService = Mockito.mock(SearchService.class);
-		List<EntityType> etResultMock = createETListMock();
 		when(searchService.listEntityTypes(TestStep.class)).thenReturn(etResultMock);
 		List<Attribute> attrList = new ArrayList<>();
 		attrList.add(Mockito.mock(Attribute.class));
-		Map<Entity, Result> mockedSearchResult = createMockedSearchRes(TestStep.class, "TestStep");
-		when(searchService.fetch(Matchers.<Class<Entity>>any(), Matchers.anyListOf(Attribute.class),
-				Matchers.any(Filter.class))).thenReturn(mockedSearchResult);
+		List<Entity> mockedSearchResult = createMockedSearchRes(TestStep.class, "TestStep");
+		when(searchService.fetch(any(), anyList(), any(Filter.class))).thenReturn(mockedSearchResult);
 		Optional<SearchService> ret = Optional.of(searchService);
 		return ret;
 	}
 
-	public static <T extends Entity> Map<Entity, Result> createMockedSearchRes(Class<T> clazz, String entityTypeName)
+	public static <T extends Entity> List<Entity> createMockedSearchRes(Class<T> clazz, String entityTypeName)
 			throws Exception {
 
-		Map<Entity, Result> mockedRes = new HashMap<>();
+		List<Entity> mockedRes = new ArrayList<>();
 
 		for (int i = 1; i <= ITEM_COUNT; i++) {
-			Result result = new Result();
-			EntityType etType = createEntityTypeMock(entityTypeName);
-			result.addRecord(new Record(etType));
 			T etMock = createEntityMock(clazz, entityTypeName + "_" + i, "Environment", Integer.toString(i));
-			mockedRes.put(etMock, result);
+			mockedRes.add(etMock);
 		}
 
 		return mockedRes;
@@ -89,14 +99,37 @@ public class SearchMockHelper {
 	private static EntityType createEntityTypeMock(String entityName) {
 		EntityType mockedETTest = Mockito.mock(EntityType.class);
 		List<Attribute> mockedAttributes = new ArrayList<>();
-		Attribute attributeMock = Mockito.mock(Attribute.class);
-		when(attributeMock.getName()).thenReturn("Name");
-		when(attributeMock.getValueType()).thenReturn(ValueType.STRING);
-		when(attributeMock.getEntityType()).thenReturn(mockedETTest);
-		mockedAttributes.add(attributeMock);
+		
+		// Initialize enums or else ValueType.name() returns null
+		EnumRegistry.getInstance();
+		
+		mockedAttributes.add(createAttributeMock(mockedETTest, "Name", ValueType.STRING));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "DateAttribute", ValueType.DATE));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "BooleanAttribute", ValueType.BOOLEAN));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "ByteAttribute", ValueType.BYTE));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "ShortAttribute", ValueType.SHORT));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "IntegerAttribute", ValueType.INTEGER));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "LongAttribute", ValueType.LONG));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "FloatAttribute", ValueType.FLOAT));
+		mockedAttributes.add(createAttributeMock(mockedETTest, "DoubleAttribute", ValueType.DOUBLE));
+		
 		when(mockedETTest.getName()).thenReturn(entityName);
 		when(mockedETTest.getAttributes()).thenReturn(mockedAttributes);
+		when(mockedETTest.getAttribute(any())).thenAnswer((InvocationOnMock invocation) -> (Attribute) mockedAttributes.stream().filter(a -> a.getName().equals(invocation.getArgument(0))).findAny().get());
 		return mockedETTest;
+	}
+	
+	private static Attribute createAttributeMock(EntityType entity, String attributeName, ValueType<?> valueType) 
+	{
+		Attribute attributeMock = Mockito.mock(Attribute.class);
+		when(attributeMock.getName()).thenReturn(attributeName);
+		when(attributeMock.getValueType()).thenReturn(valueType);
+		when(attributeMock.createValue(any())).thenCallRealMethod();
+		when(attributeMock.createValue(any(), any())).thenCallRealMethod();
+		when(attributeMock.createValue(any(), anyBoolean(), any())).thenCallRealMethod();
+		when(attributeMock.createValueSeq(any(), any())).thenCallRealMethod();
+		when(attributeMock.getEntityType()).thenReturn(entity);
+		return attributeMock;
 	}
 
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
@@ -117,4 +150,5 @@ public class SearchMockHelper {
 		return instance;
 	}
 
+	
 }

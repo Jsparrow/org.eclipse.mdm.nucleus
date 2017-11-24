@@ -126,19 +126,21 @@ describe ( 'SearchService', () => {
   describe('convert()', () => {
     it('should convert conditions to filter string',  async(inject([SearchService, MockBackend], (service, mockBackend) => {
       let cond1 = new Condition('Test', 'Name', Operator.LIKE, ['PBN*']);
-      let cond2 = new Condition('Vehicle', 'Name', Operator.EQUALS, ['car']);
+      let cond2 = new Condition('Vehicle', 'Number', Operator.EQUALS, ['12']);
+      let cond3 = new Condition('Vehicle', 'Created', Operator.EQUALS, ['2017-07-17T12:13:14']);
 
       let attributes = [
           new SearchAttribute('env1', 'Test', 'Name'),
-          new SearchAttribute('env1', 'Vehicle', 'Name'),
+          new SearchAttribute('env1', 'Vehicle', 'Number', 'LONG'),
           new SearchAttribute('env2', 'Test', 'Name'),
           new SearchAttribute('env2', 'Uut', 'Name'),
+          new SearchAttribute('env2', 'Vehicle', 'Created', 'DATE'),
         ];
 
-      let filter = service.convertEnv('env1', [cond1, cond2], attributes, 'test');
+      let filter = service.convertEnv('env1', [cond1, cond2, cond3], attributes, 'test');
 
       expect(filter.sourceName).toEqual('env1');
-      expect(filter.filter).toEqual('Test.Name lk PBN* and Vehicle.Name eq car');
+      expect(filter.filter).toEqual("Test.Name lk 'PBN*' and Vehicle.Number eq 12 and Vehicle.Created eq '2017-07-17T12:13:14'");
       expect(filter.searchString).toEqual('test');
 
     })));

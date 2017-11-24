@@ -17,7 +17,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.eclipse.mdm.property.GlobalProperty;
 
@@ -41,14 +41,14 @@ public class FileConverterPAK2RAW extends AbstractFileConverter {
 	private String pakInputAttribute = "";
 
 	@Override
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em, File targetDirectory)
+	public void execute(FileRelease fileRelease, TestStep testStep, ApplicationContext context, File targetDirectory)
 			throws FileConverterException {
 
 		String pakInputEntityValue = super.readPropertyValue(this.pakInputEntity, true, null, "pakInputEntity");
 		String pakInputAttributeValue = super.readPropertyValue(this.pakInputAttribute, true, null,
 				"pakInputAttribute");
 
-		String inputPath = locateStringAttributeValue(em, testStep, pakInputEntityValue, pakInputAttributeValue);
+		String inputPath = locateStringAttributeValue(context, testStep, pakInputEntityValue, pakInputAttributeValue);
 		File inputDirectory = locateInputDirectory(inputPath);
 
 		File outputDirectory = createDirectory(targetDirectory.getAbsolutePath() + File.separator + fileRelease.name);

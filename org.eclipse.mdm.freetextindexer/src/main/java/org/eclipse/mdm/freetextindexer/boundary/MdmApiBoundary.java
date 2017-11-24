@@ -14,6 +14,8 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.ConnectionException;
+import org.eclipse.mdm.api.base.ServiceNotProvidedException;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
@@ -22,12 +24,10 @@ import org.eclipse.mdm.api.base.model.User;
 import org.eclipse.mdm.api.base.notification.NotificationException;
 import org.eclipse.mdm.api.base.notification.NotificationFilter;
 import org.eclipse.mdm.api.base.notification.NotificationListener;
-import org.eclipse.mdm.api.base.notification.NotificationManager;
+import org.eclipse.mdm.api.base.notification.NotificationService;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
-import org.eclipse.mdm.api.odsadapter.ODSEntityManagerFactory;
-import org.eclipse.mdm.api.odsadapter.ODSNotificationManagerFactory;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.freetextindexer.control.UpdateIndex;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
@@ -49,20 +49,24 @@ public class MdmApiBoundary {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MdmApiBoundary.class);
 
+	private static final String FREETEXT_NOTIFICATION_NAME = "freetext.notificationName";
+
 	public class FreeTextNotificationListener implements NotificationListener {
 		@Override
 		public void instanceCreated(List<? extends Entity> entities, User arg1) {
+			LOGGER.debug("{} entities created: {}", entities.size(), entities);
 			entities.forEach(e -> update.change(MDMEntityResponse.build(e.getClass(), e, entityManager)));
 		}
 
 		@Override
 		public void instanceDeleted(EntityType entityType, List<String> ids, User user) {
-			ids.forEach(id -> update.delete(getApiName(), entityType.getName(), id));
+			LOGGER.debug("{} entities deleted: {}", ids.size(), ids);
+			ids.forEach(id -> update.delete(getApiName(), workaroundForTypeMapping(entityType), id));
 		}
 
 		@Override
 		public void instanceModified(List<? extends Entity> entities, User arg1) {
-			LOGGER.debug(entities.size() + " entities found: " + entities);
+			LOGGER.debug("{} entities modified: {}", entities.size(), entities);
 			entities.forEach(e -> update.change(MDMEntityResponse.build(e.getClass(), e, entityManager)));
 		}
 
@@ -81,83 +85,42 @@ public class MdmApiBoundary {
 	ConnectorService service;
 
 	@Inject
-	ODSNotificationManagerFactory factory;
-
-	@Inject
 	UpdateIndex update;
 
 	@Inject
-	@GlobalProperty(value = "freetext.user")
-	String freetextUser;
-
-	@Inject
-	@GlobalProperty(value = "freetext.pw")
-	String freetextPw;
-
-	@Inject
-	@GlobalProperty(value = "freetext.nameservice")
-	String nameservice;
-
-	@Inject
-	@GlobalProperty(value = "freetext.servicename")
-	String servicename;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationType")
-	String notificationType;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationUrl")
-	String notificationUrl;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationMimeType")
-	String notificationMimeType;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationName")
-	String notificationName;
-
-	@Inject
-	@GlobalProperty(value = "freetext.pollingInterval")
-	String pollingInterval;
-
-	@Inject
 	@GlobalProperty(value = "freetext.active")
-	String active = "false";
+	private String active = "false";
 
+	private ApplicationContext context;
 	private EntityManager entityManager;
-
-	private NotificationManager manager;
-
+	private NotificationService manager;
+	private Map<String, String> properties = new HashMap<>();
+	
 	@PostConstruct
 	public void initalize() {
-		if (Boolean.valueOf(active)) {
+		
+		if (Boolean.parseBoolean(active)) {
 			try {
-				List<EntityManager> connectionList = service.connect(freetextUser, freetextPw);
+				List<ApplicationContext> connectionList = service.connectFreetextSearch("freetext.user", "freetext.password", "freetext.active");
 				if (connectionList.isEmpty()) {
-					String error = String.format(
-							"Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct (User: %s)",
-							freetextUser);
-					throw new IllegalArgumentException(error);
+					throw new IllegalArgumentException("Cannot connect the Freetextindexer to a datastore! "
+							+ "Either you did not configure Freetextindexer at atleast one service or the technical user/password is not correct.");
 				}
 
-				entityManager = connectionList.get(0);
+				//TODO mkoller on 2017-11-14: Currently only the first Adapter is indexed.
+				context = connectionList.get(0);
+				properties.putAll(context.getParameters());
+				
+				entityManager = context.getEntityManager()
+						.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+				manager = context.getNotificationService()
+						.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"));
+				
+				String name = context.getParameters().getOrDefault(FREETEXT_NOTIFICATION_NAME, "mdm5");
+				LOGGER.debug("Registering with name '{}'", name);
+				manager.register(name, new NotificationFilter(), new FreeTextNotificationListener());
 
-				Map<String, String> map = new HashMap<>();
-				map.put("serverType", notificationType);
-				map.put("url", notificationUrl);
-				map.put("eventMimetype", notificationMimeType);
-				map.put("nameservice", nameservice);
-				map.put("servicename", servicename);
-				map.put("pollingInterval", pollingInterval);
-				map.put(ODSEntityManagerFactory.PARAM_USER, freetextUser);
-				map.put(ODSEntityManagerFactory.PARAM_PASSWORD, freetextPw);
-
-				manager = factory.create(entityManager, map);
-				manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener());
-
-				LOGGER.info("Successfully registered for new Notifications!");
+				LOGGER.info("Successfully registered for new notifications with name '{}'!", name);
 			} catch (ConnectionException | NotificationException e) {
 				throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed.",
 						e);
@@ -178,7 +141,7 @@ public class MdmApiBoundary {
 	}
 
 	public void doForAllEntities(Consumer<? super MDMEntityResponse> executor) {
-		if (Boolean.valueOf(active)) {
+		if (isActive()) {
 			try {
 				entityManager.loadAll(Test.class).stream().map(this::buildEntity).forEach(executor);
 				entityManager.loadAll(TestStep.class).stream().map(this::buildEntity).forEach(executor);
@@ -192,7 +155,7 @@ public class MdmApiBoundary {
 
 	public String getApiName() {
 		String apiName = "";
-		if (Boolean.valueOf(active)) {
+		if (isActive()) {
 			try {
 				apiName = entityManager.loadEnvironment().getSourceName();
 			} catch (DataAccessException e) {
@@ -201,8 +164,36 @@ public class MdmApiBoundary {
 		}
 		return apiName;
 	}
-
+	
+	private boolean isActive() {
+		return Boolean.parseBoolean(active) 
+				&& Boolean.parseBoolean(context.getParameters().getOrDefault("freetext.active", "false"));
+	}
+	
 	private MDMEntityResponse buildEntity(Entity e) {
 		return MDMEntityResponse.build(e.getClass(), e, entityManager);
+	}
+	
+	/**
+	 * Simple workaround for naming mismatch between Adapter and Business object
+	 * names.
+	 * 
+	 * @param entityType
+	 *            entity type
+	 * @return MDM business object name
+	 */
+	private static String workaroundForTypeMapping(EntityType entityType) {
+		switch (entityType.getName()) {
+		case "StructureLevel":
+			return "Pool";
+		case "MeaResult":
+			return "Measurement";
+		case "SubMatrix":
+			return "ChannelGroup";
+		case "MeaQuantity":
+			return "Channel";
+		default:
+			return entityType.getName();
+		}
 	}
 }

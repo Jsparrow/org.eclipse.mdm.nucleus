@@ -34,7 +34,8 @@ public class SetupIndexTest {
 	@Test
 	public void noIndex_created() {
 		when(setup.esBoundary.hasIndex(any(String.class))).thenReturn(false);
-
+		when(setup.apiBoundary.getApiName()).thenReturn("MDM");
+		
 		setup.createIndexIfNeccessary();
 
 		verify(setup.esBoundary, times(1)).createIndex(any(String.class));

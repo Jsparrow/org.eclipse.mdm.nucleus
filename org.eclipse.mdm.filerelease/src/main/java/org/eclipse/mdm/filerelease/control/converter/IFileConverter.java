@@ -14,7 +14,7 @@ package org.eclipse.mdm.filerelease.control.converter;
 import java.io.File;
 
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 
 /**
@@ -34,12 +34,12 @@ public interface IFileConverter {
 	 *            The file release that contains the file to convert
 	 * @param testStep
 	 *            The {@link TestStep}
-	 * @param em
-	 *            The {@link EntityManager}
+	 * @param context
+	 *            The {@link ApplicationContext}
 	 * @throws FileConverterException
 	 *             Thrown if the file conversion fails.
 	 */
-	public void execute(FileRelease fileRelease, TestStep testStep, EntityManager em, File targetDirectory)
+	public void execute(FileRelease fileRelease, TestStep testStep, ApplicationContext context, File targetDirectory)
 			throws FileConverterException;
 
 	/**

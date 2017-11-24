@@ -11,9 +11,10 @@
 
 package org.eclipse.mdm.connector;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
@@ -24,17 +25,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.ejb.SessionContext;
 
 import org.eclipse.mdm.api.base.ConnectionException;
-import org.eclipse.mdm.api.base.EntityManagerFactory;
-import org.eclipse.mdm.api.base.model.Core;
+import org.eclipse.mdm.api.base.adapter.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.base.query.DataAccessException;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
+import org.eclipse.mdm.api.dflt.ApplicationContextFactory;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
@@ -57,62 +60,62 @@ public class ConnectorServiceTest {
 	private final Principal differentUser = new SimplePrincipal("differentUser");
 	private final String testSourceName = "testSource";
 	private final String differentSourceName = "differentSource";
-	private final EntityManager testEntityManager = createEntityManager(testSourceName);
+	private final ApplicationContext testContext = createContext(testSourceName);
 
 	@Test(expected = ConnectorServiceException.class)
-	public void testGetEntityManagers_noConnectionsYet() throws Exception {
+	public void testGetApplicationContexts_noConnectionsYet() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		connectorService.getEntityManagers();
+		connectorService.getContexts();
 	}
 
 	@Test(expected = ConnectorServiceException.class)
-	public void testGetEntityManagers_connectionForDifferentUser() throws Exception {
+	public void testGetApplicationContexts_connectionForDifferentUser() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		connectorService.registerConnections(differentUser, Collections.singletonList(testEntityManager));
-		connectorService.getEntityManagers();
+		connectorService.registerConnections(differentUser, Collections.singletonList(testContext));
+		connectorService.getContexts();
 	}
 
 	@Test
-	public void testGetEntityManagers_happyFlow() throws Exception {
+	public void testGetApplicationContexts_happyFlow() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		connectorService.registerConnections(testUser, Collections.singletonList(testEntityManager));
-		assertEquals(Collections.singletonList(testEntityManager), connectorService.getEntityManagers());
+		connectorService.registerConnections(testUser, Collections.singletonList(testContext));
+		assertEquals(Collections.singletonList(testContext), connectorService.getContexts());
 	}
 
 	@Test(expected = ConnectorServiceException.class)
-	public void testGetEntityManagerByName_noConnectionsYet() throws Exception {
+	public void testGetApplicationContextByName_noConnectionsYet() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		connectorService.getEntityManagerByName(testSourceName);
+		connectorService.getContextByName(testSourceName);
 	}
 
 	@Test(expected = ConnectorServiceException.class)
-	public void testGetEntityManagerByName_connectionForDifferentUser() throws Exception {
+	public void testGetApplicationContextByName_connectionForDifferentUser() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		connectorService.registerConnections(differentUser, Collections.singletonList(testEntityManager));
-		connectorService.getEntityManagerByName(testSourceName);
+		connectorService.registerConnections(differentUser, Collections.singletonList(testContext));
+		connectorService.getContextByName(testSourceName);
 	}
 
 	@Test(expected = ConnectorServiceException.class)
-	public void testGetEntityManagerByName_differentSourceName() throws Exception {
+	public void testGetApplicationContextByName_differentSourceName() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		connectorService.registerConnections(testUser, Collections.singletonList(testEntityManager));
-		connectorService.getEntityManagerByName(differentSourceName);
+		connectorService.registerConnections(testUser, Collections.singletonList(testContext));
+		connectorService.getContextByName(differentSourceName);
 	}
 
 	@Test
-	public void testGetEntityManagerByName_happyFlow() throws Exception {
+	public void testGetApplicationContextByName_happyFlow() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		connectorService.registerConnections(testUser, Collections.singletonList(testEntityManager));
-		assertSame(testEntityManager, connectorService.getEntityManagerByName(testSourceName));
+		connectorService.registerConnections(testUser, Collections.singletonList(testContext));
+		assertSame(testContext, connectorService.getContextByName(testSourceName));
 	}
 
 	@Test
 	public void testConnect() throws Exception {
 		ConnectorService connectorService = createMockedConnectorService(testUser);
-		List<EntityManager> emList = connectorService.connect("someUser", "somePassword");
+		List<ApplicationContext> emList = connectorService.connect("someUser", "somePassword");
 
-		assertNotNull("EntityManager list should not be null", emList);
-		assertNotEquals("EntityManager list size should be greater than 0", 0, emList.size());
+		assertNotNull("ApplicationContext list should not be null", emList);
+		assertNotEquals("ApplicationContext list size should be greater than 0", 0, emList.size());
 	}
 
 	@Test(expected = ConnectorServiceException.class)
@@ -162,7 +165,7 @@ public class ConnectorServiceTest {
 		SessionContext sessionContextMock = Mockito.mock(SessionContext.class);
 		when(sessionContextMock.getCallerPrincipal()).thenReturn(user);
 
-		ServiceConfiguration serviceConfiguration = new ServiceConfiguration(TestEntityManagerFactory.class.getName(),
+		ServiceConfiguration serviceConfiguration = new ServiceConfiguration(TestContextFactory.class.getName(),
 				Collections.emptyMap());
 		ServiceConfigurationActivity scReaderMock = Mockito.mock(ServiceConfigurationActivity.class);
 		when(scReaderMock.readServiceConfigurations()).thenReturn(Collections.singletonList(serviceConfiguration));
@@ -180,13 +183,22 @@ public class ConnectorServiceTest {
 		return connectorService;
 	}
 
-	public static final class TestEntityManagerFactory implements EntityManagerFactory<EntityManager> {
+	public static final class TestContextFactory implements ApplicationContextFactory {
 
 		@Override
-		public EntityManager connect(Map<String, String> connectionParameters) throws ConnectionException {
-			return createEntityManager("someSource");
+		public ApplicationContext connect(Map<String, String> connectionParameters) throws ConnectionException {
+			return createContext("someSource");
 		}
 
+	}
+
+	private static ApplicationContext createContext(String sourceName) {
+
+		Optional<EntityManager> em = Optional.of(createEntityManager(sourceName));
+		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		when(context.getEntityManager()).thenReturn(em);
+
+		return context;
 	}
 
 	private static EntityManager createEntityManager(String sourceName) {

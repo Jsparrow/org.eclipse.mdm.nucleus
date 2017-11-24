@@ -20,13 +20,13 @@ import java.util.ResourceBundle;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.ServiceNotProvidedException;
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.query.Attribute;
-import org.eclipse.mdm.api.base.query.EntityType;
-import org.eclipse.mdm.api.base.query.ModelManager;
-import org.eclipse.mdm.api.dflt.EntityManager;
-import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +63,9 @@ public class I18NActivity {
 
 		Map<Attribute, String> map = new HashMap<>();
 
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		EntityType entityType = lookupEntityType(em, type);
+		ApplicationContext context = this.connectorService.getContextByName(sourceName);
+		
+		EntityType entityType = lookupEntityType(context, type);
 		localizeAttributes(entityType, map);
 
 		return map;
@@ -84,8 +85,8 @@ public class I18NActivity {
 
 		Map<EntityType, String> map = new HashMap<>();
 
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		EntityType entityType = lookupEntityType(em, type);
+		ApplicationContext context = this.connectorService.getContextByName(sourceName);
+		EntityType entityType = lookupEntityType(context, type);
 		localizeType(entityType, map);
 
 		return map;
@@ -103,8 +104,8 @@ public class I18NActivity {
 	public Map<Attribute, String> localizeAllAttributes(String sourceName) {
 
 		Map<Attribute, String> map = new HashMap<>();
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		List<EntityType> list = lookupAllEntityTypes(em);
+		ApplicationContext context = this.connectorService.getContextByName(sourceName);
+		List<EntityType> list = lookupAllEntityTypes(context);
 
 		for (EntityType entityType : list) {
 			localizeAttributes(entityType, map);
@@ -124,8 +125,8 @@ public class I18NActivity {
 	public Map<EntityType, String> localizeAllTypes(String sourceName) {
 
 		Map<EntityType, String> map = new HashMap<>();
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		List<EntityType> list = lookupAllEntityTypes(em);
+		ApplicationContext context = this.connectorService.getContextByName(sourceName);
+		List<EntityType> list = lookupAllEntityTypes(context);
 
 		for (EntityType entityType : list) {
 			localizeType(entityType, map);
@@ -149,14 +150,16 @@ public class I18NActivity {
 
 	}
 
-	private EntityType lookupEntityType(EntityManager em, Class<? extends Entity> type) {
-		ModelManager modelManager = ServiceUtils.getModelMananger(em);
-		return modelManager.getEntityType(type);
+	private EntityType lookupEntityType(ApplicationContext context, Class<? extends Entity> type) {
+		return context.getModelManager()
+			.map(mm -> mm.getEntityType(type))
+			.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 	}
 
-	private List<EntityType> lookupAllEntityTypes(EntityManager em) {
-		ModelManager modelManager = ServiceUtils.getModelMananger(em);
-		return modelManager.listEntityTypes();
+	private List<EntityType> lookupAllEntityTypes(ApplicationContext context) {
+		return context.getModelManager()
+				.map(mm -> mm.listEntityTypes())
+				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 	}
 
 	private String localize(String key, String defaultValue) {

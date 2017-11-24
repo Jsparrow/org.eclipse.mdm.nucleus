@@ -24,9 +24,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.query.Attribute;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;

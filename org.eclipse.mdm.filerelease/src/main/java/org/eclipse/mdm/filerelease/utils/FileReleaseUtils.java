@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
@@ -25,7 +26,7 @@ import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.User;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.SearchService;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
@@ -56,13 +57,16 @@ public final class FileReleaseUtils {
 	public static User getLoggedOnUser(ConnectorService connectorService) {
 
 		try {
-			List<EntityManager> emList = connectorService.getEntityManagers();
-
-			if (emList == null || emList.size() <= 0) {
+			List<ApplicationContext> contextList = connectorService.getContexts();
+					
+			if (contextList == null || contextList.size() <= 0) {
 				throw new FileReleaseException("unable to locate neccessary EntityManager for file release service");
 			}
 
-			return extractUser(emList.get(0).loadLoggedOnUser());
+			return extractUser(contextList.get(0)
+					.getEntityManager()
+					.map(em -> em.loadLoggedOnUser())
+					.orElseThrow(() -> new FileReleaseException("Entity manager not present!")));
 		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
@@ -79,7 +83,9 @@ public final class FileReleaseUtils {
 	 * @return The responsible {@link User}
 	 */
 	public static User getResponsiblePerson(ConnectorService connectorService, TestStep testStep) {
-		EntityManager em = connectorService.getEntityManagerByName(testStep.getSourceName());
+		EntityManager em = connectorService.getContextByName(testStep.getSourceName())
+				.getEntityManager()
+				.orElseThrow(() -> new FileReleaseException("Entity manager not present!"));
 		Test test = getTestParent(em, testStep);
 		return extractUser(test.getResponsiblePerson());
 	}
@@ -99,28 +105,13 @@ public final class FileReleaseUtils {
 	 */
 	public static TestStep loadTestStep(ConnectorService connectorService, String sourceName, String id) {
 		try {
-			EntityManager em = connectorService.getEntityManagerByName(sourceName);
+			EntityManager em = connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.orElseThrow(() -> new FileReleaseException("Entity manager not present!"));
 			return em.load(TestStep.class, id);
 		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
-	}
-
-	/**
-	 * 
-	 * Returns the {@link SearchService} for the given {@link EntityManager}
-	 * 
-	 * @param em
-	 *            The {@link EntityManager}
-	 * @return The {@link SearchService}
-	 */
-	public static SearchService getSearchService(EntityManager em) {
-		Optional<SearchService> optional = em.getSearchService();
-		if (!optional.isPresent()) {
-			throw new FileReleaseException("mandatory MDM SearchService not found");
-		}
-		return optional.get();
-
 	}
 
 	/**
@@ -216,12 +207,13 @@ public final class FileReleaseUtils {
 
 	private static List<String> listConnectedSourceNames(ConnectorService connectorService) {
 		try {
-			List<String> sourceNameList = new ArrayList<String>();
-			List<EntityManager> emList = connectorService.getEntityManagers();
-			for (EntityManager em : emList) {
-				sourceNameList.add(em.loadEnvironment().getSourceName());
-			}
-			return sourceNameList;
+			return connectorService.getContexts()
+					.stream()
+					.map(c -> c.getEntityManager())
+					.filter(Optional::isPresent)
+				    .map(Optional::get)
+				    .map(em -> em.loadEnvironment().getSourceName())
+					.collect(Collectors.toList());
 		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}

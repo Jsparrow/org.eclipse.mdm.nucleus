@@ -20,20 +20,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.Result;
-import org.eclipse.mdm.api.base.query.SearchService;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.api.base.search.SearchService;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
-import org.eclipse.mdm.filerelease.utils.FileReleaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,10 +103,12 @@ public abstract class AbstractFileConverter implements IFileConverter {
 	 *            The name of the attribute.
 	 * @return The attribute value.
 	 */
-	protected String locateStringAttributeValue(EntityManager em, TestStep testStep, String entityName,
+	protected String locateStringAttributeValue(ApplicationContext context, TestStep testStep, String entityName,
 			String attributeName) {
 		try {
-			SearchService searchService = FileReleaseUtils.getSearchService(em);
+			SearchService searchService = context.getSearchService()
+					.orElseThrow(() -> new FileReleaseException("mandatory MDM SearchService not found"));
+			
 			List<EntityType> list = searchService.listEntityTypes(TestStep.class);
 
 			EntityType entityType = locateEntityType(list, entityName);
@@ -118,7 +117,7 @@ public abstract class AbstractFileConverter implements IFileConverter {
 			EntityType testStepET = locateEntityType(list, TestStep.class.getSimpleName());
 			Filter idFilter = Filter.idOnly(testStepET, testStep.getID());
 
-			Map<TestStep, Result> results = searchService.fetch(TestStep.class, Collections.singletonList(attribute),
+			List<TestStep> results = searchService.fetch(TestStep.class, Collections.singletonList(attribute),
 					idFilter);
 
 			if (results.size() < 0 || results.size() > 1) {
@@ -126,8 +125,8 @@ public abstract class AbstractFileConverter implements IFileConverter {
 						"illegal search result for attribute value from '" + entityName + "." + attributeName + "'");
 			}
 
-			Result result = results.values().iterator().next();
-			return result.getValue(attribute).extract();
+			TestStep resultTestStep = results.get(0);
+			return resultTestStep.getValue(attributeName).extract();
 		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}

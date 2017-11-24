@@ -16,14 +16,15 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextSensor;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.query.Attribute;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.base.query.EntityType;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
@@ -68,18 +69,21 @@ public class TestStepService {
 	public List<TestStep> getTestSteps(String sourceName, String filter) {
 		try {
 
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
+			ApplicationContext context = this.connectorService.getContextByName(sourceName);
+			EntityManager em = context
+					.getEntityManager()
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 
 			if (filter == null || filter.trim().length() <= 0) {
 				return em.loadAll(TestStep.class);
 			}
 
-			if (ServiceUtils.isParentFilter(em, filter, TestStep.PARENT_TYPE_TEST)) {
-				String id = ServiceUtils.extactIdFromParentFilter(em, filter, TestStep.PARENT_TYPE_TEST);
+			if (ServiceUtils.isParentFilter(context, filter, TestStep.PARENT_TYPE_TEST)) {
+				String id = ServiceUtils.extactIdFromParentFilter(context, filter, TestStep.PARENT_TYPE_TEST);
 				return this.navigationActivity.getTestSteps(sourceName, id);
 			}
 
-			return this.searchActivity.search(em, TestStep.class, filter);
+			return this.searchActivity.search(context, TestStep.class, filter);
 
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
@@ -95,8 +99,7 @@ public class TestStepService {
 	 * @return the found {@link SearchAttribute}s
 	 */
 	public List<SearchAttribute> getSearchAttributes(String sourceName) {
-		EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-		return this.searchActivity.listAvailableAttributes(em, TestStep.class);
+		return this.searchActivity.listAvailableAttributes(this.connectorService.getContextByName(sourceName), TestStep.class);
 	}
 
 	/**
@@ -110,8 +113,10 @@ public class TestStepService {
 	 */
 	public TestStep getTestStep(String sourceName, String testStepId) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.load(TestStep.class, testStepId);
+			return this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.map(em -> em.load(TestStep.class, testStepId))
+					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

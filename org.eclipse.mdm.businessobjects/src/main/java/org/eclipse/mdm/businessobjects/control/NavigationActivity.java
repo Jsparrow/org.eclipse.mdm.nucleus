@@ -11,8 +11,9 @@
 
 package org.eclipse.mdm.businessobjects.control;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -25,7 +26,6 @@ import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.api.dflt.model.Project;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -51,12 +51,12 @@ public class NavigationActivity {
 	 */
 	public List<Environment> getEnvironments() {
 		try {
-			List<Environment> envList = new ArrayList<>();
-			List<EntityManager> emList = this.connectorService.getEntityManagers();
-			for (EntityManager em : emList) {
-				envList.add(em.loadEnvironment());
-			}
-			return envList;
+			return this.connectorService.getContexts()
+					.stream()
+					.map(c -> c.getEntityManager())
+					.filter(Optional::isPresent)
+					.map(em -> em.get().loadEnvironment())
+					.collect(Collectors.toList());
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -72,8 +72,10 @@ public class NavigationActivity {
 	 */
 	public List<Project> getProjects(String sourceName) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.loadAll(Project.class);
+			return this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.map(em -> em.loadAll(Project.class))
+					.orElseThrow(() -> new MDMEntityAccessException("No EntityManager found for source " + sourceName + "!"));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -89,8 +91,10 @@ public class NavigationActivity {
 	 */
 	public List<Test> getTests(String sourceName) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			return em.loadAll(Test.class);
+			return this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.map(em -> em.loadAll(Test.class))
+					.orElseThrow(() -> new MDMEntityAccessException("No EntityManager found for source " + sourceName + "!"));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -187,9 +191,10 @@ public class NavigationActivity {
 	private <T extends Entity> List<T> getChildren(String sourceName, Class<? extends Entity> parentType, String parentID,
 			Class<T> childType) {
 		try {
-			EntityManager em = this.connectorService.getEntityManagerByName(sourceName);
-			Entity parent = em.load(parentType, parentID);
-			return em.loadChildren(parent, childType);
+			return this.connectorService.getContextByName(sourceName)
+					.getEntityManager()
+					.map(em -> em.loadChildren(em.load(parentType, parentID), childType))
+					.orElseThrow(() -> new MDMEntityAccessException("No EntityManager found for source " + sourceName + "!"));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
