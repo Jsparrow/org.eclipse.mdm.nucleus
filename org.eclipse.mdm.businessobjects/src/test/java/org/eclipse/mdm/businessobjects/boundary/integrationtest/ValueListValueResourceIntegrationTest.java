@@ -37,8 +37,7 @@ public class ValueListValueResourceIntegrationTest extends EntityResourceIntegra
 		setContextClass(ValueListValueResourceIntegrationTest.class);
 
 		// set up test data
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/valuelists/"
-				+ getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/values");
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/valuelists/" + getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/values");
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testValueListValue");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "ValueListValue");
 

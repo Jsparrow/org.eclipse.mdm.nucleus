@@ -57,8 +57,8 @@ public class TemplateTestStepUsageResource {
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link TemplateTestStep}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the found {@link TemplateTestStep}.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -84,8 +84,8 @@ public class TemplateTestStepUsageResource {
 	}
 
 	/**
-	 * Returns the (filtered) {@link TemplateTestStepUsage}s. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the (filtered) {@link TemplateTestStepUsage}s.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -109,12 +109,12 @@ public class TemplateTestStepUsageResource {
 	}
 
 	/**
-	 * Returns the created {@link TemplateTestStepUsageValue}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the created {@link TemplateTestStepUsageValue}.
+	 * 
 	 * 
 	 * @param body
 	 *            The {@link TemplateTestStepUsage} to create.
-	 * @return The created {@link TemplateTestStepUsage} as {@link Response}.
+	 * @return the created {@link TemplateTestStepUsage} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -146,7 +146,7 @@ public class TemplateTestStepUsageResource {
 		entityService.create(TemplateTestStepUsage.class, sourceName, UUID.randomUUID()
 				.toString(), tplTest, tplTestStep)
 				.get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStep.class, entity),
 						Status.OK))
 				.get();
@@ -157,12 +157,12 @@ public class TemplateTestStepUsageResource {
 	 */
 
 	/**
-	 * Returns the deleted {@link TemplateTestStepUsage}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Deletes and returns the deleted {@link TemplateTestStepUsage}.
+	 * 
 	 * 
 	 * @param id
 	 *            The identifier of the {@link TemplateTestStepUsage} to delete.
-	 * @return The deleted {@link TemplateTestStepUsage }s as {@link Response}
+	 * @return the deleted {@link TemplateTestStepUsage }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
@@ -170,38 +170,37 @@ public class TemplateTestStepUsageResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplTestId, @PathParam(REQUESTPARAM_ID2) String id) {
 		return entityService.delete(sourceName, TemplateTestStepUsage.class, id, tplTestId)
-				.map(e -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStepUsage.class, e),
-						Status.OK))
+				.map(e -> ResourceHelper.toResponse(new MDMEntityResponse(TemplateTestStepUsage.class, e), Status.OK))
 				.get();
 	}
 
 	/**
 	 * Returns the search attributes for the {@link TemplateTestStepUsage} type.
-	 * Throws a {@link WebApplicationException} on error.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The {@link SearchAttribute}s as {@link Response}
+	 * @return the {@link SearchAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, TemplateTestStepUsage.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(entityService, TemplateTestStepUsage.class, sourceName);
 	}
 
 	/**
-	 * Returns a map of localization for the entity type and the attributes. Throws
-	 * a {@link WebApplicationException} on error.
+	 * Returns a map of localization for the entity type and the attributes.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The I18N as {@link Response}
+	 * @return the I18N as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, TemplateTestStepUsage.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(entityService, TemplateTestStepUsage.class, sourceName);
 	}
 }

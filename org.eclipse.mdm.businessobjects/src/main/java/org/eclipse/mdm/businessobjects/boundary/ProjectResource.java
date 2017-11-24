@@ -35,7 +35,6 @@ import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.Project;
-import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
@@ -187,7 +186,7 @@ public class ProjectResource {
 				
 		return Try.of( () -> this.entityService.create(Project.class, sourceName, name.get())
 				.get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Project.class, entity), Status.OK))
 				.get();
 	}
@@ -198,7 +197,7 @@ public class ProjectResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
 		return Try.of(() -> this.entityService.delete(sourceName, Project.class, id).get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.map( entity -> ServiceUtils.toResponse(new MDMEntityResponse(Project.class, entity), Status.OK))
 				.get();
 	}

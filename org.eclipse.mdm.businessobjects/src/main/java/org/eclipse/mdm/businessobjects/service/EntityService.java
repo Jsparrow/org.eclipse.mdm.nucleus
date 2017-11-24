@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.service;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -21,11 +20,9 @@ import javax.ejb.Stateless;
 import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
-import org.eclipse.mdm.api.base.model.BaseEntity;
 import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
-import org.eclipse.mdm.api.base.model.Core;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.CatalogAttribute;
@@ -40,13 +37,13 @@ import org.eclipse.mdm.api.dflt.model.TemplateTest;
 import org.eclipse.mdm.api.dflt.model.TemplateTestStepUsage;
 import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.api.dflt.model.ValueListValue;
-import org.eclipse.mdm.businessobjects.boundary.utils.EntityNotFoundException;
-import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.control.I18NActivity;
 import org.eclipse.mdm.businessobjects.control.MDMEntityAccessException;
 import org.eclipse.mdm.businessobjects.control.NavigationActivity;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
+import org.eclipse.mdm.businessobjects.utils.EntityNotFoundException;
+import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 import io.vavr.CheckedFunction0;
@@ -54,7 +51,6 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 /**
@@ -89,6 +85,7 @@ public class EntityService {
 	 * @param id
 	 *            id of the {@link Entity} to find
 	 * @return found {@link Entity}
+	 * @see #find(String, Class, String, ContextType, String...)
 	 */
 	public <T extends Entity> Try<T> find(String sourceName, Class<T> entityClass, String id) {
 		return find(sourceName, entityClass, id, null, (String[]) null);
@@ -105,8 +102,8 @@ public class EntityService {
 	 * @param id
 	 *            id of the {@link Entity} to find
 	 * @param parentIds
-	 * @see #find(String, Class, String, ContextType, String...)
 	 * @return found {@link Entity}
+	 * @see #find(String, Class, String, ContextType, String...)
 	 */
 	public <T extends Entity> Try<T> find(String sourceName, Class<T> entityClass, String id, String... parentIds) {
 		return find(sourceName, entityClass, id, null, parentIds);
@@ -126,9 +123,9 @@ public class EntityService {
 	 *            entityType
 	 * @param id
 	 *            id of entity to find
-	 * @param contextType
-	 *            contextType of entity to find. Can be {@code null} if
-	 *            {@code EntityType} has no {@code ContextType}.
+	 * @param contextTypeSupplier
+	 *            a {@link Try} with the contextType of entity to find. Can be
+	 *            {@code null} if {@code EntityType} has no {@code ContextType}.
 	 * @param parentIds
 	 *            id(s) of parent(s). For {@link CatalogAttribute} the parentId must
 	 *            be the id of the {@link CatalogComponent}, for
@@ -149,16 +146,13 @@ public class EntityService {
 	// TODO anehmer on 2017-11-22: complete javadoc for ValueListValue and
 	// TemplateTestStepUsage
 	// TODO anehmer on 2017-11-22: add comment for parentIds for TplSensors and
-	// nested TplSensors as well
-	// as for TplSensorAttrs and nested TplSensorAttrs
-	// TODO anehmer on 2017-11-09: parentIds and entity specific code should be
-	// removed from the signature if the ODSAdapter is able to handle load on
-	// CatalogAttributes etc. without using the root/parent entity
+	// nested TplSensors as well as for TplSensorAttrs and nested TplSensorAttrs
 	@SuppressWarnings("unchecked")
-	public <T extends Entity> Try<T> find(String sourceName, Class<T> entityClass, String id, ContextType contextType,
-			String... parentIds) {
+	public <T extends Entity> Try<T> find(String sourceName, Class<T> entityClass, String id,
+			Try<ContextType> contextTypeSupplier, String... parentIds) {
+
 		// if the find is contextType specific
-		if (contextType != null) {
+		if (contextTypeSupplier != null && contextTypeSupplier.isSuccess()) {
 			if (entityClass.equals(CatalogAttribute.class)) {
 				// check existence of parentId
 				if (parentIds.length != 1) {
@@ -169,13 +163,14 @@ public class EntityService {
 
 				return (Try<T>)
 				// get CatalogComponent
-				find(sourceName, CatalogComponent.class, parentIds[0], contextType)
+				find(sourceName, CatalogComponent.class, catCompId, contextTypeSupplier)
 						.onFailure(x -> new EntityNotFoundException(CatalogComponent.class, catCompId, x))
 						// get CatalogAttribute from CatalogComponent
 						.map(catComp -> Stream.ofAll(catComp.getCatalogAttributes())
 								.find(catAttr -> catAttr.getID()
-										.equals(id))
-								.getOrElseThrow(() -> new EntityNotFoundException(CatalogAttribute.class, id)));
+										.equals(id)));
+				// .getOrElseThrow(() -> new EntityNotFoundException(CatalogAttribute.class,
+				// id)));
 
 			} else if (entityClass.equals(TemplateComponent.class)) {
 				// does also return the nested TemplateComponents
@@ -192,7 +187,7 @@ public class EntityService {
 				// if non-nested TemplateComponent has to be found
 				Try<TemplateComponent> templateComponent =
 						// get TemplateRoot
-						find(sourceName, TemplateRoot.class, tplRootId, contextType)
+						find(sourceName, TemplateRoot.class, tplRootId, contextTypeSupplier)
 								.onFailure(x -> new EntityNotFoundException(TemplateRoot.class, tplRootId, x))
 								// get TemplateComponent from TemplateRoot
 								.map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
@@ -208,8 +203,6 @@ public class EntityService {
 
 				// if nested TemplateComponent has to be found
 				if (parentIds.length == 2) {
-					String parentTplCompId = parentIds[0];
-
 					return (Try<T>)
 					// get nested TemplateComponent from parent TemplateComponent
 					templateComponent.map(tplComp -> Stream.ofAll(tplComp.getTemplateComponents())
@@ -229,7 +222,7 @@ public class EntityService {
 
 				return (Try<T>)
 				// get CatalogComponent
-				find(sourceName, CatalogComponent.class, catCompid, contextType)
+				find(sourceName, CatalogComponent.class, catCompid, contextTypeSupplier)
 						// get CatalogSensor from CatalogComponent
 						.map(catComp -> Stream.ofAll(catComp.getCatalogSensors())
 								.find(catSensor -> catSensor.getID()
@@ -248,7 +241,7 @@ public class EntityService {
 				// if non-nested TemplateAttribute has to be found
 				Try<TemplateComponent> templateComponent =
 						// get TemplateRoot
-						find(sourceName, TemplateRoot.class, tplRootId, contextType)
+						find(sourceName, TemplateRoot.class, tplRootId, contextTypeSupplier)
 								// get TemplateComponent from TemplateRoot
 								.map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
 										.find(tplComp -> tplComp.getID()
@@ -288,14 +281,14 @@ public class EntityService {
 
 				return (Try<T>)
 				// get TemplateRoot
-				find(sourceName, TemplateRoot.class, tplRootId, ContextType.TESTEQUIPMENT)
+				find(sourceName, TemplateRoot.class, tplRootId, Try.of(() -> ContextType.TESTEQUIPMENT))
 						.onFailure(x -> new EntityNotFoundException(TemplateRoot.class, tplRootId, x))
 						// get TemplateComponents from TemplateRoot
 						.map(tplRoot -> Stream.ofAll(tplRoot.getTemplateComponents())
 								.find(tplComp -> tplComp.getID()
 										.equals(tplCompId))
 								.getOrElseThrow(() -> new EntityNotFoundException(TemplateComponent.class, tplCompId)))
-						// get TemplateSensors from TemplateComponent
+						// // get TemplateSensors from TemplateComponent
 						.map(tplComp -> Stream.ofAll(tplComp.getTemplateSensors())
 								.find(tplSensor -> tplSensor.getID()
 										.equals(id))
@@ -306,7 +299,7 @@ public class EntityService {
 				throw new NotImplementedException("NOT IMPLEMENTED YET");
 			}
 
-			return getEntityManager(sourceName).mapTry(em -> em.load(entityClass, contextType, id));
+			return getEntityManager(sourceName).mapTry(em -> em.load(entityClass, contextTypeSupplier.get(), id));
 		}
 
 		// if a ValueListValue has to be found
@@ -320,12 +313,11 @@ public class EntityService {
 			return (Try<T>)
 			// get ValueList
 			find(sourceName, ValueList.class, valueListId)
-					.onFailure(x -> new EntityNotFoundException(ValueList.class, valueListId, x))
 					// get ValueListValues from ValueList
 					.map(valueList -> Stream.ofAll(valueList.getValueListValues())
 							.find(valueListValue -> valueListValue.getID()
-									.equals(id)))
-					.getOrElseThrow(() -> new EntityNotFoundException(ValueListValue.class, id));
+									.equals(id))
+							.getOrElseThrow(() -> new EntityNotFoundException(TemplateSensor.class, id)));
 		}
 
 		// if a TemplateTestStepUsage has to be found
@@ -344,15 +336,20 @@ public class EntityService {
 					.map(templateTest -> Stream.ofAll(templateTest.getTemplateTestStepUsages())
 							.find(templateTestStepUsage -> templateTestStepUsage.getID()
 									.equals(id)))
-					.getOrElseThrow(() -> new EntityNotFoundException(TemplateTestStepUsage.class, id));
+					.get();
+			// .getOrElseThrow(() -> new
+			// EntityNotFoundException(TemplateTestStepUsage.class, id));
 		}
 
 		// for all other cases
+		// TODO anehmer on 2017-11-24: test if onFailure() can enrich Failure with
+		// EntityNotFoundException
+		// if so, remove onFailure() from find() to roots
 		return getEntityManager(sourceName).map(em -> em.load(entityClass, id));
 	}
 
 	/**
-	 * {@link Entity}s if no filter is available
+	 * Returns a {@link Try} of all {@link Entity}s if no filter is available.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -360,16 +357,17 @@ public class EntityService {
 	 *            class of the {@link Entity} to find
 	 * @param filter
 	 *            filter string to filter the {@link Entity} result. Can be null.
-	 * @return a list of found {@link Entity}
+	 * @return a {@link Try} of the list of found {@link Entity}s
 	 */
 	public <T extends Entity> Try<List<T>> findAll(String sourceName, Class<T> entityClass, String filter) {
 		return findAll(sourceName, entityClass, filter, null);
 	}
 
 	/**
-	 * Returns the matching {@link Entity}s of the given contextType using the given
-	 * filter or all {@link Entity}s of the given contextType if no filter is
-	 * available
+	 * Returns a {@link Try} of the matching {@link Entity}s of the given
+	 * contextType using the given filter or all {@link Entity}s of the given
+	 * contextType provided by the {@code contextTypeSupplier} if no filter is
+	 * available.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -377,20 +375,20 @@ public class EntityService {
 	 *            class of the {@link Entity} to find
 	 * @param filter
 	 *            filter string to filter the {@link Entity} result
-	 * @param contextType
-	 *            the {@link ContextType) of the entities to find
-	 * @return a list of found {@link Entity}
+	 * @param contextTypeSupplier
+	 *            a {@link Try} with the contextType of entity to find. Can be
+	 *            {@code null} if {@code EntityType} has no {@code ContextType}.
+	 * @return a {@link Try} of the list of found {@link Entity}s
 	 */
-	// TODO anehmer on 2017-11-22: update all javadoc throughout the class to
-	// explain Try return value
 	public <T extends Entity> Try<List<T>> findAll(String sourceName, Class<T> entityClass, String filter,
-			ContextType contextType) {
+			Try<ContextType> contextTypeSupplier) {
 		// TODO anehmer on 2017-11-22: do we need to implement the navigationActivity
 		// filter shortcut like in
 		// ChannelGroupService.getChannelGroups()
 		if (filter == null || filter.trim()
 				.length() <= 0) {
-			return Try.of(getLoadAllEntitiesMethod(getEntityManager(sourceName).get(), entityClass, contextType))
+			return Try
+					.of(getLoadAllEntitiesMethod(getEntityManager(sourceName).get(), entityClass, contextTypeSupplier))
 					.map(javaList -> List.ofAll(javaList));
 		} else {
 			// TODO anehmer on 2017-11-15: not tested
@@ -407,11 +405,10 @@ public class EntityService {
 	 * {@link org.eclipse.mdm.api.dflt.EntityManager} is used
 	 */
 	private <T extends Entity> CheckedFunction0<java.util.List<T>> getLoadAllEntitiesMethod(EntityManager entityManager,
-			Class<T> entityClass, ContextType... contextType) {
+			Class<T> entityClass, Try<ContextType> contextType) {
 		// if contextType is specified
-		if (contextType != null && contextType.length > 0 && contextType[0] != null) {
-			return (() -> entityManager.loadAll(entityClass, contextType[0]));
-
+		if (contextType != null && contextType.isSuccess()) {
+			return (() -> entityManager.loadAll(entityClass, contextType.get()));
 		}
 		return (() -> entityManager.loadAll(entityClass));
 	}
@@ -420,273 +417,129 @@ public class EntityService {
 	 * Creates a new {@link Entity} of type entityClass. The method searches the
 	 * {@link EntityFactory} for a suitable create() method by matching the return
 	 * parameter and the given entity class. If more than one method is found, the
-	 * first one is taken.
+	 * first one is taken. The argument are provided by {@link Try<Object>}s so that
+	 * any exceptions thrown throughout retrieval will be wrapped in the returned
+	 * {@link Try}.
 	 * 
 	 * @param entityClass
 	 *            class of the {@link Entity} to create
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @param name
-	 *            name of the {@link ValueList} to be created
-	 * @return created {@link Entity}
+	 * @param argumentSuppliers
+	 *            varargs of {@link Try<?>s that supply the create() method
+	 * arguments
+	 * @return a {@link Try} with the created {@link Entity}
 	 */
 	@SuppressWarnings("unchecked")
-	// TODO anehmer on 2017-11-20: pass only IDs to method like for find()
-	// TODO anehmer on 2017-11-19: move sourceName parameter to first position
-	public <T extends Entity> Try<T> create(Class<T> entityClass, String sourceName, Object... createMethodArgs) {
-		Option<T> entity;
+	public <T extends Entity> Try<T> create(String sourceName, Class<T> entityClass, Try<?>... argumentSuppliers) {
+		List<Try<?>> argSuppliers = List.of(argumentSuppliers);
 
-		// gather classes of method args
-		List<Class<? extends Object>> argClasses = List.of(createMethodArgs)
-				.map(o -> o.getClass());
-
-		// get corresponding create method for Entity from EntityFactory
-		// TODO anehmer on 2017-11-22: refactor using Try
-		entity = Option.ofOptional(connectorService.getContextByName(sourceName)
+		// get corresponding create method for entityClass from EntityFactory
+		return Try.of(() -> connectorService.getContextByName(sourceName)
 				.getEntityFactory())
-				.map(factory -> {
-					try {
-						return (T) Stream.of(EntityFactory.class.getMethods())
-								// find method with the return type matching entityClass
-								.filter(m -> m.getReturnType()
-										.equals(entityClass))
-								.filter(m -> Arrays.asList(m.getParameterTypes())
-										.equals(argClasses.toJavaList()))
-								.getOrElseThrow(() -> {
-									throw new MDMEntityAccessException(
-											"No matching create()-method found for EntityType "
-													+ entityClass.getSimpleName() + " taking the parameters "
-													+ Stream.of(createMethodArgs)
-															.map(o -> o.getClass()
-																	.getName())
-															.collect(Collectors.toList()));
-								})
-								.invoke(factory, createMethodArgs);
-					} catch (Exception e) {
-						throw new MDMEntityAccessException(e.getMessage(), e);
-					}
-				});
+				.mapTry(factory -> (T) Stream.of(EntityFactory.class.getMethods())
+						// find method with the return type matching entityClass
+						.filter(m -> m.getReturnType()
+								.equals(entityClass))
+						.filter(m -> Arrays.asList(m.getParameterTypes())
+								// compare argument types
+								.equals(argSuppliers.map(s -> s.get()
+										.getClass())
+										.toJavaList()))
+						.getOrElseThrow(() -> new NoSuchMethodException(
+								"No matching create()-method found for EntityType " + entityClass.getSimpleName()
+										+ " taking the parameters " + argSuppliers.map(s -> s.get()
+												.getClass()
+												.getName())
+												.collect(Collectors.joining(", "))))
+						// invoke with given arguments
+						.invoke(factory.get(), argSuppliers.map(s -> s.get())
+								.toJavaArray()))
 
-		// start transaction to create the entity
-		return entity.toTry()
+				// start transaction to create the entity
 				.map(e -> DataAccessHelper.execute(getEntityManager(sourceName).get(), e, DataAccessHelper.CREATE));
 	}
 
 	/**
-	 * Updates the {@link Entity} with the given identifier with the values in the
-	 * given map.
+	 * Updates the given {@link Entity} with the values of the given map provided by
+	 * the {@code valueMapSupplier}.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @param entityClass
-	 *            the class of the entity to update
-	 * @param id
-	 *            id of the {@link Entity} to update
-	 * @param values
-	 *            map of values to update the entity with according to matching
-	 *            attribute values by name case sensitive
+	 * @param entity
+	 *            the entity to update
+	 * @param valueMapSupplier
+	 *            {@link Supplier<Map<String, Object>> of a map of values to update
+	 * the entity with according to matching attribute values by name case sensitive
+	 * @return a {@link Try} of the updated entity
 	 */
-	public <T extends Entity> Try<T> update(String sourceName, Class<T> entityClass, String id,
-			Map<String, Object> values) {
-
-		return update(sourceName, entityClass, id, values, null, (String[]) null);
-	}
-
-	/**
-	 * Updates the {@link Entity} with the given identifier with the given parent(s)
-	 * with the values in the given map.
-	 * 
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @param entityClass
-	 *            the class of the entity to update
-	 * @param id
-	 *            id of the {@link Entity} to update
-	 * @param values
-	 *            map of values to update the entity with according to matching
-	 *            attribute values by name case sensitive
-	 * @param parentIds
-	 * @see #update(String, Class, String, Map, ContextType, String...)
-	 */
-	public <T extends Entity> Try<T> update(String sourceName, Class<T> entityClass, String id,
-			Map<String, Object> values, String... parentIds) {
-
-		return update(sourceName, entityClass, id, values, null, parentIds);
-	}
-
-	/**
-	 * Updates the {@link Entity} of the given contextType with the given identifier
-	 * with the values in the given map.
-	 * 
-	 * @param entityClass
-	 *            the class of the entity to update
-	 * @param contextType
-	 *            the {@link ContextType) of the entities to update
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @param id
-	 *            id of the entity to update
-	 * @param values
-	 *            map of values to update the entity with according to matching
-	 *            attribute values by name case sensitive
-	 * @param contextType
-	 *            the {@link ContextType) of the entities to update
-	 * @param parentIds
-	 *            see
-	 *            {@link EntityService#find(String, Class, String, ContextType, String...)}
-	 * @return {@link Option} of the deleted entity
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends Entity> Try<T> update(String sourceName, Class<T> entityClass, String id,
-			Map<String, Object> values, ContextType contextType, String... parentIds) {
+	public <T extends Entity> Try<T> update(String sourceName, Try<T> entity,
+			Try<Map<String, Object>> valueMapSupplier) {
 		// return updated entity
-		return find(sourceName, entityClass, id, contextType, parentIds)
-				// update entity values
-				.map(entity -> ResourceHelper.updateEntityValues(entity, values))
+		return
+		// update entity values
+		entity.map(e -> ServiceUtils.updateEntityValues(e, valueMapSupplier.get()))
 				// persist entity
-				.map(entity -> DataAccessHelper.execute(getEntityManager(sourceName).get(), entity.get(),
+				.map(e -> DataAccessHelper.execute(getEntityManager(sourceName).get(), e.get(),
 						DataAccessHelper.UPDATE));
 	}
 
 	/**
-	 * Deletes the {@link Entity} with the given identifier.
+	 * Deletes the given {@link Entity} {@code valueMapSupplier}.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @param entityClass
-	 *            class of the {@link Entity} to delete
-	 * @param id
-	 *            id of the entity to delete
+	 * @param entity
+	 *            the entity to delete
+	 * @return a {@link Try} of the deleted entity
 	 */
-	public <T extends Entity> Try<T> delete(String sourceName, Class<T> entityClass, String id) {
-		return delete(sourceName, entityClass, id, null, (String[]) null);
+	public <T extends Entity> Try<T> delete(String sourceName, Try<T> entity) {
+		return entity
+				.map(e -> DataAccessHelper.execute(getEntityManager(sourceName).get(), e, DataAccessHelper.DELETE));
 	}
 
 	/**
-	 * Deletes the {@link Entity} with the given identifier with the given
-	 * parent(s).
+	 * Returns a {@link Try} of the the {@link SearchAttribute}s for the given
+	 * entityClass
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @param entityClass
-	 *            class of the {@link Entity} to delete
-	 * @param id
-	 *            id of the entity to delete
-	 * @param parentIds
-	 * @see #delete(String, Class, String, ContextType, String...)
-	 */
-	public <T extends Entity> Try<T> delete(String sourceName, Class<T> entityClass, String id, String... parentIds) {
-		return delete(sourceName, entityClass, id, null, parentIds);
-	}
-
-	/**
-	 * Deletes the {@link Entity} with the given identifier.
-	 * 
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @param entityClass
-	 *            class of the {@link Entity} to delete
-	 * @param id
-	 *            id of the entity to delete
-	 * @param contextType
-	 *            the {@link ContextType) of the entities to delete
-	 * @param parentIds
-	 *            see
-	 *            {@link EntityService#find(String, Class, String, ContextType, String...)}
-	 * @return {@link Option} of the deleted entity
-	 */
-	// TODO handle erroneous call to delete on complete lists of ValueList etc.
-	public <T extends Entity> Try<T> delete(String sourceName, Class<T> entityClass, String id, ContextType contextType,
-			String... parentIds) {
-		return find(sourceName, entityClass, id, contextType, parentIds).map(entity -> DataAccessHelper
-				.execute(getEntityManager(sourceName).get(), entity, DataAccessHelper.DELETE));
-	}
-
-	/**
-	 * Returns the {@link SearchAttribute}s for the given entityClass
-	 * 
 	 * @param entityClass
 	 *            class of the {@link Entity} to get the {@link SearchAttribute}s
 	 *            for
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @return the {@link SearchAttribute}s
+	 * 
+	 * @return a {@link Try} with the {@link SearchAttribute}s
 	 */
-	public <T extends Entity> List<SearchAttribute> getSearchAttributes(Class<T> entityClass, String sourceName) {
-		List<SearchAttribute> searchAttributes = null;
-
-		searchAttributes = List.ofAll(this.searchActivity
-				.listAvailableAttributes(connectorService.getContextByName(sourceName), entityClass));
-
-		// return empty list if nothing was found just in case the backend methods would
-		// return null
-		return searchAttributes != null ? searchAttributes : List.empty();
+	public <T extends Entity> Try<List<SearchAttribute>> getSearchAttributesSupplier(String sourceName, Class<T> entityClass) {
+		return Try.of(() -> List.ofAll(this.searchActivity
+				.listAvailableAttributes(connectorService.getContextByName(sourceName), entityClass)));
 	}
 
 	/**
-	 * Returns the localized {@link Entity} type name
+	 * Returns a {@link Try} of the localized {@link Entity} type name
 	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @param entityClass
 	 *            class of the {@link Entity} to be localized
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @return the localized {@link Entity} type name
+	 * 
+	 * @return a {@link Try} with the localized {@link Entity} type name
 	 */
-	public <T extends Entity> Map<EntityType, String> localizeType(Class<T> entityClass, String sourceName) {
-		return HashMap.ofAll(this.i18nActivity.localizeType(sourceName, entityClass));
+	public <T extends Entity> Try<Map<EntityType, String>> getLocalizeTypeSupplier(String sourceName, Class<T> entityClass) {
+		return Try.of(() -> HashMap.ofAll(this.i18nActivity.localizeType(sourceName, entityClass)));
 	}
 
 	/**
-	 * Returns localized {@link Entity} attributes
+	 * Returns a {@link Try} of the localized {@link Entity} attributes
 	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
 	 * @param entityClass
 	 *            class of the {@link Entity} to be localized
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
-	 * @return the localized {@link Entity} attributes
+	 * @return a {@link Try} with the the localized {@link Entity} attributes
 	 */
-	public <T extends Entity> Map<Attribute, String> localizeAttributes(Class<T> entityClass, String sourceName) {
-		return HashMap.ofAll(this.i18nActivity.localizeAttributes(sourceName, entityClass));
-	}
-
-	/**
-	 * Sets the parent {@link Entity} for a given {@link Entity}. A
-	 * {@link ContextType} can be specified for the parent entity.
-	 * 
-	 * @param entity
-	 *            entity to set as parent
-	 * @param parent
-	 *            parent entity to set
-	 * @param contextType
-	 *            contextType of parent entity or null if not applicable
-	 */
-	public static void setParentEntity(Entity entity, Entity parent, ContextType contextType) {
-		Method GET_CORE_METHOD;
-		try {
-			GET_CORE_METHOD = BaseEntity.class.getDeclaredMethod("getCore");
-			GET_CORE_METHOD.setAccessible(true);
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new IllegalStateException(
-					"Unable to load 'getCore()' in class '" + BaseEntity.class.getSimpleName() + "'.", e);
-		}
-		// use appropriate set-method
-		if (contextType != null) {
-			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
-						.set(parent, contextType);
-				return null;
-			})
-					// TODO onFailure not triggering
-					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
-		} else {
-			Try.of(() -> {
-				((Core) GET_CORE_METHOD.invoke(entity)).getPermanentStore()
-						.set(parent);
-				return null;
-			})
-					.onFailure(ResourceHelper.rethrowAsWebApplicationException);
-
-		}
+	public <T extends Entity> Try<Map<Attribute, String>> getLocalizeAttributesSupplier(String sourceName, Class<T> entityClass) {
+		return Try.of(() -> HashMap.ofAll(this.i18nActivity.localizeAttributes(sourceName, entityClass)));
 	}
 
 	/**

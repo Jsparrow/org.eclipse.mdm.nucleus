@@ -40,11 +40,11 @@ import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.CatalogSensor;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateSensor;
-import org.eclipse.mdm.businessobjects.boundary.utils.EntityNotFoundException;
 import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.EntityNotFoundException;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
 import io.vavr.collection.Map;
@@ -64,8 +64,8 @@ public class TemplateSensorResource {
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link TemplateSensor}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the found {@link TemplateSensor}.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -85,7 +85,7 @@ public class TemplateSensorResource {
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateSensor.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				// TODO anehmer on 2017-11-09: send reponse or error regarding error
 				// expressiveness
 				.get();
@@ -93,8 +93,8 @@ public class TemplateSensorResource {
 	}
 
 	/**
-	 * Returns the (filtered) {@link TemplateSensor}s. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the (filtered) {@link TemplateSensor}s.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -111,19 +111,21 @@ public class TemplateSensorResource {
 		return Try
 				.of(() -> entityService.find(sourceName, TemplateComponent.class, tplCompId, ContextType.TESTEQUIPMENT,
 						tplRootId))
-				.map(maybeTplComp -> maybeTplComp.map(TemplateComponent::getTemplateSensors).get())
+				.map(maybeTplComp -> maybeTplComp.map(TemplateComponent::getTemplateSensors)
+						.get())
 				.map(e -> new MDMEntityResponse(TemplateSensor.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
+				.get();
 	}
 
 	/**
-	 * Returns the created {@link TemplateSensorValue}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the created {@link TemplateSensorValue}.
+	 * 
 	 * 
 	 * @param body
 	 *            The {@link TemplateSensor} to create.
-	 * @return The created {@link TemplateSensor} as {@link Response}.
+	 * @return the created {@link TemplateSensor} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -133,13 +135,19 @@ public class TemplateSensorResource {
 
 		// get name
 		Try<Map<String, Object>> mapper = ResourceHelper.deserializeJSON(body);
-		String name = mapper.map(map -> map.get(ENTITYATTRIBUTE_NAME).get().toString())
+		String name = mapper.map(map -> map.get(ENTITYATTRIBUTE_NAME)
+				.get()
+				.toString())
 				.getOrElseThrow(x -> new IllegalArgumentException("Name of TemplateSensor missing in request"));
 
-		String quantityId = mapper.map(map -> map.get(ENTITYATTRIBUTE_QUANTITY_ID).get().toString())
+		String quantityId = mapper.map(map -> map.get(ENTITYATTRIBUTE_QUANTITY_ID)
+				.get()
+				.toString())
 				.getOrElseThrow(() -> new IllegalArgumentException("Id of Quantity missing in request"));
 
-		String catSensorId = mapper.map(map -> map.get(ENTITYATTRIBUTE_CATALOGSENSOR_ID).get().toString())
+		String catSensorId = mapper.map(map -> map.get(ENTITYATTRIBUTE_CATALOGSENSOR_ID)
+				.get()
+				.toString())
 				.getOrElseThrow(x -> new IllegalArgumentException("Id of CatalogSensor missing in request"));
 
 		TemplateComponent tplComp = entityService
@@ -155,10 +163,9 @@ public class TemplateSensorResource {
 		Quantity quantity = entityService.find(sourceName, Quantity.class, quantityId)
 				.getOrElseThrow(() -> new IllegalArgumentException("Quantity not found"));
 
-		return Try
-				.of(() -> entityService.create(TemplateSensor.class, sourceName, name, tplComp, catSensor, quantity)
-						.get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+		return Try.of(() -> entityService.create(TemplateSensor.class, sourceName, name, tplComp, catSensor, quantity)
+				.get())
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateSensor.class, entity), Status.OK))
 				.get();
 	}
@@ -189,16 +196,17 @@ public class TemplateSensorResource {
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateSensor.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
+				.get();
 	}
 
 	/**
-	 * Returns the deleted {@link TemplateSensor}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Deletes and returns the deleted {@link TemplateSensor}.
+	 * 
 	 * 
 	 * @param id
 	 *            The identifier of the {@link TemplateSensor} to delete.
-	 * @return The deleted {@link TemplateSensor }s as {@link Response}
+	 * @return the deleted {@link TemplateSensor }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
@@ -209,40 +217,40 @@ public class TemplateSensorResource {
 		return Try
 				.of(() -> entityService.delete(sourceName, TemplateSensor.class, id, ContextType.TESTEQUIPMENT,
 						tplRootId, tplCompId))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				// TODO add check for result.isPresent()
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateSensor.class, result.get()),
+				.map(result -> ResourceHelper.toResponse(new MDMEntityResponse(TemplateSensor.class, result.get()),
 						Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the search attributes for the {@link TemplateSensor} type. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the search attributes for the {@link TemplateSensor} type.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The {@link SearchAttribute}s as {@link Response}
+	 * @return the {@link SearchAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, TemplateSensor.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(entityService, TemplateSensor.class, sourceName);
 	}
 
 	/**
-	 * Returns a map of localization for the entity type and the attributes. Throws
-	 * a {@link WebApplicationException} on error.
+	 * Returns a map of localization for the entity type and the attributes.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The I18N as {@link Response}
+	 * @return the I18N as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, TemplateSensor.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(entityService, TemplateSensor.class, sourceName);
 	}
 }

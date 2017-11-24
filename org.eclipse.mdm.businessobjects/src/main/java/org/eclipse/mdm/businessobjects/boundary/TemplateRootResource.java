@@ -60,8 +60,8 @@ public class TemplateRootResource {
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link TemplateRoot}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the found {@link TemplateRoot}.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -76,20 +76,20 @@ public class TemplateRootResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+		return Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
 				.map(contextType -> entityService.find(sourceName, TemplateRoot.class, id, contextType))
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.get()))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.map(r -> ResourceHelper.toResponse(r, Status.OK))
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
 	}
 
 	/**
-	 * Returns the (filtered) {@link TemplateRoot}s. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the (filtered) {@link TemplateRoot}s.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -103,22 +103,22 @@ public class TemplateRootResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
-		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+		return Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
 				.map(contextType -> entityService.findAll(sourceName, TemplateRoot.class, filter, contextType))
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(TemplateRoot.class, e.toJavaList()))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.map(r -> ResourceHelper.toResponse(r, Status.OK))
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.get();
 	}
 
 	/**
-	 * Returns the created {@link TemplateRootValue}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the created {@link TemplateRootValue}.
+	 * 
 	 * 
 	 * @param body
 	 *            The {@link TemplateRoot} to create.
-	 * @return The created {@link TemplateRoot} as {@link Response}.
+	 * @return the created {@link TemplateRoot} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -134,18 +134,18 @@ public class TemplateRootResource {
 					// TODO correct to use onFailure instead of getOrThrow
 				}))
 				// TODO do we really need this or is the failure handled later nevertheless
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.toOption()
 				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
 				// TODO handle non existing value
 				// create tuple for name and contextType
 				.map((Object name) -> new Tuple2<String, ContextType>(name.toString(),
-						ResourceHelper.mapContextType(contextTypeParam)))
+						ServiceUtils.getContextTypeSupplier(contextTypeParam)))
 				.toTry()
 				// create catalog component
 				.map(tuple -> entityService.create(TemplateRoot.class, sourceName, tuple._2, tuple._1)
 						.get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, entity), Status.OK))
 				.get();
 	}
@@ -171,63 +171,63 @@ public class TemplateRootResource {
 			String body) {
 		return ResourceHelper.deserializeJSON(body)
 				.map(valueMap -> entityService.update(sourceName, TemplateRoot.class, id, valueMap,
-						ResourceHelper.mapContextType(contextTypeParam)))
+						ServiceUtils.getContextTypeSupplier(contextTypeParam)))
 				// TODO if update returns ??? and entity is Option(none), why is the following
 				// map() executed?
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.get();
 	}
 
 	/**
-	 * Returns the deleted {@link TemplateRoot}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Deletes and returns the deleted {@link TemplateRoot}.
+	 * 
 	 * 
 	 * @param id
 	 *            The identifier of the {@link TemplateRoot} to delete.
-	 * @return The deleted {@link TemplateRoot }s as {@link Response}
+	 * @return the deleted {@link TemplateRoot }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> ResourceHelper.mapContextType(contextTypeParam))
+		return Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
 				.map(contextType -> entityService.delete(sourceName, TemplateRoot.class, id, contextType)
 						.get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateRoot.class, result), Status.OK))
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
+				.map(result -> ResourceHelper.toResponse(new MDMEntityResponse(TemplateRoot.class, result), Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the search attributes for the {@link TemplateRoot} type. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the search attributes for the {@link TemplateRoot} type.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The {@link SearchAttribute}s as {@link Response}
+	 * @return the {@link SearchAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, TemplateRoot.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(entityService, TemplateRoot.class, sourceName);
 	}
 
 	/**
-	 * Returns a map of localization for the entity type and the attributes. Throws
-	 * a {@link WebApplicationException} on error.
+	 * Returns a map of localization for the entity type and the attributes.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The I18N as {@link Response}
+	 * @return the I18N as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, TemplateRoot.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(entityService, TemplateRoot.class, sourceName);
 	}
 }

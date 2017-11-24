@@ -64,8 +64,8 @@ public class CatalogSensorResource {
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link CatalogSensor}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the found {@link CatalogSensor}.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -80,21 +80,20 @@ public class CatalogSensorResource {
 			@PathParam(REQUESTPARAM_ID) String catCompId, @PathParam(REQUESTPARAM_ID2) String id) {
 		// TODO anehmer on 2017-11-17: why does this work without passing the CatComp?
 		return Try
-				.of(() -> entityService.find(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
-						catCompId))
+				.of(() -> entityService.find(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT, catCompId))
 				// TODO handle failure and respond to client appropriately. How can we deliver
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(CatalogSensor.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
 	}
 
 	/**
-	 * Returns the (filtered) {@link CatalogSensor}s. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the (filtered) {@link CatalogSensor}s.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -108,23 +107,23 @@ public class CatalogSensorResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String catCompId, @QueryParam("filter") String filter) {
-		return Try
-				.of(() -> entityService
-						.find(sourceName, CatalogComponent.class, catCompId, ContextType.TESTEQUIPMENT)
-						.map(catComp -> catComp.getCatalogSensors()).get())
+		return Try.of(() -> entityService.find(sourceName, CatalogComponent.class, catCompId, ContextType.TESTEQUIPMENT)
+				.map(catComp -> catComp.getCatalogSensors())
+				.get())
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(CatalogSensor.class, e))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
+				.get();
 	}
 
 	/**
-	 * Returns the created {@link CatalogSensor}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the created {@link CatalogSensor}.
+	 * 
 	 * 
 	 * @param body
 	 *            The {@link CatalogSensor} to create.
-	 * @return The created {@link CatalogSensor} as {@link Response}.
+	 * @return the created {@link CatalogSensor} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -137,21 +136,26 @@ public class CatalogSensorResource {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> mapping = (Map<String, Object>) Try
 				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
-				})).get();
+				}))
+				.get();
 
 		// get name
-		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME).toString()).toOption();
+		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
+				.toString())
+				.toOption();
 
 		// get contextType
-		Option<ContextType> contextType = Try.of(() -> ResourceHelper.mapContextType(contextTypeParam)).toOption();
+		Option<ContextType> contextType = Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
+				.toOption();
 
 		// get catalog component
 		Option<CatalogComponent> catComp = Try
 				.of(() -> entityService.find(sourceName, CatalogComponent.class, catCompId, contextType.get()))
 				.get();
 
-		return Try.of(() -> entityService.create(CatalogSensor.class, sourceName, name.get(), catComp.get()).get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+		return Try.of(() -> entityService.create(CatalogSensor.class, sourceName, name.get(), catComp.get())
+				.get())
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, entity), Status.OK))
 				.get();
 	}
@@ -179,18 +183,19 @@ public class CatalogSensorResource {
 						ContextType.TESTEQUIPMENT, catCompId))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(CatalogSensor.class, entity.get()),
 						Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException).get();
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
+				.get();
 	}
 
 	/**
-	 * Returns the deleted {@link CatalogSensor}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Deletes and returns the deleted {@link CatalogSensor}.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
 	 *            The identifier of the {@link CatalogSensor} to delete.
-	 * @return The deleted {@link CatalogSensor }s as {@link Response}
+	 * @return the deleted {@link CatalogSensor }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
@@ -200,38 +205,39 @@ public class CatalogSensorResource {
 		return Try
 				.of(() -> entityService.delete(sourceName, CatalogSensor.class, id, ContextType.TESTEQUIPMENT,
 						catCompId))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException).map(result -> ServiceUtils
-						.toResponse(new MDMEntityResponse(CatalogSensor.class, result.get()), Status.OK))
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
+				.map(result -> ResourceHelper.toResponse(new MDMEntityResponse(CatalogSensor.class, result.get()),
+						Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the search attributes for the {@link CatalogSensor} type. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the search attributes for the {@link CatalogSensor} type.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The {@link SearchAttribute}s as {@link Response}
+	 * @return the {@link SearchAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, CatalogSensor.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(entityService, CatalogSensor.class, sourceName);
 	}
 
 	/**
-	 * Returns a map of localization for the entity type and the attributes. Throws
-	 * a {@link WebApplicationException} on error.
+	 * Returns a map of localization for the entity type and the attributes.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The I18N as {@link Response}
+	 * @return the I18N as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, CatalogSensor.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(entityService, CatalogSensor.class, sourceName);
 	}
 }

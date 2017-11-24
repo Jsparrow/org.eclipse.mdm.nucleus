@@ -45,19 +45,14 @@ public class TemplateSensorResourceIntegrationTest extends EntityResourceIntegra
 		setContextClass(TemplateSensorResourceIntegrationTest.class);
 
 		// set up test data
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/"
-				+ getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/"
-				+ getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-				+ "/tplsensors");
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/" + getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/" + getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplsensors");
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testTplSensor");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateSensor");
 
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
-		json.add("catalogsensor",
-				new JsonPrimitive(getTestDataValue(CatalogSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
-		json.add("quantity",
-				new JsonPrimitive(getTestDataValue(QuantityResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("catalogsensor", new JsonPrimitive(getTestDataValue(CatalogSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("quantity", new JsonPrimitive(getTestDataValue(QuantityResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}

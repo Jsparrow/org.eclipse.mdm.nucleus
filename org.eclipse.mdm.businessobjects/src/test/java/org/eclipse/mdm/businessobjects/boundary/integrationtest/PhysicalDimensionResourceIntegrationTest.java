@@ -36,8 +36,7 @@ public class PhysicalDimensionResourceIntegrationTest extends EntityResourceInte
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "PhysicalDimension");
 
 		JsonObject json = new JsonObject();
-		json.add("name",
-				new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 }

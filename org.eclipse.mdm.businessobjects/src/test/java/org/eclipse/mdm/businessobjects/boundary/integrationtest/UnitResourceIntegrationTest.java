@@ -41,11 +41,9 @@ public class UnitResourceIntegrationTest extends EntityResourceIntegrationTest {
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "Unit");
 
 		JsonObject json = new JsonObject();
-		json.add("name",
-				new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
-		json.add("physicaldimension", new JsonPrimitive(
-				getTestDataValue(PhysicalDimensionResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("physicaldimension", new JsonPrimitive(getTestDataValue(PhysicalDimensionResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 

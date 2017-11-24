@@ -62,8 +62,7 @@ public class QuantityResource {
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link Quantity}. Throws a {@link WebApplicationException}
-	 * on error.
+	 * Returns the found {@link Quantity}. {@link WebApplicationException} on error.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -80,15 +79,15 @@ public class QuantityResource {
 				// error messages from down the callstack? Use Exceptions or some Vavr magic?
 				.map(e -> new MDMEntityResponse(Quantity.class, e.get()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				// TODO send reponse or error regarding error expressiveness
 				.get();
 
 	}
 
 	/**
-	 * Returns the (filtered) {@link Quantity}s. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the (filtered) {@link Quantity}s.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -104,18 +103,17 @@ public class QuantityResource {
 				// TODO what if e is not found? Test!
 				.map(e -> new MDMEntityResponse(Quantity.class, e.toJavaList()))
 				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.get();
 	}
 
 	// TODO: implement creation and update of Units
 	/**
-	 * Returns the created {@link Unit}. Throws a {@link WebApplicationException} on
-	 * error.
+	 * Returns the created {@link Unit}. {@link WebApplicationException} on error.
 	 * 
 	 * @param body
 	 *            The {@link Unit} to create.
-	 * @return The created {@link Unit} as {@link Response}.
+	 * @return the created {@link Unit} as {@link Response}.
 	 */
 
 	@POST
@@ -132,18 +130,23 @@ public class QuantityResource {
 				.get();
 
 		// read name of Quantity
-		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME).toString()).toOption();
+		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
+				.toString())
+				.toOption();
 
 		// read default unit id
-		Option<String> defaultUnitId = Try.of(() -> mapping.get(ENTITYATTRIBUTE_UNIT_ID).toString()).toOption();
+		Option<String> defaultUnitId = Try.of(() -> mapping.get(ENTITYATTRIBUTE_UNIT_ID)
+				.toString())
+				.toOption();
 
 		// load default unit
 		Option<Unit> defaultUnit = Try.of(() -> entityService.find(sourceName, Unit.class, defaultUnitId.get()))
 				.get();
 
 		// create
-		return Try.of(() -> entityService.create(Quantity.class, sourceName, name.get(), defaultUnit.get()).get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+		return Try.of(() -> entityService.create(Quantity.class, sourceName, name.get(), defaultUnit.get())
+				.get())
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Quantity.class, entity), Status.OK))
 				.get();
 
@@ -170,58 +173,59 @@ public class QuantityResource {
 		return ResourceHelper.deserializeJSON(body)
 				.map(valueMap -> entityService.update(sourceName, Quantity.class, id, valueMap))
 				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Quantity.class, entity.get()), Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
 				.get();
 	}
 
 	/**
-	 * Returns the deleted {@link Quantity}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Deletes and returns the deleted {@link Quantity}.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
 	 *            The identifier of the {@link Quantity} to delete.
-	 * @return The deleted {@link Quantity }s as {@link Response}
+	 * @return the deleted {@link Quantity }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> entityService.delete(sourceName, Quantity.class, id).get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(Quantity.class, result), Status.OK))
+		return Try.of(() -> entityService.delete(sourceName, Quantity.class, id)
+				.get())
+				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
+				.map(result -> ResourceHelper.toResponse(new MDMEntityResponse(Quantity.class, result), Status.OK))
 				.get();
 	}
 
 	/**
-	 * Returns the search attributes for the {@link Quantity} type. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the search attributes for the {@link Quantity} type.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The {@link SearchAttribute}s as {@link Response}
+	 * @return the {@link SearchAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, Quantity.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(entityService, Quantity.class, sourceName);
 	}
 
 	/**
-	 * Returns a map of localization for the entity type and the attributes. Throws
-	 * a {@link WebApplicationException} on error.
+	 * Returns a map of localization for the entity type and the attributes.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The I18N as {@link Response}
+	 * @return the I18N as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, Quantity.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(entityService, Quantity.class, sourceName);
 	}
 }

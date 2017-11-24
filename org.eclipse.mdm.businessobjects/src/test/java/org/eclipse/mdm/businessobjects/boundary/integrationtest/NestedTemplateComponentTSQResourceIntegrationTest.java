@@ -42,17 +42,13 @@ public class NestedTemplateComponentTSQResourceIntegrationTest extends EntityRes
 		// set up test data
 		setContextClass(NestedTemplateComponentTSQResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testsequence/"
-				+ getTestDataValue(TemplateRootTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/"
-				+ getTestDataValue(TemplateComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-				+ "/tplcomps");
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testsequence/" + getTestDataValue(TemplateRootTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/" + getTestDataValue(TemplateComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps");
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testNestedTplCompTSQ");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateComponent");
 
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
-		json.add("catalogcomponent", new JsonPrimitive(
-				getTestDataValue(CatalogComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("catalogcomponent", new JsonPrimitive(getTestDataValue(CatalogComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 

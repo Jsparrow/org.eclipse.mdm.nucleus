@@ -45,6 +45,8 @@ import io.vavr.collection.Set;
  *
  */
 // TODO anehmer on 2017-11-23: test for specific return codes
+// TODO anehmer on 2017-11-24: expand tests to localization and search attribute
+// information
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class EntityResourceIntegrationTest {
 

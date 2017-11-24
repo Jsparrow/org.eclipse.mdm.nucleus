@@ -42,20 +42,13 @@ public class TemplateAttributeTEQResourceIntegrationTest extends EntityResourceI
 		setContextClass(TemplateAttributeTEQResourceIntegrationTest.class);
 
 		// set up test data
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/"
-				+ getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/"
-				+ getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class,
-						TESTDATA_ENTITY_ID)
-				+ "/tplattrs");
-		putTestDataValue(TESTDATA_ENTITY_NAME,
-				getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME));
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/" + getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/" + getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplattrs");
+		putTestDataValue(TESTDATA_ENTITY_NAME, getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME));
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateAttribute");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(
-				getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
-		json.add("catalogattribute", new JsonPrimitive(
-				getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("name", new JsonPrimitive(getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
+		json.add("catalogattribute", new JsonPrimitive(getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		// delete the implicitly created TemplateAttribute

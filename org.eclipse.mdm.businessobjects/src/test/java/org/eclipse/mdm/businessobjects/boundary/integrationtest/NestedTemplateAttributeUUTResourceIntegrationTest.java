@@ -42,20 +42,13 @@ public class NestedTemplateAttributeUUTResourceIntegrationTest extends EntityRes
 		setContextClass(NestedTemplateAttributeUUTResourceIntegrationTest.class);
 
 		// set up test data
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/unitundertest/"
-				+ getTestDataValue(TemplateRootUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/"
-				+ getTestDataValue(TemplateComponentUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/"
-				+ getTestDataValue(NestedTemplateComponentUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-				+ "/tplattrs");
-		putTestDataValue(TESTDATA_ENTITY_NAME,
-				getTestDataValue(CatalogAttributeUUTResourceIntegrationTest.class, TESTDATA_ENTITY_NAME));
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/unitundertest/" + getTestDataValue(TemplateRootUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/" + getTestDataValue(TemplateComponentUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/" + getTestDataValue(NestedTemplateComponentUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplattrs");
+		putTestDataValue(TESTDATA_ENTITY_NAME, getTestDataValue(CatalogAttributeUUTResourceIntegrationTest.class, TESTDATA_ENTITY_NAME));
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateAttribute");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(
-				getTestDataValue(CatalogAttributeUUTResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
-		json.add("catalogattribute", new JsonPrimitive(
-				getTestDataValue(CatalogAttributeUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("name", new JsonPrimitive(getTestDataValue(CatalogAttributeUUTResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
+		json.add("catalogattribute", new JsonPrimitive(getTestDataValue(CatalogAttributeUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		// delete the implicitly created NestedTemplateAttribute

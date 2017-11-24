@@ -25,7 +25,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -33,23 +32,12 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.ValueList;
 import org.eclipse.mdm.api.dflt.model.ValueListValue;
-import org.eclipse.mdm.businessobjects.boundary.utils.RequestBody;
-import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.control.Option;
-import io.vavr.control.Try;
 
 /**
  * {@link ValueListValue} resource handling REST requests
@@ -64,8 +52,7 @@ public class ValueListValueResource {
 	private EntityService entityService;
 
 	/**
-	 * Returns the found {@link ValueListValue}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the found {@link ValueListValue}.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -80,13 +67,13 @@ public class ValueListValueResource {
 			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id) {
 		return entityService.find(sourceName, ValueListValue.class, id, valueListId)
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
-				.recover(ResourceHelper.respondToError())
-				.getOrElse(ResourceHelper.SERVER_ERROR);
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Returns the (filtered) {@link ValueListValue}s. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the (filtered) {@link ValueListValue}s.
+	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -102,13 +89,12 @@ public class ValueListValueResource {
 		return entityService.find(sourceName, ValueList.class, valueListId)
 				.map(valueList -> List.ofAll(valueList.getValueListValues()))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
-				.recover(ResourceHelper.respondToError())
-				.getOrElse(ResourceHelper.SERVER_ERROR);
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Returns the created {@link ValueListValue}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the created {@link ValueListValue}.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -116,64 +102,26 @@ public class ValueListValueResource {
 	 *            id of the {@link ValueList} to create to value for
 	 * @param body
 	 *            The {@link ValueListValue} to create.
-	 * @return The created {@link ValueListValue} as {@link Response}.
+	 * @return the created {@link ValueListValue} as {@link Response}.
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, String body) {
-		Try<RequestBody> requestBodyTry = RequestBody.create(body);
-		RequestBody requestBody;
-		if (requestBodyTry.isFailure()) {
-			// TODO anehmer on 2017-11-23: logging
-			return ServiceUtils.buildErrorResponse(requestBodyTry.getCause(), Status.BAD_REQUEST);
-		}
-		requestBody = requestBodyTry.get();
-		// deserialize JSON into object map
-		return ResourceHelper.deserializeJSON(body)
-				// TODO anehmer on 2017-11-23: what about deserialization errors and value not
-				// found?
-				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME)
-						.map(name -> name.toString()))
-				.transform(name -> entityService.create(ValueList.class, sourceName, name.get()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
-				.recover(ResourceHelper.respondToError())
-				.getOrElse(ResourceHelper.SERVER_ERROR);
+		RequestBody requestBody = RequestBody.create(body);
 
-		return Try.<Map<String, Object>>of(() -> HashMap
-				.ofAll(new ObjectMapper().readValue(body, new TypeReference<java.util.Map<String, Object>>() {
-					// TODO correct to use onFailure instead of getOrThrow
-				})))
-				// TODO do we really need this or is the failure handleed later nevertheless
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
-				// create tuple with name of ValueListValue and null as the ValueList
-				.map(name -> Tuple.of(name.map(n -> n.toString())
-						.get(), null))
-				// TODO handle non existing value
-				// get the ValueList
-				.mapTry((Tuple2<String, Object> paramTuple) -> entityService
-						.find(sourceName, ValueList.class, valueListId)
-						.map(valueList -> {
-							return paramTuple.update2(valueList);
-						}))
-				// create ValueListValue
-				.mapTry((Option<Tuple2<String, Object>> paramTuple) -> {
-					return entityService.<ValueListValue>create(ValueListValue.class, sourceName, paramTuple.get()._1,
-							(ValueList) paramTuple.get()._2);
-				})
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				// TODO can't we solve this with transform() according to
-				// http://www.baeldung.com/vavr-try
-				.get()
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity), Status.OK))
-				.get();
+		return entityService
+				.create(sourceName, ValueListValue.class, requestBody.getValueSupplier(ENTITYATTRIBUTE_NAME),
+						entityService.find(sourceName, ValueList.class, valueListId))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Updates the ValueListValue with all parameters set in the given JSON body of
-	 * the request
+	 * the request.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -191,63 +139,61 @@ public class ValueListValueResource {
 			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id, String body) {
 
 		// update entity
-		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> entityService.update(sourceName, ValueListValue.class, id, valueMap, valueListId))
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, entity.get()),
-						Status.OK))
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.get();
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.update(sourceName, entityService.find(sourceName, ValueListValue.class, id, valueListId),
+						requestBody.getValueMapSupplier())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Returns the deleted {@link ValueListValue}. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Deletes and returns the deleted {@link ValueListValue}.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
 	 *            The identifier of the {@link ValueListValue} to delete.
-	 * @return The deleted {@link ValueListValue }s as {@link Response}
+	 * @return the deleted {@link ValueListValue }s as {@link Response}
 	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id) {
-		return Try.of(() -> entityService.delete(sourceName, ValueListValue.class, id, valueListId)
-				.get())
-				.onFailure(ResourceHelper.rethrowAsWebApplicationException)
-				.map(result -> ServiceUtils.toResponse(new MDMEntityResponse(ValueListValue.class, result), Status.OK))
-				.get();
+		return entityService.delete(sourceName, entityService.find(sourceName, ValueListValue.class, id, valueListId))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Returns the search attributes for the {@link ValueListValue} type. Throws a
-	 * {@link WebApplicationException} on error.
+	 * Returns the search attributes for the {@link ValueListValue} type.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The {@link SearchAttribute}s as {@link Response}
+	 * @return the {@link SearchAttribute}s as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createSearchAttributesResponse(entityService, ValueListValue.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(entityService, ValueListValue.class, sourceName);
 	}
 
 	/**
-	 * Returns a map of localization for the entity type and the attributes. Throws
-	 * a {@link WebApplicationException} on error.
+	 * Returns a map of localization for the entity type and the attributes.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @return The I18N as {@link Response}
+	 * @return the I18N as {@link Response}
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ResourceHelper.createLocalizationResponse(entityService, ValueListValue.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(entityService, ValueListValue.class, sourceName);
 	}
 }

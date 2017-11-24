@@ -42,15 +42,13 @@ public class TemplateComponentTEQResourceIntegrationTest extends EntityResourceI
 		// set up test data
 		setContextClass(TemplateComponentTEQResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/"
-				+ getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps");
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/" + getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps");
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testTplCompTEQ");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateComponent");
 
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
-		json.add("catalogcomponent", new JsonPrimitive(
-				getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("catalogcomponent", new JsonPrimitive(getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 

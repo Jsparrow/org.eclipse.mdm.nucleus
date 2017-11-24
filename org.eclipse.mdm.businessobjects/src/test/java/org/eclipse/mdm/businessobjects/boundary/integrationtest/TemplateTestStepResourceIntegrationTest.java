@@ -36,8 +36,7 @@ public class TemplateTestStepResourceIntegrationTest extends EntityResourceInteg
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateTestStep");
 
 		JsonObject json = new JsonObject();
-		json.add("name",
-				new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 }

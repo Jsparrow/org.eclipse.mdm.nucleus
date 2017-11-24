@@ -8,7 +8,7 @@
  * Contributors:
  * Alexander Nehmer - initial implementation
  *******************************************************************************/
-package org.eclipse.mdm.businessobjects.boundary.utils;
+package org.eclipse.mdm.businessobjects.utils;
 
 import org.eclipse.mdm.api.base.model.Entity;
 
