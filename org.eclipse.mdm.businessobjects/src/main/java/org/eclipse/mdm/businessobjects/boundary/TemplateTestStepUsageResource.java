@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
-
-import java.util.UUID;
+import static org.eclipse.mdm.businessobjects.service.EntityService.L;
+import static org.eclipse.mdm.businessobjects.service.EntityService.SL;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -26,7 +28,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -35,14 +36,12 @@ import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.TemplateTest;
 import org.eclipse.mdm.api.dflt.model.TemplateTestStep;
 import org.eclipse.mdm.api.dflt.model.TemplateTestStepUsage;
-import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
-import io.vavr.collection.Map;
-import io.vavr.control.Try;
+import io.vavr.collection.List;
 
 /**
  * {@link TemplateTestStepUsage} resource handling REST requests
@@ -71,16 +70,10 @@ public class TemplateTestStepUsageResource {
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplTestId, @PathParam(REQUESTPARAM_ID2) String id) {
-		return entityService.find(sourceName, TemplateTestStepUsage.class, id, tplTestId)
-				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(TemplateTestStep.class, e))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				// TODO send reponse or error regarding error expressiveness
-				// TODO anehmer on 2017-11-21: get Try from entityService to use Exception to
-				// build response
-				.getOrElse(ServiceUtils.toResponse(new Exception("TemplateTestUsage not found"),
-						Status.INTERNAL_SERVER_ERROR));
-
+		return entityService.find(V(sourceName), TemplateTestStepUsage.class, V(id), SL(tplTestId))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
@@ -97,15 +90,11 @@ public class TemplateTestStepUsageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplTestId, @QueryParam("filter") String filter) {
-		return entityService.find(sourceName, TemplateTest.class, tplTestId)
-				.map(tplTest -> tplTest.getTemplateTestStepUsages())
-				.map(e -> new MDMEntityResponse(TemplateTestStep.class, e))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				// TODO send reponse or error regarding error expressiveness
-				// TODO anehmer on 2017-11-21: get Try from entityService to use Exception to
-				// build response
-				.getOrElse(ServiceUtils.toResponse(new Exception("TemplateTestUsage not found"),
-						Status.INTERNAL_SERVER_ERROR));
+		return entityService.find(V(sourceName), TemplateTest.class, V(tplTestId))
+				.map(tplTest -> List.ofAll(tplTest.getTemplateTestStepUsages()))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
@@ -121,35 +110,17 @@ public class TemplateTestStepUsageResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplTestId, String body) {
-		Try<Map<String, Object>> mapper = ResourceHelper.deserializeJSON(body);
-		// TODO rewrite completely and add not-found / error handling
+		RequestBody requestBody = RequestBody.create(body);
 
-		// get TemplateTest
-		// TODO anehmer on 2017-11-21: what should find() return? Try for further
-		// processing but here Option seems to fit better. BUT: do we want to use get()?
-		// Nope, must be another solution --> should return ErrorResponse as tplTest is
-		// not found -> does onEmpty() work to instantly return Response?
-		TemplateTest tplTest = entityService.find(sourceName, TemplateTest.class, tplTestId)
-				.get();
-
-		// get TemplateTest
-		TemplateTestStep tplTestStep = mapper
-				.mapTry(m -> entityService.find(sourceName, TemplateTestStep.class,
-						m.get(ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID)
-								.get()
-								.toString()))
-				.get()
-				.get();
-
-		return Try.of(() ->
-		// create TemplateTestStepUsage but return TemplateTestStep
-		entityService.create(TemplateTestStepUsage.class, sourceName, UUID.randomUUID()
-				.toString(), tplTest, tplTestStep)
-				.get())
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTestStep.class, entity),
-						Status.OK))
-				.get();
+		return entityService
+				.create(V(sourceName), TemplateTestStepUsage.class,
+						L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
+								entityService.find(V(sourceName), TemplateTest.class, V(tplTestId)),
+								entityService.find(V(sourceName), TemplateTestStep.class,
+										requestBody.getStringValueSupplier(ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID))))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/*
@@ -169,9 +140,12 @@ public class TemplateTestStepUsageResource {
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplTestId, @PathParam(REQUESTPARAM_ID2) String id) {
-		return entityService.delete(sourceName, TemplateTestStepUsage.class, id, tplTestId)
-				.map(e -> ResourceHelper.toResponse(new MDMEntityResponse(TemplateTestStepUsage.class, e), Status.OK))
-				.get();
+		return entityService
+				.delete(V(sourceName),
+						entityService.find(V(sourceName), TemplateTestStepUsage.class, V(id), SL(tplTestId)))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
@@ -186,7 +160,7 @@ public class TemplateTestStepUsageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildSearchAttributesResponse(entityService, TemplateTestStepUsage.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(V(sourceName), TemplateTestStepUsage.class, entityService);
 	}
 
 	/**
@@ -201,6 +175,6 @@ public class TemplateTestStepUsageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildLocalizationResponse(entityService, TemplateTestStepUsage.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(V(sourceName), TemplateTestStepUsage.class, entityService);
 	}
 }

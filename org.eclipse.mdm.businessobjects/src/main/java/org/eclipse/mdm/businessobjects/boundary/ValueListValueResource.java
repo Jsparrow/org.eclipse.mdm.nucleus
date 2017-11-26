@@ -14,6 +14,9 @@ import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYA
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
+import static org.eclipse.mdm.businessobjects.service.EntityService.L;
+import static org.eclipse.mdm.businessobjects.service.EntityService.SL;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -38,7 +41,6 @@ import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
 import io.vavr.collection.List;
-
 /**
  * {@link ValueListValue} resource handling REST requests
  * 
@@ -65,7 +67,7 @@ public class ValueListValueResource {
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id) {
-		return entityService.find(sourceName, ValueListValue.class, id, valueListId)
+		return entityService.find(V(sourceName), ValueListValue.class, V(id), SL(valueListId))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
@@ -73,7 +75,6 @@ public class ValueListValueResource {
 
 	/**
 	 * Returns the (filtered) {@link ValueListValue}s.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -86,7 +87,7 @@ public class ValueListValueResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, @QueryParam("filter") String filter) {
 
-		return entityService.find(sourceName, ValueList.class, valueListId)
+		return entityService.find(V(sourceName), ValueList.class, V(valueListId))
 				.map(valueList -> List.ofAll(valueList.getValueListValues()))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
@@ -112,16 +113,17 @@ public class ValueListValueResource {
 		RequestBody requestBody = RequestBody.create(body);
 
 		return entityService
-				.create(sourceName, ValueListValue.class, requestBody.getValueSupplier(ENTITYATTRIBUTE_NAME),
-						entityService.find(sourceName, ValueList.class, valueListId))
+				.create(V(sourceName), ValueListValue.class,
+						L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
+								entityService.find(V(sourceName), ValueList.class, V(valueListId))))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Updates the ValueListValue with all parameters set in the given JSON body of
-	 * the request.
+	 * Updates the {@link ValueListValue} with all parameters set in the given JSON
+	 * body of the request.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -137,12 +139,10 @@ public class ValueListValueResource {
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id, String body) {
-
-		// update entity
 		RequestBody requestBody = RequestBody.create(body);
 
 		return entityService
-				.update(sourceName, entityService.find(sourceName, ValueListValue.class, id, valueListId),
+				.update(V(sourceName), entityService.find(V(sourceName), ValueListValue.class, V(id), SL(valueListId)),
 						requestBody.getValueMapSupplier())
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
@@ -163,7 +163,8 @@ public class ValueListValueResource {
 	@Path("/{" + REQUESTPARAM_ID2 + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id) {
-		return entityService.delete(sourceName, entityService.find(sourceName, ValueListValue.class, id, valueListId))
+		return entityService
+				.delete(V(sourceName), entityService.find(V(sourceName), ValueListValue.class, V(id), SL(valueListId)))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
@@ -180,7 +181,7 @@ public class ValueListValueResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildSearchAttributesResponse(entityService, ValueListValue.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(V(sourceName), ValueListValue.class, entityService);
 	}
 
 	/**
@@ -194,6 +195,6 @@ public class ValueListValueResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildLocalizationResponse(entityService, ValueListValue.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(V(sourceName), ValueListValue.class, entityService);
 	}
 }

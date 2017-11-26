@@ -75,7 +75,25 @@ public final class RequestBody {
 	}
 
 	/**
-	 * Returns a {@link Try> that computes the value for the given key. If the
+	 * Returns a {@link Try> that holds the string value for the given key. If the
+	 * underlying request body map can be parsed, the appropriate JSON exceptions
+	 * are thrown if get() is called on the {@link Try>. If the key was not found, a
+	 * {@link NoSuchElementException} is thrown correspondingly.
+	 * 
+	 * @param key
+	 *            key to get value for
+	 * @return the string value for the given key
+	 */
+	public Try<String> getStringValueSupplier(String key) {
+		return Try.of(() -> Lazy.of(() -> requestBodyMap.get()
+				.get(key)
+				.map(value -> value.toString())
+				.getOrElseThrow(() -> new NoSuchElementException("Key [" + key + "] not found in request body.")))
+				.get());
+	}
+
+	/**
+	 * Returns a {@link Try> that holds the value for the given key. If the
 	 * underlying request body map can be parsed, the appropriate JSON exceptions
 	 * are thrown if get() is called on the {@link Try>. If the key was not found, a
 	 * {@link NoSuchElementException} is thrown correspondingly.

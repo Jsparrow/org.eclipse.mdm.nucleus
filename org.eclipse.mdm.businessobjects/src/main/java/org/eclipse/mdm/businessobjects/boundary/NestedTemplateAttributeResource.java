@@ -17,8 +17,9 @@ import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUEST
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID3;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID4;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
-
-import java.util.Map;
+import static org.eclipse.mdm.businessobjects.service.EntityService.L;
+import static org.eclipse.mdm.businessobjects.service.EntityService.SL;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -30,7 +31,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -39,16 +39,12 @@ import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.TemplateAttribute;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
-import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.vavr.control.Try;
+import io.vavr.collection.List;
 
 /**
  * {@link NestedTemplateAttribute} resource handling REST requests
@@ -66,7 +62,6 @@ public class NestedTemplateAttributeResource {
 	/**
 	 * Returns the found nested {@link TemplateAttribute}.
 	 * 
-	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param contextType
@@ -83,22 +78,15 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String tplCompId,
 			@PathParam(REQUESTPARAM_ID4) String id) {
-		return Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
-				.map(contextType -> entityService.find(sourceName, TemplateAttribute.class, id, contextType, tplRootId,
-						parentTplCompId, tplCompId))
-				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e.get()))
-				.map(r -> ResourceHelper.toResponse(r, Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				// TODO anehmer on 2017-11-09: send reponse or error regarding error
-				// expressiveness
-				.get();
-
+		return entityService.find(V(sourceName), TemplateAttribute.class, V(id),
+				ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId, parentTplCompId, tplCompId))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Returns the (filtered) nested {@link TemplateAttribute}s.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -116,23 +104,17 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String tplCompId,
 			@QueryParam("filter") String filter) {
-
-		return Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
-				.map(contextType -> entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
-						tplRootId, parentTplCompId))
-				.map(maybeTplComp -> maybeTplComp.map(TemplateComponent::getTemplateAttributes)
-						.get())
-				// TODO anehmer on 2017-11-09: filter results
-				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(TemplateAttribute.class, e))
-				.map(r -> ResourceHelper.toResponse(r, Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.get();
+		return entityService
+				.find(V(sourceName), TemplateComponent.class, V(tplCompId),
+						ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId, parentTplCompId))
+				.map(tplComp -> List.ofAll(tplComp.getTemplateAttributes()))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Returns the created nested {@link TemplateAttributeValue}.
-	 * 
+	 * Returns the created nested {@link TemplateAttribute}.
 	 * 
 	 * @param body
 	 *            The nested {@link TemplateAttribute} to create.
@@ -141,39 +123,25 @@ public class NestedTemplateAttributeResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	// TODO test with already existing CatComp -> error handling onFailure in
-	// EntityService seems not to trigger
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String tplCompId,
 			String body) {
-		// deserialize JSON into object map
-		@SuppressWarnings("unchecked")
-		Map<String, Object> mapping = (Map<String, Object>) Try
-				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
-				}))
-				.get();
+		RequestBody requestBody = RequestBody.create(body);
 
-		// get name
-		String name = mapping.get(ENTITYATTRIBUTE_NAME)
-				.toString();
-
-		return Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
-				.map(contextType -> entityService.find(sourceName, TemplateComponent.class, tplCompId, contextType,
-						tplRootId, parentTplCompId))
-				.map(maybeTplComp -> maybeTplComp
-						.map(tplComp -> entityService.create(TemplateAttribute.class, sourceName, name, tplComp)
-								.get())
-						.get())
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, entity),
-						Status.OK))
-				.get();
+		return entityService
+				.create(V(sourceName), TemplateAttribute.class, L(
+						requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
+						entityService.find(V(sourceName), TemplateComponent.class, V(tplCompId),
+								ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId, parentTplCompId))))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Updates the TemplateAttribute with all parameters set in the given JSON body
-	 * of the request
+	 * Updates the {@link TemplateAttribute} with all parameters set in the given
+	 * JSON body of the request
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -191,15 +159,17 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String tplCompId,
 			@PathParam(REQUESTPARAM_ID4) String id, String body) {
-		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> entityService.update(sourceName, TemplateAttribute.class, id, valueMap,
-						ServiceUtils.getContextTypeSupplier(contextTypeParam), tplRootId, parentTplCompId, tplCompId))
-				// TODO if update returns ??? and entity is Option(none), why is the following
-				// map() executed?
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateAttribute.class, entity.get()),
-						Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.get();
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.update(V(sourceName),
+						entityService.find(V(sourceName), TemplateAttribute.class, V(id),
+								ServiceUtils.getContextTypeSupplier(contextTypeParam),
+								SL(tplRootId, parentTplCompId, tplCompId)),
+						requestBody.getValueMapSupplier())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
@@ -217,14 +187,14 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String tplRootId,
 			@PathParam(REQUESTPARAM_ID2) String parentTplCompId, @PathParam(REQUESTPARAM_ID3) String tplCompId,
 			@PathParam(REQUESTPARAM_ID4) String id) {
-		return Try.of(() -> ServiceUtils.getContextTypeSupplier(contextTypeParam))
-				.map(contextType -> entityService.delete(sourceName, TemplateAttribute.class, id, contextType,
-						tplRootId, parentTplCompId, tplCompId))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				// TODO add check for result.isPresent()
-				.map(result -> ResourceHelper.toResponse(new MDMEntityResponse(TemplateAttribute.class, result.get()),
-						Status.OK))
-				.get();
+		return entityService
+				.delete(V(sourceName),
+						entityService.find(V(sourceName), TemplateAttribute.class, V(id),
+								ServiceUtils.getContextTypeSupplier(contextTypeParam),
+								SL(tplRootId, parentTplCompId, tplCompId)))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
@@ -239,7 +209,7 @@ public class NestedTemplateAttributeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildSearchAttributesResponse(entityService, TemplateAttribute.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(V(sourceName), TemplateAttribute.class, entityService);
 	}
 
 	/**
@@ -254,6 +224,6 @@ public class NestedTemplateAttributeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildLocalizationResponse(entityService, TemplateAttribute.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(V(sourceName), TemplateAttribute.class, entityService);
 	}
 }

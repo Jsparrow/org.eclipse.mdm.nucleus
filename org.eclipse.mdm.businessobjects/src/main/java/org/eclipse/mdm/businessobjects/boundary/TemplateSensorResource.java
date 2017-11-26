@@ -17,6 +17,9 @@ import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUEST
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID2;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID3;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
+import static org.eclipse.mdm.businessobjects.service.EntityService.L;
+import static org.eclipse.mdm.businessobjects.service.EntityService.SL;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -28,7 +31,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -36,19 +38,16 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Quantity;
-import org.eclipse.mdm.api.dflt.model.CatalogComponent;
 import org.eclipse.mdm.api.dflt.model.CatalogSensor;
 import org.eclipse.mdm.api.dflt.model.TemplateComponent;
 import org.eclipse.mdm.api.dflt.model.TemplateSensor;
-import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.service.EntityService;
-import org.eclipse.mdm.businessobjects.utils.EntityNotFoundException;
+import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 
-import io.vavr.collection.Map;
-import io.vavr.control.Try;
+import io.vavr.Lazy;
+import io.vavr.collection.List;
 
 /**
  * {@link TemplateSensor} resource handling REST requests
@@ -66,7 +65,6 @@ public class TemplateSensorResource {
 	/**
 	 * Returns the found {@link TemplateSensor}.
 	 * 
-	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
@@ -79,22 +77,15 @@ public class TemplateSensorResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplRootId, @PathParam(REQUESTPARAM_ID2) String tplCompId,
 			@PathParam(REQUESTPARAM_ID3) String id) {
-		return Try
-				.of(() -> entityService.find(sourceName, TemplateSensor.class, id, ContextType.TESTEQUIPMENT, tplRootId,
-						tplCompId))
-				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(TemplateSensor.class, e.get()))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				// TODO anehmer on 2017-11-09: send reponse or error regarding error
-				// expressiveness
-				.get();
-
+		return entityService
+				.find(V(sourceName), TemplateSensor.class, V(id), V(ContextType.TESTEQUIPMENT), SL(tplRootId, tplCompId))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Returns the (filtered) {@link TemplateSensor}s.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -107,21 +98,16 @@ public class TemplateSensorResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplRootId, @PathParam(REQUESTPARAM_ID2) String tplCompId,
 			@QueryParam("filter") String filter) {
-
-		return Try
-				.of(() -> entityService.find(sourceName, TemplateComponent.class, tplCompId, ContextType.TESTEQUIPMENT,
-						tplRootId))
-				.map(maybeTplComp -> maybeTplComp.map(TemplateComponent::getTemplateSensors)
-						.get())
-				.map(e -> new MDMEntityResponse(TemplateSensor.class, e))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.get();
+		return entityService
+				.find(V(sourceName), TemplateComponent.class, V(tplCompId), V(ContextType.TESTEQUIPMENT), SL(tplRootId))
+				.map(tplComp -> List.ofAll(tplComp.getTemplateSensors()))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Returns the created {@link TemplateSensorValue}.
-	 * 
 	 * 
 	 * @param body
 	 *            The {@link TemplateSensor} to create.
@@ -132,47 +118,32 @@ public class TemplateSensorResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplRootId, @PathParam(REQUESTPARAM_ID2) String tplCompId, String body) {
+		RequestBody requestBody = RequestBody.create(body);
 
-		// get name
-		Try<Map<String, Object>> mapper = ResourceHelper.deserializeJSON(body);
-		String name = mapper.map(map -> map.get(ENTITYATTRIBUTE_NAME)
-				.get()
-				.toString())
-				.getOrElseThrow(x -> new IllegalArgumentException("Name of TemplateSensor missing in request"));
+		// TODO anehmer on 2017-11-25: test that tplComp is only once fetched
+		// get memoized (Lazy) tplComp as it is used twiced and should only fetched once
+		Lazy<TemplateComponent> tplCompSupplier = Lazy.of(() -> entityService
+				.find(V(sourceName), TemplateComponent.class, V(tplCompId), V(ContextType.TESTEQUIPMENT), SL(tplRootId))
+				.get());
 
-		String quantityId = mapper.map(map -> map.get(ENTITYATTRIBUTE_QUANTITY_ID)
-				.get()
-				.toString())
-				.getOrElseThrow(() -> new IllegalArgumentException("Id of Quantity missing in request"));
-
-		String catSensorId = mapper.map(map -> map.get(ENTITYATTRIBUTE_CATALOGSENSOR_ID)
-				.get()
-				.toString())
-				.getOrElseThrow(x -> new IllegalArgumentException("Id of CatalogSensor missing in request"));
-
-		TemplateComponent tplComp = entityService
-				.find(sourceName, TemplateComponent.class, tplCompId, ContextType.TESTEQUIPMENT, tplRootId)
-				.getOrElseThrow(() -> new EntityNotFoundException(TemplateComponent.class, tplCompId));
-
-		CatalogComponent catComp = tplComp.getCatalogComponent();
-
-		CatalogSensor catSensor = entityService
-				.find(sourceName, CatalogSensor.class, catSensorId, ContextType.TESTEQUIPMENT, catComp.getID())
-				.getOrElseThrow(() -> new IllegalArgumentException("CatalogSensor not found"));
-
-		Quantity quantity = entityService.find(sourceName, Quantity.class, quantityId)
-				.getOrElseThrow(() -> new IllegalArgumentException("Quantity not found"));
-
-		return Try.of(() -> entityService.create(TemplateSensor.class, sourceName, name, tplComp, catSensor, quantity)
-				.get())
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateSensor.class, entity), Status.OK))
-				.get();
+		return entityService
+				.create(V(sourceName), TemplateSensor.class,
+						L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME), tplCompSupplier,
+						entityService.find(V(sourceName), CatalogSensor.class,
+								requestBody.getStringValueSupplier(ENTITYATTRIBUTE_CATALOGSENSOR_ID),
+								V(ContextType.TESTEQUIPMENT),
+								SL(tplCompSupplier.map(tplComp -> tplComp.getCatalogComponent()
+										.getID()))),
+						entityService.find(V(sourceName), Quantity.class,
+										requestBody.getStringValueSupplier(ENTITYATTRIBUTE_QUANTITY_ID))))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Updates the TemplateSensor with all parameters set in the given JSON body of
-	 * the request
+	 * Updates the {@link TemplateSensor} with all parameters set in the given JSON
+	 * body of the request.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -189,20 +160,20 @@ public class TemplateSensorResource {
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplRootId, @PathParam(REQUESTPARAM_ID2) String tplCompId,
 			@PathParam(REQUESTPARAM_ID3) String id, String body) {
-		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> entityService.update(sourceName, TemplateSensor.class, id, valueMap,
-						ContextType.TESTEQUIPMENT, tplRootId, tplCompId))
-				// TODO if update returns ??? and entity is Option(none), why is the following
-				// map() executed?
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateSensor.class, entity.get()),
-						Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.get();
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.update(V(sourceName),
+						entityService.find(V(sourceName), TemplateSensor.class, V(id),
+								V(ContextType.TESTEQUIPMENT), SL(tplRootId, tplCompId)),
+						requestBody.getValueMapSupplier())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Deletes and returns the deleted {@link TemplateSensor}.
-	 * 
 	 * 
 	 * @param id
 	 *            The identifier of the {@link TemplateSensor} to delete.
@@ -214,19 +185,17 @@ public class TemplateSensorResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplRootId, @PathParam(REQUESTPARAM_ID2) String tplCompId,
 			@PathParam(REQUESTPARAM_ID3) String id) {
-		return Try
-				.of(() -> entityService.delete(sourceName, TemplateSensor.class, id, ContextType.TESTEQUIPMENT,
-						tplRootId, tplCompId))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				// TODO add check for result.isPresent()
-				.map(result -> ResourceHelper.toResponse(new MDMEntityResponse(TemplateSensor.class, result.get()),
-						Status.OK))
-				.get();
+		return entityService
+				.delete(V(sourceName),
+						entityService.find(V(sourceName), TemplateSensor.class, V(id),
+								V(ContextType.TESTEQUIPMENT), SL(tplRootId, tplCompId)))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Returns the search attributes for the {@link TemplateSensor} type.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -236,12 +205,11 @@ public class TemplateSensorResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildSearchAttributesResponse(entityService, TemplateSensor.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(V(sourceName), TemplateSensor.class, entityService);
 	}
 
 	/**
 	 * Returns a map of localization for the entity type and the attributes.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -251,6 +219,6 @@ public class TemplateSensorResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildLocalizationResponse(entityService, TemplateSensor.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(V(sourceName), TemplateSensor.class, entityService);
 	}
 }

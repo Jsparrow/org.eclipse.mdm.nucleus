@@ -32,6 +32,7 @@ import org.eclipse.mdm.businessobjects.entity.SearchAttributeResponse;
 import org.eclipse.mdm.businessobjects.service.EntityService;
 import org.slf4j.LoggerFactory;
 
+import io.vavr.Value;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -190,13 +191,18 @@ public final class ServiceUtils {
 	/**
 	 * Return the search attributes for the {@link ValueList} type.
 	 * 
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
+	 * @param sourceNameSupplier
+	 *            {@link Value} with the name of the source (MDM {@link Environment}
+	 *            name)
+	 * @param entityClass
+	 *            {@link Entity} class to get localization data for
+	 * @param entityService
+	 *            {@link EntityService} used to get localization data
 	 * @return the result of the delegated request as {@link Response}
 	 */
-	public static <T extends Entity> Response buildSearchAttributesResponse(EntityService entityService,
-			Class<T> entityClass, String sourceName) {
-		return entityService.getSearchAttributesSupplier(sourceName, entityClass)
+	public static <T extends Entity> Response buildSearchAttributesResponse(Value<String> sourceNameSupplier,
+			Class<T> entityClass, EntityService entityService) {
+		return entityService.getSearchAttributesSupplier(sourceNameSupplier, entityClass)
 				.map(searchAttributes -> ServiceUtils
 						.toResponse(new SearchAttributeResponse(searchAttributes.toJavaList()), Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
@@ -206,23 +212,26 @@ public final class ServiceUtils {
 	/**
 	 * Return the localized type and attributes for the {@link Entity} type.
 	 * 
-	 * @param entityService
-	 *            {@link EntityService} used to get localization data
+	 * @param sourceNameSupplier
+	 *            {@link Value} with the name of the source (MDM {@link Environment}
+	 *            name)
 	 * @param entityClass
 	 *            {@link Entity} class to get localization data for
-	 * @param sourceName
-	 *            name of the source (MDM {@link Environment} name)
+	 * @param entityService
+	 *            {@link EntityService} used to get localization data
 	 * @return the {@link Response} with the localized data
 	 */
-	public static <T extends Entity> Response buildLocalizationResponse(EntityService entityService,
-			Class<T> entityClass, String sourceName) {
-		return Try.of(() -> ServiceUtils.toResponse(new I18NResponse(entityService.getLocalizeTypeSupplier(sourceName, entityClass)
-				.get()
-				.toJavaMap(),
-				entityService.getLocalizeAttributesSupplier(sourceName, entityClass)
-						.get()
-						.toJavaMap()),
-				Status.OK))
+	public static <T extends Entity> Response buildLocalizationResponse(Value<String> sourceNameSupplier,
+			Class<T> entityClass, EntityService entityService) {
+		return Try
+				.of(() -> ServiceUtils.toResponse(new I18NResponse(
+						entityService.getLocalizeTypeSupplier(sourceNameSupplier, entityClass)
+								.get()
+								.toJavaMap(),
+						entityService.getLocalizeAttributesSupplier(sourceNameSupplier, entityClass)
+								.get()
+								.toJavaMap()),
+						Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

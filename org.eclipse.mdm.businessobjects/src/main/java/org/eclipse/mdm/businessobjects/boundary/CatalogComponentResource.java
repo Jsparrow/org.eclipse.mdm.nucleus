@@ -14,6 +14,8 @@ import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYA
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_CONTEXTTYPE;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
+import static org.eclipse.mdm.businessobjects.service.EntityService.L;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -66,7 +68,7 @@ public class CatalogComponentResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return entityService
-				.find(sourceName, CatalogComponent.class, id, ServiceUtils.getContextTypeSupplier(contextTypeParam))
+				.find(V(sourceName), CatalogComponent.class, V(id), ServiceUtils.getContextTypeSupplier(contextTypeParam))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
@@ -88,7 +90,7 @@ public class CatalogComponentResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @QueryParam("filter") String filter) {
 		return entityService
-				.findAll(sourceName, CatalogComponent.class, filter,
+				.findAll(V(sourceName), CatalogComponent.class, filter,
 						ServiceUtils.getContextTypeSupplier(contextTypeParam))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
@@ -110,16 +112,17 @@ public class CatalogComponentResource {
 		RequestBody requestBody = RequestBody.create(body);
 
 		return entityService
-				.create(sourceName, CatalogComponent.class, ServiceUtils.getContextTypeSupplier(contextTypeParam),
-						requestBody.getValueSupplier(ENTITYATTRIBUTE_NAME))
+				.create(V(sourceName), CatalogComponent.class,
+						L(ServiceUtils.getContextTypeSupplier(contextTypeParam),
+								requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME)))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Updates the CatalogComponent with all parameters set in the given JSON body
-	 * of the request.
+	 * Updates the {@link CatalogComponent} with all parameters set in the given
+	 * JSON body of the request.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -139,8 +142,8 @@ public class CatalogComponentResource {
 		RequestBody requestBody = RequestBody.create(body);
 
 		return entityService
-				.update(sourceName,
-						entityService.find(sourceName, CatalogComponent.class, id,
+				.update(V(sourceName),
+						entityService.find(V(sourceName), CatalogComponent.class, V(id),
 								ServiceUtils.getContextTypeSupplier(contextTypeParam)),
 						requestBody.getValueMapSupplier())
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
@@ -161,8 +164,8 @@ public class CatalogComponentResource {
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return entityService
-				.delete(sourceName,
-						entityService.find(sourceName, CatalogComponent.class, id,
+				.delete(V(sourceName),
+						entityService.find(V(sourceName), CatalogComponent.class, V(id),
 								ServiceUtils.getContextTypeSupplier(contextTypeParam)))
 				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
@@ -172,7 +175,6 @@ public class CatalogComponentResource {
 	/**
 	 * Returns the search attributes for the {@link CatalogComponent} type.
 	 * 
-	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @return the {@link SearchAttribute}s as {@link Response}
@@ -181,12 +183,11 @@ public class CatalogComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildSearchAttributesResponse(entityService, CatalogComponent.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(V(sourceName), CatalogComponent.class, entityService);
 	}
 
 	/**
 	 * Returns a map of localization for the entity type and the attributes.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -196,6 +197,6 @@ public class CatalogComponentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildLocalizationResponse(entityService, CatalogComponent.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(V(sourceName), CatalogComponent.class, entityService);
 	}
 }

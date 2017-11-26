@@ -13,8 +13,8 @@ package org.eclipse.mdm.businessobjects.boundary;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
-
-import java.util.Map;
+import static org.eclipse.mdm.businessobjects.service.EntityService.L;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
 
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -26,23 +26,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.dflt.model.TemplateTest;
-import org.eclipse.mdm.businessobjects.boundary.utils.ResourceHelper;
-import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.vavr.control.Try;
 
 /**
  * {@link TemplateTest} resource handling REST requests
@@ -59,7 +52,6 @@ public class TemplateTestResource {
 	/**
 	 * Returns the found {@link TemplateTest}.
 	 * 
-	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
 	 * @param id
@@ -70,20 +62,14 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> entityService.find(sourceName, TemplateTest.class, id))
-				// TODO handle failure and respond to client appropriately. How can we deliver
-				// error messages from down the callstack? Use Exceptions or some Vavr magic?
-				.map(e -> new MDMEntityResponse(TemplateTest.class, e.get()))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				// TODO send reponse or error regarding error expressiveness
-				.get();
-
+		return entityService.find(V(sourceName), TemplateTest.class, V(id))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Returns the (filtered) {@link TemplateTest}s.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -95,17 +81,14 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
-		return Try.of(() -> entityService.findAll(sourceName, TemplateTest.class, filter))
-				// TODO what if e is not found? Test!
-				.map(e -> new MDMEntityResponse(TemplateTest.class, e.toJavaList()))
-				.map(r -> ServiceUtils.toResponse(r, Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.get();
+		return entityService.findAll(V(sourceName), TemplateTest.class, filter)
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Returns the created {@link TemplateTestValue}.
-	 * 
 	 * 
 	 * @param body
 	 *            The {@link TemplateTest} to create.
@@ -115,27 +98,18 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, String body) {
-		// deserialize JSON into object map
-		return Try.<Map<String, Object>>of(
-				() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
-					// TODO correct to use onFailure instead of getOrThrow
-				}))
-				// TODO do we really need this or is the failure handled later nevertheless
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.toOption()
-				.map(mapping -> mapping.get(ENTITYATTRIBUTE_NAME))
-				// TODO handle non existing value
-				.toTry()
-				.map(name -> entityService.create(TemplateTest.class, sourceName, name.toString())
-						.get())
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, entity), Status.OK))
-				.get();
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.create(V(sourceName), TemplateTest.class, L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME)))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
-	 * Updates the TemplateTest with all parameters set in the given JSON body of
-	 * the request
+	 * Updates the {@link TemplateTest} with all parameters set in the given JSON
+	 * body of the request.
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -151,19 +125,18 @@ public class TemplateTestResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
 			String body) {
-		return ResourceHelper.deserializeJSON(body)
-				.map(valueMap -> entityService.update(sourceName, TemplateTest.class, id, valueMap))
-				// TODO if update returns ??? and entity is Option(none), why is the following
-				// map() executed?
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(TemplateTest.class, entity.get()),
-						Status.OK))
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.get();
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.update(V(sourceName), entityService.find(V(sourceName), TemplateTest.class, V(id)),
+						requestBody.getValueMapSupplier())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Deletes and returns the deleted {@link TemplateTest}.
-	 * 
 	 * 
 	 * @param id
 	 *            The identifier of the {@link TemplateTest} to delete.
@@ -174,16 +147,14 @@ public class TemplateTestResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> entityService.delete(sourceName, TemplateTest.class, id)
-				.get())
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.map(result -> ResourceHelper.toResponse(new MDMEntityResponse(TemplateTest.class, result), Status.OK))
-				.get();
+		return entityService.delete(V(sourceName), entityService.find(V(sourceName), TemplateTest.class, V(id)))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
 	 * Returns the search attributes for the {@link TemplateTest} type.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -193,12 +164,11 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchattributes")
 	public Response getSearchAttributes(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildSearchAttributesResponse(entityService, TemplateTest.class, sourceName);
+		return ServiceUtils.buildSearchAttributesResponse(V(sourceName), TemplateTest.class, entityService);
 	}
 
 	/**
 	 * Returns a map of localization for the entity type and the attributes.
-	 * 
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
@@ -208,6 +178,6 @@ public class TemplateTestResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/localizations")
 	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
-		return ServiceUtils.buildLocalizationResponse(entityService, TemplateTest.class, sourceName);
+		return ServiceUtils.buildLocalizationResponse(V(sourceName), TemplateTest.class, entityService);
 	}
 }

@@ -13,6 +13,8 @@ package org.eclipse.mdm.businessobjects.boundary;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.ENTITYATTRIBUTE_NAME;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_ID;
 import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
+import static org.eclipse.mdm.businessobjects.service.EntityService.L;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -40,15 +43,10 @@ import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.entity.SearchAttributeResponse;
 import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.vavr.control.Option;
-import io.vavr.control.Try;
 
 // TODO: Use entityService (and vavr) in all Methods
 
@@ -157,49 +155,72 @@ public class ProjectResource {
 	}
 
 	/**
-	 * 
-	 * creates new {@link Project}
+	 * Returns the created {@link Project}.
 	 * 
 	 * @param sourceName
-	 * 			name of the source (MDM {@link Environment} name)
+	 *            name of the source (MDM {@link Environment} name)
 	 * @param body
-	 * 			The {@link Project} to create
-	 * @return
-	 * 			The created {@link Project} as {@link Response}
+	 *            The {@link Project} to create.
+	 * @return the created {@link Project} as {@link Response}.
 	 */
-	
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response create(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, String body) {
-		// deserialize JSON into object map
-		@SuppressWarnings("unchecked")
-		Map<String, Object> mapping = (Map<String, Object>) Try
-				.of(() -> new ObjectMapper().readValue(body, new TypeReference<Map<String, Object>>() {
-				}))
-				.get();
-		
-		// read name of Project
-		Option<String> name = Try.of(() -> mapping.get(ENTITYATTRIBUTE_NAME)
-				.toString())
-				.toOption();
-				
-		return Try.of( () -> this.entityService.create(Project.class, sourceName, name.get())
-				.get())
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.map(entity -> ServiceUtils.toResponse(new MDMEntityResponse(Project.class, entity), Status.OK))
-				.get();
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.create(V(sourceName), Project.class, L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME)))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 	
+	/**
+	 * Updates the {@link Project} with all parameters set in the given JSON body of
+	 * the request.
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link ProjectValue} to update.
+	 * @param body
+	 *            the body of the request containing the attributes to update
+	 * @return the updated {@link Project}
+	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id,
+			String body) {
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.update(V(sourceName), entityService.find(V(sourceName), Project.class, V(id)),
+						requestBody.getValueMapSupplier())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
+	}
+
+	/**
+	 * Deletes and returns the deleted {@link Project}.
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            The identifier of the {@link Project} to delete.
+	 * @return the deleted {@link ValueList }s as {@link Response}
+	 */
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response delete(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String id) {
-		return Try.of(() -> this.entityService.delete(sourceName, Project.class, id).get())
-				.onFailure(ServiceUtils.rethrowAsWebApplicationException)
-				.map( entity -> ServiceUtils.toResponse(new MDMEntityResponse(Project.class, entity), Status.OK))
-				.get();
+		return entityService.delete(V(sourceName), entityService.find(V(sourceName), Project.class, V(id)))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
-	
 }

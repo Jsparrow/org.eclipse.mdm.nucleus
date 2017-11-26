@@ -43,7 +43,9 @@ public class TemplateTestStepUsageResourceIntegrationTest extends EntityResource
 		// skip the update as TemplateTestStepUsages cannot be updated
 		skipTest(TestType.UPDATE);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tpltests/" + getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplteststepusages");
+		putTestDataValue(TESTDATA_RESOURCE_URI,
+				"/tpltests/" + getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
+						+ "/tplteststepusages");
 		// indicates that the value is set with the response data from create()
 		putTestDataValue(TESTDATA_ENTITY_NAME, TESTDATA_RANDOM_DATA);
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateTestStepUsage");
