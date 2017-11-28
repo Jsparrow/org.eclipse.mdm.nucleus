@@ -99,11 +99,12 @@ public class MdmApiBoundary {
 	@PostConstruct
 	public void initalize() {
 		
-		if (Boolean.valueOf(active)) {
+		if (Boolean.parseBoolean(active)) {
 			try {
 				List<ApplicationContext> connectionList = service.connectFreetextSearch("freetext.user", "freetext.password", "freetext.active");
 				if (connectionList.isEmpty()) {
-					throw new IllegalArgumentException("Cannot connect to MDM from Freetextindexer. Seems like the technical user/password is not correct.");
+					throw new IllegalArgumentException("Cannot connect the Freetextindexer to a datastore! "
+							+ "Either you did not configure Freetextindexer at atleast one service or the technical user/password is not correct.");
 				}
 
 				//TODO mkoller on 2017-11-14: Currently only the first Adapter is indexed.
@@ -165,7 +166,8 @@ public class MdmApiBoundary {
 	}
 	
 	private boolean isActive() {
-		return Boolean.valueOf(context.getParameters().get("freetext.active"));
+		return Boolean.parseBoolean(active) 
+				&& Boolean.parseBoolean(context.getParameters().getOrDefault("freetext.active", "false"));
 	}
 	
 	private MDMEntityResponse buildEntity(Entity e) {

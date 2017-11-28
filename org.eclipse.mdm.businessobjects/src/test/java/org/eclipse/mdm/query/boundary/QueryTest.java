@@ -31,7 +31,6 @@ import org.eclipse.mdm.api.base.query.QueryService;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.odsadapter.ODSContextFactory;
 import org.eclipse.mdm.query.entity.Column;
 import org.eclipse.mdm.query.entity.Row;
@@ -61,7 +60,6 @@ public class QueryTest {
 	private static final String PASSWORD = "sa";
 
 	private static ApplicationContext context;
-	private static EntityManager entityManager;
 	private static ModelManager modelManager;
 	private static org.eclipse.mdm.api.base.query.QueryService queryService;
 	
@@ -91,8 +89,6 @@ public class QueryTest {
 		connectionParameters.put(PARAM_PASSWORD, PASSWORD);
 
 		context = new ODSContextFactory().connect(connectionParameters);
-		entityManager = context.getEntityManager()
-				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
 		modelManager = context.getModelManager()
 				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 		queryService = context.getQueryService()
@@ -101,8 +97,8 @@ public class QueryTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws ConnectionException {
-		if (entityManager != null) {
-			entityManager.close();
+		if (context != null) {
+			context.close();
 		}
 	}
 

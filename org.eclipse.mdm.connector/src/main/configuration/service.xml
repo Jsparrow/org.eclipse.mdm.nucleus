@@ -7,6 +7,7 @@
 		<param name="nameservice">corbaloc::1.2@YOUR_HOST2:2809/NameService</param>
 		<param name="servicename">YOUR_SERVICE2.ASAM-ODS</param>
 		<!--The indexing requires a user to get the DataItems from the ODS Server. Those are the credentials for the user -->
+		<param name="freetext.active">true</param>
 		<param name="freetext.user">sa</param>
 		<param name="freetext.password">sa</param>
 		<param name="freetext.notificationType">peak</param>
@@ -16,6 +17,7 @@
 		<param name="nameservice">corbaloc::1.2@YOUR_HOST3:2809/NameService</param>
 		<param name="servicename">YOUR_SERVICE3.ASAM-ODS</param>
 		<!--The indexing requires a user to get the DataItems from the ODS Server. Those are the credentials for the user -->
+		<param name="freetext.active">true</param>
 		<param name="freetext.user">sa</param>
 		<param name="freetext.password">sa</param>
 		<param name="freetext.notificationType">avalon</param>
