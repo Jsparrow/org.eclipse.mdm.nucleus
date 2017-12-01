@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -29,7 +28,6 @@ import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.Filter;
-import org.eclipse.mdm.api.base.query.Result;
 import org.eclipse.mdm.api.base.search.SearchService;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.filerelease.control.FileReleaseException;
@@ -119,7 +117,7 @@ public abstract class AbstractFileConverter implements IFileConverter {
 			EntityType testStepET = locateEntityType(list, TestStep.class.getSimpleName());
 			Filter idFilter = Filter.idOnly(testStepET, testStep.getID());
 
-			Map<TestStep, Result> results = searchService.fetch(TestStep.class, Collections.singletonList(attribute),
+			List<TestStep> results = searchService.fetch(TestStep.class, Collections.singletonList(attribute),
 					idFilter);
 
 			if (results.size() < 0 || results.size() > 1) {
@@ -127,8 +125,8 @@ public abstract class AbstractFileConverter implements IFileConverter {
 						"illegal search result for attribute value from '" + entityName + "." + attributeName + "'");
 			}
 
-			Result result = results.values().iterator().next();
-			return result.getValue(attribute).extract();
+			TestStep resultTestStep = results.get(0);
+			return resultTestStep.getValue(attributeName).extract();
 		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}

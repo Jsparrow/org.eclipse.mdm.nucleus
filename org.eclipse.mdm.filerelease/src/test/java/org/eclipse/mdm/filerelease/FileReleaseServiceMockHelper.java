@@ -22,7 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.mdm.api.base.model.Core;
+import org.eclipse.mdm.api.base.adapter.Core;
+import org.eclipse.mdm.api.base.adapter.EntityStore;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Test;
@@ -147,7 +148,7 @@ public class FileReleaseServiceMockHelper {
 		when(core.getID()).thenReturn(id);
 		when(core.getValues()).thenReturn(map);
 
-		Core.EntityStore entityStore = new Core.EntityStore();
+		EntityStore entityStore = new EntityStore();
 		when(core.getMutableStore()).thenReturn(entityStore);
 
 		Constructor<T> constructor = type.getDeclaredConstructor(Core.class);
