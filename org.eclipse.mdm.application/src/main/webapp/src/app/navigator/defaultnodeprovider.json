@@ -8,28 +8,28 @@
 	"children" : {
 	  "type" : "Pool",
 	  "attribute" : "Name",
-	  "query" : "/pools?filter=Project.Id eq {Project.Id}",
+	  "query" : "/pools?filter=Project.Id eq '{Project.Id}'",
 	  "children" : {
 		"type" : "Test",
 		"attribute" : "Name",
-		"query" : "/tests?filter=Pool.Id eq {Pool.Id}",
+		"query" : "/tests?filter=Pool.Id eq '{Pool.Id}'",
 		"children" : {
 		  "type" : "TestStep",
 		  "attribute" : "Name",
-		  "query" : "/teststeps?filter=Test.Id eq {Test.Id}",
+		  "query" : "/teststeps?filter=Test.Id eq '{Test.Id}'",
 		  "children" : {
 			"type" : "Measurement",
 			"attribute" : "Name",
-			"query" : "/measurements?filter=TestStep.Id eq {TestStep.Id}",
+			"query" : "/measurements?filter=TestStep.Id eq '{TestStep.Id}'",
 			"children" : {
 			  "type" : "ChannelGroup",
 			  "attribute" : "Name",
-			  "query" : "/channelgroups?filter=Measurement.Id eq {Measurement.Id}",
+			  "query" : "/channelgroups?filter=Measurement.Id eq '{Measurement.Id}'",
 			  "caption" : "ChannelGroup.Name",
 			  "children" : {
 				  "type" : "Channel",
 				  "attribute" : "Name",
-				  "query" : "/channels?filter=ChannelGroup.Id eq {ChannelGroup.Id}"
+				  "query" : "/channels?filter=ChannelGroup.Id eq '{ChannelGroup.Id}'"
 			  }
 			}
 		  }
