@@ -116,7 +116,7 @@ export class QueryService {
       query.columns = columns;
 
       query.columns.push(type + '.Id');
-      items.forEach(i => query.addFilter(i.source, i.type + '.Id eq ' + i.id));
+      items.forEach(i => query.addFilter(i.source, i.type + '.Id eq \'' + i.id + '\''));
 
       return this.query(query);
     } else {

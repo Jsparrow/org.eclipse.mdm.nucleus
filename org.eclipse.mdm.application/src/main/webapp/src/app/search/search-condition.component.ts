@@ -51,6 +51,25 @@ export class SearchConditionComponent implements OnChanges {
               private queryService: QueryService,
               private notificationService: MDMNotificationService) { }
 
+  ngAfterViewInit() {
+    if (this.primeAutoCompleteComponent) {
+      /* Workaround for missing onBlur handler in primeng version 2.x.
+       * We overwrite the existing implementation and additional call our own event handler.
+       * In later versions this feature was added https://github.com/primefaces/primeng/issues/2256
+       * and this workaround should be removed when using primeng version 4 or later
+       */
+      this.primeAutoCompleteComponent.onBlur = function() {
+        this.primeAutoCompleteComponent.focus = false;
+        this.primeAutoCompleteComponent.onModelTouched();
+        this.onAutocompleteBlur();
+      }.bind(this);
+    }
+  }
+
+  onAutocompleteBlur() {
+    this.onEnter(new Event("blur"));
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedEnvs'] && this.condition.valueType === 'string') {
       this.setAutoCompleteValues();

@@ -92,7 +92,7 @@ export const MockNodeProvider = {
     'children' : {
       'type' : 'Channel',
       'attribute' : 'Name',
-      'query' : '/channels?filter=Test.Id eq {Test.Id}'
+      'query' : '/channels?filter=Test.Id eq \'{Test.Id}\''
     }
   }
 };
