@@ -48,7 +48,6 @@ public class TemplateAttributeTEQResourceIntegrationTest extends EntityResourceI
 
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
-		json.add("catalogattribute", new JsonPrimitive(getTestDataValue(CatalogAttributeTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		// delete the implicitly created TemplateAttribute
