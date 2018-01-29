@@ -88,7 +88,7 @@ public class CatalogAttributeResource {
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
-	 * @param contextType
+	 * @param contextTypeParam
 	 *            {@link ContextType} of the {@link CatalogAttribute} to load
 	 * @param filter
 	 *            filter string to filter the {@link CatalogAttribute} result
@@ -111,7 +111,14 @@ public class CatalogAttributeResource {
 	/**
 	 * Returns the created {@link CatalogAttributeValue}.
 	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param contextTypeParam
+	 *            {@link ContextType} of the {@link CatalogAttribute} to load
+	 * @param catCompId
+	 *            the identifier of the {@link CatalogComponent} to create an attribute for.
 	 * @param body
+	 *            the body of the request containing the attributes to update
 	 *            The {@link CatalogAttribute} to create.
 	 * @return the created {@link CatalogAttribute} as {@link Response}.
 	 */
