@@ -148,8 +148,12 @@ public class CatalogAttributeResource {
 	 * 
 	 * @param sourceName
 	 *            name of the source (MDM {@link Environment} name)
+	 * @param contextTypeParam
+	 *            {@link ContextType} of the {@link CatalogAttribute} to load
 	 * @param id
-	 *            the identifier of the {@link CatalogAttribute} to delete.
+	 *            the identifier of the {@link CatalogAttribute} to update.
+	 * @param catCompId
+	 *            the identifier of the parent {@link CatalogComponent}. 
 	 * @param body
 	 *            the body of the request containing the attributes to update
 	 * @return the updated {@link CatalogAttribute}
