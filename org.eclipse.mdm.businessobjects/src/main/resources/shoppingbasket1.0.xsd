@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	targetNamespace="http://www.eclipse/openmdm/shoppingbasket/1.0/"
+	xmlns="http://www.eclipse/openmdm/shoppingbasket/1.0/"
+	elementFormDefault="qualified">
+	
+  <xs:element name="shoppingbasket" type="shoppingbasketType"/>
+  <xs:complexType name="itemType">
+    <xs:all>
+      <xs:element type="xs:string" name="source" minOccurs="1" maxOccurs="1"/>
+      <xs:element type="xs:anyURI" name="resturi" minOccurs="1" maxOccurs="1"/>
+      <xs:element type="xs:string" name="link" minOccurs="1" maxOccurs="1"/>
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="itemsType">
+    <xs:sequence>
+      <xs:element type="itemType" name="item" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="shoppingbasketType">
+    <xs:all>
+      <xs:element type="xs:string" name="name" minOccurs="0" maxOccurs="1"/>
+      <xs:element type="itemsType" name="items" minOccurs="1" maxOccurs="1"/>
+    </xs:all>
+  </xs:complexType>
+</xs:schema>
+

@@ -216,7 +216,23 @@ export class MDMBasketComponent implements OnInit {
   downloadBasket(e: Event) {
     e.stopPropagation();
     let downloadContent = new Basket(this.basketName, this._basketService.getItems());
-    let blob = new Blob([serialize(downloadContent)], {
+    this._basketService.getBasketAsXml(downloadContent)
+      .subscribe(xml => this.saveXml(xml))
+  }
+
+  saveXml(xml: string) {
+    let blob = new Blob([xml], {
+         type: 'application/xml'
+     });
+    if (this.basketName && this.basketName.trim().length !== 0) {
+      FileSaver.saveAs(blob, this.basketName + '.xml');
+    } else {
+      FileSaver.saveAs(blob, 'warenkorb.xml');
+    }
+  }
+  
+  saveJson(basket: Basket) {
+    let blob = new Blob([serialize(basket)], {
          type: 'application/json'
      });
     if (this.basketName && this.basketName.trim().length !== 0) {
