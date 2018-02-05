@@ -42,6 +42,8 @@
     "zone.js": "0.7.6"
   },
   "devDependencies": {
+    "@angular-devkit/schematics":"0.0.34", 
+    "@angular-devkit/core": "0.0.22",
     "@angular/cli": "1.4.7",
     "@angular/compiler-cli": "2.4.8",
     "@types/jasmine": "2.5.38",
