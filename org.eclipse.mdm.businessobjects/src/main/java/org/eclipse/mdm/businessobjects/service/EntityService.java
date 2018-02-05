@@ -12,6 +12,7 @@ package org.eclipse.mdm.businessobjects.service;
 
 import static io.vavr.API.Tuple;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,10 @@ import javax.ejb.Stateless;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.mdm.api.base.adapter.Attribute;
+import org.eclipse.mdm.api.base.adapter.Core;
+import org.eclipse.mdm.api.base.adapter.EntityStore;
 import org.eclipse.mdm.api.base.adapter.EntityType;
+import org.eclipse.mdm.api.base.model.BaseEntity;
 import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
@@ -46,7 +50,6 @@ import org.eclipse.mdm.businessobjects.control.NavigationActivity;
 import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.EntityNotFoundException;
-import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 
 import io.vavr.CheckedFunction0;
@@ -263,7 +266,7 @@ public class EntityService {
 				Try<TemplateComponent> tplCompTry = find(sourceNameSupplier, TemplateComponent.class,
 						parentIdSuppliers.get(parentIdSuppliers.size() - 1), contextTypeSupplier,
 						parentIdSuppliers.dropRight(1));
-				// TODO anehmer on 2018-01-30: do this the functional way
+				// if TemplateSensorAttribute has to be found
 				if (!tplCompTry.isFailure()) {
 					return tplCompTry.map(tplComp -> (T) getChild(TemplateAttribute.class, idSupplier,
 							tplComp::getTemplateAttributes));
@@ -475,7 +478,7 @@ public class EntityService {
 		// return updated entity
 		return
 		// update entity values
-		entity.map(e -> ServiceUtils.updateEntityValues(e, valueMapSupplier.get()))
+		entity.map(e -> updateEntityValues(e, valueMapSupplier.get(), sourceNameSupplier))
 				// persist entity
 				.map(e -> DataAccessHelper.execute(getEntityManager(sourceNameSupplier).get(), e.get(),
 						DataAccessHelper.UPDATE));
@@ -572,4 +575,71 @@ public class EntityService {
 				.getEntityManager()
 				.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present")));
 	}
+
+	/**
+	 * Updates the given {@link Entity} with the values from the given valueMap. All
+	 * matching attributes are updated, whereas attribute matching is case sensitve
+	 * (the data model attribute name is the reference).
+	 * 
+	 * @param entity
+	 *            the entity to update
+	 * @param valueMap
+	 *            values to update the entity with according to matching attribute
+	 *            names. The keys are compared case sensitive.
+	 * @return a {@link Try} with the the updated entity
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends Entity> Try<T> updateEntityValues(T entity, Map<String, Object> valueMap,
+			Value<String> sourceNameSupplier) {
+		// update all entity values with values from the valueMap
+		return Try.of(() -> entity).map(e -> {
+			// TODO Test: what happens, if an attribute is missing?
+			// iterate all key-values of entity
+			HashMap.ofAll(e.getValues())
+					// get for each the corresponding update value
+					.forEach((name, value) -> valueMap.get(name)
+							// set the update value
+							.peek(mapValue -> value.set(mapValue)));
+			return e;
+		}).map(e -> {
+			EntityStore store = getMutableStore(e);
+			valueMap.forEach(tuple -> {
+				try {
+					Class<Entity> entityClass = (Class<Entity>) Class
+							.forName("org.eclipse.mdm.api.dflt.model." + tuple._1);
+					store.set(tuple._1, find(sourceNameSupplier, entityClass, V(tuple._2.toString())).get());
+
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			});
+			// for (String key : valueMap.keySet()) {
+			// store.getRemoved();
+			// System.out.println(getMutableStore(e).get(valueMap.get(key), entityClass));
+
+			return e;
+		});
+
+	}
+
+	private static EntityStore getMutableStore(Entity e) {
+		return Try.of(() -> {
+			Method GET_CORE_METHOD;
+			try {
+				GET_CORE_METHOD = BaseEntity.class.getDeclaredMethod("getCore");
+				GET_CORE_METHOD.setAccessible(true);
+			} catch (NoSuchMethodException | SecurityException x) {
+				throw new IllegalStateException(
+						"Unable to load 'getCore()' in class '" + BaseEntity.class.getSimpleName() + "'.", x);
+			}
+			Core core = (Core) GET_CORE_METHOD.invoke(e);
+			// Note: we can only set relations in the mutable store (which
+			// doesn't include parent-child-relations)
+			EntityStore store = core.getMutableStore();
+
+			return store;
+		}).get();
+	}
+
 }

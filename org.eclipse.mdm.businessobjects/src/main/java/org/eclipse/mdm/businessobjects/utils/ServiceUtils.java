@@ -41,8 +41,6 @@ import org.eclipse.mdm.businessobjects.service.EntityService;
 import org.slf4j.LoggerFactory;
 
 import io.vavr.Value;
-import io.vavr.collection.HashMap;
-import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import io.vavr.control.Try;
 
@@ -294,32 +292,5 @@ public final class ServiceUtils {
 				.filter(contextType -> contextType.name()
 						.equals(contextTypeName.toUpperCase()))
 				.toTry();
-	}
-
-	/**
-	 * Updates the given {@link Entity} with the values from the given valueMap. All
-	 * matching attributes are updated, whereas attribute matching is case sensitve
-	 * (the data model attribute name is the reference).
-	 * 
-	 * @param entity
-	 *            the entity to update
-	 * @param valueMap
-	 *            values to update the entity with according to matching attribute
-	 *            names. The keys are compared case sensitive.
-	 * @return a {@link Try} with the the updated entity
-	 */
-	public static <T extends Entity> Try<T> updateEntityValues(T entity, Map<String, Object> valueMap) {
-		// update all entity values with values from the valueMap
-		return Try.of(() -> entity)
-				.map(e -> {
-					// TODO Test: what happens, if an attribute is missing?
-					// iterate all key-values of entity
-					HashMap.ofAll(e.getValues())
-							// get for each the corresponding update value
-							.forEach((name, value) -> valueMap.get(name)
-									// set the update value
-									.peek(mapValue -> value.set(mapValue)));
-					return e;
-				});
 	}
 }
