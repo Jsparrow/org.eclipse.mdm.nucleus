@@ -199,6 +199,17 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 * GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/searchattributes
 * GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/localizations
 
+**Business Object: CatalogSensorAttribute**
+
+* DATATYPE is one of [STRING, STRING_SEQUENCE, DATE, DATE_SEQUENCE, BOOLEAN, BOOLEAN_SEQUENCE, BYTE, BYTE_SEQUENCE, SHORT, SHORT_SEQUENCE, INTEGER, INTEGER_SEQUENCE, LONG, LONG_SEQUENCE, FLOAT, FLOAT_SEQUENCE, DOUBLE, DOUBLE_SEQUENCE, BYTE_STREAM, BYTE_STREAM_SEQUENCE, FLOAT_COMPLEX, FLOAT_COMPLEX_SEQUENCE, DOUBLE_COMPLEX, DOUBLE_COMPLEX_SEQUENCE, FILE_LINK, FILE_LINK_SEQUENCE] 
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/CATALOGATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs (JSON: { "name" : "testCatalogAttribute", "datatype" : "DATATYPE" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/CATALOGATTRIBUTEID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/CATALOGATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/localizations
+
 **Business Object: TemplateRoot**
 
 * CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
@@ -241,6 +252,14 @@ _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 * DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID
 * GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/searchattributes
 * GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/localizations
+
+**Business Object: TemplateSensorAttribute**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/TEMPLATEATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/TEMPLATEATTRIBUTEID (JSON: { "MimeType" : "myMimeType" })
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/localizations
 
 **Business Object: NestedTemplateComponent**
 

@@ -220,11 +220,21 @@ public class EntityService {
 
 		// if the find is contextType specific
 		if (contextTypeSupplier != null && !contextTypeSupplier.isEmpty()) {
-			// get CatalogAttribute from CatalogComponent
 			if (entityClass.equals(CatalogAttribute.class)) {
-				return find(sourceNameSupplier, CatalogComponent.class, parentIdSuppliers.get(0), contextTypeSupplier)
-						.map(catComp -> (T) getChild(CatalogAttribute.class, idSupplier,
-								catComp::getCatalogAttributes));
+				// get CatalogAttribute from CatalogComponent
+				if (parentIdSuppliers.size() == 1) {
+					return find(sourceNameSupplier, CatalogComponent.class, parentIdSuppliers.get(0),
+							contextTypeSupplier)
+									.map(catComp -> (T) getChild(CatalogAttribute.class, idSupplier,
+											catComp::getCatalogAttributes));
+				}
+				// get the CatalogAttribute from a CatalogSensor
+				else if (parentIdSuppliers.size() == 2) {
+					return find(sourceNameSupplier, CatalogSensor.class, parentIdSuppliers.get(1), contextTypeSupplier,
+							parentIdSuppliers.dropRight(1))
+									.map(catComp -> (T) getChild(CatalogAttribute.class, idSupplier,
+											catComp::getCatalogAttributes));
+				}
 			}
 
 			// get CatalogSensor from CatalogComponent
@@ -250,11 +260,20 @@ public class EntityService {
 
 			// get TemplateAttributes from TemplateComponent
 			else if (entityClass.equals(TemplateAttribute.class)) {
-				return find(sourceNameSupplier, TemplateComponent.class,
+				Try<TemplateComponent> tplCompTry = find(sourceNameSupplier, TemplateComponent.class,
 						parentIdSuppliers.get(parentIdSuppliers.size() - 1), contextTypeSupplier,
-						parentIdSuppliers.dropRight(1))
-								.map(tplComp -> (T) getChild(TemplateAttribute.class, idSupplier,
-										tplComp::getTemplateAttributes));
+						parentIdSuppliers.dropRight(1));
+				// TODO anehmer on 2018-01-30: do this the functional way
+				if (!tplCompTry.isFailure()) {
+					return tplCompTry.map(tplComp -> (T) getChild(TemplateAttribute.class, idSupplier,
+							tplComp::getTemplateAttributes));
+				} else {
+					return find(sourceNameSupplier, TemplateSensor.class,
+							parentIdSuppliers.get(parentIdSuppliers.size() - 1), contextTypeSupplier,
+							parentIdSuppliers.dropRight(1))
+									.map(tplComp -> (T) getChild(TemplateAttribute.class, idSupplier,
+											tplComp::getTemplateAttributes));
+				}
 			}
 
 			// get TemplateSensor from TemplateComponent
