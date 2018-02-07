@@ -112,6 +112,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   selectedRow: SearchFilter;
   lazySelectedRow: SearchFilter;
+  loading = false;
 
   contextMenuItems: MenuItem[] = [
     { label: 'In Warenkorb legen', icon: 'glyphicon glyphicon-shopping-cart', command: (event) => this.addSelectionToBasket() }
@@ -248,6 +249,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   onSearch() {
     let query;
+    this.loading = true;
     if (this.isBoxChecked) {
       query = this.searchService.convertToQuery(this.currentFilter, this.allSearchAttributes, this.viewComponent.selectedView);
     } else {
@@ -262,6 +264,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
           this.results = result;
           this.isSearchResultsOpen = true;
           this.searchExecuted = true;
+          this.loading = false;
         },
         error => this.notificationService.notifyError('Suchanfrage kann nicht bearbeitet werden.', error)
       );
