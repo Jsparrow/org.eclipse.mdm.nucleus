@@ -19,6 +19,10 @@ import {Type, Exclude, plainToClass, serialize, deserialize} from 'class-transfo
 import {MDMItem} from '../core/mdm-item';
 import {PreferenceService, Preference, Scope} from '../core/preference.service';
 
+import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { HttpErrorHandler } from '../core/http-error-handler';
+import { PropertyService } from '../core/property.service';
+
 export class Basket {
   name: string;
   @Type(() => MDMItem)
@@ -39,7 +43,10 @@ export class BasketService {
 
   items: MDMItem[] = [];
 
-  constructor(private _pref: PreferenceService) {
+  constructor(private _pref: PreferenceService,
+              private http: Http,
+              private httpErrorHandler: HttpErrorHandler,
+              private _prop: PropertyService) {
   }
 
   public add(item: MDMItem) {
@@ -92,6 +99,11 @@ export class BasketService {
 
   setItems(items: MDMItem[]) {
     this.items = items;
+  }
+
+  getBasketAsXml(basket: Basket) {
+    return this.http.post(this._prop.getUrl('/mdm/shoppingbasket'), basket)
+      .map(r => r.text());
   }
 
   private preferenceToBasket(pref: Preference) {
