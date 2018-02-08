@@ -34,6 +34,10 @@ public class CatalogAttributeTSQResourceIntegrationTest extends EntityResourceIn
 		CatalogComponentTSQResourceIntegrationTest.prepareTestData();
 		CatalogComponentTSQResourceIntegrationTest.createEntity();
 
+		// prepare test data for creating the ValueList to reference
+		ValueListResourceIntegrationTest.prepareTestData();
+		ValueListResourceIntegrationTest.createEntity();
+
 		// set up test data
 		setContextClass(CatalogAttributeTSQResourceIntegrationTest.class);
 
@@ -45,11 +49,19 @@ public class CatalogAttributeTSQResourceIntegrationTest extends EntityResourceIn
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		json.add("datatype", new JsonPrimitive("STRING"));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+
+		json = new JsonObject();
+		json.add("ValueList",
+				new JsonPrimitive(getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() {
 		setContextClass(CatalogComponentTSQResourceIntegrationTest.class);
 		CatalogComponentTSQResourceIntegrationTest.deleteEntity();
+
+		setContextClass(ValueListResourceIntegrationTest.class);
+		ValueListResourceIntegrationTest.deleteEntity();
 	}
 }

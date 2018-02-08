@@ -52,11 +52,10 @@ public class CatalogAttributeTEQResourceIntegrationTest extends EntityResourceIn
 		json.add("datatype", new JsonPrimitive("STRING"));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
-		// json = new JsonObject();
-		// json.add("ValueList",
-		// new JsonPrimitive(getTestDataValue(ValueListResourceIntegrationTest.class,
-		// TESTDATA_ENTITY_ID)));
-		// putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
+		json = new JsonObject();
+		json.add("ValueList",
+				new JsonPrimitive(getTestDataValue(ValueListResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}
 
 	@AfterClass

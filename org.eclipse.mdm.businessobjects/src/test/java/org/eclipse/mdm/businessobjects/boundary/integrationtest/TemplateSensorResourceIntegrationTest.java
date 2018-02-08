@@ -55,6 +55,11 @@ public class TemplateSensorResourceIntegrationTest extends EntityResourceIntegra
 		json.add("quantity", new JsonPrimitive(getTestDataValue(QuantityResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+
+		json = new JsonObject();
+		json.add("Quantity",
+				new JsonPrimitive(getTestDataValue(QuantityResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}
 
 	@AfterClass
