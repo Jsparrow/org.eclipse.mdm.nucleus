@@ -51,14 +51,19 @@ import org.eclipse.mdm.businessobjects.control.SearchActivity;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.utils.EntityNotFoundException;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vavr.CheckedFunction0;
 import io.vavr.Function0;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.Value;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -84,6 +89,8 @@ public class EntityService {
 	@EJB
 	private I18NActivity i18nActivity;
 
+	Logger LOGGER = LoggerFactory.getLogger(EntityService.class);
+
 	/**
 	 * Converts a {@code value} into a {@link Value}. If {@code value} is
 	 * {@code null}, {@code Value.isEmpty() == true}.
@@ -106,8 +113,7 @@ public class EntityService {
 	 * @return the created {@link Seq} of {@link Value}s
 	 */
 	public static Seq<Value<String>> SL(String... values) {
-		return List.of(values)
-				.map(s -> Option.of(s));
+		return List.of(values).map(s -> Option.of(s));
 	}
 
 	/**
@@ -205,12 +211,9 @@ public class EntityService {
 		// validate parentIds count
 		Map<Class<?>, Integer> minParentsForEntity = HashMap.empty();
 		minParentsForEntity = minParentsForEntity.put(Tuple(CatalogAttribute.class, 1))
-				.put(Tuple(CatalogSensor.class, 1))
-				.put(Tuple(TemplateComponent.class, 1))
-				.put(Tuple(TemplateAttribute.class, 2))
-				.put(Tuple(TemplateSensor.class, 2))
-				.put(Tuple(ValueListValue.class, 1))
-				.put(Tuple(TemplateTestStepUsage.class, 1));
+				.put(Tuple(CatalogSensor.class, 1)).put(Tuple(TemplateComponent.class, 1))
+				.put(Tuple(TemplateAttribute.class, 2)).put(Tuple(TemplateSensor.class, 2))
+				.put(Tuple(ValueListValue.class, 1)).put(Tuple(TemplateTestStepUsage.class, 1));
 
 		// return failure if number of parentIds do not correspond with the minimu
 		// required by the entity type
@@ -330,8 +333,7 @@ public class EntityService {
 	private <T extends Entity> T getChild(Class<T> childClass, Value<String> childIdSupplier,
 			Function0<java.util.List<T>> childSupplier) {
 		return Stream.ofAll(childSupplier.apply())
-				.find(childEntity -> childEntity.getID()
-						.equals(childIdSupplier.get()))
+				.find(childEntity -> childEntity.getID().equals(childIdSupplier.get()))
 				.getOrElseThrow(() -> new EntityNotFoundException(childClass, childIdSupplier.get()));
 	}
 
@@ -375,18 +377,13 @@ public class EntityService {
 			String filter, Value<ContextType> contextTypeSupplier) {
 		// TODO anehmer on 2017-11-22: do we need to implement the navigationActivity
 		// filter shortcut like in ChannelGroupService.getChannelGroups()
-		if (filter == null || filter.trim()
-				.length() <= 0) {
-			return Try
-					.of(getLoadAllEntitiesMethod(getEntityManager(sourceNameSupplier).get(), entityClass,
-							contextTypeSupplier))
-					.map(javaList -> List.ofAll(javaList));
+		if (filter == null || filter.trim().length() <= 0) {
+			return Try.of(getLoadAllEntitiesMethod(getEntityManager(sourceNameSupplier).get(), entityClass,
+					contextTypeSupplier)).map(javaList -> List.ofAll(javaList));
 		} else {
 			// TODO anehmer on 2017-11-15: not tested
-			return Try
-					.of(() -> this.searchActivity.search(connectorService.getContextByName(sourceNameSupplier.get()),
-							entityClass, filter))
-					.map(javaList -> List.ofAll(javaList));
+			return Try.of(() -> this.searchActivity.search(connectorService.getContextByName(sourceNameSupplier.get()),
+					entityClass, filter)).map(javaList -> List.ofAll(javaList));
 		}
 	}
 
@@ -434,26 +431,20 @@ public class EntityService {
 			Seq<Value<?>> argumentSuppliers) {
 
 		// get corresponding create method for entityClass from EntityFactory
-		return Try.of(() -> connectorService.getContextByName(sourceNameSupplier.get())
-				.getEntityFactory())
+		return Try.of(() -> connectorService.getContextByName(sourceNameSupplier.get()).getEntityFactory())
 				.mapTry(factory -> (T) Stream.of(EntityFactory.class.getMethods())
 						// find method with the return type matching entityClass
-						.filter(m -> m.getReturnType()
-								.equals(entityClass))
+						.filter(m -> m.getReturnType().equals(entityClass))
 						.filter(m -> Arrays.asList(m.getParameterTypes())
 								// compare argument types
-								.equals(argumentSuppliers.map(s -> s.get()
-										.getClass())
-										.toJavaList()))
-						.getOrElseThrow(() -> new NoSuchMethodException(
-								"No matching create()-method found for EntityType " + entityClass.getSimpleName()
-										+ " taking the parameters " + argumentSuppliers.map(s -> s.get()
-												.getClass()
-												.getName())
+								.equals(argumentSuppliers.map(s -> s.get().getClass()).toJavaList()))
+						.getOrElseThrow(
+								() -> new NoSuchMethodException("No matching create()-method found for EntityType "
+										+ entityClass.getSimpleName() + " taking the parameters "
+										+ argumentSuppliers.map(s -> s.get().getClass().getName())
 												.collect(Collectors.joining(", "))))
 						// invoke with given arguments
-						.invoke(factory.get(), argumentSuppliers.map(s -> s.get())
-								.toJavaArray()))
+						.invoke(factory.get(), argumentSuppliers.map(s -> s.get()).toJavaArray()))
 
 				// start transaction to create the entity
 				.map(e -> DataAccessHelper.execute(getEntityManager(sourceNameSupplier).get(), e,
@@ -554,10 +545,8 @@ public class EntityService {
 	 * @return a {@link Try} with the resolved {@link EnumerationValue}
 	 */
 	public Try<EnumerationValue> getEnumerationValueSupplier(Try<?> enumValueNameSupplier) {
-		return Try.of(() -> EnumRegistry.getInstance()
-				.get(EnumRegistry.VALUE_TYPE)
-				.valueOf(enumValueNameSupplier.get()
-						.toString()));
+		return Try.of(() -> EnumRegistry.getInstance().get(EnumRegistry.VALUE_TYPE)
+				.valueOf(enumValueNameSupplier.get().toString()));
 	}
 
 	/**
@@ -571,15 +560,16 @@ public class EntityService {
 	 *         not found.
 	 */
 	private Try<EntityManager> getEntityManager(Value<String> sourceNameSupplier) {
-		return Try.of(() -> this.connectorService.getContextByName(sourceNameSupplier.get())
-				.getEntityManager()
+		return Try.of(() -> this.connectorService.getContextByName(sourceNameSupplier.get()).getEntityManager()
 				.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present")));
 	}
 
 	/**
 	 * Updates the given {@link Entity} with the values from the given valueMap. All
-	 * matching attributes are updated, whereas attribute matching is case sensitve
-	 * (the data model attribute name is the reference).
+	 * matching attributes (case sensitive) are updated as well as the referenced
+	 * relations by the id of the given
+	 * {@link org.eclipse.mdm.api.base.model.Entity} and the simple class name as
+	 * the key (the data model attribute name is the reference, case sensitive).
 	 * 
 	 * @param entity
 	 *            the entity to update
@@ -591,38 +581,67 @@ public class EntityService {
 	@SuppressWarnings("unchecked")
 	public <T extends Entity> Try<T> updateEntityValues(T entity, Map<String, Object> valueMap,
 			Value<String> sourceNameSupplier) {
-		// update all entity values with values from the valueMap
-		return Try.of(() -> entity).map(e -> {
-			// TODO Test: what happens, if an attribute is missing?
-			// iterate all key-values of entity
-			HashMap.ofAll(e.getValues())
-					// get for each the corresponding update value
-					.forEach((name, value) -> valueMap.get(name)
-							// set the update value
-							.peek(mapValue -> value.set(mapValue)));
-			return e;
-		}).map(e -> {
-			EntityStore store = getMutableStore(e);
-			valueMap.forEach(tuple -> {
-				try {
-					Class<Entity> entityClass = (Class<Entity>) Class
-							.forName("org.eclipse.mdm.api.dflt.model." + tuple._1);
-					store.set(tuple._1, find(sourceNameSupplier, entityClass, V(tuple._2.toString())).get());
 
-				} catch (ClassNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			});
-			// for (String key : valueMap.keySet()) {
-			// store.getRemoved();
-			// System.out.println(getMutableStore(e).get(valueMap.get(key), entityClass));
+		HashMap<String, org.eclipse.mdm.api.base.model.Value> entityValues = HashMap.ofAll(entity.getValues());
 
-			return e;
-		});
+		// update values where the key from the valueMap has a matching entity value
+		// and collect the updated keys
+		Set<String> updatedValues = valueMap
+				.filter((valueMapEntryKey, valueMapEntryValue) -> entityValues.containsKey(valueMapEntryKey))
+				.map((entityValueEntryKey, entityValueEntryValue) -> {
+					entityValues.get(entityValueEntryKey).forEach(value -> value.set(entityValueEntryValue));
+					return new Tuple2<String, Object>(entityValueEntryKey, entityValueEntryValue);
+				}).keySet();
 
+		// update the relations and gather the updated keys
+		// use only those keys that have not been updated yet and can be resolved as
+		// class names. If so, try to update accordingly named relation with the entity
+		// found by its id given as the value
+		Set<String> updatedRelations = valueMap
+				.filter((valueMapEntryKey, valueMapEntryValue) -> !updatedValues.contains(valueMapEntryKey))
+				.filter((relatedEntityClassName, relatedEntityId) -> {
+					EntityStore store = getMutableStore(entity);
+
+					// load class from model packages
+					Try<Class<Entity>> updateTry = Try
+							.of(() -> (Class<Entity>) Class
+									.forName("org.eclipse.mdm.api.base.model." + relatedEntityClassName))
+							.orElse(Try.of(() -> (Class<Entity>) Class
+									.forName("org.eclipse.mdm.api.dflt.model." + relatedEntityClassName)))
+							// update related entity by first finding the related entity by its id
+							.andThenTry(entityClass -> store
+									.set(find(sourceNameSupplier, entityClass, V(relatedEntityId.toString()))
+											.onFailure(e -> LOGGER.error(e.getMessage())).get()))
+							.onFailure(e -> LOGGER.error("Entity of type [" + relatedEntityClassName + "] and ID "
+									+ relatedEntityId + " not found", e));
+
+					return updateTry.isSuccess() ? true : false;
+				}).keySet();
+
+		// return Try.Failure if there are keys that are not present in the entity and
+		// thus are not updated
+		String unmappedKeys = valueMap
+				.filterKeys(key -> !updatedValues.contains(key) && !updatedRelations.contains(key)).map(Tuple::toString)
+				.collect(Collectors.joining(", "));
+
+		if (unmappedKeys != null && !unmappedKeys.isEmpty()) {
+			return Try.failure(
+					new IllegalArgumentException("ValueMap to update entity contains the following keys that either "
+							+ "have no match in the entity values or relations to update "
+							+ "or an error occurred while finding the related entity: " + unmappedKeys));
+		} else {
+			return Try.of(() -> entity);
+		}
 	}
 
+	/**
+	 * Get the mutableStore from {@link org.eclipse.mdm.api.base.adapter.Core} of
+	 * given {@link org.eclipse.mdm.api.base.model.Entity}
+	 * 
+	 * @param e
+	 *            Entity to get Core of
+	 * @return Core of given Entity
+	 */
 	private static EntityStore getMutableStore(Entity e) {
 		return Try.of(() -> {
 			Method GET_CORE_METHOD;
@@ -634,8 +653,6 @@ public class EntityService {
 						"Unable to load 'getCore()' in class '" + BaseEntity.class.getSimpleName() + "'.", x);
 			}
 			Core core = (Core) GET_CORE_METHOD.invoke(e);
-			// Note: we can only set relations in the mutable store (which
-			// doesn't include parent-child-relations)
 			EntityStore store = core.getMutableStore();
 
 			return store;

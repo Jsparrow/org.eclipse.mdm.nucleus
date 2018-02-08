@@ -144,6 +144,7 @@ public final class ServiceUtils {
 	public static <T extends Entity> Response buildEntityResponse(T entity, Status status) {
 		if (entity != null) {
 			MDMEntityResponse response = new MDMEntityResponse(entity.getClass(), entity);
+			// TODO anehmer on 2018-02-08: relations should be included in the output
 			GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
 			return Response.status(status)
 					.entity(genEntity)

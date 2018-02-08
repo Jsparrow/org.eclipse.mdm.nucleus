@@ -25,6 +25,10 @@ import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+
 import io.restassured.RestAssured;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
 import io.restassured.http.ContentType;
@@ -65,6 +69,7 @@ public abstract class EntityResourceIntegrationTest {
 	protected final static String TESTDATA_ENTITY_NAME = "entityName";
 	protected final static String TESTDATA_ENTITY_TYPE = "entityType";
 	protected final static String TESTDATA_CREATE_JSON_BODY = "createJSONBody";
+	protected final static String TESTDATA_UPDATE_JSON_BODY = "updateJSONBody";
 	protected final static String TESTDATA_RESOURCE_URI = "resourceURI";
 	protected final static String TESTDATA_RANDOM_DATA = "RANDOM_DATA";
 
@@ -90,13 +95,7 @@ public abstract class EntityResourceIntegrationTest {
 	static {
 		// configure URI
 		StringBuilder baseURI = new StringBuilder();
-		baseURI.append("http://")
-				.append(HOST)
-				.append(":")
-				.append(PORT)
-				.append("/")
-				.append(BASE_PATH)
-				.append("/")
+		baseURI.append("http://").append(HOST).append(":").append(PORT).append("/").append(BASE_PATH).append("/")
 				.append(API_PATH);
 		RestAssured.baseURI = baseURI.toString();
 		RestAssured.basePath = ENV_PATH;
@@ -116,9 +115,7 @@ public abstract class EntityResourceIntegrationTest {
 	@Test
 	public void test1Create() {
 		// only execute if not skipped by implementing test class
-		Assume.assumeFalse(testsToSkip.get(getContextClass())
-				.get()
-				.contains(TestType.CREATE));
+		Assume.assumeFalse(testsToSkip.get(getContextClass()).get().contains(TestType.CREATE));
 
 		createEntity();
 	}
@@ -138,19 +135,13 @@ public abstract class EntityResourceIntegrationTest {
 		}
 
 		LOGGER.debug(getContextClass().getSimpleName() + ".create() sending POST to "
-				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+				+ getTestDataValue(TESTDATA_RESOURCE_URI) + " with: " + getTestDataValue(TESTDATA_CREATE_JSON_BODY));
 
 		ExtractableResponse<io.restassured.response.Response> response = given().contentType(ContentType.JSON)
-				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
-				.post(getTestDataValue(TESTDATA_RESOURCE_URI))
-				.then()
-				.log()
-				.ifError()
-				.contentType(ContentType.JSON)
+				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY)).post(getTestDataValue(TESTDATA_RESOURCE_URI)).then()
+				.log().ifError().contentType(ContentType.JSON)
 				// do not check for name equality as that might be created randomly
-				.and()
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-				.extract();
+				.and().body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE))).extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " created " + response.asString());
 
@@ -161,22 +152,15 @@ public abstract class EntityResourceIntegrationTest {
 	@Test
 	public void test2Find() {
 		// only execute if not skipped by implementing test class
-		Assume.assumeFalse(testsToSkip.get(getContextClass())
-				.get()
-				.contains(TestType.FIND));
+		Assume.assumeFalse(testsToSkip.get(getContextClass()).get().contains(TestType.FIND));
 
 		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
 
 		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to " + uri);
 
-		ExtractableResponse<Response> response = given().get(uri)
-				.then()
-				.log()
-				.ifError()
-				.contentType(ContentType.JSON)
+		ExtractableResponse<Response> response = given().get(uri).then().log().ifError().contentType(ContentType.JSON)
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-				.extract();
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE))).extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " found " + response.asString());
 	}
@@ -189,14 +173,10 @@ public abstract class EntityResourceIntegrationTest {
 		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to "
 				+ getTestDataValue(TESTDATA_RESOURCE_URI));
 
-		String id = given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
-				.then()
-				.log()
-				.ifError()
+		String id = given().get(getTestDataValue(TESTDATA_RESOURCE_URI)).then().log().ifError()
 				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-				.extract()
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE))).extract()
 				.path("data.first().id");
 
 		LOGGER.debug(getContextClass().getSimpleName() + " found " + getTestDataValue(TESTDATA_ENTITY_TYPE)
@@ -208,36 +188,44 @@ public abstract class EntityResourceIntegrationTest {
 	@Test
 	public void test3FindAll() {
 		// only execute if not skipped by implementing test class
-		Assume.assumeFalse(testsToSkip.get(getContextClass())
-				.get()
-				.contains(TestType.FINDALL));
+		Assume.assumeFalse(testsToSkip.get(getContextClass()).get().contains(TestType.FINDALL));
 
 		LOGGER.debug(getContextClass().getSimpleName() + ".findAll() sending GET to "
 				+ getTestDataValue(TESTDATA_RESOURCE_URI));
 
-		ExtractableResponse<Response> response = given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
-				.then()
-				.log()
-				.ifError()
-				.contentType(ContentType.JSON)
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-				.extract();
+		ExtractableResponse<Response> response = given().get(getTestDataValue(TESTDATA_RESOURCE_URI)).then().log()
+				.ifError().contentType(ContentType.JSON)
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE))).extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " found all " + response.asString());
 	}
 
 	// TODO anehmer on 2017-11-09: test findAll with filter
 
+	// TODO anehmer on 2018-02-06: update of relations are not checked as the
+	// returned Json does not include relations
 	@Test
 	public void test4Update() {
 		// only execute if not skipped by implementing test class
-		Assume.assumeFalse(testsToSkip.get(getContextClass())
-				.get()
-				.contains(TestType.UPDATE));
+		Assume.assumeFalse(testsToSkip.get(getContextClass()).get().contains(TestType.UPDATE));
+
+		JsonObject json;
+		// if no UPDATE_JSON_BODY is defined in implementing test, just run the MimeType
+		// update
+		if (!isTestDataValuePresent(TESTDATA_UPDATE_JSON_BODY)) {
+			json = new JsonObject();
+		}
+		// or add it to the existing update
+		else {
+			json = new JsonParser().parse(getTestDataValue(TESTDATA_UPDATE_JSON_BODY)).getAsJsonObject();
+		}
+		json.add("MimeType", new JsonPrimitive("updatedMimeType"));
+		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 
 		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to " + uri);
+		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to " + uri + " with: "
+				+ getTestDataValue(TESTDATA_UPDATE_JSON_BODY));
 
 		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
 				// TODO anehmer on 2017-11-15: the update should use different data but as the
@@ -248,14 +236,11 @@ public abstract class EntityResourceIntegrationTest {
 				// mean to perform another get as the ODSTransaction.update() does not return
 				// the updated entity
 				// TODO anehmer on 2017-11-15: use Description to test update
-				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
-				.put(uri)
-				.then()
-				.log()
-				.ifError()
+				.body(getTestDataValue(TESTDATA_UPDATE_JSON_BODY)).put(uri).then().log().ifError()
 				.contentType(ContentType.JSON)
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
 				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
+				.body("data.first().attributes.find {it.name == 'MimeType'}.value", equalTo("updatedMimeType"))
 				.extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " updated " + response.asString());
@@ -264,9 +249,7 @@ public abstract class EntityResourceIntegrationTest {
 	@Test
 	public void test5Delete() {
 		// only execute if not skipped by implementing test class
-		Assume.assumeFalse(testsToSkip.get(getContextClass())
-				.get()
-				.contains(TestType.DELETE));
+		Assume.assumeFalse(testsToSkip.get(getContextClass()).get().contains(TestType.DELETE));
 
 		deleteEntity();
 	}
@@ -280,13 +263,9 @@ public abstract class EntityResourceIntegrationTest {
 
 		LOGGER.debug(getContextClass().getSimpleName() + ".delete() sending DELETE to " + uri);
 
-		ExtractableResponse<Response> response = given().delete(uri)
-				.then()
-				.log()
-				.ifError()
+		ExtractableResponse<Response> response = given().delete(uri).then().log().ifError()
 				.body("data.first().name", equalTo(getTestDataValue(TESTDATA_ENTITY_NAME)))
-				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
-				.extract();
+				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE))).extract();
 
 		LOGGER.debug(getContextClass().getSimpleName() + " deleted " + response.asString());
 
@@ -317,10 +296,8 @@ public abstract class EntityResourceIntegrationTest {
 	 */
 	public static String getTestDataValue(Class<?> contextClass, String key) {
 		return testDataMap.get(contextClass)
-				.map(valueMap -> valueMap.get(key)
-						.getOrElseThrow(() -> new NoSuchElementException(
-								"Key [" + key + "] not found in test data value map in context ["
-										+ contextClass.getSimpleName() + "]")))
+				.map(valueMap -> valueMap.get(key).getOrElseThrow(() -> new NoSuchElementException("Key [" + key
+						+ "] not found in test data value map in context [" + contextClass.getSimpleName() + "]")))
 				.get();
 	}
 
@@ -332,10 +309,7 @@ public abstract class EntityResourceIntegrationTest {
 	 * @return true, if a test data value for the given key exists, false if not
 	 */
 	public static boolean isTestDataValuePresent(String key) {
-		return testDataMap.get(getContextClass())
-				.map(valueMap -> valueMap.get(key)
-						.isDefined())
-				.get();
+		return testDataMap.get(getContextClass()).map(valueMap -> valueMap.get(key).isDefined()).get();
 	}
 
 	/**
@@ -346,8 +320,7 @@ public abstract class EntityResourceIntegrationTest {
 	 *            key to remove test data value for
 	 */
 	public static void removeTestDataValue(String key) {
-		testDataMap.get(getContextClass())
-				.map(valueMap -> valueMap.remove(key))
+		testDataMap.get(getContextClass()).map(valueMap -> valueMap.remove(key))
 				.map(newValueMap -> testDataMap = testDataMap.put(getContextClass(), newValueMap));
 	}
 
@@ -367,11 +340,8 @@ public abstract class EntityResourceIntegrationTest {
 		// database in case the name of the entity must be unique
 		// do not append suffix if name is randomly generated
 		if (key.equals(TESTDATA_ENTITY_NAME) && !value.equals(TESTDATA_RANDOM_DATA)
-				&& (entityTestData.get(TESTDATA_ENTITY_NAME)
-						.isEmpty()
-						|| !entityTestData.get(TESTDATA_ENTITY_NAME)
-								.get()
-								.equals(TESTDATA_RANDOM_DATA))) {
+				&& (entityTestData.get(TESTDATA_ENTITY_NAME).isEmpty()
+						|| !entityTestData.get(TESTDATA_ENTITY_NAME).get().equals(TESTDATA_RANDOM_DATA))) {
 			// append suffix if it was not already appended or an already suffixed value was
 			// used for a new one (e.g: TplAttr.name and CatAttr.name)
 			if (!value.endsWith(RANDOM_ENTITY_NAME_SUFFIX)) {
@@ -416,8 +386,7 @@ public abstract class EntityResourceIntegrationTest {
 	 *            the test to skip
 	 */
 	public static void skipTest(TestType test) {
-		testsToSkip.get(getContextClass())
-				.map(tests -> tests.add(test))
+		testsToSkip.get(getContextClass()).map(tests -> tests.add(test))
 				.map(newTests -> testsToSkip = testsToSkip.put(getContextClass(), newTests));
 	}
 

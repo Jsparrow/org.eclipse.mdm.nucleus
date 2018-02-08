@@ -35,10 +35,15 @@ public class CatalogAttributeTEQResourceIntegrationTest extends EntityResourceIn
 		CatalogComponentTEQResourceIntegrationTest.prepareTestData();
 		CatalogComponentTEQResourceIntegrationTest.createEntity();
 
+		// prepare test data for creating the ValueList to reference
+		ValueListResourceIntegrationTest.prepareTestData();
+		ValueListResourceIntegrationTest.createEntity();
+
 		// set up test data
 		setContextClass(CatalogAttributeTEQResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/testequipment/" + getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/catattrs");
+		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/testequipment/"
+				+ getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/catattrs");
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatAttrTEQ");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogAttribute");
 
@@ -46,11 +51,20 @@ public class CatalogAttributeTEQResourceIntegrationTest extends EntityResourceIn
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		json.add("datatype", new JsonPrimitive("STRING"));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+
+		// json = new JsonObject();
+		// json.add("ValueList",
+		// new JsonPrimitive(getTestDataValue(ValueListResourceIntegrationTest.class,
+		// TESTDATA_ENTITY_ID)));
+		// putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() {
 		setContextClass(CatalogComponentTEQResourceIntegrationTest.class);
 		CatalogComponentTEQResourceIntegrationTest.deleteEntity();
+
+		setContextClass(ValueListResourceIntegrationTest.class);
+		ValueListResourceIntegrationTest.deleteEntity();
 	}
 }
