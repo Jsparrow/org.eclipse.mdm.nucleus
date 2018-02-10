@@ -88,7 +88,10 @@ public final class RequestBody {
 		return Try.of(() -> Lazy.of(() -> requestBodyMap.get()
 				.get(key)
 				.map(value -> value.toString())
-				.getOrElseThrow(() -> new NoSuchElementException("Key [" + key + "] not found in request body.")))
+				.onEmpty(() -> {
+					throw new NoSuchElementException("Key [" + key + "] not found in request body.");
+				})
+				.get())
 				.get());
 	}
 
@@ -106,7 +109,10 @@ public final class RequestBody {
 		return Try.of(() -> Lazy.of(() -> requestBodyMap.get()
 				.get(key)
 				.map(value -> value.toString())
-				.getOrElseThrow(() -> new NoSuchElementException("Key [" + key + "] not found in request body.")))
+				.onEmpty(() -> {
+					throw new NoSuchElementException("Key [" + key + "] not found in request body.");
+				})
+				.get())
 				.get());
 	}
 
