@@ -62,49 +62,49 @@ public final class ResourceConstants {
 	/**
 	 * Parameter holding the name of the {@link Entity} in the request body
 	 */
-	public static final String ENTITYATTRIBUTE_NAME = "name";
+	public static final String ENTITYATTRIBUTE_NAME = "Name";
 
 	/**
 	 * Parameter holding the {@link ValueType} of the {@link Entity} in the request
 	 * body
 	 */
-	public static final String ENTITYATTRIBUTE_DATATYPE = "datatype";
+	public static final String ENTITYATTRIBUTE_DATATYPE = "DataType";
 
 	/**
 	 * Parameter holding the id of the {@link CatalogComponent} of e.g. the
 	 * {@link TemplateComponent} in the request body
 	 */
-	public static final String ENTITYATTRIBUTE_CATALOGCOMPONENT_ID = "catalogcomponent";
+	public static final String ENTITYATTRIBUTE_CATALOGCOMPONENT_ID = "CatalogComponent";
 
 	/**
 	 * Parameter holding the id of the {@link CatalogSensor} of e.g. the
 	 * {@link TemplateSensor} in the request body
 	 */
-	public static final String ENTITYATTRIBUTE_CATALOGSENSOR_ID = "catalogsensor";
+	public static final String ENTITYATTRIBUTE_CATALOGSENSOR_ID = "CatalogSensor";
 
 	/**
 	 * Parameter holding the id of the {@link Quantity} of e.g. the {@link Unit} in
 	 * the request body
 	 */
-	public static final String ENTITYATTRIBUTE_QUANTITY_ID = "quantity";
+	public static final String ENTITYATTRIBUTE_QUANTITY_ID = "Quantity";
 
 	/**
 	 * Parameter holding the id of the {@link Unit} of e.g. the {@link Quantity} in
 	 * the request body
 	 */
-	public static final String ENTITYATTRIBUTE_UNIT_ID = "unit";
+	public static final String ENTITYATTRIBUTE_UNIT_ID = "Unit";
 
 	/**
 	 * Parameter holding the id of the {@link Unit} of e.g. the {@link Quantity} in
 	 * the request body
 	 */
-	public static final String ENTITYATTRIBUTE_PHYSICALDIMENSION_ID = "physicaldimension";
+	public static final String ENTITYATTRIBUTE_PHYSICALDIMENSION_ID = "PhysicalDimension";
 
 	/**
 	 * Parameter holding the id of the {@link TemplateTestStep} of e.g. the
 	 * {@link TemplateTestStepUsage} in the request body
 	 */
-	public static final String ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID = "templateteststep";
+	public static final String ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID = "TemplateTestStep";
 
 	/**
 	 * Just hide the default constructor

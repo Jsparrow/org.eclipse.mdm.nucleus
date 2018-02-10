@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -51,10 +52,8 @@ public class TemplateTestStepUsageResourceIntegrationTest extends EntityResource
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateTestStepUsage");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
-		json.add("templateteststep", new JsonPrimitive(getTestDataValue(TemplateTestStepResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
-		json.add("templatetest",
-				new JsonPrimitive(getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID, new JsonPrimitive(getTestDataValue(TemplateTestStepResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		json = new JsonObject();

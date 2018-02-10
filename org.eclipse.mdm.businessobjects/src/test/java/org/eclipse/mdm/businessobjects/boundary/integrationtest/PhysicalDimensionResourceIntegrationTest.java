@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
@@ -36,7 +37,7 @@ public class PhysicalDimensionResourceIntegrationTest extends EntityResourceInte
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "PhysicalDimension");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		json = new JsonObject();

@@ -11,6 +11,7 @@
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -47,8 +48,7 @@ public class NestedTemplateAttributeTSQResourceIntegrationTest extends EntityRes
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateAttribute");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(CatalogAttributeTSQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
-		json.add("catalogattribute", new JsonPrimitive(getTestDataValue(CatalogAttributeTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(CatalogAttributeTSQResourceIntegrationTest.class, TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		// delete the implicitly created NestedTemplateAttribute

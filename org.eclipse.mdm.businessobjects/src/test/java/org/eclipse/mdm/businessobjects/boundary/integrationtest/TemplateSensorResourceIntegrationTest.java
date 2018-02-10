@@ -11,6 +11,7 @@
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -50,14 +51,14 @@ public class TemplateSensorResourceIntegrationTest extends EntityResourceIntegra
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateSensor");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
-		json.add("catalogsensor", new JsonPrimitive(getTestDataValue(CatalogSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
-		json.add("quantity", new JsonPrimitive(getTestDataValue(QuantityResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_CATALOGSENSOR_ID, new JsonPrimitive(getTestDataValue(CatalogSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_QUANTITY_ID, new JsonPrimitive(getTestDataValue(QuantityResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		json = new JsonObject();
-		json.add("Quantity",
+		json.add(ResourceConstants.ENTITYATTRIBUTE_QUANTITY_ID,
 				new JsonPrimitive(getTestDataValue(QuantityResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}

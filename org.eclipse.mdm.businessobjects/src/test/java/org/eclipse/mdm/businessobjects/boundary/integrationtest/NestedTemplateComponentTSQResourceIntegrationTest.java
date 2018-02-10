@@ -11,6 +11,7 @@
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -47,8 +48,8 @@ public class NestedTemplateComponentTSQResourceIntegrationTest extends EntityRes
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateComponent");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
-		json.add("catalogcomponent", new JsonPrimitive(getTestDataValue(CatalogComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_CATALOGCOMPONENT_ID, new JsonPrimitive(getTestDataValue(CatalogComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 

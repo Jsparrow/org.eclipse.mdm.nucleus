@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -41,14 +42,14 @@ public class UnitResourceIntegrationTest extends EntityResourceIntegrationTest {
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "Unit");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
-		json.add("physicaldimension", new JsonPrimitive(
+		json.add(ResourceConstants.ENTITYATTRIBUTE_PHYSICALDIMENSION_ID, new JsonPrimitive(
 				getTestDataValue(PhysicalDimensionResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 
 		json = new JsonObject();
-		json.add("PhysicalDimension", new JsonPrimitive(
+		json.add(ResourceConstants.ENTITYATTRIBUTE_PHYSICALDIMENSION_ID, new JsonPrimitive(
 				getTestDataValue(PhysicalDimensionResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}

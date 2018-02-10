@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -41,12 +42,10 @@ public class QuantityResourceIntegrationTest extends EntityResourceIntegrationTe
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "Quantity");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		// TODO anehmer on 2017-11-17: create unit (and physDim) instead of taking fixed
 		// one
-		json.add("unit", new JsonPrimitive("1"));
-		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
-		json.add("unit", new JsonPrimitive(getTestDataValue(UnitResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_UNIT_ID, new JsonPrimitive(getTestDataValue(UnitResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 

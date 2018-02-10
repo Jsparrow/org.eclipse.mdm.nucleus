@@ -11,6 +11,7 @@
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
@@ -37,7 +38,7 @@ public class CatalogComponentTSQResourceIntegrationTest extends EntityResourceIn
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogComponent");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 }

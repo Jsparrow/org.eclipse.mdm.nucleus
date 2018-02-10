@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
+import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -44,8 +45,8 @@ public class CatalogSensorAttributeResourceIntegrationTest extends EntityResourc
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogAttribute");
 
 		JsonObject json = new JsonObject();
-		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
-		json.add("datatype", new JsonPrimitive("STRING"));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_NAME, new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
+		json.add(ResourceConstants.ENTITYATTRIBUTE_DATATYPE, new JsonPrimitive("STRING"));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
 	}
 
