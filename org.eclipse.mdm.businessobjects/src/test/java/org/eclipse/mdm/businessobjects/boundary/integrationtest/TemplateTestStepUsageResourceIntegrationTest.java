@@ -41,7 +41,7 @@ public class TemplateTestStepUsageResourceIntegrationTest extends EntityResource
 		setContextClass(TemplateTestStepUsageResourceIntegrationTest.class);
 
 		// skip the update as TemplateTestStepUsages cannot be updated
-		skipTest(TestType.UPDATE);
+		// skipTest(TestType.UPDATE);
 
 		putTestDataValue(TESTDATA_RESOURCE_URI,
 				"/tpltests/" + getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
@@ -56,6 +56,10 @@ public class TemplateTestStepUsageResourceIntegrationTest extends EntityResource
 		json.add("templatetest",
 				new JsonPrimitive(getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+
+		json = new JsonObject();
+		json.add("DefaultActive", new JsonPrimitive(true));
+		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}
 
 	@AfterClass

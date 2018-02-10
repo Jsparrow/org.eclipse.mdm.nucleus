@@ -24,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -123,9 +124,34 @@ public class TemplateTestStepUsageResource {
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
-	/*
-	 * Update not implemented as TemplateTestStepUsages cannot be updated
+	/**
+	 * Updates the {@link TemplateTestUsage} with all parameters set in the given
+	 * JSON body of the request.
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param id
+	 *            the identifier of the {@link TemplateTestUsage} to delete.
+	 * @param body
+	 *            the body of the request containing the attributes to update
+	 * @return the updated {@link TemplateTestUsage}
 	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_ID2 + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
+			@PathParam(REQUESTPARAM_ID) String tplTestId, @PathParam(REQUESTPARAM_ID2) String id, String body) {
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.update(V(sourceName),
+						entityService.find(V(sourceName), TemplateTestStepUsage.class, V(id), SL(tplTestId)),
+						requestBody.getValueMapSupplier())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
+	}
 
 	/**
 	 * Deletes and returns the deleted {@link TemplateTestStepUsage}.
