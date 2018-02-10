@@ -113,7 +113,8 @@ public class EntityService {
 	 * @return the created {@link Seq} of {@link Value}s
 	 */
 	public static Seq<Value<String>> SL(String... values) {
-		return List.of(values).map(s -> Option.of(s));
+		return List.of(values)
+				.map(s -> Option.of(s));
 	}
 
 	/**
@@ -211,9 +212,12 @@ public class EntityService {
 		// validate parentIds count
 		Map<Class<?>, Integer> minParentsForEntity = HashMap.empty();
 		minParentsForEntity = minParentsForEntity.put(Tuple(CatalogAttribute.class, 1))
-				.put(Tuple(CatalogSensor.class, 1)).put(Tuple(TemplateComponent.class, 1))
-				.put(Tuple(TemplateAttribute.class, 2)).put(Tuple(TemplateSensor.class, 2))
-				.put(Tuple(ValueListValue.class, 1)).put(Tuple(TemplateTestStepUsage.class, 1));
+				.put(Tuple(CatalogSensor.class, 1))
+				.put(Tuple(TemplateComponent.class, 1))
+				.put(Tuple(TemplateAttribute.class, 2))
+				.put(Tuple(TemplateSensor.class, 2))
+				.put(Tuple(ValueListValue.class, 1))
+				.put(Tuple(TemplateTestStepUsage.class, 1));
 
 		// return failure if number of parentIds do not correspond with the minimu
 		// required by the entity type
@@ -333,7 +337,8 @@ public class EntityService {
 	private <T extends Entity> T getChild(Class<T> childClass, Value<String> childIdSupplier,
 			Function0<java.util.List<T>> childSupplier) {
 		return Stream.ofAll(childSupplier.apply())
-				.find(childEntity -> childEntity.getID().equals(childIdSupplier.get()))
+				.find(childEntity -> childEntity.getID()
+						.equals(childIdSupplier.get()))
 				.getOrElseThrow(() -> new EntityNotFoundException(childClass, childIdSupplier.get()));
 	}
 
@@ -377,13 +382,18 @@ public class EntityService {
 			String filter, Value<ContextType> contextTypeSupplier) {
 		// TODO anehmer on 2017-11-22: do we need to implement the navigationActivity
 		// filter shortcut like in ChannelGroupService.getChannelGroups()
-		if (filter == null || filter.trim().length() <= 0) {
-			return Try.of(getLoadAllEntitiesMethod(getEntityManager(sourceNameSupplier).get(), entityClass,
-					contextTypeSupplier)).map(javaList -> List.ofAll(javaList));
+		if (filter == null || filter.trim()
+				.length() <= 0) {
+			return Try
+					.of(getLoadAllEntitiesMethod(getEntityManager(sourceNameSupplier).get(), entityClass,
+							contextTypeSupplier))
+					.map(javaList -> List.ofAll(javaList));
 		} else {
 			// TODO anehmer on 2017-11-15: not tested
-			return Try.of(() -> this.searchActivity.search(connectorService.getContextByName(sourceNameSupplier.get()),
-					entityClass, filter)).map(javaList -> List.ofAll(javaList));
+			return Try
+					.of(() -> this.searchActivity.search(connectorService.getContextByName(sourceNameSupplier.get()),
+							entityClass, filter))
+					.map(javaList -> List.ofAll(javaList));
 		}
 	}
 
@@ -431,20 +441,26 @@ public class EntityService {
 			Seq<Value<?>> argumentSuppliers) {
 
 		// get corresponding create method for entityClass from EntityFactory
-		return Try.of(() -> connectorService.getContextByName(sourceNameSupplier.get()).getEntityFactory())
+		return Try.of(() -> connectorService.getContextByName(sourceNameSupplier.get())
+				.getEntityFactory())
 				.mapTry(factory -> (T) Stream.of(EntityFactory.class.getMethods())
 						// find method with the return type matching entityClass
-						.filter(m -> m.getReturnType().equals(entityClass))
+						.filter(m -> m.getReturnType()
+								.equals(entityClass))
 						.filter(m -> Arrays.asList(m.getParameterTypes())
 								// compare argument types
-								.equals(argumentSuppliers.map(s -> s.get().getClass()).toJavaList()))
-						.getOrElseThrow(
-								() -> new NoSuchMethodException("No matching create()-method found for EntityType "
-										+ entityClass.getSimpleName() + " taking the parameters "
-										+ argumentSuppliers.map(s -> s.get().getClass().getName())
+								.equals(argumentSuppliers.map(s -> s.get()
+										.getClass())
+										.toJavaList()))
+						.getOrElseThrow(() -> new NoSuchMethodException(
+								"No matching create()-method found for EntityType " + entityClass.getSimpleName()
+										+ " taking the parameters " + argumentSuppliers.map(s -> s.get()
+												.getClass()
+												.getName())
 												.collect(Collectors.joining(", "))))
 						// invoke with given arguments
-						.invoke(factory.get(), argumentSuppliers.map(s -> s.get()).toJavaArray()))
+						.invoke(factory.get(), argumentSuppliers.map(s -> s.get())
+								.toJavaArray()))
 
 				// start transaction to create the entity
 				.map(e -> DataAccessHelper.execute(getEntityManager(sourceNameSupplier).get(), e,
@@ -545,8 +561,10 @@ public class EntityService {
 	 * @return a {@link Try} with the resolved {@link EnumerationValue}
 	 */
 	public Try<EnumerationValue> getEnumerationValueSupplier(Try<?> enumValueNameSupplier) {
-		return Try.of(() -> EnumRegistry.getInstance().get(EnumRegistry.VALUE_TYPE)
-				.valueOf(enumValueNameSupplier.get().toString()));
+		return Try.of(() -> EnumRegistry.getInstance()
+				.get(EnumRegistry.VALUE_TYPE)
+				.valueOf(enumValueNameSupplier.get()
+						.toString()));
 	}
 
 	/**
@@ -560,7 +578,8 @@ public class EntityService {
 	 *         not found.
 	 */
 	private Try<EntityManager> getEntityManager(Value<String> sourceNameSupplier) {
-		return Try.of(() -> this.connectorService.getContextByName(sourceNameSupplier.get()).getEntityManager()
+		return Try.of(() -> this.connectorService.getContextByName(sourceNameSupplier.get())
+				.getEntityManager()
 				.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present")));
 	}
 
@@ -584,21 +603,70 @@ public class EntityService {
 
 		HashMap<String, org.eclipse.mdm.api.base.model.Value> entityValues = HashMap.ofAll(entity.getValues());
 
-		// update values where the key from the valueMap has a matching entity value
-		// and collect the updated keys
-		Set<String> updatedValues = valueMap
-				.filter((valueMapEntryKey, valueMapEntryValue) -> entityValues.containsKey(valueMapEntryKey))
+		// update primitive values where the key from the valueMap has a matching entity
+		// value and collect the updated keys
+		Set<String> updatedPrimitiveValues = valueMap
+				.filter((valueMapEntryKey, valueMapEntryValue) -> entityValues.containsKey(valueMapEntryKey)
+						&& !(valueMapEntryValue instanceof java.util.Map))
 				.map((entityValueEntryKey, entityValueEntryValue) -> {
-					entityValues.get(entityValueEntryKey).forEach(value -> value.set(entityValueEntryValue));
+					entityValues.get(entityValueEntryKey)
+							.forEach(value -> value.set(entityValueEntryValue));
 					return new Tuple2<String, Object>(entityValueEntryKey, entityValueEntryValue);
-				}).keySet();
+				})
+				.keySet();
+
+		// update enumeration values
+		Set<String> updatedEnumerationValues = valueMap
+				.filter((valueMapEntryKey, valueMapEntryValue) -> entityValues.containsKey(valueMapEntryKey)
+						&& (valueMapEntryValue instanceof java.util.Map))
+				.map((entityValueEntryKey, entityValueEntryValue) -> {
+					entityValues.get(entityValueEntryKey)
+							.forEach(value -> {
+								// get key-value-pairs that identify the enum und enumValue
+								String enumName = ((java.util.Map<String, String>) entityValueEntryValue)
+										.get("Enumeration");
+								String enumValueName = ((java.util.Map<String, String>) entityValueEntryValue)
+										.get("EnumerationValue");
+
+								if (enumName == null || enumValueName == null) {
+									throw new IllegalArgumentException("EnumerationValue is set by providing a map "
+											+ "containing the keys 'Enumeration' and 'EnumerationValue' "
+											+ "and the respective names as the values");
+								}
+
+								// find enumeration and the enumeration value
+								Option.of(EnumRegistry.getInstance()
+										// get enum
+										.get(enumName))
+										.onEmpty(() -> {
+											throw new IllegalArgumentException(
+													"Enumeration [" + enumName + "] not found");
+										})
+										// get enumValue
+										.map(enumeration -> enumeration.valueOf(enumValueName))
+										// if enumValue is not found, null is returned
+										.filter(enumValue -> enumValue != null)
+										.onEmpty(() -> {
+											throw new IllegalArgumentException("EnumerationValue [" + enumValueName
+													+ "] not found in Enumeration [" + enumName + "]");
+										})
+										// set enumValue
+										.map(enumValue -> {
+											value.set(enumValue);
+											return enumValue;
+										});
+
+							});
+					return new Tuple2<String, Object>(entityValueEntryKey, entityValueEntryValue);
+				})
+				.keySet();
 
 		// update the relations and gather the updated keys
 		// use only those keys that have not been updated yet and can be resolved as
 		// class names. If so, try to update accordingly named relation with the entity
 		// found by its id given as the value
 		Set<String> updatedRelations = valueMap
-				.filter((valueMapEntryKey, valueMapEntryValue) -> !updatedValues.contains(valueMapEntryKey))
+				.filter((valueMapEntryKey, valueMapEntryValue) -> !updatedPrimitiveValues.contains(valueMapEntryKey))
 				.filter((relatedEntityClassName, relatedEntityId) -> {
 					EntityStore store = getMutableStore(entity);
 
@@ -611,17 +679,21 @@ public class EntityService {
 							// update related entity by first finding the related entity by its id
 							.andThenTry(entityClass -> store
 									.set(find(sourceNameSupplier, entityClass, V(relatedEntityId.toString()))
-											.onFailure(e -> LOGGER.error(e.getMessage())).get()))
+											.onFailure(e -> LOGGER.error(e.getMessage()))
+											.get()))
 							.onFailure(e -> LOGGER.error("Entity of type [" + relatedEntityClassName + "] and ID "
 									+ relatedEntityId + " not found", e));
 
 					return updateTry.isSuccess() ? true : false;
-				}).keySet();
+				})
+				.keySet();
 
 		// return Try.Failure if there are keys that are not present in the entity and
 		// thus are not updated
 		String unmappedKeys = valueMap
-				.filterKeys(key -> !updatedValues.contains(key) && !updatedRelations.contains(key)).map(Tuple::toString)
+				.filterKeys(key -> !updatedPrimitiveValues.contains(key) && !updatedEnumerationValues.contains(key)
+						&& !updatedRelations.contains(key))
+				.map(Tuple::toString)
 				.collect(Collectors.joining(", "));
 
 		if (unmappedKeys != null && !unmappedKeys.isEmpty()) {
@@ -656,7 +728,8 @@ public class EntityService {
 			EntityStore store = core.getMutableStore();
 
 			return store;
-		}).get();
+		})
+				.get();
 	}
 
 }

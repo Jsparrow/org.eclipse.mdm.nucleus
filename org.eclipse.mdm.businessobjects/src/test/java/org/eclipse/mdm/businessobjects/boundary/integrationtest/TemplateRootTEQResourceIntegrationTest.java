@@ -39,5 +39,12 @@ public class TemplateRootTEQResourceIntegrationTest extends EntityResourceIntegr
 		JsonObject json = new JsonObject();
 		json.add("name", new JsonPrimitive(getTestDataValue(TESTDATA_ENTITY_NAME)));
 		putTestDataValue(TESTDATA_CREATE_JSON_BODY, json.toString());
+
+		json = new JsonObject();
+		JsonObject enumerationJson = new JsonObject();
+		enumerationJson.add("Enumeration", new JsonPrimitive("VersionState"));
+		enumerationJson.add("EnumerationValue", new JsonPrimitive("VALID"));
+		json.add("ValidFlag", enumerationJson);
+		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 	}
 }
