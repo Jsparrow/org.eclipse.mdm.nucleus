@@ -171,6 +171,7 @@ User:
 
 System:
   - Node provider
+  - Shopping basket file extensions
 
 Source:
   - Ignored attributes
@@ -248,6 +249,10 @@ System scoped preference are applied globally.
         }
       }
     }
+    
+2.) Shopping basket file extensions
+
+When downloading the contents of a shopping basket, a file with extension `mdm` is generated. The file extension can be changed by adding a preference with key `shoppingbasket.fileextensions`. For example the used extension can be set to `mdm-xml` by setting the value to `{ "default": "mdm-xml" }`.
 
 ### Source scope
 Source scoped preferences are applied at any user but limited to the specified source. The source can be specified in the `Add Preference` or `Edit Preference` dialog.

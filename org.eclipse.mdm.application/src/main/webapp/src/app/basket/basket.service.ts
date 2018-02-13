@@ -22,6 +22,7 @@ import {PreferenceService, Preference, Scope} from '../core/preference.service';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 import { HttpErrorHandler } from '../core/http-error-handler';
 import { PropertyService } from '../core/property.service';
+import {Observable} from 'rxjs/Observable';
 
 export class Basket {
   name: string;
@@ -40,7 +41,7 @@ export class BasketService {
   public itemsAdded$ = new EventEmitter<MDMItem[]>();
   public itemsRemoved$ = new EventEmitter<MDMItem[]>();
   readonly preferencePrefix = 'basket.nodes.';
-
+  readonly preferenceFileextension = 'shoppingbasket.fileextension';
   items: MDMItem[] = [];
 
   constructor(private _pref: PreferenceService,
@@ -104,6 +105,17 @@ export class BasketService {
   getBasketAsXml(basket: Basket) {
     return this.http.post(this._prop.getUrl('/mdm/shoppingbasket'), basket)
       .map(r => r.text());
+  }
+
+  getFileExtension() {
+    return this._pref.getPreferenceForScope(Scope.SYSTEM, this.preferenceFileextension)
+      .flatMap(prefs => prefs)
+      .map(pref => JSON.parse(pref.value).default + '')
+      .catch(e => {
+        console.log("Unable to parse value of preference '" + this.preferenceFileextension + "'!");
+        return Observable.of("xml");
+      })
+      .defaultIfEmpty("xml");
   }
 
   private preferenceToBasket(pref: Preference) {
