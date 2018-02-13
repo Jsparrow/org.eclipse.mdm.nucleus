@@ -73,8 +73,6 @@ public class ServiceConfigurationActivity {
 
 			return parsedServiceElements;
 
-		} catch (ConnectorServiceException e) {
-			throw e;
 		} catch (Exception e) {
 			throw new ConnectorServiceException(e.toString(), e);
 		}

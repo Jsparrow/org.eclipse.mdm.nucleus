@@ -45,6 +45,9 @@ import org.slf4j.LoggerFactory;
 public final class FileReleaseUtils {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FileReleaseUtils.class);
+	
+	private FileReleaseUtils() {
+	}
 
 	/**
 	 * Returns the {@link User} that is logged in on the given

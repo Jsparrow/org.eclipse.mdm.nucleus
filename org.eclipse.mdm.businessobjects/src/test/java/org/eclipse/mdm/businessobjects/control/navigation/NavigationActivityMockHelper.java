@@ -41,7 +41,10 @@ import org.mockito.Mockito;
 
 public final class NavigationActivityMockHelper {
 
-	public static int ITEM_COUNT = 5;
+	public static final int ITEM_COUNT = 5;
+	
+	private NavigationActivityMockHelper() {
+	}
 
 	public static ConnectorService createConnectorMock() throws Exception {
 

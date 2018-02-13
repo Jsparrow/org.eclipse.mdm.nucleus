@@ -51,6 +51,9 @@ public class FileReleaseServiceMockHelper {
 
 	public static final String ID_IN_PREFIX = "IN";
 	public static final String ID_OUT_PREFIX = "OUT";
+	
+	private FileReleaseServiceMockHelper() {
+	}
 
 	public static FileReleaseManager createFileReleaseManagerMock() throws Exception {
 
@@ -67,8 +70,7 @@ public class FileReleaseServiceMockHelper {
 	}
 
 	public static FileConvertJobManager createFileConvertJobManagerMock() {
-		FileConvertJobManager managerMock = Mockito.mock(FileConvertJobManager.class);
-		return managerMock;
+		return Mockito.mock(FileConvertJobManager.class);
 	}
 
 	public static ConnectorService createConnectorServiceMock() throws Exception {

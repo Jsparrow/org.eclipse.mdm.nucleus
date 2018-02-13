@@ -33,6 +33,9 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.control.FilterParser;
 
 public final class ServiceUtils {
+	
+	private ServiceUtils() {
+	}
 
 	/**
 	 * converts the given object to a {@link Response} with the given

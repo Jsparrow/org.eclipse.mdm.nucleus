@@ -36,6 +36,9 @@ public class MDMEntity {
 
 	/** name of the MDM business object */
 	public final String name;
+	
+	/** type of the MDM business object */
+	public final String type;
 
 	/** id of the MDM business object */
 	public final String id;
@@ -59,6 +62,7 @@ public class MDMEntity {
 	 */
 	public MDMEntity(String name, String type, String id, Map<String, Value> values) {
 		this.name = name;
+		this.type = type;
 		this.id = id;
 
 		this.attributes = initAttributes(values);
@@ -72,16 +76,16 @@ public class MDMEntity {
 	 * @return list with converted attribute values
 	 */
 	private Map<String, String> initAttributes(Map<String, Value> values) {
-		Map<String, String> attributes = new HashMap<>();
+		Map<String, String> mapAttrs = new HashMap<>();
 		for (java.util.Map.Entry<String, Value> entry : values.entrySet()) {
 
 			String key = entry.getKey();
 			if (!NOTINDEXED.contains(key) && entry.getValue().isValid()) {
-				attributes.put(key, entry.getValue().extract().toString());
+				mapAttrs.put(key, entry.getValue().extract().toString());
 			}
-
 		}
-		return attributes;
+		
+		return mapAttrs;
 	}
 
 }

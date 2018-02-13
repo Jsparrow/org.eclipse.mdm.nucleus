@@ -39,7 +39,10 @@ import org.mockito.invocation.InvocationOnMock;
 
 public class SearchMockHelper {
 
-	public static int ITEM_COUNT = 27;
+	public static final int ITEM_COUNT = 27;
+	
+	private SearchMockHelper() {
+	}
 
 	public static ApplicationContext createContextMock() throws Exception {
 		ApplicationContext context = Mockito.mock(ApplicationContext.class);
@@ -48,6 +51,7 @@ public class SearchMockHelper {
 		when(context.getSearchService()).thenReturn(mockedSearchService);
 		Optional<ModelManager> mockedModelManager = createModelManagerMock(etResultMock);
 		when(context.getModelManager()).thenReturn(mockedModelManager);
+		
 		return context;
 	}
 
@@ -68,8 +72,8 @@ public class SearchMockHelper {
 		attrList.add(Mockito.mock(Attribute.class));
 		List<Entity> mockedSearchResult = createMockedSearchRes(TestStep.class, "TestStep");
 		when(searchService.fetch(any(), anyList(), any(Filter.class))).thenReturn(mockedSearchResult);
-		Optional<SearchService> ret = Optional.of(searchService);
-		return ret;
+		
+		return Optional.of(searchService);
 	}
 
 	public static <T extends Entity> List<Entity> createMockedSearchRes(Class<T> clazz, String entityTypeName)
@@ -93,6 +97,7 @@ public class SearchMockHelper {
 		mockedEntityList.add(mockedETTest);
 		mockedEntityList.add(mockedETTestStep);
 		mockedEntityList.add(mockedETMeasurement);
+		
 		return mockedEntityList;
 	}
 
@@ -116,6 +121,7 @@ public class SearchMockHelper {
 		when(mockedETTest.getName()).thenReturn(entityName);
 		when(mockedETTest.getAttributes()).thenReturn(mockedAttributes);
 		when(mockedETTest.getAttribute(any())).thenAnswer((InvocationOnMock invocation) -> (Attribute) mockedAttributes.stream().filter(a -> a.getName().equals(invocation.getArgument(0))).findAny().get());
+		
 		return mockedETTest;
 	}
 	
@@ -129,6 +135,7 @@ public class SearchMockHelper {
 		when(attributeMock.createValue(any(), anyBoolean(), any())).thenCallRealMethod();
 		when(attributeMock.createValueSeq(any(), any())).thenCallRealMethod();
 		when(attributeMock.getEntityType()).thenReturn(entity);
+		
 		return attributeMock;
 	}
 
@@ -147,6 +154,7 @@ public class SearchMockHelper {
 		constructor.setAccessible(true);
 		T instance = constructor.newInstance(core);
 		constructor.setAccessible(false);
+		
 		return instance;
 	}
 

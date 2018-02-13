@@ -92,7 +92,7 @@ public class ElasticsearchBoundaryTest {
 		TestStep ts = mock(TestStep.class);
 		when(ts.getID()).thenReturn("1");
 		when(ts.getSourceName()).thenReturn("mdmdiff");
-		EntityManager manager = mockManager(ts);
+		EntityManager manager = mockManager();
 
 		MDMEntityResponse document = MDMEntityResponse.build(TestStep.class, ts, manager);
 		es.index(document);
@@ -107,7 +107,7 @@ public class ElasticsearchBoundaryTest {
 	public void docIsIndexed_isFound() throws DataAccessException, InterruptedException {
 		TestStep ts = mock(TestStep.class);
 		when(ts.getSourceName()).thenReturn("mdm");
-		EntityManager manager = mockManager(ts);
+		EntityManager manager = mockManager();
 
 		MDMEntityResponse document = MDMEntityResponse.build(TestStep.class, ts, manager);
 		es.index(document);
@@ -139,7 +139,7 @@ public class ElasticsearchBoundaryTest {
 		return hits;
 	}
 
-	private EntityManager mockManager(TestStep ts) throws DataAccessException {
+	private EntityManager mockManager() throws DataAccessException {
 		EntityManager manager = mock(EntityManager.class);
 		ContextRoot root = mock(ContextRoot.class);
 		ContextComponent comp = mock(ContextComponent.class);

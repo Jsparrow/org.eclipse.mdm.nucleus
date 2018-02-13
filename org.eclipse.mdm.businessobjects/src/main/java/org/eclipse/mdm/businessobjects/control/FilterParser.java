@@ -57,6 +57,10 @@ import com.google.common.primitives.Shorts;
  *
  */
 public class FilterParser {
+	
+	private FilterParser() {
+	}
+	
 	/**
 	 * Visitor class to convert the parsed tree into a {@link Filter}.
 	 */
