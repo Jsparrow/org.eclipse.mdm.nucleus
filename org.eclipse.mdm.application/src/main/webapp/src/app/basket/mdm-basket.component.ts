@@ -33,6 +33,7 @@ import {MenuItem} from 'primeng/primeng';
 import * as FileSaver from 'file-saver';
 
 import {MDMNotificationService} from '../core/mdm-notification.service';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'mdm-basket',
@@ -216,21 +217,25 @@ export class MDMBasketComponent implements OnInit {
   downloadBasket(e: Event) {
     e.stopPropagation();
     let downloadContent = new Basket(this.basketName, this._basketService.getItems());
-    this._basketService.getBasketAsXml(downloadContent)
-      .subscribe(xml => this.saveXml(xml))
+
+    this._basketService.getBasketAsXml(downloadContent).combineLatest(
+      this._basketService.getFileExtension(),
+      (xml, fileExtension) => this.saveXml(xml, fileExtension)
+    ).subscribe();
   }
 
-  saveXml(xml: string) {
+  saveXml(xml: string, fileExtension: string) {
     let blob = new Blob([xml], {
          type: 'application/xml'
-     });
+    });
+
     if (this.basketName && this.basketName.trim().length !== 0) {
-      FileSaver.saveAs(blob, this.basketName + '.xml');
+      FileSaver.saveAs(blob, this.basketName + '.' + fileExtension);
     } else {
-      FileSaver.saveAs(blob, 'warenkorb.xml');
+      FileSaver.saveAs(blob, 'warenkorb.' + fileExtension);
     }
   }
-  
+
   saveJson(basket: Basket) {
     let blob = new Blob([serialize(basket)], {
          type: 'application/json'
