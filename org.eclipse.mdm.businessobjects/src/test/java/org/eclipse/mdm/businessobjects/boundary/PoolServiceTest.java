@@ -10,6 +10,8 @@
   *******************************************************************************/
 package org.eclipse.mdm.businessobjects.boundary;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -85,22 +87,30 @@ public class PoolServiceTest {
 	public void testGetPoolsWrongEnvironment() {
 		doThrow(MDMEntityAccessException.class).when(connectorService).getContextByName("wrongEnvironment");
 
-		service.getPools("wrongEnvironment", "Pool.Name eq crash");
+		service.getPools("wrongEnvironment", "Pool.Name eq 'crash'");
 	}
 
 	@Test
 	public void testGetPoolsParentFilter() {
-		service.getPools("MDMTEST", "Project.Id eq 4711");
+		service.getPools("MDMTEST", "Project.Id eq '4711'");
 
 		verify(navigationActivity).getPools("MDMTEST", "4711");
 		verifyZeroInteractions(searchActivity);
 	}
 
 	@Test
-	public void testGetPools() {
-		service.getPools("MDMTEST", "Pool.Name eq crash");
+	public void testGetPoolsNoParentFilter() {
+		service.getPools("MDMTEST", "Project.Id eq '4711' or Project.Name eq 'Project A'");
 
-		verify(searchActivity).search(context, Pool.class, "Pool.Name eq crash");
+		verify(searchActivity).search(context, Pool.class, "Project.Id eq '4711' or Project.Name eq 'Project A'");
+		verifyZeroInteractions(navigationActivity);
+	}
+	
+	@Test
+	public void testGetPools() {
+		service.getPools("MDMTEST", "Pool.Name eq 'crash'");
+
+		verify(searchActivity).search(context, Pool.class, "Pool.Name eq 'crash'");
 	}
 
 	@Test
@@ -126,12 +136,24 @@ public class PoolServiceTest {
 
 		Attribute projectId = mock(Attribute.class);
 		when(projectId.getName()).thenReturn("Id");
-
+		when(projectId.getValueType()).thenReturn(ValueType.STRING);
+		when(projectId.createValue(any(), any())).thenCallRealMethod();
+		when(projectId.createValue(any(), anyBoolean(), any())).thenCallRealMethod();
+		
+		Attribute projectName = mock(Attribute.class);
+		when(projectName.getName()).thenReturn("Name");
+		when(projectName.getValueType()).thenReturn(ValueType.STRING);
+		when(projectName.createValue(any(), any())).thenCallRealMethod();
+		when(projectName.createValue(any(), anyBoolean(), any())).thenCallRealMethod();
+		
 		EntityType project = mock(EntityType.class);
 		when(project.getSourceName()).thenReturn("MDMTEST");
 		when(project.getName()).thenReturn("Project");
 		when(project.getAttributes()).thenReturn(Arrays.asList(projectId));
+		when(project.getAttribute("Id")).thenReturn(projectId);
 		when(project.getIDAttribute()).thenReturn(projectId);
+		when(project.getAttribute("Name")).thenReturn(projectName);
+		when(project.getNameAttribute()).thenReturn(projectName);
 
 		Attribute poolId = mock(Attribute.class);
 		when(poolId.getName()).thenReturn("Id");
@@ -151,12 +173,13 @@ public class PoolServiceTest {
 		when(poolId.getEntityType()).thenReturn(pool);
 		when(poolName.getEntityType()).thenReturn(pool);
 
-		ModelManager mm = mock(ModelManager.class);
-		when(mm.getEntityType(Project.class)).thenReturn(project);
-		when(mm.getEntityType("Project")).thenReturn(project);
-		when(mm.getEntityType(Pool.class)).thenReturn(pool);
-		when(mm.getEntityType("Pool")).thenReturn(pool);
+		ModelManager mmgr = mock(ModelManager.class);
+		when(mmgr.listEntityTypes()).thenReturn(Arrays.asList(project, pool));
+		when(mmgr.getEntityType(Project.class)).thenReturn(project);
+		when(mmgr.getEntityType("Project")).thenReturn(project);
+		when(mmgr.getEntityType(Pool.class)).thenReturn(pool);
+		when(mmgr.getEntityType("Pool")).thenReturn(pool);
 
-		return mm;
+		return mmgr;
 	}
 }

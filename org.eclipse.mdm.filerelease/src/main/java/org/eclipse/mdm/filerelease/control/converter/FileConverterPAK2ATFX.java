@@ -34,7 +34,7 @@ import org.eclipse.mdm.property.GlobalProperty;
 public class FileConverterPAK2ATFX extends AbstractFileConverter {
 
 	private static final String CONVERTER_NAME = "PAK2ATFX";
-	private final static String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.filerelease";
+	private static final String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.filerelease";
 
 	private static final String MODEL_FILE_NAME = "model.atfx.technical";
 	private static final String OUTPUT_SUB_TEMP_DIRECTORY = "tmp";

@@ -21,7 +21,7 @@ import {HttpErrorHandler} from '../core/http-error-handler';
 
 import { MDMItem } from '../core/mdm-item';
 import { PropertyService } from '../core/property.service';
-import { QueryService, Query } from './query.service';
+import { QueryService, Query, SearchResult } from './query.service';
 
 describe ( 'QueryService', () => {
 
@@ -57,6 +57,21 @@ describe ( 'QueryService', () => {
       queryService.query(new Query()).subscribe(results => {
         expect(results.rows.length).toBe(1);
         expect(results.rows[0].columns[0].value).toEqual('TestNumberOne');
+      });
+    })));
+  });
+
+  describe('queryType()', () => {
+    it('should quote IDs', async(inject([QueryService], (queryService) => {
+      var spy = spyOn(queryService, 'query').and.returnValue(Observable.of(new SearchResult()));
+
+      var query = new Query();
+      query.resultType = 'TestStep';
+      query.addFilter('MDM', 'Test.Id eq \'id1\'');
+      query.columns = ['TestStep.Name', 'TestStep.Id'];
+
+      queryService.queryType('TestStep', [{ source: 'MDM', type: 'Test', id: 'id1'}], ['TestStep.Name']).subscribe(results => {
+        expect(queryService.query).toHaveBeenCalledWith(query);
       });
     })));
   });

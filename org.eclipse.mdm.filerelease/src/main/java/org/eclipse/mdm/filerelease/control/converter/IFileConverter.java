@@ -39,7 +39,7 @@ public interface IFileConverter {
 	 * @throws FileConverterException
 	 *             Thrown if the file conversion fails.
 	 */
-	public void execute(FileRelease fileRelease, TestStep testStep, ApplicationContext context, File targetDirectory)
+	void execute(FileRelease fileRelease, TestStep testStep, ApplicationContext context, File targetDirectory)
 			throws FileConverterException;
 
 	/**
@@ -47,5 +47,5 @@ public interface IFileConverter {
 	 * 
 	 * @return The name of the file converter
 	 */
-	public String getConverterName();
+	String getConverterName();
 }

@@ -13,7 +13,11 @@
 :host >>> .fixtable { table-layout: auto;}
 </style>
 
-<div style="overflow-x: auto;">
+<div *ngIf="loading" style="text-align: center; margin: 1em;">
+    <div class="fa fa-spinner fa-pulse fa-fw"></div>
+    Suchergebnisse werden geladen
+</div>
+<div *ngIf="!loading" style="overflow-x: auto;">
 
 <p-contextMenu #cm [model]="menuItems" appendTo="body"></p-contextMenu>
 

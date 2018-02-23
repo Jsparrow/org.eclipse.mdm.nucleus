@@ -59,15 +59,15 @@ public class PreferenceServiceTest {
 	}
 
 	private void initData(Preference... preferences) {
-		EntityManager em = factory.createEntityManager();
-		em.getTransaction().begin();
-		em.createQuery("delete from Preference").executeUpdate();
+		EntityManager emgr = factory.createEntityManager();
+		emgr.getTransaction().begin();
+		emgr.createQuery("delete from Preference").executeUpdate();
 		for (Preference p : preferences) {
-			em.persist(p);
+			emgr.persist(p);
 		}
 
-		em.getTransaction().commit();
-		em.close();
+		emgr.getTransaction().commit();
+		emgr.close();
 	}
 
 	@Test

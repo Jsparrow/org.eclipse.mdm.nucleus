@@ -24,6 +24,9 @@ import org.eclipse.mdm.filerelease.entity.FileRelease;
  *
  */
 public final class FileReleasePermissionUtils {
+	
+	private FileReleasePermissionUtils() {
+	}
 
 	/**
 	 * Checks if the user with the given name has the permission to create the

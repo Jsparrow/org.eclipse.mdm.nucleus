@@ -179,8 +179,8 @@ export class MDMNavigatorComponent implements OnInit {
   }
 
   expander(item: MDMItem, current: TreeNode, pathTypes: string[], iii: number) {
-    let expandList: number[] = [];
-    this.nodeService.searchNodes('filter=' + item.type + '.Id eq ' + item.id,
+    let expandList: string[] = [];
+    this.nodeService.searchNodes('filter=' + item.type + '.Id eq \'' + item.id + '\'',
       item.source, this.typeToUrl(pathTypes[iii]))
       .subscribe(
         nodes => {

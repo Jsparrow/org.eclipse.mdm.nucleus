@@ -69,55 +69,48 @@ public class FileReleasePersistance {
 		File directory = new File(userHomePath);
 
 		File targetFile = new File(directory, TARGET_FILE_NAME);
+		
 		return loadFile(targetFile);
-
 	}
 
 	private void writeFile(File targetFile, Map<String, FileRelease> map) {
 
-		LOG.debug("writing FileRelease storage file to '" + targetFile.getAbsolutePath() + "'");
-
-		ObjectOutputStream oos = null;
+		LOG.debug("Writing FileRelease storage file to '" + targetFile.getAbsolutePath() + "'");
 
 		try {
-
 			if (targetFile.exists()) {
 				deleteFile(targetFile);
 			}
 
-			oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(targetFile)));
-			oos.writeObject(map);
-
+			try (ObjectOutputStream oos = new ObjectOutputStream(
+					new BufferedOutputStream(new FileOutputStream(targetFile)))) {
+				oos.writeObject(map);
+			}
 		} catch (IOException e) {
 			throw new FileReleaseException(e.getMessage(), e);
-		} finally {
-			closeOutputStream(oos);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private Map<String, FileRelease> loadFile(File targetFile) {
 
-		LOG.debug("loading FileRelease storage file from '" + targetFile.getAbsolutePath() + "'");
-
-		ObjectInputStream ois = null;
+		LOG.debug("Loading FileRelease storage file from '" + targetFile.getAbsolutePath() + "'");
 
 		try {
 			if (!targetFile.exists()) {
-				LOG.warn("storage file does not exist at '" + targetFile.getAbsolutePath()
+				LOG.warn("Storage file does not exist at '" + targetFile.getAbsolutePath()
 						+ "'. Using an empty FileRelease pool");
 				return new HashMap<String, FileRelease>();
 			}
 
-			ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(targetFile)));
-			return (Map<String, FileRelease>) ois.readObject();
+			try (ObjectInputStream ois = new ObjectInputStream(
+					new BufferedInputStream(new FileInputStream(targetFile)))) {
+				return (Map<String, FileRelease>) ois.readObject();
+			}
 		} catch (IOException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		} catch (ClassNotFoundException e) {
 			throw new FileReleaseException(e.getMessage(), e);
-		} finally {
-			closeInputSream(ois);
-			;
 		}
 	}
 
@@ -125,27 +118,7 @@ public class FileReleasePersistance {
 		boolean deleted = targetFile.delete();
 		if (!deleted) {
 			throw new FileReleaseException(
-					"unable to delete FileRelease storage file at '" + targetFile.getAbsolutePath() + "'");
-		}
-	}
-
-	private void closeOutputStream(ObjectOutputStream oos) {
-		try {
-			if (oos != null) {
-				oos.close();
-			}
-		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
-		}
-	}
-
-	private void closeInputSream(ObjectInputStream ois) {
-		try {
-			if (ois != null) {
-				ois.close();
-			}
-		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
+					"Unable to delete FileRelease storage file at '" + targetFile.getAbsolutePath() + "'");
 		}
 	}
 }

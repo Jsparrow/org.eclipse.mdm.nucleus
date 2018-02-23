@@ -11,6 +11,9 @@
 
 package org.eclipse.mdm.businessobjects.utils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -20,10 +23,19 @@ import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.model.ValueType;
+import org.eclipse.mdm.api.base.query.ComparisonOperator;
+import org.eclipse.mdm.api.base.query.Condition;
+import org.eclipse.mdm.api.base.query.Filter;
+import org.eclipse.mdm.api.base.query.FilterItem;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.businessobjects.control.FilterParser;
 
 public final class ServiceUtils {
+	
+	private ServiceUtils() {
+	}
 
 	/**
 	 * converts the given object to a {@link Response} with the given
@@ -56,9 +68,16 @@ public final class ServiceUtils {
 		ModelManager mm = context.getModelManager().orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 		EntityType et = mm.getEntityType(parentType);
 
-		String idAttributeName = et.getIDAttribute().getName();
-		String matcher = workaroundForTypeMapping(et) + "." + idAttributeName + " eq (\\w+)";
-		return filter.matches(matcher);
+		Filter f = FilterParser.parseFilterString(mm.listEntityTypes(), filter);
+
+		List<FilterItem> filterItems = f.stream().collect(Collectors.toList());
+		
+		if (filterItems.size() == 1 && filterItems.get(0).isCondition()) {
+			Condition c = filterItems.get(0).getCondition();
+			return et.getIDAttribute().equals(c.getAttribute()) && ComparisonOperator.EQUAL.equals(c.getComparisonOperator());
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -71,13 +90,27 @@ public final class ServiceUtils {
 	 * @param parentType
 	 *            parent type to identify the Id attribute name
 	 * @return the extracted business object Id
+	 * @throws IllegalArgumentException if the given filter is not a parent filter, 
+	 * this means the filter does not have exactly one condition on the parent's 
+	 * ID attribute with {@link ComparisonOperator#EQUAL}
 	 */
 	public static String extactIdFromParentFilter(ApplicationContext context, String filter, Class<? extends Entity> parentType) {
 		ModelManager mm = context.getModelManager().orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 		EntityType et = mm.getEntityType(parentType);
 
-		String idAttributeName = et.getIDAttribute().getName();
-		return filter.replace(workaroundForTypeMapping(et) + "." + idAttributeName + " eq ", "");
+		Filter f = FilterParser.parseFilterString(mm.listEntityTypes(), filter);
+
+		List<FilterItem> filterItems = f.stream().collect(Collectors.toList());
+		
+		if (filterItems.size() == 1 && filterItems.get(0).isCondition()) {
+			Condition c = filterItems.get(0).getCondition();
+			if (et.getIDAttribute().equals(c.getAttribute()) && ComparisonOperator.EQUAL.equals(c.getComparisonOperator()))
+			{
+				return c.getValue().extract(ValueType.STRING);
+			}
+		}
+		
+		throw new IllegalArgumentException("Cannot extract parent ID. Filter is not a parent filter: " + filter);
 	}
 
 	/**

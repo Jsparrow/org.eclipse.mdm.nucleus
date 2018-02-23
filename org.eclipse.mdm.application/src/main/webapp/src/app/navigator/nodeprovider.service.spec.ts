@@ -60,7 +60,7 @@ describe ( 'NodeproviderService', () => {
       let item = new MDMItem('MDMNVH', 'Project', 'id1');
       let query = nodeproviderService.getSubNodeprovider(item);
 
-      expect(query).toEqual('/pools?filter=Project.Id eq {Project.Id}');
+      expect(query).toEqual('/pools?filter=Project.Id eq \'{Project.Id}\'');
   }));
 
   it('getSubNodeprovider not found', inject([NodeproviderService], (nodeproviderService) => {
@@ -72,8 +72,8 @@ describe ( 'NodeproviderService', () => {
 
   it('replace', inject([NodeproviderService], (nodeproviderService) => {
       let item = new MDMItem('MDMNVH', 'Project', 'id1');
-      let query = nodeproviderService.replace('/pools?filter=Project.Id eq {Project.Id}', item);
+      let query = nodeproviderService.replace('/pools?filter=Project.Id eq \'{Project.Id}\'', item);
 
-      expect(query).toEqual('/MDMNVH/pools?filter=Project.Id eq id1');
+      expect(query).toEqual('/MDMNVH/pools?filter=Project.Id eq \'id1\'');
   }));
 });

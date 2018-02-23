@@ -31,7 +31,7 @@ import com.google.common.base.Strings;
  * @author Matthias Koller, Peak Solution GmbH
  *
  */
-public class Util {
+public final class Util {
 
 	private Util() {
 
