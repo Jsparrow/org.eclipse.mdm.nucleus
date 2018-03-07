@@ -250,6 +250,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   onSearch() {
     let query;
     this.loading = true;
+    this.isSearchResultsOpen = true;
     if (this.isBoxChecked) {
       query = this.searchService.convertToQuery(this.currentFilter, this.allSearchAttributes, this.viewComponent.selectedView);
     } else {
