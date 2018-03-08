@@ -36,7 +36,6 @@ class TestPreferenceService {
 describe('OperatorUtil', () => {
 
   describe('toString()', () => {
-
     it('should return associated string', () => {
       expect(OperatorUtil.toString(Operator.EQUALS)).toMatch('=');
       expect(OperatorUtil.toString(Operator.LESS_THAN)).toMatch('<');
@@ -70,30 +69,6 @@ describe('FilterService', () => {
       ]
     });
 
-  });
-
-  describe('setSelectedFilter()', () => {
-
-    it('should emit new no-filter', async(inject([FilterService], (service) => {
-      let filter = new SearchFilter(service.NO_FILTER_NAME, [], 'Test', '', []);
-      spyOn(service.filterChanged$ , 'emit');
-
-      service.setSelectedFilter(undefined);
-
-      expect(service.filterChanged$.emit).toHaveBeenCalledWith(filter);
-    })));
-  });
-
-  describe('setSelectedFilter(filter)', () => {
-
-    it('should emit filter', async(inject([FilterService], (service) => {
-      let filter = new SearchFilter('TestFilter', [], 'Test', '', []);
-      spyOn(service.filterChanged$ , 'emit');
-
-      service.setSelectedFilter(filter);
-
-      expect(service.filterChanged$.emit).toHaveBeenCalledWith(filter);
-    })));
   });
 
   describe('getFilters()', () => {

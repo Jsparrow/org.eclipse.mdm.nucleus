@@ -111,20 +111,11 @@ export class SearchFilter {
 export class FilterService {
   public readonly NO_FILTER_NAME = 'Kein Filter ausgewählt';
   public readonly NEW_FILTER_NAME = 'Neuer Filter';
-  public currentFilter = new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
-  public filterChanged$ = new EventEmitter<SearchFilter>();
+  public readonly EMPTY_FILTER = new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []);
 
   constructor(private http: Http,
               private _prop: PropertyService,
               private preferenceService: PreferenceService) {
-  }
-
-  setSelectedFilter(filter: SearchFilter) {
-    if (filter) {
-      this.filterChanged$.emit(filter);
-    } else {
-      this.filterChanged$.emit(new SearchFilter(this.NO_FILTER_NAME, [], 'Test', '', []));
-    }
   }
 
   getFilters() {

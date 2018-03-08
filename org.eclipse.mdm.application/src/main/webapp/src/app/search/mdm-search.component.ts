@@ -43,8 +43,7 @@ import {TreeModule, TreeNode, DataTableModule, SharedModule, ContextMenuModule, 
 import {EditSearchFieldsComponent} from './edit-searchFields.component';
 import {OverwriteDialogComponent} from '../core/overwrite-dialog.component';
 
-import {classToClass} from 'class-transformer';
-
+import {classToClass, plainToClass, serialize, deserialize} from 'class-transformer';
 
 @Component({
   selector: 'mdm-search',
@@ -84,15 +83,16 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   filterName = '';
 
   environments: Node[];
-  selectedEnvironments: Node[];
+  selectedEnvironments: Node[] = [];
 
-  definitions: SearchDefinition[];
+  definitions: SearchDefinition[] = [];
 
   results: SearchResult = new SearchResult();
   allSearchAttributes: { [type: string]: { [env: string]: SearchAttribute[] }} = {};
   allSearchAttributesForCurrentResultType: { [env: string]: SearchAttribute[] } = {};
 
   isAdvancedSearchOpen = false;
+  isAdvancedSearchActive = true;
   isSearchResultsOpen = false;
 
   layout: SearchLayout = new SearchLayout;
@@ -107,7 +107,6 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   searchFields: { group: string, attribute: string }[] = [];
 
   subscription: any;
-  isBoxChecked = true;
   searchExecuted = false;
 
   selectedRow: SearchFilter;
@@ -142,38 +141,54 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     private basketService: BasketService) { }
 
   ngOnInit() {
-    // Load contents for environment selection
+    this.currentFilter = this.filterService.EMPTY_FILTER;
+
     this.nodeService.getNodes()
-      .do(envs => this.environments = envs)
-      .do(nodes => this.loadSearchAttributes(nodes.map(env => env.sourceName)))
-      .map(nodes => nodes.map(env => <IDropdownItem>{ id: env.sourceName, label: env.name, selected: true }))
-      .subscribe(
-        dropDownItems => {
-          this.dropdownModel = dropDownItems;
-          this.selectedEnvironmentsChanged(dropDownItems);
-        },
+      .flatMap(envs => Observable.combineLatest([
+        Observable.of(envs),
+        this.searchService.loadSearchAttributesStructured(envs.map(env => env.sourceName)),
+        this.filterService.getFilters().defaultIfEmpty([this.currentFilter]),
+        this.searchService.getDefinitionsSimple()
+      ])).subscribe(
+        ([envs, attrs, filters, definitions]) => this.init(envs, attrs, filters, definitions),
         error => this.notificationService.notifyError('Datenquellen können nicht geladen werden.', error)
       );
 
-    this.searchService.getDefinitionsSimple().subscribe(
-      defs => this.definitions = defs,
-      error => this.notificationService.notifyError('Suchdefinition kann nicht geladen werden.', error)
-    );
-    this.loadFilters();
-    this.filterService.filterChanged$.subscribe(
-      filter => this.onFilterChanged(filter),
-      error => this.notificationService.notifyError('Suchfilter kann nicht aktualisiert werden.', error)
-    );
+    // event handlers
     this.viewComponent.viewChanged$.subscribe(
       () => this.onViewChanged(),
       error => this.notificationService.notifyError('Ansicht kann nicht aktualisiert werden.', error)
     );
-
-    this.selectFilter(this.filterService.currentFilter);
   }
 
   ngOnDestroy() {
-     this.filterService.currentFilter = this.currentFilter;
+     this.saveState();
+  }
+
+  init(envs: Node[], attrs: { [type: string]: { [env: string]: SearchAttribute[] }}, filters: SearchFilter[], definitions: SearchDefinition[]) {
+    this.environments = envs
+    this.allSearchAttributes = attrs;
+    this.filters = filters;
+    this.definitions = definitions;
+
+    this.dropdownModel = envs.map(env => <IDropdownItem>{ id: env.sourceName, label: env.name, selected: true });
+
+    this.updateSearchAttributesForCurrentResultType();
+    this.selectedEnvironmentsChanged(this.dropdownModel);
+
+    this.loadState();
+  }
+
+  loadState() {
+    this.results = deserialize(SearchResult, sessionStorage.getItem('mdm-search.searchResult')) || new SearchResult();
+    this.selectFilter(deserialize(SearchFilter, sessionStorage.getItem('mdm-search.currentFilter')) || this.filterService.EMPTY_FILTER);
+    this.isAdvancedSearchActive = !('false' == sessionStorage.getItem('mdm-search.isAdvancedSearchActive'));
+  }
+
+  saveState() {
+    sessionStorage.setItem('mdm-search.currentFilter', serialize(this.currentFilter));
+    sessionStorage.setItem('mdm-search.searchResult', serialize(this.results));
+    sessionStorage.setItem('mdm-search.isAdvancedSearchActive', this.isAdvancedSearchActive.toString());
   }
 
   onViewClick(e: Event) {
@@ -182,7 +197,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   onCheckBoxClick(event: any) {
     event.stopPropagation();
-    this.isBoxChecked = event.target.checked;
+    this.isAdvancedSearchActive = event.target.checked;
   }
 
   onViewChanged() {
@@ -196,9 +211,11 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     if (this.environments) {
       let envs = this.environments.filter(env =>
         this.currentFilter.environments.find(envName => envName === env.sourceName));
-      if (envs.length === 0) {
-        this.dropdownModel.filter( item => item.id === this.selectedEnvironments[0].sourceName)[0]
-        .selected = true;
+      if (envs.length === 0 && this.selectedEnvironments.length > 0) {
+        let items = this.dropdownModel.filter(item => item.id === this.selectedEnvironments[0].sourceName);
+        if (items && items.length > 0) {
+          items[0].selected = true;
+        }
       } else {
         this.selectedEnvironments = envs;
       }
@@ -251,7 +268,7 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     let query;
     this.loading = true;
     this.isSearchResultsOpen = true;
-    if (this.isBoxChecked) {
+    if (this.isAdvancedSearchActive) {
       query = this.searchService.convertToQuery(this.currentFilter, this.allSearchAttributes, this.viewComponent.selectedView);
     } else {
       let filter = classToClass(this.currentFilter);
@@ -287,25 +304,22 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   calcCurrentSearch() {
     let environments = this.currentFilter.environments;
     let conditions = this.currentFilter.conditions;
-    let type = this.getSearchDefinition(this.currentFilter.resultType).value;
+    let type = this.getSelectedDefinition();
     this.layout = SearchLayout.createSearchLayout(environments, this.allSearchAttributesForCurrentResultType, conditions);
   }
 
-  onFilterChanged(filter: SearchFilter) {
+  selectFilter(filter: SearchFilter) {
     this.currentFilter = classToClass(filter);
+    this.updateSearchAttributesForCurrentResultType();
     this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
     this.selectedEnvironmentsChanged(this.dropdownModel);
     this.calcCurrentSearch();
   }
 
-  selectFilter(filter: SearchFilter) {
-    this.filterService.setSelectedFilter(filter);
-  }
-
   resetConditions(e: Event) {
     e.stopPropagation();
     this.currentFilter.conditions.forEach(cond => cond.value = []);
-    this.onFilterChanged(this.currentFilter);
+    this.selectFilter(this.currentFilter);
   }
 
   clearResultlist(e: Event) {
@@ -416,16 +430,17 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   }
 
   getAdvancedSearchCbxTitle() {
-    return this.isBoxChecked ? this.TtlDisableAdvancedSearch : this.TtlEnableAdvancedSearch;
+    return this.isAdvancedSearchActive ? this.TtlDisableAdvancedSearch : this.TtlEnableAdvancedSearch;
   }
 
+/*
   private loadSearchAttributes(environments: string[]) {
     this.searchService.loadSearchAttributesStructured(environments)
       .subscribe(
         attrs => { this.allSearchAttributes = attrs; this.updateSearchAttributesForCurrentResultType(); },
         error => this.notificationService.notifyError('Attribute konnten nicht geladen werden!', error));
   }
-
+*/
   onRowSelect(e: any) {
     if (this.lazySelectedRow !== e.data) {
       this.selectedRow = e.data;
