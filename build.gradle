@@ -51,6 +51,10 @@ subprojects {
     }
 }
 
+clean {
+  dependsOn gradle.includedBuilds*.task(':clean')
+}
+
 dependencies {
 
   compile project(':org.eclipse.mdm.application')
