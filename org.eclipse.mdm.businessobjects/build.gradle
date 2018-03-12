@@ -29,4 +29,8 @@ generateGrammarSource {
     arguments += ["-visitor"]
 }
 
+test {
+    exclude 'org/eclipse/mdm/businessobjects/boundary/integrationtest/*'
+}
+
 compileJava.dependsOn(generateGrammarSource)
