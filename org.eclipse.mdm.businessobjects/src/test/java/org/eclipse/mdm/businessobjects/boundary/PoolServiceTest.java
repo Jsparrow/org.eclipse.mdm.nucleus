@@ -173,13 +173,13 @@ public class PoolServiceTest {
 		when(poolId.getEntityType()).thenReturn(pool);
 		when(poolName.getEntityType()).thenReturn(pool);
 
-		ModelManager mm = mock(ModelManager.class);
-		when(mm.listEntityTypes()).thenReturn(Arrays.asList(project, pool));
-		when(mm.getEntityType(Project.class)).thenReturn(project);
-		when(mm.getEntityType("Project")).thenReturn(project);
-		when(mm.getEntityType(Pool.class)).thenReturn(pool);
-		when(mm.getEntityType("Pool")).thenReturn(pool);
+		ModelManager mmgr = mock(ModelManager.class);
+		when(mmgr.listEntityTypes()).thenReturn(Arrays.asList(project, pool));
+		when(mmgr.getEntityType(Project.class)).thenReturn(project);
+		when(mmgr.getEntityType("Project")).thenReturn(project);
+		when(mmgr.getEntityType(Pool.class)).thenReturn(pool);
+		when(mmgr.getEntityType("Pool")).thenReturn(pool);
 
-		return mm;
+		return mmgr;
 	}
 }

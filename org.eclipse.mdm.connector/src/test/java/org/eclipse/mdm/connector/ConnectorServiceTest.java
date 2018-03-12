@@ -58,8 +58,8 @@ public class ConnectorServiceTest {
 
 	private final Principal testUser = new SimplePrincipal("testUser");
 	private final Principal differentUser = new SimplePrincipal("differentUser");
-	private final String testSourceName = "testSource";
-	private final String differentSourceName = "differentSource";
+	private static final String testSourceName = "testSource";
+	private static final String differentSourceName = "differentSource";
 	private final ApplicationContext testContext = createContext(testSourceName);
 
 	@Test(expected = ConnectorServiceException.class)

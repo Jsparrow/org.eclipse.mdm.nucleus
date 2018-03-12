@@ -46,6 +46,9 @@ import io.vavr.control.Try;
 
 public final class ServiceUtils {
 
+	private ServiceUtils() {
+	}
+
 	/**
 	 * returns true if the given filter String is a parent filter of the given
 	 * parent type

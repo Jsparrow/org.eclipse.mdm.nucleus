@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class MDMRequestFilter implements Filter {
 
-	private static String SERVLET_NAME_MDMNENUE = "/navigator/";
+	private static final String SERVLET_NAME_MDMNENUE = "/navigator/";
 
 	@Inject
 	private MDMSessionExpiredListener sessionExpiredListener;

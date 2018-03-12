@@ -65,14 +65,14 @@ export class PreferenceService {
     this.prefEndpoint = _prop.getUrl('/mdm/preferences');
   }
 
-  getPreferenceForScope(scope: string, key?: string) {
+  getPreferenceForScope(scope: string, key?: string): Observable<Preference[]> {
       if (key == null) {
           key = '';
       }
 
       return this.http.get(this.prefEndpoint + '?scope=' + scope + '&key=' + key)
           .map(response => plainToClass(Preference, response.json().preferences))
-          .catch(this.httpErrorHandler.handleError);
+          .catch(e => this.httpErrorHandler.handleError(e));
   }
 
   getPreference(key?: string) {
@@ -83,6 +83,7 @@ export class PreferenceService {
           .map(response => plainToClass(Preference, response.json().preferences))
           .catch(this.httpErrorHandler.handleError);
   }
+
   savePreference(preference: Preference) {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });

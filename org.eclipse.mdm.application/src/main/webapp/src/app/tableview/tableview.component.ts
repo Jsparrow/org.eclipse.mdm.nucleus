@@ -47,6 +47,8 @@ export class TableviewComponent implements OnInit, OnChanges {
   @Input() selectedEnvs: Node[];
   @Input() searchAttributes: { [env: string]: SearchAttribute[] };
   @Input() environments: Node[];
+  @Input() loading: true;
+  @Input() loadingIcon = 'fa-spinner';
 
   public menuSelectedRow: Row;
   public selectedRows: Row[] = [];

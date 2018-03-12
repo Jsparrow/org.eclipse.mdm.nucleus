@@ -53,7 +53,7 @@ public class SearchDefinitionReader {
 	private static final String ATTRIBUTE_ELEMENT_ATTR_VALUETYPE = "valueType";
 	private static final String ATTRIBUTE_ELEMENT_ATTR_CRITERIA = "criteria";
 
-	private final static String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.search";
+	private static final String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.search";
 
 	private final Principal principal;
 

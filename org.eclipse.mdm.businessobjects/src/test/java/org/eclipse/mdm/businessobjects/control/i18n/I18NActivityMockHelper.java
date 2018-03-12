@@ -40,8 +40,11 @@ import org.mockito.Mockito;
 
 public final class I18NActivityMockHelper {
 
-	public static int ITEM_COUNT = 3;
-	public static int ATTRIBUTE_COUNT = 2;
+	public static final int ITEM_COUNT = 3;
+	public static final int ATTRIBUTE_COUNT = 2;
+	
+	private I18NActivityMockHelper() {
+	}
 
 	public static ConnectorService createConnectorMock() throws Exception {
 

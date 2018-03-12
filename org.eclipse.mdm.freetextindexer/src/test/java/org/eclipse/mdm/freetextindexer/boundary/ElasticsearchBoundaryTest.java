@@ -3,8 +3,7 @@ package org.eclipse.mdm.freetextindexer.boundary;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -92,7 +91,7 @@ public class ElasticsearchBoundaryTest {
 		TestStep ts = mock(TestStep.class);
 		when(ts.getID()).thenReturn("1");
 		when(ts.getSourceName()).thenReturn("mdmdiff");
-		EntityManager manager = mockManager(ts);
+		EntityManager manager = mockManager();
 
 		MDMEntityResponse document = MDMEntityResponse.build(TestStep.class, ts, manager);
 		es.index(document);
@@ -107,7 +106,7 @@ public class ElasticsearchBoundaryTest {
 	public void docIsIndexed_isFound() throws DataAccessException, InterruptedException {
 		TestStep ts = mock(TestStep.class);
 		when(ts.getSourceName()).thenReturn("mdm");
-		EntityManager manager = mockManager(ts);
+		EntityManager manager = mockManager();
 
 		MDMEntityResponse document = MDMEntityResponse.build(TestStep.class, ts, manager);
 		es.index(document);
@@ -139,7 +138,7 @@ public class ElasticsearchBoundaryTest {
 		return hits;
 	}
 
-	private EntityManager mockManager(TestStep ts) throws DataAccessException {
+	private EntityManager mockManager() throws DataAccessException {
 		EntityManager manager = mock(EntityManager.class);
 		ContextRoot root = mock(ContextRoot.class);
 		ContextComponent comp = mock(ContextComponent.class);
@@ -156,7 +155,7 @@ public class ElasticsearchBoundaryTest {
 		when(root.getContextComponents()).thenReturn(comps);
 		map.put(ContextType.UNITUNDERTEST, root);
 
-		when(manager.loadContexts(any(TestStep.class), anyVararg())).thenReturn(map);
+		when(manager.loadContexts(any(TestStep.class), any())).thenReturn(map);
 
 		return manager;
 	}

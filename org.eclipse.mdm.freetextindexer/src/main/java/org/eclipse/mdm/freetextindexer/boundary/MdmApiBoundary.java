@@ -1,5 +1,6 @@
 package org.eclipse.mdm.freetextindexer.boundary;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,13 @@ public class MdmApiBoundary {
 	private static final String FREETEXT_NOTIFICATION_NAME = "freetext.notificationName";
 
 	public class FreeTextNotificationListener implements NotificationListener {
+		
+		private EntityManager entityManager;
+		
+		public FreeTextNotificationListener(EntityManager entityManager) {
+			this.entityManager = entityManager;
+		}
+		
 		@Override
 		public void instanceCreated(List<? extends Entity> entities, User arg1) {
 			LOGGER.debug("{} entities created: {}", entities.size(), entities);
@@ -61,7 +69,7 @@ public class MdmApiBoundary {
 		@Override
 		public void instanceDeleted(EntityType entityType, List<String> ids, User user) {
 			LOGGER.debug("{} entities deleted: {}", ids.size(), ids);
-			ids.forEach(id -> update.delete(getApiName(), workaroundForTypeMapping(entityType), id));
+			ids.forEach(id -> update.delete(getApiName(entityManager), workaroundForTypeMapping(entityType), id));
 		}
 
 		@Override
@@ -91,61 +99,75 @@ public class MdmApiBoundary {
 	@GlobalProperty(value = "freetext.active")
 	private String active = "false";
 
-	private ApplicationContext context;
-	private EntityManager entityManager;
-	private NotificationService manager;
-	private Map<String, String> properties = new HashMap<>();
+	private Map<String, ApplicationContext> contextMap = new HashMap<>();
 	
 	@PostConstruct
 	public void initalize() {
 		
 		if (Boolean.parseBoolean(active)) {
-			try {
-				List<ApplicationContext> connectionList = service.connectFreetextSearch("freetext.user", "freetext.password", "freetext.active");
-				if (connectionList.isEmpty()) {
-					throw new IllegalArgumentException("Cannot connect the Freetextindexer to a datastore! "
-							+ "Either you did not configure Freetextindexer at atleast one service or the technical user/password is not correct.");
-				}
-
-				//TODO mkoller on 2017-11-14: Currently only the first Adapter is indexed.
-				context = connectionList.get(0);
-				properties.putAll(context.getParameters());
-				
-				entityManager = context.getEntityManager()
-						.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
-				manager = context.getNotificationService()
-						.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"));
-				
-				String name = context.getParameters().getOrDefault(FREETEXT_NOTIFICATION_NAME, "mdm5");
-				LOGGER.debug("Registering with name '{}'", name);
-				manager.register(name, new NotificationFilter(), new FreeTextNotificationListener());
-
-				LOGGER.info("Successfully registered for new notifications with name '{}'!", name);
-			} catch (ConnectionException | NotificationException e) {
-				throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed.",
-						e);
+			List<ApplicationContext> contextList = service.connectFreetextSearch("freetext.user", "freetext.password", "freetext.active");
+			if (contextList.isEmpty()) {
+				throw new IllegalArgumentException("Cannot connect the Freetextindexer to a datastore! "
+						+ "Either you did not configure Freetextindexer at atleast one service or the technical user/password is not correct.");
 			}
+
+			for (ApplicationContext context : contextList) {
+				initialize(context);
+			}
+
 		} else {
 			LOGGER.warn("Freetextsearch is not active!");
 		}
 	}
 
-	@PreDestroy
-	public void deregister() {
+	private void initialize(ApplicationContext context) {
+		EntityManager entityManager = context.getEntityManager()
+				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+
+		String source = getApiName(entityManager);
+		
 		try {
-			manager.close(false);
-		} catch (NotificationException e) {
-			throw new IllegalStateException(
-					"The NotificationManager could not be deregistered. In rare cases, this leads to a missed notification. This means the index might not be up-to-date.");
+			NotificationService manager = context.getNotificationService()
+					.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"));
+
+			String notificationName = context.getParameters().getOrDefault(FREETEXT_NOTIFICATION_NAME, "mdm5");
+			LOGGER.debug("Registering with name '{}' at source '{}'", notificationName, source);
+			manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener(entityManager));
+	
+			LOGGER.info("Successfully registered for new notifications with name '{}' at source '{}!", notificationName, source);
+			
+			contextMap.put(source, context);
+		} catch (ConnectionException | NotificationException e) {
+			throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed for source '" + source + "'!",
+					e);
 		}
 	}
 
-	public void doForAllEntities(Consumer<? super MDMEntityResponse> executor) {
+	@PreDestroy
+	public void deregister() {
+		
+		for (ApplicationContext context : contextMap.values()) {
+			try {
+				context.getNotificationService()
+					.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"))
+					.close(false);
+				
+			} catch (ConnectionException | NotificationException e) {
+				throw new IllegalStateException(
+						"The NotificationManager could not be deregistered. In rare cases, this leads to a missed notification. This means the index might not be up-to-date.");
+			}
+		}
+	}
+
+	public void doForAllEntities(ApplicationContext context, Consumer<? super MDMEntityResponse> executor) {
 		if (isActive()) {
 			try {
-				entityManager.loadAll(Test.class).stream().map(this::buildEntity).forEach(executor);
-				entityManager.loadAll(TestStep.class).stream().map(this::buildEntity).forEach(executor);
-				entityManager.loadAll(Measurement.class).stream().map(this::buildEntity).forEach(executor);
+				EntityManager entityManager = context.getEntityManager()
+						.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+				
+				entityManager.loadAll(Test.class).stream().map(e -> this.buildEntity(e, entityManager)).forEach(executor);
+				entityManager.loadAll(TestStep.class).stream().map(e -> this.buildEntity(e, entityManager)).forEach(executor);
+				entityManager.loadAll(Measurement.class).stream().map(e -> this.buildEntity(e, entityManager)).forEach(executor);
 			} catch (DataAccessException e) {
 				throw new IllegalStateException("MDM cannot be querried for new elements. Please check the MDM runtime",
 						e);
@@ -153,24 +175,25 @@ public class MdmApiBoundary {
 		}
 	}
 
-	public String getApiName() {
-		String apiName = "";
-		if (isActive()) {
-			try {
-				apiName = entityManager.loadEnvironment().getSourceName();
-			} catch (DataAccessException e) {
-				throw new IllegalStateException(e);
-			}
-		}
-		return apiName;
+	public Map<String, ApplicationContext> getContexts() {
+		return Collections.unmodifiableMap(contextMap);
+	}
+	
+	public String getName(ApplicationContext context) {
+		return context.getEntityManager()
+				.map(em -> getApiName(em))
+				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+	}
+
+	private String getApiName(EntityManager entityManager) {
+		return entityManager.loadEnvironment().getSourceName();
 	}
 	
 	private boolean isActive() {
-		return Boolean.parseBoolean(active) 
-				&& Boolean.parseBoolean(context.getParameters().getOrDefault("freetext.active", "false"));
+		return Boolean.parseBoolean(active) && !contextMap.isEmpty();
 	}
 	
-	private MDMEntityResponse buildEntity(Entity e) {
+	private MDMEntityResponse buildEntity(Entity e, EntityManager entityManager) {
 		return MDMEntityResponse.build(e.getClass(), e, entityManager);
 	}
 	

@@ -90,7 +90,7 @@ public class MDMEntity {
 	 * @return list with converted attribute values
 	 */
 	private List<MDMAttribute> convertAttributeValues(Map<String, Value> values) {
-		List<MDMAttribute> attributes = new ArrayList<>();
+		List<MDMAttribute> listAttrs = new ArrayList<>();
 		Set<java.util.Map.Entry<String, Value>> set = values.entrySet();
 
 		for (java.util.Map.Entry<String, Value> entry : set) {
@@ -101,17 +101,18 @@ public class MDMEntity {
 
 			if (!entry.getValue().isValid()) {
 				String dt = entry.getValue().getValueType().toString();
-				attributes.add(new MDMAttribute(entry.getKey(), "", "", dt));
+				listAttrs.add(new MDMAttribute(entry.getKey(), "", "", dt));
 				continue;
 			}
 
 			if (entry.getValue().getValueType().isSequence()) {
-				attributes.add(sequenceType2Attribute(entry.getKey(), entry.getValue()));
+				listAttrs.add(sequenceType2Attribute(entry.getKey(), entry.getValue()));
 			} else {
-				attributes.add(singleType2Attribute(entry.getKey(), entry.getValue()));
+				listAttrs.add(singleType2Attribute(entry.getKey(), entry.getValue()));
 			}
 		}
-		return attributes;
+		
+		return listAttrs;
 	}
 
 	/**

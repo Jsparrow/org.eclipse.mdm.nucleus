@@ -39,9 +39,12 @@ import org.mockito.Mockito;
 
 public final class ContextActivityMockHelper {
 
-	public static int ITEM_COUNT = 1;
-	public static int CC_COUNT = 10;
-	public static int CC_VALUE_COUNT = 10;
+	public static final int ITEM_COUNT = 1;
+	public static final int CC_COUNT = 10;
+	public static final int CC_VALUE_COUNT = 10;
+	
+	private ContextActivityMockHelper() {
+	}
 
 	public static ConnectorService createConnectorMock() throws Exception {
 
