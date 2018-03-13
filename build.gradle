@@ -48,11 +48,22 @@ subprojects {
         testCompile 'junit:junit:4.12'
         testCompile 'org.assertj:assertj-core:3.6.2'
     	testCompile 'org.mockito:mockito-core:2.13.0'
+    	testCompile 'javax:javaee-api:7.0' 
     }
 }
 
 clean {
   dependsOn gradle.includedBuilds*.task(':clean')
+}
+
+configurations.all {
+    exclude group: 'com.sun.mail', module: 'javax.mail'
+    exclude group: 'javax.ws.rs', module: 'javax.ws.rs-api'
+    exclude group: 'javax.activation', module: 'activation'
+    exclude group: 'javax.annotation', module: 'javax.annotation-api'
+    exclude group: 'javax.inject', module: 'javax.inject'
+    exclude group: 'org.glassfish.hk2.external', module: 'javax.inject'
+  
 }
 
 dependencies {

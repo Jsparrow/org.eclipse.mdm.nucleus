@@ -33,7 +33,7 @@ dependencies {
 	compile project(':org.eclipse.mdm.connector')
 	compile project(':org.eclipse.mdm.property')
 	
-	providedCompile 'javax:javaee-api:7.0'
+	compileOnly 'javax:javaee-api:7.0'
 
 	testCompile 'junit:junit:4.12'
 	testCompile 'org.apache.lucene:lucene-test-framework:5.3.1'
