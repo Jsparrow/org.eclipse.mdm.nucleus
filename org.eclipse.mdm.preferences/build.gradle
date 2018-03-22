@@ -15,7 +15,7 @@ version = '1.0.0'
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
-apply plugin: 'jpa-schema-generate'
+apply plugin: 'io.github.divinespear.jpa-schema-generate'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -40,14 +40,6 @@ dependencies {
   testRuntime 'org.apache.derby:derby:10.13.1.1'
 }
 
-sourceSets {
-    main {
-      // set output to same directories
-      // jpa implementations always scan classes using classpath that found persistence.xml
-        output.resourcesDir = output.classesDir
-    }
-}
-
 generateSchema {
   vendor = "eclipselink"
   packageToScan = ["org.eclipse.mdm.preferences"]
@@ -67,8 +59,11 @@ generateSchema {
 buildscript {
     repositories {
         mavenCentral()
+        maven {
+        	url "https://plugins.gradle.org/m2/"
+	    }
     }
     dependencies {
-        classpath 'io.github.divinespear:jpa-schema-gradle-plugin:+'
-    }
+	    classpath 'gradle.plugin.io.github.divinespear:jpa-schema-gradle-plugin:0.3.2'
+	}
 }
