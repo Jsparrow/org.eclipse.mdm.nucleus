@@ -14,6 +14,7 @@ import static io.vavr.API.Tuple;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -89,7 +90,7 @@ public class EntityService {
 	@EJB
 	private I18NActivity i18nActivity;
 
-	Logger LOGGER = LoggerFactory.getLogger(EntityService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EntityService.class);
 
 	/**
 	 * Converts a {@code value} into a {@link Value}. If {@code value} is
@@ -114,7 +115,7 @@ public class EntityService {
 	 */
 	public static Seq<Value<String>> SL(String... values) {
 		return List.of(values)
-				.map(s -> Option.of(s));
+				.map(Option::of);
 	}
 
 	/**
@@ -459,7 +460,7 @@ public class EntityService {
 												.getName())
 												.collect(Collectors.joining(", "))))
 						// invoke with given arguments
-						.invoke(factory.get(), argumentSuppliers.map(s -> s.get())
+						.invoke(factory.get(), argumentSuppliers.map(Value::get)
 								.toJavaArray()))
 
 				// start transaction to create the entity
@@ -611,7 +612,7 @@ public class EntityService {
 				.map((entityValueEntryKey, entityValueEntryValue) -> {
 					entityValues.get(entityValueEntryKey)
 							.forEach(value -> value.set(entityValueEntryValue));
-					return new Tuple2<String, Object>(entityValueEntryKey, entityValueEntryValue);
+					return new Tuple2<>(entityValueEntryKey, entityValueEntryValue);
 				})
 				.keySet();
 
@@ -645,7 +646,7 @@ public class EntityService {
 										// get enumValue
 										.map(enumeration -> enumeration.valueOf(enumValueName))
 										// if enumValue is not found, null is returned
-										.filter(enumValue -> enumValue != null)
+										.filter(Objects::nonNull)
 										.onEmpty(() -> {
 											throw new IllegalArgumentException("EnumerationValue [" + enumValueName
 													+ "] not found in Enumeration [" + enumName + "]");
@@ -657,7 +658,7 @@ public class EntityService {
 										});
 
 							});
-					return new Tuple2<String, Object>(entityValueEntryKey, entityValueEntryValue);
+					return new Tuple2<>(entityValueEntryKey, entityValueEntryValue);
 				})
 				.keySet();
 
@@ -666,23 +667,51 @@ public class EntityService {
 		// class names. If so, try to update accordingly named relation with the entity
 		// found by its id given as the value
 		Set<String> updatedRelations = valueMap
-				.filter((valueMapEntryKey, valueMapEntryValue) -> !updatedPrimitiveValues.contains(valueMapEntryKey))
+				.filter((valueMapEntryKey, valueMapEntryValue) -> !updatedPrimitiveValues.contains(valueMapEntryKey)
+						&& !updatedEnumerationValues.contains(valueMapEntryKey))
 				.filter((relatedEntityClassName, relatedEntityId) -> {
 					EntityStore store = getMutableStore(entity);
+
+					ContextType contextType = null;
+					// determine if class has a context type
+					for (ContextType ct : ContextType.values()) {
+						int index = relatedEntityClassName.toUpperCase()
+								.indexOf(ct.name());
+						if (index > 0) {
+							contextType = ct;
+							// cut out ContextType
+							relatedEntityClassName = relatedEntityClassName.substring(0, index)
+									+ relatedEntityClassName.substring(index + ct.name()
+											.length());
+						}
+					}
+
+					// to have final variables for Try
+					final String processedRelatedEntityClassName = relatedEntityClassName;
+					final ContextType contextTypeIfPresent = contextType;
 
 					// load class from model packages
 					Try<Class<Entity>> updateTry = Try
 							.of(() -> (Class<Entity>) Class
-									.forName("org.eclipse.mdm.api.base.model." + relatedEntityClassName))
+									.forName("org.eclipse.mdm.api.base.model." + processedRelatedEntityClassName))
 							.orElse(Try.of(() -> (Class<Entity>) Class
-									.forName("org.eclipse.mdm.api.dflt.model." + relatedEntityClassName)))
+									.forName("org.eclipse.mdm.api.dflt.model." + processedRelatedEntityClassName)))
 							// update related entity by first finding the related entity by its id
-							.andThenTry(entityClass -> store
-									.set(find(sourceNameSupplier, entityClass, V(relatedEntityId.toString()))
+							// use find and store.set() with ContextType if needed
+							.andThenTry(entityClass -> {
+								if (contextTypeIfPresent == null) {
+									store.set(find(sourceNameSupplier, entityClass, V(relatedEntityId.toString()))
 											.onFailure(e -> LOGGER.error(e.getMessage()))
-											.get()))
-							.onFailure(e -> LOGGER.error("Entity of type [" + relatedEntityClassName + "] and ID "
-									+ relatedEntityId + " not found", e));
+											.get());
+								} else {
+									store.set(find(sourceNameSupplier, entityClass, V(relatedEntityId.toString()),
+											V(contextTypeIfPresent)).onFailure(e -> LOGGER.error(e.getMessage()))
+													.get(),
+											contextTypeIfPresent);
+								}
+							})
+							.onFailure(e -> LOGGER.error("Entity of type [" + processedRelatedEntityClassName
+									+ "] and ID " + relatedEntityId + " not found", e));
 
 					return updateTry.isSuccess() ? true : false;
 				})
@@ -716,18 +745,16 @@ public class EntityService {
 	 */
 	private static EntityStore getMutableStore(Entity e) {
 		return Try.of(() -> {
-			Method GET_CORE_METHOD;
+			Method getMetod;
 			try {
-				GET_CORE_METHOD = BaseEntity.class.getDeclaredMethod("getCore");
-				GET_CORE_METHOD.setAccessible(true);
+				getMetod = BaseEntity.class.getDeclaredMethod("getCore");
+				getMetod.setAccessible(true);
 			} catch (NoSuchMethodException | SecurityException x) {
 				throw new IllegalStateException(
 						"Unable to load 'getCore()' in class '" + BaseEntity.class.getSimpleName() + "'.", x);
 			}
-			Core core = (Core) GET_CORE_METHOD.invoke(e);
-			EntityStore store = core.getMutableStore();
-
-			return store;
+			Core core = (Core) getMetod.invoke(e);
+			return core.getMutableStore();
 		})
 				.get();
 	}

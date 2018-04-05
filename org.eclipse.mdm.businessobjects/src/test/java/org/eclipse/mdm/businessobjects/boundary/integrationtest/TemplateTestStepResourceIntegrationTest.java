@@ -11,6 +11,7 @@
 package org.eclipse.mdm.businessobjects.boundary.integrationtest;
 
 import org.eclipse.mdm.businessobjects.boundary.ResourceConstants;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.google.gson.JsonObject;
@@ -29,6 +30,14 @@ public class TemplateTestStepResourceIntegrationTest extends EntityResourceInteg
 	public static void prepareTestData() {
 		getLogger().debug("Preparing TemplateTestResourceIntegrationTest");
 
+		// prepare test data for creating the TemplateRoots
+		TemplateRootTEQResourceIntegrationTest.prepareTestData();
+		TemplateRootTEQResourceIntegrationTest.createEntity();
+		TemplateRootTSQResourceIntegrationTest.prepareTestData();
+		TemplateRootTSQResourceIntegrationTest.createEntity();
+		TemplateRootUUTResourceIntegrationTest.prepareTestData();
+		TemplateRootUUTResourceIntegrationTest.createEntity();
+
 		// set up test data
 		setContextClass(TemplateTestStepResourceIntegrationTest.class);
 
@@ -45,6 +54,26 @@ public class TemplateTestStepResourceIntegrationTest extends EntityResourceInteg
 		enumerationJson.add("Enumeration", new JsonPrimitive("VersionState"));
 		enumerationJson.add("EnumerationValue", new JsonPrimitive("VALID"));
 		json.add("ValidFlag", enumerationJson);
+
+		json.add("TemplateTestEquipmentRoot",
+				new JsonPrimitive(getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("TemplateTestSequenceRoot",
+				new JsonPrimitive(getTestDataValue(TemplateRootTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+		json.add("TemplateUnitUnderTestRoot",
+				new JsonPrimitive(getTestDataValue(TemplateRootUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID)));
+
 		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		setContextClass(TemplateRootTEQResourceIntegrationTest.class);
+		TemplateRootTEQResourceIntegrationTest.deleteEntity();
+
+		setContextClass(TemplateRootTSQResourceIntegrationTest.class);
+		TemplateRootTSQResourceIntegrationTest.deleteEntity();
+
+		setContextClass(TemplateRootUUTResourceIntegrationTest.class);
+		TemplateRootUUTResourceIntegrationTest.deleteEntity();
 	}
 }
