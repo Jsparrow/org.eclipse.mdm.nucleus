@@ -1,13 +1,13 @@
 /*******************************************************************************
-  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others
-  * All rights reserved. This program and the accompanying materials
-  * are made available under the terms of the Eclipse Public License v1.0
-  * which accompanies this distribution, and is available at
-  * http://www.eclipse.org/legal/epl-v10.html
-  *
-  * Contributors:
-  * Sebastian Dirsch - initial configuration
-  *******************************************************************************/ 
+ * Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Sebastian Dirsch - initial configuration
+ *******************************************************************************/ 
 
 description = 'mdm nucleus'
 apply plugin: 'war'
@@ -34,80 +34,76 @@ subprojects {
 
 	sourceCompatibility = 1.8
 
-    repositories {
-	jcenter()
-        mavenLocal()
-        mavenCentral()
-    }
+	repositories {
+		jcenter()
+		mavenLocal()
+		mavenCentral()
+	}
 
-    dependencies {
-    	compileOnly 'org.slf4j:slf4j-api:1.7.25'
-    	compileOnly 'javax:javaee-api:7.0'
-    	runtime 'ch.qos.logback:logback-classic:1.2.3'
+	dependencies {
+		compileOnly 'org.slf4j:slf4j-api:1.7.25'
+		compileOnly 'javax:javaee-api:7.0'
+		runtime 'ch.qos.logback:logback-classic:1.2.3'
 
-        testCompile 'junit:junit:4.12'
-        testCompile 'org.assertj:assertj-core:3.6.2'
-    	testCompile 'org.mockito:mockito-core:2.13.0'
-    	testCompile 'javax:javaee-api:7.0' 
-    }
+		testCompile 'junit:junit:4.12'
+		testCompile 'org.assertj:assertj-core:3.6.2'
+		testCompile 'org.mockito:mockito-core:2.13.0'
+		testCompile 'javax:javaee-api:7.0'
+	}
 }
 
 clean {
-  dependsOn gradle.includedBuilds*.task(':clean')
+	dependsOn gradle.includedBuilds*.task(':clean')
 }
 
 configurations.all {
-    exclude group: 'com.sun.mail', module: 'javax.mail'
-    exclude group: 'javax.ws.rs', module: 'javax.ws.rs-api'
-    exclude group: 'javax.activation', module: 'activation'
-    exclude group: 'javax.annotation', module: 'javax.annotation-api'
-    exclude group: 'javax.inject', module: 'javax.inject'
-    exclude group: 'org.glassfish.hk2.external', module: 'javax.inject'
-  
+	exclude group: 'com.sun.mail', module: 'javax.mail'
+	exclude group: 'javax.ws.rs', module: 'javax.ws.rs-api'
+	exclude group: 'javax.activation', module: 'activation'
+	exclude group: 'javax.annotation', module: 'javax.annotation-api'
+	exclude group: 'javax.inject', module: 'javax.inject'
+	exclude group: 'org.glassfish.hk2.external', module: 'javax.inject'
+	exclude group: 'commons-logging', module: 'commons-logging'
 }
 
-dependencies {
-
-  compile project(':org.eclipse.mdm.application')
-}
+dependencies { compile project(':org.eclipse.mdm.application') }
 
 
 task collectConfiguration() {
-    doLast {
-        subprojects.each {
-          subproject ->
-          copy {
-            from "${project.projectDir}/${subproject.name}/src/main/configuration/"
-            into "${project.projectDir}/build/tmp/mdmweb/configuration/${subproject.name}"
-          }
-        }
-    }
+	doLast {
+		subprojects.each { subproject ->
+			copy {
+				from "${project.projectDir}/${subproject.name}/src/main/configuration/"
+				into "${project.projectDir}/build/tmp/mdmweb/configuration/${subproject.name}"
+			}
+		}
+	}
 }
 
 task copySchema(dependsOn: ':org.eclipse.mdm.preferences:generateSchema') {
-    doLast {
-        copy {
-          from "${project.projectDir}/org.eclipse.mdm.preferences/build/generated-schema/"
-          into "${project.projectDir}/build/tmp/mdmweb/schema/org.eclipse.mdm.preferences"
-        }
-    }
+	doLast {
+		copy {
+			from "${project.projectDir}/org.eclipse.mdm.preferences/build/generated-schema/"
+			into "${project.projectDir}/build/tmp/mdmweb/schema/org.eclipse.mdm.preferences"
+		}
+	}
 }
 
 task distribute(type: Zip) {
 	archiveName = "mdm_web.zip"
 	from "${project.projectDir}/build/tmp/mdmweb"
-	from "${project.projectDir}/build/libs/"	
+	from "${project.projectDir}/build/libs/"
 }
 
-war {	
+war {
 	from ('org.eclipse.mdm.application/build/node/dist') {
 		include('assets/*')
 		include('*')
 	}
-	
+
 	webXml = file('org.eclipse.mdm.application/src/main/webconfig/web.xml')
 	webInf  {from 'org.eclipse.mdm.application/src/main/webconfig/glassfish-web.xml'}
-} 
+}
 
 war.finalizedBy(collectConfiguration)
 war.finalizedBy(copySchema)
@@ -115,28 +111,22 @@ war.finalizedBy(distribute)
 
 jacoco {
 	toolVersion = "0.7.6.201602180812"
-    reportsDir = file("${project.buildDir}/jacoco/test.exec")
+	reportsDir = file("${project.buildDir}/jacoco/test.exec")
 }
 
 sonarqube {
-    properties {
-        property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/test.exec"
-    }
+	properties {
+		property "sonar.java.coveragePlugin", "jacoco"
+		property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/test.exec"
+	}
 }
 tasks["sonarqube"].dependsOn "org.eclipse.mdm.application:map_tslint"
 
 buildscript {
-    repositories {
-      maven {
-        url "http://repo1.maven.org/maven2/"
-      }
-      maven {
-        url "https://plugins.gradle.org/m2/"
-      }
-      mavenLocal()
-    }
-    dependencies {
-      classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5'
-    }
+	repositories {
+		maven { url "http://repo1.maven.org/maven2/" }
+		maven { url "https://plugins.gradle.org/m2/" }
+		mavenLocal()
+	}
+	dependencies { classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5' }
 }
