@@ -97,21 +97,21 @@ Wenn nach einem der Spezialsymbol gesucht werden soll, m&uuml;ssen dieses mit \ 
 
 <accordion>
 
-  <accordion-group [isOpen]="true" t="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isBoxChecked}">
+  <accordion-group [isOpen]="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isAdvancedSearchActive}">
     <div accordion-heading class="thinheader">
       <div class="row">
         <div class="col-xs-9">
           <div class="pull-left">
-            <input type="checkbox" [(ngModel)]="isBoxChecked" (click)="onCheckBoxClick($event)" title="{{getAdvancedSearchCbxTitle()}}"/> &nbsp;{{LblAdvancedSearch}} &nbsp;&nbsp;
-            <button type="button" title="{{TtlNewSearchFields}}" class="btn btn-default" (click)="showSearchFieldsEditor($event)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-plus"></span></button>
-            <button type="button" title="{{TtlEditSearchFields}}" class="btn btn-default" (click)="showSearchFieldsEditor($event,currentFilter.conditions)" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-edit"></span></button>
-            <button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="{{TtlSaveSearchFilter}}" [disabled]=!isBoxChecked><span class="fa fa-floppy-o"></span></button>
+            <input type="checkbox" [(ngModel)]="isAdvancedSearchActive" (click)="onCheckBoxClick($event)" title="{{getAdvancedSearchCbxTitle()}}"/> &nbsp;{{LblAdvancedSearch}} &nbsp;&nbsp;
+            <button type="button" title="{{TtlNewSearchFields}}" class="btn btn-default" (click)="showSearchFieldsEditor($event)" [disabled]=!isAdvancedSearchActive><span class="glyphicon glyphicon-plus"></span></button>
+            <button type="button" title="{{TtlEditSearchFields}}" class="btn btn-default" (click)="showSearchFieldsEditor($event,currentFilter.conditions)" [disabled]=!isAdvancedSearchActive><span class="glyphicon glyphicon-edit"></span></button>
+            <button type="button" class="btn btn-default" (click)="showSaveModal($event)" title="{{TtlSaveSearchFilter}}" [disabled]=!isAdvancedSearchActive><span class="fa fa-floppy-o"></span></button>
             <button type="button" class="btn btn-default" (click)="deleteFilter($event)" title="{{TtlDeleteFilter}}"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
         </div>
         <div class="col-xs-3 pull-right">
           <div class="pull-right">
-            <button type="button" class="btn btn-default" (click)="resetConditions($event)" title="{{TtlResetSearchConditions}}" [disabled]=!isBoxChecked><span class="glyphicon glyphicon-erase"></span></button>
+            <button type="button" class="btn btn-default" (click)="resetConditions($event)" title="{{TtlResetSearchConditions}}" [disabled]=!isAdvancedSearchActive><span class="glyphicon glyphicon-erase"></span></button>
             <span class="glyphicon" style="color: #333 !important; padding-left: 15px;" [ngClass]="{'glyphicon-chevron-down': advancedSearch?.isOpen, 'glyphicon-chevron-right': !advancedSearch?.isOpen}"></span>
           </div>
         </div>
@@ -142,7 +142,7 @@ Wenn nach einem der Spezialsymbol gesucht werden soll, m&uuml;ssen dieses mit \ 
                 <tr search-condition class="condition" *ngFor="let condition of layout.getConditions(env)"
                     [env]="env"
                     [condition]="condition"
-                    [disabled]="!isBoxChecked"
+                    [disabled]="!isAdvancedSearchActive"
                     [selectedEnvs]="selectedEnvironments"
                     (onRemove)="removeCondition($event)">
                 </tr>
