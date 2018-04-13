@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import io.vavr.API;
 import io.vavr.CheckedFunction0;
@@ -33,13 +34,21 @@ import io.vavr.control.Try;
  */
 public final class RequestBody {
 
-	Lazy<HashMap<String, Object>> requestBodyMap;
+	private Lazy<HashMap<String, Object>> requestBodyMap;
+	private static ObjectMapper mapper;
+
+	static {
+		mapper = new ObjectMapper();
+		SimpleModule simpleModule = new SimpleModule();
+		simpleModule.addDeserializer(Object.class, new ISODateDeseralizer(null, null));
+		mapper.registerModule(simpleModule);
+	}
 
 	/**
 	 * Just hide the default constructor
 	 */
 	private RequestBody() {
-	};
+	}
 
 	/**
 	 * Builds RequestBody by using the given function that returns the request body
@@ -64,14 +73,12 @@ public final class RequestBody {
 	 *            JSON request body to create RequestBody
 	 * @return the RequestBody
 	 */
-	public static RequestBody create(String requestBody) {
+	public static RequestBody create(String requestBodyString) {
 		// create requestbody with a function that parses the json request and
-		// transforms it to a {@link map<string, object>
-		return new RequestBody(() -> {
-			return HashMap.ofAll(
-					new ObjectMapper().readValue(requestBody, new TypeReference<java.util.Map<String, Object>>() {
-					}));
-		});
+		// transforms it to a {@link Map<String, Object>
+		return new RequestBody(() -> HashMap
+				.ofAll(mapper.readValue(requestBodyString, new TypeReference<java.util.Map<String, Object>>() {
+				})));
 	}
 
 	/**
@@ -87,7 +94,7 @@ public final class RequestBody {
 	public Try<String> getStringValueSupplier(String key) {
 		return Try.of(() -> Lazy.of(() -> requestBodyMap.get()
 				.get(key)
-				.map(value -> value.toString())
+				.map(Object::toString)
 				.onEmpty(() -> {
 					throw new NoSuchElementException("Key [" + key + "] not found in request body.");
 				})
@@ -96,7 +103,7 @@ public final class RequestBody {
 	}
 
 	/**
-	 * Returns a {@link Try> that holds the value for the given key. If the
+	 * Returns a {@link Try<Object>> that holds the value for the given key. If the
 	 * underlying request body map can be parsed, the appropriate JSON exceptions
 	 * are thrown if get() is called on the {@link Try>. If the key was not found, a
 	 * {@link NoSuchElementException} is thrown correspondingly.
@@ -105,10 +112,10 @@ public final class RequestBody {
 	 *            key to get value for
 	 * @return the value for the given key
 	 */
-	public Try<?> getValueSupplier(String key) {
+	public Try<Object> getValueSupplier(String key) {
 		return Try.of(() -> Lazy.of(() -> requestBodyMap.get()
 				.get(key)
-				.map(value -> value.toString())
+				.map(Object::toString)
 				.onEmpty(() -> {
 					throw new NoSuchElementException("Key [" + key + "] not found in request body.");
 				})
