@@ -34,6 +34,9 @@ The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war** and the con
 http://SERVER:PORT/APPLICATIONROOT
 _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
+## configure logging
+
+MDM 5 uses SLF4J and logback for logging. The default configuration file can be found at **org.eclipse.mdm.nucleus/src/main/resources/logback.xml**. It logs INFO level messages to **mdm5.log** in the **logs** folder of the Glassfish domain. If you want to customize logging, you can either edit the file within the war file or preferably provide your own logging configuration via system parameter in the JVM settings in Glassfish: **-Dlogback.configurationFile=/path/to/config.xml**
 
 ## available rest URLs
 
