@@ -79,7 +79,7 @@ public class TemplateComponentResource {
 		return entityService
 				.find(V(sourceName), TemplateComponent.class, V(id), ServiceUtils.getContextTypeSupplier(contextTypeParam),
 						SL(tplRootId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -104,7 +104,7 @@ public class TemplateComponentResource {
 				.find(V(sourceName), TemplateRoot.class, V(tplRootId),
 						ServiceUtils.getContextTypeSupplier(contextTypeParam))
 				.map(tplRoot -> List.ofAll(tplRoot.getTemplateComponents()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -132,7 +132,7 @@ public class TemplateComponentResource {
 						entityService.find(V(sourceName), CatalogComponent.class,
 								requestBody.getStringValueSupplier(ENTITYATTRIBUTE_CATALOGCOMPONENT_ID),
 										ServiceUtils.getContextTypeSupplier(contextTypeParam))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

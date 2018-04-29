@@ -72,7 +72,7 @@ public class TemplateTestStepUsageResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String tplTestId, @PathParam(REQUESTPARAM_ID2) String id) {
 		return entityService.find(V(sourceName), TemplateTestStepUsage.class, V(id), SL(tplTestId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -93,7 +93,7 @@ public class TemplateTestStepUsageResource {
 			@PathParam(REQUESTPARAM_ID) String tplTestId, @QueryParam("filter") String filter) {
 		return entityService.find(V(sourceName), TemplateTest.class, V(tplTestId))
 				.map(tplTest -> List.ofAll(tplTest.getTemplateTestStepUsages()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -119,7 +119,7 @@ public class TemplateTestStepUsageResource {
 								entityService.find(V(sourceName), TemplateTest.class, V(tplTestId)),
 								entityService.find(V(sourceName), TemplateTestStep.class,
 										requestBody.getStringValueSupplier(ENTITYATTRIBUTE_TEMPLATETESTSTEP_ID))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

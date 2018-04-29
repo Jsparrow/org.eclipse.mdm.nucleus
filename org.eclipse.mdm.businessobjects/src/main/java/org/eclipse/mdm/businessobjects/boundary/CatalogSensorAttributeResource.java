@@ -82,7 +82,7 @@ public class CatalogSensorAttributeResource {
 		return entityService
 				.find(V(sourceName), CatalogAttribute.class, V(id),
 						V(ContextType.TESTEQUIPMENT), SL(catCompId, sensorId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER).getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
@@ -107,7 +107,7 @@ public class CatalogSensorAttributeResource {
 		return entityService
 				.find(V(sourceName), CatalogSensor.class, V(sensorId), V(ContextType.TESTEQUIPMENT), SL(catCompId))
 				.map(catSensor -> List.ofAll(catSensor.getCatalogAttributes()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER).getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
@@ -137,7 +137,7 @@ public class CatalogSensorAttributeResource {
 										requestBody.getStringValueSupplier(ENTITYATTRIBUTE_DATATYPE)),
 								entityService.find(V(sourceName), CatalogSensor.class, V(sensorId),
 										V(ContextType.TESTEQUIPMENT), SL(catCompId))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER).getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 

@@ -69,7 +69,7 @@ public class CatalogComponentResource {
 			@PathParam(REQUESTPARAM_CONTEXTTYPE) String contextTypeParam, @PathParam(REQUESTPARAM_ID) String id) {
 		return entityService
 				.find(V(sourceName), CatalogComponent.class, V(id), ServiceUtils.getContextTypeSupplier(contextTypeParam))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -92,7 +92,7 @@ public class CatalogComponentResource {
 		return entityService
 				.findAll(V(sourceName), CatalogComponent.class, filter,
 						ServiceUtils.getContextTypeSupplier(contextTypeParam))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

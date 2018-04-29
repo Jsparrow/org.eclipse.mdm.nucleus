@@ -80,7 +80,7 @@ public class NestedTemplateAttributeResource {
 			@PathParam(REQUESTPARAM_ID4) String id) {
 		return entityService.find(V(sourceName), TemplateAttribute.class, V(id),
 				ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId, parentTplCompId, tplCompId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -108,7 +108,7 @@ public class NestedTemplateAttributeResource {
 				.find(V(sourceName), TemplateComponent.class, V(tplCompId),
 						ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId, parentTplCompId))
 				.map(tplComp -> List.ofAll(tplComp.getTemplateAttributes()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -134,7 +134,7 @@ public class NestedTemplateAttributeResource {
 						requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
 						entityService.find(V(sourceName), TemplateComponent.class, V(tplCompId),
 								ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId, parentTplCompId))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

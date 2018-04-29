@@ -76,7 +76,7 @@ public class CatalogSensorResource {
 		return entityService
 				.find(V(sourceName), CatalogSensor.class, V(id), V(ContextType.TESTEQUIPMENT),
 						SL(catCompId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -100,7 +100,7 @@ public class CatalogSensorResource {
 			@PathParam(REQUESTPARAM_ID) String catCompId, @QueryParam("filter") String filter) {
 		return entityService.find(V(sourceName), CatalogComponent.class, V(catCompId), V(ContextType.TESTEQUIPMENT))
 				.map(catComp -> List.ofAll(catComp.getCatalogSensors()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -128,7 +128,7 @@ public class CatalogSensorResource {
 						L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
 								entityService.find(V(sourceName), CatalogComponent.class, V(catCompId),
 										V(ContextType.TESTEQUIPMENT))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

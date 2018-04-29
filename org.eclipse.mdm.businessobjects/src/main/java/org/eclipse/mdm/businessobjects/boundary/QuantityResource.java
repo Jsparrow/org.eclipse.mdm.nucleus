@@ -68,7 +68,7 @@ public class QuantityResource {
 	@Path("/{" + REQUESTPARAM_ID + "}")
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @PathParam(REQUESTPARAM_ID) String id) {
 		return entityService.find(V(sourceName), Quantity.class, V(id))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -87,7 +87,7 @@ public class QuantityResource {
 	public Response findAll(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@QueryParam("filter") String filter) {
 		return entityService.findAll(V(sourceName), Quantity.class, filter)
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -111,7 +111,7 @@ public class QuantityResource {
 						L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
 								entityService.find(V(sourceName), Unit.class,
 										requestBody.getStringValueSupplier(ENTITYATTRIBUTE_UNIT_ID))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

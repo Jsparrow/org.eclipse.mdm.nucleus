@@ -68,7 +68,7 @@ public class ValueListValueResource {
 	public Response find(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName,
 			@PathParam(REQUESTPARAM_ID) String valueListId, @PathParam(REQUESTPARAM_ID2) String id) {
 		return entityService.find(V(sourceName), ValueListValue.class, V(id), SL(valueListId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -89,7 +89,7 @@ public class ValueListValueResource {
 
 		return entityService.find(V(sourceName), ValueList.class, V(valueListId))
 				.map(valueList -> List.ofAll(valueList.getValueListValues()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -116,7 +116,7 @@ public class ValueListValueResource {
 				.create(V(sourceName), ValueListValue.class,
 						L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
 								entityService.find(V(sourceName), ValueList.class, V(valueListId))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

@@ -79,7 +79,7 @@ public class TemplateSensorResource {
 			@PathParam(REQUESTPARAM_ID3) String id) {
 		return entityService
 				.find(V(sourceName), TemplateSensor.class, V(id), V(ContextType.TESTEQUIPMENT), SL(tplRootId, tplCompId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -101,7 +101,7 @@ public class TemplateSensorResource {
 		return entityService
 				.find(V(sourceName), TemplateComponent.class, V(tplCompId), V(ContextType.TESTEQUIPMENT), SL(tplRootId))
 				.map(tplComp -> List.ofAll(tplComp.getTemplateSensors()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -136,7 +136,7 @@ public class TemplateSensorResource {
 										.getID()))),
 						entityService.find(V(sourceName), Quantity.class,
 										requestBody.getStringValueSupplier(ENTITYATTRIBUTE_QUANTITY_ID))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

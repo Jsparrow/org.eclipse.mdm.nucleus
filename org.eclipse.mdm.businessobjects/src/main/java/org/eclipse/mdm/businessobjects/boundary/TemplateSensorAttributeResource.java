@@ -85,7 +85,7 @@ public class TemplateSensorAttributeResource {
 		return entityService
 				.find(V(sourceName), TemplateAttribute.class, V(id), V(ContextType.TESTEQUIPMENT),
 						SL(tplRootId, tplCompId, tplSensorId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -114,7 +114,7 @@ public class TemplateSensorAttributeResource {
 				.find(V(sourceName), TemplateSensor.class, V(tplSensorId),
 						V(ContextType.TESTEQUIPMENT), SL(tplRootId, tplCompId))
 				.map(tplSensor -> List.ofAll(tplSensor.getTemplateAttributes()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

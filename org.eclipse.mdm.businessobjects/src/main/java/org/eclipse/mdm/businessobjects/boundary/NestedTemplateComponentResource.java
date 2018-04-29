@@ -80,7 +80,7 @@ public class NestedTemplateComponentResource {
 		return entityService
 				.find(V(sourceName), TemplateComponent.class, V(id), ServiceUtils.getContextTypeSupplier(contextTypeParam),
 						SL(tplRootId, parentTplCompId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -105,7 +105,7 @@ public class NestedTemplateComponentResource {
 				.find(V(sourceName), TemplateComponent.class, V(parentTplCompId),
 						ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId))
 				.map(tplComp -> List.ofAll(tplComp.getTemplateComponents()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -136,7 +136,7 @@ public class NestedTemplateComponentResource {
 						entityService.find(V(sourceName), CatalogComponent.class,
 								requestBody.getStringValueSupplier(ENTITYATTRIBUTE_CATALOGCOMPONENT_ID),
 										ServiceUtils.getContextTypeSupplier(contextTypeParam))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}

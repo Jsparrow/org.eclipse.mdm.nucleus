@@ -78,7 +78,7 @@ public class TemplateAttributeResource {
 		return entityService
 				.find(V(sourceName), TemplateAttribute.class, V(id),
 						ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId, tplCompId))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -103,7 +103,7 @@ public class TemplateAttributeResource {
 				.find(V(sourceName), TemplateComponent.class, V(tplCompId),
 						ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId))
 				.map(tplComp -> List.ofAll(tplComp.getTemplateAttributes()))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
@@ -128,7 +128,7 @@ public class TemplateAttributeResource {
 						L(requestBody.getStringValueSupplier(ENTITYATTRIBUTE_NAME),
 								entityService.find(V(sourceName), TemplateComponent.class, V(tplCompId),
 										ServiceUtils.getContextTypeSupplier(contextTypeParam), SL(tplRootId))))
-				.map(e -> ServiceUtils.buildEntityResponse(e, Status.FOUND))
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.CREATED))
 				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
 				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
