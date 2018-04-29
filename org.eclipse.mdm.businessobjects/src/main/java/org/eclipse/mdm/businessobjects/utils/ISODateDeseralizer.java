@@ -54,6 +54,9 @@ class ISODateDeseralizer extends UntypedObjectDeserializer {
 	@Override
 	public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
 		// try to parse every string as a date
+		// TODO anehmer on 2018-04-30: this approach could lead to a performance leak as
+		// every incoming string is tried to be converted into a date though the
+		// appraoch is very generic
 		if (jp.getCurrentTokenId() == JsonTokenId.ID_STRING) {
 			try {
 				return LocalDateTime.parse(jp.getText(), dateFormatter);
