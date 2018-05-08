@@ -20,10 +20,11 @@ targetCompatibility = 1.8
 
 
 repositories {
-
 	mavenLocal()
 	mavenCentral()
 }
 
-dependencies {	      
+jar {
+	metaInf { from '../NOTICE.txt' }
+	metaInf { from '../LICENSE.txt' }
 }

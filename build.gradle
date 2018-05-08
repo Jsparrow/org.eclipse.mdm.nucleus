@@ -103,6 +103,9 @@ war {
 
 	webXml = file('org.eclipse.mdm.application/src/main/webconfig/web.xml')
 	webInf  {from 'org.eclipse.mdm.application/src/main/webconfig/glassfish-web.xml'}
+	
+	metaInf { from 'NOTICE.txt' }
+	metaInf { from 'LICENSE.txt' }
 }
 
 war.finalizedBy(collectConfiguration)

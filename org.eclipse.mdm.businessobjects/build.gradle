@@ -1,13 +1,13 @@
 /*******************************************************************************
-  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others
-  * All rights reserved. This program and the accompanying materials
-  * are made available under the terms of the Eclipse Public License v1.0
-  * which accompanies this distribution, and is available at
-  * http://www.eclipse.org/legal/epl-v10.html
-  *
-  * Contributors:
-  * Sebastian Dirsch - initial configuration
-  *******************************************************************************/
+ * Copyright (c) 2016 Gigatronik Ingolstadt GmbH and others
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Sebastian Dirsch - initial configuration
+ *******************************************************************************/
 
 description = 'business object service'
 version = '1.0.0'
@@ -15,17 +15,20 @@ version = '1.0.0'
 apply plugin: 'antlr'
 
 dependencies {
-  compile project(':org.eclipse.mdm.connector')	
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+	compile project(':org.eclipse.mdm.connector')
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
 
-  testCompile 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.23.2'
-  testCompile 'org.glassfish.jersey.media:jersey-media-json-jackson:2.23.2'
-  
-  antlr "org.antlr:antlr4:4.5.3"
+	testCompile 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.23.2'
+	testCompile 'org.glassfish.jersey.media:jersey-media-json-jackson:2.23.2'
+
+	antlr "org.antlr:antlr4:4.5.3"
 }
 
-generateGrammarSource {
-    arguments += ["-visitor"]
-}
+generateGrammarSource { arguments += ["-visitor"] }
 
 compileJava.dependsOn(generateGrammarSource)
+
+jar {
+	metaInf { from '../NOTICE.txt' }
+	metaInf { from '../LICENSE.txt' }
+}

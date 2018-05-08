@@ -41,3 +41,8 @@ dependencies {
 	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4')
 	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4', classifier: 'tests')
 }
+
+jar {
+	metaInf { from '../NOTICE.txt' }
+	metaInf { from '../LICENSE.txt' }
+}
