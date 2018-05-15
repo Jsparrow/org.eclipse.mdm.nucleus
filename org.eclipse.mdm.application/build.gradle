@@ -10,6 +10,8 @@
  *******************************************************************************/ 
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.apache.tools.ant.filters.ConcatFilter
+
 description = 'MDM Web Application'
 version = '1.0.0'
 apply plugin: 'com.moowork.node'
@@ -69,9 +71,16 @@ task copy_websources(type: Copy) {
 	from('./src/main/webapp') {
 		exclude 'dist'
 		exclude 'node_modules'
+		exclude 'NOTICE.html'
 	}
 
 	into "${project.buildDir}/node"
+}
+
+task copyNoticeFile() {
+  file("${project.buildDir}/node/src/app/").mkdirs()
+  def html = file("${project.buildDir}/node/src/app/NOTICE.html")
+  html.text = '<pre>' + file('../NOTICE.txt').text + '</pre>'
 }
 
 
@@ -113,12 +122,14 @@ if (hasProperty('skipNode')) {
 	compileJava.dependsOn(copyFilesForRunningWithoutNpm)
 	copyFilesForRunningWithoutNpm.dependsOn(copy_loginsites)
 	copy_loginsites.dependsOn(copy_websources)
+	copy_loginsites.dependsOn(copyNoticeFile)
 } else {
 	compileJava.dependsOn(copy_loginsites)
 	map_tslint.dependsOn(runBuild)
 	copy_loginsites.dependsOn(runBuild)
 	runBuild.dependsOn(npmInstall)
 	npmInstall.dependsOn(copy_websources)
+	npmInstall.dependsOn(copyNoticeFile)
 	copy_websources.dependsOn(npmSetup)
 	npmSetup.dependsOn(nodeSetup)
 }

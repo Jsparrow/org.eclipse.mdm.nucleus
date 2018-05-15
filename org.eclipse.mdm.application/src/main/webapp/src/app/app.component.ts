@@ -11,6 +11,7 @@
 *******************************************************************************/
 
 import { Component } from '@angular/core';
+import {DialogModule} from 'primeng/primeng';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +20,15 @@ import { Component } from '@angular/core';
 export class AppComponent {
 
   readonly TtlLogout = 'Logout';
+  readonly TtlAbout = 'About';
+
   links = [
       { name: 'openMDM5 Web', path: '/navigator' },
       { name: 'Administration', path: '/administration' }
   ];
+  displayAboutDialog: boolean = false;
+
+  showAboutDialog() {
+    this.displayAboutDialog = true;
+  }
 }

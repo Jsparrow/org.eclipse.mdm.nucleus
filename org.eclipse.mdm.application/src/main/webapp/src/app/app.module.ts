@@ -16,7 +16,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppRoutingModule } from './app-routing.module';
+import { NoticeComponent } from './notice.component';
 
+import { DialogModule } from 'primeng/primeng';
 import { MDMCoreModule} from './core/mdm-core.module';
 import { MDMNavigatorViewModule } from './navigator-view/mdm-navigator-view.module';
 import { AdminModule } from './administration/admin.module';
@@ -44,10 +46,12 @@ import { HttpErrorHandler } from './core/http-error-handler';
     AppRoutingModule,
     MDMCoreModule,
     MDMNavigatorViewModule,
-    AdminModule
+    AdminModule,
+    DialogModule
   ],
   declarations: [
     AppComponent,
+    NoticeComponent
   ],
   providers: [
     NodeService,
