@@ -22,10 +22,10 @@ Before you can install and build the application, you have to checkout and insta
 (This properties are used to create the rest URLs to communicate with the backend)
 Furthermore, specify the **contextPath** in **org.eclipse.mdm.nucleus/org.eclipse.mdm.application/src/main/webapp/webpack.config.js**
 2. **build** the application (gradlew install)
-The command **gradlew install** at **org.eclipse.mdm.nucleus** creates a ZIP archive named **mdm_web.zip** at
+The command **gradlew install** at **org.eclipse.mdm.nucleus** creates a ZIP archive named **mdm_web-${version}.zip** at
 **/org.eclipse.mdm.nucleus/build/distributions**
-The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war** and the configurations **/configuration**
-3. **deploy** the backend ( **org.eclipse.mdm.nuclues.war** file) at your application server, check that database for preference service is running (**asadmin start-database**)
+The ZIP archive contains the backend **org.eclipse.mdm.nucleus-${version}.war** and the configurations **/configuration**
+3. **deploy** the backend ( **org.eclipse.mdm.nuclues-${version}.war** file) at your application server. In the following examples we assume that the context root is set to **org.eclipse.mdm.nucleus**.  Check that the database for the preference service is running (**asadmin start-database**).
 4. **copy the content** of the extracted **/configuration** folder to **GLASSFISH_ROOT/glassfish/domains/domain1/config**
 5. **edit** the **org.eclipse.mdm.connector/service.xml** file to configure the data sources
 6. **install** and **configure** the **LoginModule** (see org.eclipse.mdm.realms - README.md)
