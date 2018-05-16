@@ -10,7 +10,6 @@
  *******************************************************************************/
 
 description = 'business object service'
-version = '1.0.0'
 
 apply plugin: 'antlr'
 

@@ -10,15 +10,14 @@
  *******************************************************************************/
 
 description = 'MDM Connector'
-version = '1.0.0'
 
 dependencies {
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.default:1.0.0'
+	compile "org.eclipse.mdm:org.eclipse.mdm.api.base:${version}"
+	compile "org.eclipse.mdm:org.eclipse.mdm.api.default:${version}"
 	compile project(':org.eclipse.mdm.property')
 	compileOnly 'javax:javaee-api:7.0'
 
-	runtime 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
+	runtime "org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:${version}"
 }
 
 jar {

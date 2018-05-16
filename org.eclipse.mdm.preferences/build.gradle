@@ -10,7 +10,6 @@
  *******************************************************************************/
 
 description = 'MDM preference service'
-version = '1.0.0'
 
 apply plugin: 'java'
 apply plugin: 'maven'

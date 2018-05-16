@@ -13,7 +13,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import org.apache.tools.ant.filters.ConcatFilter
 
 description = 'MDM Web Application'
-version = '1.0.0'
+
 apply plugin: 'com.moowork.node'
 
 System.setProperty('file.encoding', 'UTF-8')

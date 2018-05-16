@@ -8,6 +8,8 @@
  * Contributors:
  * Sebastian Dirsch - initial configuration
  *******************************************************************************/ 
+group = 'org.eclipse.mdm'
+version = '5.0.0M1'
 
 description = 'mdm nucleus'
 apply plugin: 'war'
@@ -25,8 +27,9 @@ repositories {
 }
 
 subprojects {
-	group = 'org.eclipse.mdm'
-
+	group = rootProject.group
+	version = rootProject.version
+	
 	apply plugin: 'eclipse'
 	apply plugin: 'java'
 	apply plugin: 'maven'
@@ -90,7 +93,7 @@ task copySchema(dependsOn: ':org.eclipse.mdm.preferences:generateSchema') {
 }
 
 task distribute(type: Zip) {
-	archiveName = "mdm_web.zip"
+	archiveName = "mdm_web-${version}.zip"
 	from "${project.projectDir}/build/tmp/mdmweb"
 	from "${project.projectDir}/build/libs/"
 }

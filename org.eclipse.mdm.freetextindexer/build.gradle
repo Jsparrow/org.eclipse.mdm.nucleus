@@ -10,7 +10,6 @@
  *******************************************************************************/ 
 
 description = 'MDM FreeText Search Indexer'
-version = '1.0.0'
 
 apply plugin: 'war'
 apply plugin: 'maven'

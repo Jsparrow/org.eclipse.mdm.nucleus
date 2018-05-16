@@ -10,8 +10,7 @@
  *******************************************************************************/
 
 description = 'file release component'
-group = 'org.eclipse.mdm'
-version = '1.0.0'
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
