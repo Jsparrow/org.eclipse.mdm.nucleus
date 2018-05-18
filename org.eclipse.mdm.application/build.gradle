@@ -10,8 +10,10 @@
  *******************************************************************************/ 
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.apache.tools.ant.filters.ConcatFilter
+
 description = 'MDM Web Application'
-version = '1.0.0'
+
 apply plugin: 'com.moowork.node'
 
 System.setProperty('file.encoding', 'UTF-8')
@@ -19,26 +21,26 @@ System.setProperty('file.encoding', 'UTF-8')
 task map_tslint(type: Copy) {
 	File tsLintFile = file("${project.buildDir}/node/coverage/tslint_out.json")
 	File mappedTsLintFile = file("${project.buildDir}/node/coverage/tslint_out_mapped.json")
-	
+
 	if (tsLintFile.exists()) {
-		String contents = tsLintFile.getText('UTF-8') 
+		String contents = tsLintFile.getText('UTF-8')
 		contents = contents.replaceAll( 'src/app', 'src/main/webapp/src/app' )
 		mappedTsLintFile.write(contents, 'UTF-8')
 	}
 }
 
 sonarqube {
-    properties {
-        property "sonar.sources", "src/main/webapp/src,src/main/java"
-        property "sonar.exclusions", "src/main/webapp/node_modules/**, src/main/webapp/coverage/**, src/main/webapp/dist/**,**/*.spec.ts, **/*.js"
-        property "sonar.tests", "src/main/webapp/src"
-		    property "sonar.test.inclusions", "**/*.spec.ts"
-		
-		    property "sonar.ts.tslint.configPath", "src/main/webapp"
-		    property "sonar.ts.tslint.projectPath", "src/main/webapp"
-        property "sonar.ts.tslint.outputPath", "${project.buildDir}/node/coverage/tslint_out_mapped.json"
-        property "sonar.ts.coverage.lcovReportpath", "${project.buildDir}/node/coverage/lcov.info"
-    }
+	properties {
+		property "sonar.sources", "src/main/webapp/src,src/main/java"
+		property "sonar.exclusions", "src/main/webapp/node_modules/**, src/main/webapp/coverage/**, src/main/webapp/dist/**,**/*.spec.ts, **/*.js"
+		property "sonar.tests", "src/main/webapp/src"
+		property "sonar.test.inclusions", "**/*.spec.ts"
+
+		property "sonar.ts.tslint.configPath", "src/main/webapp"
+		property "sonar.ts.tslint.projectPath", "src/main/webapp"
+		property "sonar.ts.tslint.outputPath", "${project.buildDir}/node/coverage/tslint_out_mapped.json"
+		property "sonar.ts.coverage.lcovReportpath", "${project.buildDir}/node/coverage/lcov.info"
+	}
 }
 
 dependencies {
@@ -47,31 +49,38 @@ dependencies {
 
 	compile project(':org.eclipse.mdm.businessobjects')
 	compile project(':org.eclipse.mdm.filerelease')
-	compile project(':org.eclipse.mdm.property')	
-	compile project(':org.eclipse.mdm.freetextindexer')	
-	compile project(':org.eclipse.mdm.preferences')	
+	compile project(':org.eclipse.mdm.property')
+	compile project(':org.eclipse.mdm.freetextindexer')
+	compile project(':org.eclipse.mdm.preferences')
 }
 
 buildscript {
-	repositories { 
-		maven { 
-			url "https://plugins.gradle.org/m2/" 
-		} 
+	repositories {
+		maven {  url "https://plugins.gradle.org/m2/"  }
 	}
-	dependencies { 
-		classpath "com.moowork.gradle:gradle-node-plugin:1.0.1" 
-	}
+	dependencies {  classpath "com.moowork.gradle:gradle-node-plugin:1.0.1"  }
 }
 
+jar {
+	metaInf { from '../NOTICE.txt' }
+	metaInf { from '../LICENSE.txt' }
+}
 
 task copy_websources(type: Copy) {
 
 	from('./src/main/webapp') {
 		exclude 'dist'
 		exclude 'node_modules'
+		exclude 'NOTICE.html'
 	}
-	
+
 	into "${project.buildDir}/node"
+}
+
+task copyNoticeFile() {
+  file("${project.buildDir}/node/src/app/").mkdirs()
+  def html = file("${project.buildDir}/node/src/app/NOTICE.html")
+  html.text = '<pre>' + file('../NOTICE.txt').text + '</pre>'
 }
 
 
@@ -88,21 +97,19 @@ node {
 	}
 }
 
-npm_install {
-	args = ["${project.buildDir}"]
-}
+npm_install { args = ["${project.buildDir}"] }
 
 task runBuild(type: NpmTask) {
-    args = ['run', 'ci_build']
-    inputs.dir 'src'
-    outputs.dir 'build'
+	args = ['run', 'ci_build']
+	inputs.dir 'src'
+	outputs.dir 'build'
 }
 
 task copy_loginsites(type: Copy) {
-	from 	"${project.buildDir}/node/src/login.jsp", 
-			"${project.buildDir}/node/src/login.css", 
+	from 	"${project.buildDir}/node/src/login.jsp",
+			"${project.buildDir}/node/src/login.css",
 			"${project.buildDir}/node/src/error.jsp"
-			
+
 	into	 "${project.buildDir}/node/dist"
 }
 
@@ -115,12 +122,14 @@ if (hasProperty('skipNode')) {
 	compileJava.dependsOn(copyFilesForRunningWithoutNpm)
 	copyFilesForRunningWithoutNpm.dependsOn(copy_loginsites)
 	copy_loginsites.dependsOn(copy_websources)
+	copy_loginsites.dependsOn(copyNoticeFile)
 } else {
 	compileJava.dependsOn(copy_loginsites)
-	map_tslint.dependsOn(runBuild)	
+	map_tslint.dependsOn(runBuild)
 	copy_loginsites.dependsOn(runBuild)
 	runBuild.dependsOn(npmInstall)
 	npmInstall.dependsOn(copy_websources)
+	npmInstall.dependsOn(copyNoticeFile)
 	copy_websources.dependsOn(npmSetup)
 	npmSetup.dependsOn(nodeSetup)
 }

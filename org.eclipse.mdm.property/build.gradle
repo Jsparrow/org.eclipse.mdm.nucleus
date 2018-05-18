@@ -10,8 +10,7 @@
  *******************************************************************************/
 
 description = 'MDM property component'
-version = '1.0.0'
-group = 'org.eclipse.mdm'
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
@@ -20,10 +19,11 @@ targetCompatibility = 1.8
 
 
 repositories {
-
 	mavenLocal()
 	mavenCentral()
 }
 
-dependencies {	      
+jar {
+	metaInf { from '../NOTICE.txt' }
+	metaInf { from '../LICENSE.txt' }
 }

@@ -1,22 +1,26 @@
 /*******************************************************************************
-  * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-  * All rights reserved. This program and the accompanying materials
-  * are made available under the terms of the Eclipse Public License v1.0
-  * which accompanies this distribution, and is available at
-  * http://www.eclipse.org/legal/epl-v10.html
-  *
-  * Contributors:
-  * Sebastian Dirsch - initial configuration
-  *******************************************************************************/
+ * Copyright (c) 2016 Gigatronik Ingolstadt GmbH
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Sebastian Dirsch - initial configuration
+ *******************************************************************************/
 
 description = 'MDM Connector'
-version = '1.0.0'
 
-dependencies {	
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
-	compile 'org.eclipse.mdm:org.eclipse.mdm.api.default:1.0.0'
+dependencies {
+	compile "org.eclipse.mdm:org.eclipse.mdm.api.base:${version}"
+	compile "org.eclipse.mdm:org.eclipse.mdm.api.default:${version}"
 	compile project(':org.eclipse.mdm.property')
-	compile 'javax:javaee-api:7.0'
+	compileOnly 'javax:javaee-api:7.0'
 
-	runtime 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
+	runtime "org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:${version}"
+}
+
+jar {
+	metaInf { from '../NOTICE.txt' }
+	metaInf { from '../LICENSE.txt' }
 }

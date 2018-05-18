@@ -1,74 +1,69 @@
 /*******************************************************************************
-  * Copyright (c) 2017 Peak Solution GmbH
-  * All rights reserved. This program and the accompanying materials
-  * are made available under the terms of the Eclipse Public License v1.0
-  * which accompanies this distribution, and is available at
-  * http://www.eclipse.org/legal/epl-v10.html
-  *
-  * Contributors:
-  * Matthias Koller - initial implementation
-  *******************************************************************************/
+ * Copyright (c) 2017 Peak Solution GmbH
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Matthias Koller - initial implementation
+ *******************************************************************************/
 
 description = 'MDM preference service'
-version = '1.0.0'
 
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
-apply plugin: 'jpa-schema-generate'
+apply plugin: 'io.github.divinespear.jpa-schema-generate'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-  
+
 repositories {
-  mavenLocal()
-  jcenter()
-  mavenCentral()
+	mavenLocal()
+	jcenter()
+	mavenCentral()
 }
 
 dependencies {
-  runtime  'org.glassfish.jersey.containers:jersey-container-servlet:2.23.2'
-  runtime  'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.2'
-  runtime  'javax:javaee-api:7.0'
-  
-  compile project(':org.eclipse.mdm.connector')
-  compile project(':org.eclipse.mdm.property')
+	runtime  'org.glassfish.jersey.containers:jersey-container-servlet:2.23.2'
+	runtime  'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.2'
+	compileOnly  'javax:javaee-api:7.0'
 
-  testCompile  'org.eclipse.persistence:eclipselink:2.6.4'
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.assertj:assertj-core:3.6.1'
-  testRuntime 'org.apache.derby:derby:10.13.1.1'
-}
+	compile project(':org.eclipse.mdm.connector')
+	compile project(':org.eclipse.mdm.property')
 
-sourceSets {
-    main {
-      // set output to same directories
-      // jpa implementations always scan classes using classpath that found persistence.xml
-        output.resourcesDir = output.classesDir
-    }
+	testCompile  'org.eclipse.persistence:eclipselink:2.6.4'
+	testCompile 'junit:junit:4.12'
+	testCompile 'org.assertj:assertj-core:3.6.1'
+	testRuntime 'org.apache.derby:derby:10.13.1.1'
 }
 
 generateSchema {
-  vendor = "eclipselink"
-  packageToScan = ["org.eclipse.mdm.preferences"]
-  scriptAction = "drop-and-create"
-  targets {
-    postgres {
-      databaseProductName = "PostgreSQL"
-      databaseMajorVersion = 9
-      databaseMinorVersion = 0
-    }
-    derby {
-      databaseProductName = "Apache Derby"
-    }
-  }
+	vendor = "eclipselink"
+	packageToScan = [
+		"org.eclipse.mdm.preferences"
+	]
+	scriptAction = "drop-and-create"
+	targets {
+		postgres {
+			databaseProductName = "PostgreSQL"
+			databaseMajorVersion = 9
+			databaseMinorVersion = 0
+		}
+		derby { databaseProductName = "Apache Derby" }
+	}
 }
 
 buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'io.github.divinespear:jpa-schema-gradle-plugin:+'
-    }
+	repositories {
+		mavenCentral()
+		maven { url "https://plugins.gradle.org/m2/" }
+	}
+	dependencies { classpath 'gradle.plugin.io.github.divinespear:jpa-schema-gradle-plugin:0.3.2' }
+}
+
+jar {
+	metaInf { from '../NOTICE.txt' }
+	metaInf { from '../LICENSE.txt' }
 }

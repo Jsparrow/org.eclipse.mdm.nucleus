@@ -17,6 +17,7 @@
         <li *ngFor="let m of links" [routerLinkActive]="['active']"><a routerLink="{{m.path}}" style="cursor:pointer;"> {{m.name}}</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <li><a [routerLink]="" (click)="showAboutDialog()">{{TtlAbout}}</a></li>
         <li><a href="mdm/logout"><span class="glyphicon glyphicon-log-in"></span> {{TtlLogout}}</a></li>
       </ul>
     </div>
@@ -26,5 +27,9 @@
 <div>
   <router-outlet></router-outlet>
 </div>
+
+<p-dialog header="About" [(visible)]="displayAboutDialog" modal="true" dismissableMask="true" responsive="true">
+  <notice></notice>
+</p-dialog>
 
 <mdm-notifications></mdm-notifications>

@@ -22,18 +22,23 @@ Before you can install and build the application, you have to checkout and insta
 (This properties are used to create the rest URLs to communicate with the backend)
 Furthermore, specify the **contextPath** in **org.eclipse.mdm.nucleus/org.eclipse.mdm.application/src/main/webapp/webpack.config.js**
 2. **build** the application (gradlew install)
-The command **gradlew install** at **org.eclipse.mdm.nucleus** creates a ZIP archive named **mdm_web.zip** at
+The command **gradlew install** at **org.eclipse.mdm.nucleus** creates a ZIP archive named **mdm_web-${version}.zip** at
 **/org.eclipse.mdm.nucleus/build/distributions**
-The ZIP archive contains the backend **org.eclipse.mdm.nucleus.war** and the configurations **/configuration**
-3. **deploy** the backend ( **org.eclipse.mdm.nuclues.war** file) at your application server, check that database for preference service is running (**asadmin start-database**)
-4. **copy the content** of the extracted **/configuration** folder to **GLASSFISH_ROOT/glassfish/domains/domain1/config**
-5. **edit** the **org.eclipse.mdm.connector/service.xml** file to configure the data sources
-6. **install** and **configure** the **LoginModule** (see org.eclipse.mdm.realms - README.md)
-7. **restart** the application server
-8. **visit** the main page of the client to make sure everything works fine. The main page of the client should be available under
+The ZIP archive contains the backend **org.eclipse.mdm.nucleus-${version}.war** and the configurations **/configuration**
+3. **check** that the database for the preference service is running or else start it with **asadmin start-database**.
+4. **deploy** the backend ( **org.eclipse.mdm.nucleuss-${version}.war** file) at your application server. Make sure to deploy the war file with application name **org.eclipse.mdm.nucleus**, otherwise the LoginRealmModule is not able to lookup the ConnectorService EJB. Additionally in the following examples, we assume that the context root is also set to **org.eclipse.mdm.nucleus**.
+When deploying on command line you can use: **asadmin deploy --name org.eclipse.mdm.nucleus "/path/to/org.eclipse.mdm.nucleus-${version}.war"**
+5. **copy the content** of the extracted **/configuration** folder to **GLASSFISH_ROOT/glassfish/domains/domain1/config**
+6. **edit** the **org.eclipse.mdm.connector/service.xml** file to configure the data sources
+7. **install** and **configure** the **LoginModule** (see org.eclipse.mdm.realms - README.md)
+8. **restart** the application server
+9. **visit** the main page of the client to make sure everything works fine. The main page of the client should be available under
 http://SERVER:PORT/APPLICATIONROOT
 _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
+## configure logging
+
+MDM 5 uses SLF4J and logback for logging. The default configuration file can be found at **org.eclipse.mdm.nucleus/src/main/resources/logback.xml**. It logs INFO level messages to **mdm5.log** in the **logs** folder of the Glassfish domain. If you want to customize logging, you can either edit the file within the war file or preferably provide your own logging configuration via system parameter in the JVM settings in Glassfish: **-Dlogback.configurationFile=/path/to/config.xml**
 
 ## available rest URLs
 

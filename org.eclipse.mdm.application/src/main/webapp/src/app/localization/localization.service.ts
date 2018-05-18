@@ -12,7 +12,7 @@
 *  Matthias Koller, Johannes Stamm - additional client functionality           *
 *******************************************************************************/
 
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Http, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Localization} from './localization';
@@ -23,7 +23,7 @@ import {HttpErrorHandler} from '../core/http-error-handler';
 import {MDMNotificationService} from '../core/mdm-notification.service';
 
 @Injectable()
-export class LocalizationService implements OnInit {
+export class LocalizationService {
 
   private _nodeUrl: string;
 
@@ -36,9 +36,6 @@ export class LocalizationService implements OnInit {
               private notificationService: MDMNotificationService) {
 
     this._nodeUrl = _prop.getUrl('/mdm/environments');
-  }
-
-  ngOnInit() {
     let node: Node;
     this._node.getNodes(node).subscribe(
       envs => this.initLocalization(envs),
