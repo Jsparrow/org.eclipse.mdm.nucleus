@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
@@ -28,7 +28,14 @@ import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.api.dflt.model.Project;
+import org.eclipse.mdm.businessobjects.boundary.EnvironmentService;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * NavigationActivity Bean implementation to lookup specified business object
@@ -40,8 +47,21 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 @Stateless
 public class NavigationActivity {
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
+
+	@Inject
+	private EnvironmentService environmentService;
+
+	// here for cdi to work
+	public NavigationActivity()  {
+
+	}
+
+	public NavigationActivity(ConnectorService connectorService, EnvironmentService environmentService) {
+		this.connectorService = requireNonNull(connectorService, "ConnectorService cannot be null!");
+		this.environmentService = requireNonNull(environmentService, "EnvironmentService cannot be null!");
+	}
 
 	/**
 	 * returns the MDM {@link Environment} business objects of all connected MDM

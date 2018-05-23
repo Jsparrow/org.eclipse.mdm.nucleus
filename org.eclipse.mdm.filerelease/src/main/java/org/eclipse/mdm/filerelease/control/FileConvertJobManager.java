@@ -45,7 +45,7 @@ public class FileConvertJobManager {
 	@Inject
 	Executor executor;
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
 
 	@Inject

@@ -24,6 +24,7 @@ import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.Core;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.adapter.ModelManager;
+import com.google.common.collect.ImmutableList;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Entity;
@@ -38,6 +39,8 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.mockito.Mockito;
 
+import javax.ws.rs.HEAD;
+
 public final class I18NActivityMockHelper {
 
 	public static final int ITEM_COUNT = 3;
@@ -49,6 +52,7 @@ public final class I18NActivityMockHelper {
 	public static ConnectorService createConnectorMock() throws Exception {
 
 		ConnectorService connectorBean = Mockito.mock(ConnectorService.class);
+		ImmutableList.Builder<EntityManager> builder = ImmutableList.builder();
 
 		List<ApplicationContext> emList = new ArrayList<>();
 		for (int i = 0; i < ITEM_COUNT; i++) {

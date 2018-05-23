@@ -43,7 +43,7 @@
 
 	<login-config>
 		<auth-method>FORM</auth-method>
-		<realm-name>MDMLoginRealm</realm-name>
+		<realm-name>LdapRealm</realm-name>
 		<form-login-config>
 			<form-login-page>/login.jsp</form-login-page>
 			<form-error-page>/error.jsp</form-error-page>

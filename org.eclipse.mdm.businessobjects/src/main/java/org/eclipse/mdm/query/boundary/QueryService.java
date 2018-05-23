@@ -10,16 +10,13 @@
   *******************************************************************************/
 package org.eclipse.mdm.query.boundary;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import com.google.common.base.Strings;
 import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
@@ -57,7 +54,7 @@ public class QueryService {
 	@GlobalProperty(value = "businessobjects.query.maxresultspersource")
 	private String maxResultsPerSource = "1001";
 
-	@EJB
+	@Inject
 	ConnectorService connectorService;
 
 	public List<Row> queryRows(QueryRequest request) {
@@ -112,7 +109,7 @@ public class QueryService {
 	List<Row> queryRowsForSource(ApplicationContext context, String resultEntity, List<String> columns, String filterString,
 			String searchString) throws DataAccessException {
 
-		
+
 		ModelManager modelManager = context.getModelManager()
 				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 

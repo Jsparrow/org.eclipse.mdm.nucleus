@@ -11,21 +11,9 @@
 
 package org.eclipse.mdm.connector.boundary;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.SessionContext;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-import javax.security.auth.spi.LoginModule;
-
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.model.Environment;
@@ -39,48 +27,47 @@ import org.eclipse.mdm.property.GlobalProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.ejb.Remove;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+import javax.security.auth.spi.LoginModule;
+import java.io.Serializable;
+import java.security.Principal;
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * ConnectorServcie Bean implementation to create and close connections
- * 
+ *
  * @author Sebastian Dirsch, Gigatronik Ingolstadt GmbH
  * @author Canoo Engineering (removal of hardcoded ODS dependencies)
  *
  */
-@Startup
-@Singleton
-public class ConnectorService {
+@SessionScoped
+public class ConnectorService implements Serializable {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ConnectorService.class);
-
-	private static final String CONNECTION_PARAM_USER = "user";
-	private static final String CONNECTION_PARAM_PASSWORD = "password";
-
-	@Resource
-	private SessionContext sessionContext;
-	@EJB
-	private ServiceConfigurationActivity serviceConfigurationActivity;
+	private static final String CONNECTION_PARAM_FOR_USER = "for_user";
 
 	@Inject
-	@GlobalProperty()
+	Principal principal;
+
+	@Inject
+	ServiceConfigurationActivity serviceConfigurationActivity;
+
+	@Inject
+	@GlobalProperty
 	private Map<String, String> globalProperties = Collections.emptyMap();
 
-	private Map<Principal, List<ApplicationContext>> connectionMap = new HashMap<>();
-
+	private List<ApplicationContext> contexts = Lists.newArrayList();
 	/**
 	 * returns all available {@link ApplicationContext}s
 	 *
 	 * @return list of available {@link ApplicationContext}s
 	 */
 	public List<ApplicationContext> getContexts() {
-		Principal principal = sessionContext.getCallerPrincipal();
-
-		List<ApplicationContext> contextList = connectionMap.get(principal);
-
-		if (contextList == null || contextList.isEmpty()) {
-			String errorMessage = "no connections available for user with name '" + principal.getName() + "'";
-			throw new ConnectorServiceException(errorMessage);
-		}
-		return contextList;
+		return ImmutableList.copyOf(contexts);
 	}
 
 	/**
@@ -92,17 +79,15 @@ public class ConnectorService {
 	 */
 	public ApplicationContext getContextByName(String name) {
 		try {
-
-			List<ApplicationContext> contextList = getContexts();
-			for (ApplicationContext context : contextList) {
+			for (ApplicationContext context : getContexts()) {
 				String sourceName = context.getEntityManager()
 						.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class))
 						.loadEnvironment().getSourceName();
+
 				if (sourceName.equals(name)) {
 					return context;
 				}
 			}
-
 			String errorMessage = "no data source with environment name '" + name + "' connected!";
 			throw new ConnectorServiceException(errorMessage);
 
@@ -112,91 +97,15 @@ public class ConnectorService {
 
 	}
 
-	/**
-	 * tries to connect a user with the given password to the registered
-	 * {@link ServiceConfiguration}s This method is call from a
-	 * {@link LoginModule} at login phase 1.
-	 *
-	 * @param user
-	 *            user login credential
-	 * @param password
-	 *            password login credential
-	 * @return a list connected {@link ApplicationContext}s
-	 * 
-	 */
-	public List<ApplicationContext> connect(String user, String password) {
 
-		List<ApplicationContext> contextList = new ArrayList<>();
-
-		List<ServiceConfiguration> serviceConfigurations = serviceConfigurationActivity.readServiceConfigurations();
-
-		for (ServiceConfiguration serviceConfiguration : serviceConfigurations) {
-			connectContexts(user, password, serviceConfiguration, globalProperties, contextList);
-		}
-
-		return contextList;
-	}
-
-	/**
-	 * tries to connect the freetextsearch user to the registered
-	 * {@link ServiceConfiguration}s This method is called {@link org.eclipse.mdm.freetextindexer.boundary.MdmApiBoundary}
-	 *
-	 * @return a list connected {@link ApplicationContext}s
-	 * 
-	 */
-	public List<ApplicationContext> connectFreetextSearch(String userParamName, String passwordParamName, String freetextActiveName) {
-
-		List<ApplicationContext> contextList = new ArrayList<>();
-
-		List<ServiceConfiguration> serviceConfigurations = serviceConfigurationActivity.readServiceConfigurations();
-
-		for (ServiceConfiguration serviceConfiguration : serviceConfigurations) {
-			boolean active = Boolean.parseBoolean(serviceConfiguration.getConnectionParameters().get(freetextActiveName));
-			
-			if (active) {
-				String user = serviceConfiguration.getConnectionParameters().get(userParamName);
-				String password = serviceConfiguration.getConnectionParameters().get(passwordParamName);
-				LOG.debug("Connecting freetext search user for user {}.", user);
-				if (user == null || user.isEmpty() || password == null || password.isEmpty()) {
-					throw new IllegalArgumentException(String.format(
-							"Cannot login user for freetextindexer! Please provide valid values for the parameters %s and %s.",
-							userParamName,
-							passwordParamName));
-				}
-				Map<String, String> properties = new HashMap<>(globalProperties);
-				properties.put(freetextActiveName, Boolean.toString(active));
-				
-				connectContexts(user, password, serviceConfiguration, properties, contextList);
-			} else {
-				LOG.debug("Skipping connect to freetext search!");
-			}
-		}
-
-		return contextList;
-	}
-	
-	/**
-	 * registers all connections for a {@link Principal} at the
-	 * {@link ConnectorService} This method is call from a {@link LoginModule}
-	 * at login phase 2.
-	 *
-	 * @param principal
-	 *            owner of the given connection list (ApplicationContext list)
-	 * @param contextList
-	 *            connection list
-	 */
-	public void registerConnections(Principal principal, List<ApplicationContext> contextList) {
-
-		if (contextList == null || contextList.isEmpty()) {
-			String errorMessage = "no connections for user with name '" + principal.getName() + "' available!";
-			throw new ConnectorServiceException(errorMessage);
-		}
-
-		if (!connectionMap.containsKey(principal)) {
-			connectionMap.put(principal, contextList);
-		} else {
-			disconnectContexts(contextList);
-		}
+	@PostConstruct
+	public void connect() {
+		this.contexts = serviceConfigurationActivity
+				.readServiceConfigurations().stream()
+				.map(this::connectContexts)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -204,25 +113,16 @@ public class ConnectorService {
 	 * This method is call from a {@link LoginModule} at logout
 	 *
 	 * This method is call from a {@link LoginModule}
-	 * 
+	 *
 	 * @param principal
 	 *            the principal to disconnect
-	 */
-	public void disconnect(Principal principal) {
-		if (connectionMap.containsKey(principal)) {
-			List<ApplicationContext> contextList = connectionMap.remove(principal);
-			disconnectContexts(contextList);
-			LOG.info("user with name '" + principal.getName() + "' has been disconnected!");
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("number of active users: {}", connectionMap.keySet().size());
-			}
-		}
+     */
+    public void disconnect(Principal principal) {
+        disconnectContexts(contexts);
+        LOG.info("user with name '" + principal.getName() + "' has been disconnected!");
+    }
 
-	}
-
-	private void connectContexts(String user, String password, ServiceConfiguration source,
-			Map<String, String> globalProperties, List<ApplicationContext> contextList) {
-
+	private Optional<ApplicationContext> connectContexts(ServiceConfiguration source) {
 		try {
 
 			Class<? extends ApplicationContextFactory> contextFactoryClass = Thread.currentThread()
@@ -233,19 +133,19 @@ public class ConnectorService {
 			Map<String, String> connectionParameters = new HashMap<>();
 			connectionParameters.putAll(globalProperties);
 			connectionParameters.putAll(source.getConnectionParameters());
-			connectionParameters.put(CONNECTION_PARAM_USER, user);
-			connectionParameters.put(CONNECTION_PARAM_PASSWORD, password);
+			connectionParameters.put(CONNECTION_PARAM_FOR_USER, principal.getName());
 
 			ApplicationContext context = contextFactory.connect(connectionParameters);
-			contextList.add(context);
+			return Optional.of(context);
 
 		} catch (ConnectionException e) {
-			LOG.warn("unable to logon user with name '" + user + "' at data source '" + source.toString()
+			LOG.warn("unable to logon user with name '" + principal.getName() + "' at data source '" + source.toString()
 					+ "' (reason: " + e.getMessage() + ")");
 		} catch (Exception e) {
 			LOG.error("failed to initialize entity manager using factory '" + source.getContextFactoryClass()
 					+ "' (reason: " + e + ")", e);
 		}
+		return Optional.empty();
 	}
 
 	private static void disconnectContexts(List<ApplicationContext> contextList) {

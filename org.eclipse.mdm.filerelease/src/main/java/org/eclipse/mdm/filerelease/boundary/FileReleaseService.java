@@ -43,7 +43,7 @@ import org.eclipse.mdm.property.GlobalProperty;
 @Stateless
 public class FileReleaseService {
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
 	@EJB
 	private FileReleaseManager manager;

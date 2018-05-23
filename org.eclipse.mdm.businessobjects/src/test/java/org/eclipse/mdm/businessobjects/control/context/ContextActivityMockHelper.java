@@ -11,31 +11,19 @@
 
 package org.eclipse.mdm.businessobjects.control.context;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.eclipse.mdm.api.base.adapter.ChildrenStore;
 import org.eclipse.mdm.api.base.adapter.Core;
-import org.eclipse.mdm.api.base.model.ContextComponent;
-import org.eclipse.mdm.api.base.model.ContextRoot;
-import org.eclipse.mdm.api.base.model.ContextType;
-import org.eclipse.mdm.api.base.model.Entity;
-import org.eclipse.mdm.api.base.model.Environment;
-import org.eclipse.mdm.api.base.model.Measurement;
-import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.model.Value;
-import org.eclipse.mdm.api.base.model.ValueType;
+import org.eclipse.mdm.api.base.model.*;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.mockito.Mockito;
+
+import java.lang.reflect.Constructor;
+import java.util.*;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 public final class ContextActivityMockHelper {
 

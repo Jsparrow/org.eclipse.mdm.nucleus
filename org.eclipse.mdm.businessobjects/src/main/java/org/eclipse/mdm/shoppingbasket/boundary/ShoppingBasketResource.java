@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -55,7 +56,7 @@ public class ShoppingBasketResource {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ShoppingBasketResource.class);
 
-	@EJB
+
 	private ConnectorService connectorService;
 
 	@Context
@@ -95,6 +96,7 @@ public class ShoppingBasketResource {
 	 * @param uriInfo
 	 *            {@link UriInfo}
 	 */
+	@Inject
 	ShoppingBasketResource(ConnectorService connectorService, UriInfo uriInfo) {
 		this.connectorService = connectorService;
 		this.uriInfo = uriInfo;

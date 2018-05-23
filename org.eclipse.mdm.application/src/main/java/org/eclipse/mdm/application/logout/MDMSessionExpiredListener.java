@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.security.Principal;
 
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Default;
@@ -30,27 +31,15 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
  *
  */
 @SessionScoped
-@Default
 public class MDMSessionExpiredListener implements Serializable {
 
 	private static final long serialVersionUID = -1250150736708611890L;
 
-	@Inject
-	private HttpServletRequest servletRequest;
-
+	@Resource
 	private Principal userPrincipal;
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
-
-	/**
-	 * Bind the user principal to this cdi bean.
-	 */
-	public void update() {
-		if (this.userPrincipal == null) {
-			this.userPrincipal = servletRequest.getUserPrincipal();
-		}
-	}
 
 	@PreDestroy
 	public void destroySession() {

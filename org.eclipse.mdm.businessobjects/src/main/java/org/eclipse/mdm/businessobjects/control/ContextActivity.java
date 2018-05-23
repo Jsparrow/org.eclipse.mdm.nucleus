@@ -11,6 +11,7 @@
 
 package org.eclipse.mdm.businessobjects.control;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ import java.util.Optional;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextDescribable;
@@ -40,7 +43,7 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
  *
  */
 @Stateless
-public class ContextActivity {
+public class ContextActivity implements Serializable {
 
 	public static final String CONTEXT_GROUP_ORDERED = "ordered";
 	public static final String CONTEXT_GROUP_MEASURED = "measured";
@@ -48,7 +51,7 @@ public class ContextActivity {
 	public static final String CONTEXT_SENSOR_GROUP_ORDERED = "sensor_ordered";
 	public static final String CONTEXT_SENSOR_GROUP_MEASURED = "sensor_measured";
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
 
 	/**

@@ -44,11 +44,6 @@ public class MDMRequestFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-
-		if (this.sessionExpiredListener != null) {
-			this.sessionExpiredListener.update();
-		}
-
 		if (request instanceof HttpServletRequest) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			String requestedURL = httpRequest.getRequestURI().toLowerCase();
@@ -61,8 +56,8 @@ public class MDMRequestFilter implements Filter {
 			} else {
 				chain.doFilter(request, response);
 			}
+			// TODO: ensure session is expired when http session expires.
 		}
-
 	}
 
 	@Override

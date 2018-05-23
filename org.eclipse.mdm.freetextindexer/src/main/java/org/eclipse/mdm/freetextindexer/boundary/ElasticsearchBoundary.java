@@ -68,13 +68,12 @@ public class ElasticsearchBoundary {
 			PutMethod put = new PutMethod(esAddress + getPath(document) + "?ignore_conflicts=true");
 
 			byte[] json = jsonMapper.writeValueAsBytes(document);
+			LOGGER.info("Document {}: {}", getPath(document), new String(json));
+
 			put.setRequestEntity(new ByteArrayRequestEntity(json, "application/json"));
 
 			execute(put);
-			
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Document {} indexed: {}", getPath(document), new String(json));
-			}
+
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
@@ -130,7 +129,7 @@ public class ElasticsearchBoundary {
 	public boolean hasIndex(String source) {
 		boolean hasIndex = false;
 
-		if (Boolean.valueOf(active)) {
+		if (active()) {
 			try {
 				GetMethod get = new GetMethod(esAddress + source.toLowerCase());
 				int status = client.executeMethod(get);
@@ -151,5 +150,28 @@ public class ElasticsearchBoundary {
 			execute(new PutMethod(esAddress + source.toLowerCase()));
 			LOGGER.info("New Index created!");
 		}
+	}
+
+	public void validateConnectionIsPossible() {
+		if(active()) {
+			try {
+				GetMethod get = new GetMethod(esAddress);
+				int status = client.executeMethod(get);
+				if(status /100 != 2) {
+					LOGGER.error("Cannot connect to elasticsearch at {} but free text search is enabled! http status was: {}", esAddress, status);
+					throw new RuntimeException("Cannot connect to elasticsearch.");
+				} else {
+					LOGGER.info("Successfully connected to elasticsearch!");
+				}
+
+			} catch (IOException e) {
+				LOGGER.error("Cannot connect to elasticsearch at {} but free text search is enabled!", esAddress, e);
+				throw new RuntimeException("Cannot connect to elasticsearch.", e);
+			}
+		}
+	}
+
+	public boolean active() {
+		return Boolean.valueOf(active);
 	}
 }
