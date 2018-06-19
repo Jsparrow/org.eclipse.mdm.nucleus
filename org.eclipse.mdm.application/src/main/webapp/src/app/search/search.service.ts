@@ -245,7 +245,8 @@ export class SearchService {
   convertEnv(env: string, conditions: Condition[], attrs: SearchAttribute[], fullTextQuery: string): Filter {
 
     let filterString = conditions
-      .map(c => c.value.map(value => c.type + '.' + c.attribute + ' ' + OperatorUtil.toFilterString(c.operator) + ' ' + this.quoteValue(value, this.getValueType(c, attrs))).join(' or '))
+      .map(c => c.value.map(value => c.type + '.' + c.attribute + ' ' 
+         + this.adjustOperator(OperatorUtil.toFilterString(c.operator), this.getValueType(c, attrs)) + ' ' + this.quoteValue(value, this.getValueType(c, attrs))).join(' or '))
       .filter(c => c.length > 0)
       .join(' and ');
 
@@ -262,6 +263,14 @@ export class SearchService {
 
   getValueType(c: Condition, attrs: SearchAttribute[]) {
     return attrs.find(a => a.boType == c.type && a.attrName == c.attribute).valueType;
+  }
+  
+  adjustOperator(operator: string, valueType: string) {
+    if (valueType.toLowerCase() === 'string') {
+      return "ci_" + operator;
+    } else {
+      return operator;
+    }
   }
 
   isAttributeIgnored(attributeName: string, sa: SearchAttribute) {
