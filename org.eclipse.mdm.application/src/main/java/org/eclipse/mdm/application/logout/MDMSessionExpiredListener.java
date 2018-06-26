@@ -44,7 +44,7 @@ public class MDMSessionExpiredListener implements Serializable {
 	@PreDestroy
 	public void destroySession() {
 		if (this.userPrincipal != null) {
-			this.connectorService.disconnect(this.userPrincipal);
+			this.connectorService.disconnect();
 		}
 
 	}

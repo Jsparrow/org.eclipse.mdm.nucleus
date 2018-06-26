@@ -73,7 +73,7 @@ public class ConnectorServiceTest {
 	@Test
 	public void testDisconnect() throws Exception {
 		ConnectorService connectorService = createConnectorService(testUser);
-		connectorService.disconnect(testUser);
+		connectorService.disconnect();
 	}
 
 	private static final class SimplePrincipal implements Principal {

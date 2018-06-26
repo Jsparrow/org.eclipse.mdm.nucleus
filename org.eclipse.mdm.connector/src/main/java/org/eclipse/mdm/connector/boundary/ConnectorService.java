@@ -11,9 +11,20 @@
 
 package org.eclipse.mdm.connector.boundary;
 
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.io.Serializable;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+import javax.security.auth.spi.LoginModule;
+
 import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.model.Environment;
@@ -27,15 +38,8 @@ import org.eclipse.mdm.property.GlobalProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Remove;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import javax.security.auth.spi.LoginModule;
-import java.io.Serializable;
-import java.security.Principal;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * ConnectorServcie Bean implementation to create and close connections
@@ -61,6 +65,26 @@ public class ConnectorService implements Serializable {
 	private Map<String, String> globalProperties = Collections.emptyMap();
 
 	private List<ApplicationContext> contexts = Lists.newArrayList();
+	
+	public ConnectorService() {
+		// empty constructor for CDI
+	}
+	
+	
+	/**
+	 * Creates a connector service for usage outside the session scope of CDI.
+	 * 
+	 * @param principal Principal the connector service uses.
+	 * @param globalProperties global properties supplied the opened application contexts.
+	 */
+	public ConnectorService(Principal principal, Map<String, String> globalProperties) {
+		super();
+		this.principal = principal;
+		this.serviceConfigurationActivity = new ServiceConfigurationActivity();
+		this.globalProperties = globalProperties;
+	}
+
+
 	/**
 	 * returns all available {@link ApplicationContext}s
 	 *
@@ -109,15 +133,13 @@ public class ConnectorService implements Serializable {
 	}
 
 	/**
-	 * disconnect the given {@link Principal} from all connected data sources
+	 * disconnect from all connected data sources
 	 * This method is call from a {@link LoginModule} at logout
 	 *
 	 * This method is call from a {@link LoginModule}
 	 *
-	 * @param principal
-	 *            the principal to disconnect
      */
-    public void disconnect(Principal principal) {
+    public void disconnect() {
         disconnectContexts(contexts);
         LOG.info("user with name '" + principal.getName() + "' has been disconnected!");
     }

@@ -7,11 +7,13 @@
  */
 package org.eclipse.mdm.freetextindexer.boundary;
 
+import java.security.Principal;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -34,6 +36,7 @@ import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
+import org.eclipse.mdm.connector.control.ServiceConfigurationActivity;
 import org.eclipse.mdm.freetextindexer.control.UpdateIndex;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
 import org.eclipse.mdm.property.GlobalProperty;
@@ -100,69 +103,46 @@ public class MdmApiBoundary {
 	UpdateIndex update;
 
 	@Inject
-	@GlobalProperty(value = "freetext.user")
-	String freetextUser;
-
-	@Inject
-	@GlobalProperty(value = "freetext.pw")
-	String freetextPw;
-
-	@Inject
-	@GlobalProperty(value = "freetext.nameservice")
-	String nameservice;
-
-	@Inject
-	@GlobalProperty(value = "freetext.servicename")
-	String servicename;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationType")
-	String notificationType;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationUrl")
-	String notificationUrl;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationMimeType")
-	String notificationMimeType;
-
-	@Inject
-	@GlobalProperty(value = "freetext.notificationName")
-	String notificationName;
-
-	@Inject
-	@GlobalProperty(value = "freetext.pollingInterval")
-	String pollingInterval;
-
-	@Inject
 	@GlobalProperty(value = "freetext.active")
 	private String active = "false";
 
-	private Map<String, ApplicationContext> contextMap = new HashMap<>();
+	ConnectorService connectorService; 
+
+	@Inject
+	@GlobalProperty
+	private Map<String, String> globalProperties = Collections.emptyMap();
 
 	@PostConstruct
 	public void initalize() {
-        // TODO: Re-Add code here that connects the free text indexer.
+		Principal principal = new Principal() {
+			
+			@Override
+			public String getName() {
+				return globalProperties.get("USER");
+			}
+		};
+		
+		connectorService = new ConnectorService(principal, globalProperties);
+		connectorService.connect();
+		connectorService.getContexts().forEach(this::initializeContext);
 	}
 
-	private void initialize(ApplicationContext context) {
-		EntityManager entityManager = context.getEntityManager()
-				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+	private void initializeContext(ApplicationContext context) {
 
-		String source = getApiName(entityManager);
+		String source = getName(context);
 
 		try {
+			EntityManager entityManager = context.getEntityManager()
+					.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+
 			NotificationService manager = context.getNotificationService()
 					.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"));
 
 			String notificationName = context.getParameters().getOrDefault(FREETEXT_NOTIFICATION_NAME, "mdm5");
 			LOGGER.debug("Registering with name '{}' at source '{}'", notificationName, source);
+			
 			manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener(entityManager));
-
 			LOGGER.info("Successfully registered for new notifications with name '{}' at source '{}!", notificationName, source);
-
-			contextMap.put(source, context);
 		} catch (ConnectionException | NotificationException e) {
 			throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed for source '" + source + "'!",
 					e);
@@ -171,8 +151,7 @@ public class MdmApiBoundary {
 
 	@PreDestroy
 	public void deregister() {
-
-		for (ApplicationContext context : contextMap.values()) {
+		for (ApplicationContext context : getContexts().values()) {
 			try {
 				context.getNotificationService()
 					.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"))
@@ -200,12 +179,12 @@ public class MdmApiBoundary {
 	}
 
 	public Map<String, ApplicationContext> getContexts() {
-		return Collections.unmodifiableMap(contextMap);
+		return connectorService.getContexts().stream().collect(Collectors.toMap(this::getName, Function.identity()));
 	}
 
 	public String getName(ApplicationContext context) {
 		return context.getEntityManager()
-				.map(em -> getApiName(em))
+				.map(this::getApiName)
 				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
 	}
 
@@ -214,7 +193,7 @@ public class MdmApiBoundary {
 	}
 
 	private boolean isActive() {
-		return Boolean.parseBoolean(active) && !contextMap.isEmpty();
+		return Boolean.parseBoolean(active) && !getContexts().isEmpty();
 	}
 
 	private MDMEntityResponse buildEntity(Entity e, EntityManager entityManager) {
