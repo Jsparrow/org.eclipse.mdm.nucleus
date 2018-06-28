@@ -107,11 +107,6 @@ export class SearchConditionComponent implements OnChanges {
     this.lastQuery = e.query;
   }
 
-  getTrans(label: string) {
-    let a = label.split('.');
-    return this.localservice.getTranslation(a[0], a[1]);
-  }
-
   getOperators() {
     return OperatorUtil.values();
   }

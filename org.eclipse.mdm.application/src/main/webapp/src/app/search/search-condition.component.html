@@ -10,8 +10,8 @@
 *  Matthias Koller, Johannes Stamm - initial implementation                    *
 **************************************************************************** -->
 
-<td style="vertical-align: middle">{{condition.type}}</td>
-<td style="vertical-align: middle">{{condition.attribute}}</td>
+<td style="vertical-align: middle">{{condition.type | translate}}</td>
+<td style="vertical-align: middle">{{condition.type | translate: condition.attribute}}</td>
 <td style="vertical-align: middle">
   <div class="btn-group" dropdown style="width: 66px;">
     <button id="operator" type="button" title="{{TtlSelectSearchOperator}}" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" [disabled]="disabled">

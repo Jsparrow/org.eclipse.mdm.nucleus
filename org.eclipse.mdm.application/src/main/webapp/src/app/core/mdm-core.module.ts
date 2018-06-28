@@ -21,14 +21,17 @@ import { DatepickerModule } from 'ng2-bootstrap';
 import { TabsModule } from 'ng2-bootstrap/tabs';
 import { PositioningService } from 'ng2-bootstrap/positioning';
 import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
-
 import { DropdownMultiselectModule } from 'ng2-dropdown-multiselect';
+
 import { TreeModule, DataTableModule, SharedModule, ContextMenuModule, GrowlModule } from 'primeng/primeng';
+
 import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
 
 import { MDMNotificationComponent } from './mdm-notification.component';
 import { OverwriteDialogComponent } from './overwrite-dialog.component';
+
+import { TranslationPipe } from '../localization/translation.pipe';
 
 @NgModule({
   imports: [
@@ -48,7 +51,8 @@ import { OverwriteDialogComponent } from './overwrite-dialog.component';
   ],
   declarations: [
     MDMNotificationComponent,
-    OverwriteDialogComponent
+    OverwriteDialogComponent,
+    TranslationPipe
   ],
   exports: [
     CommonModule,
@@ -61,7 +65,8 @@ import { OverwriteDialogComponent } from './overwrite-dialog.component';
     ContextMenuModule,
     GrowlModule,
     MDMNotificationComponent,
-    OverwriteDialogComponent
+    OverwriteDialogComponent,
+    TranslationPipe
   ],
   providers: [
       PositioningService,

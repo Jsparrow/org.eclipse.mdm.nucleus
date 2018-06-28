@@ -27,7 +27,7 @@ export class LocalizationService {
 
   private _nodeUrl: string;
 
-  private _cache: Localization[] = [];
+  private cache: Observable<Localization[]>;
 
   constructor(private http: Http,
               private httpErrorHandler: HttpErrorHandler,
@@ -36,48 +36,25 @@ export class LocalizationService {
               private notificationService: MDMNotificationService) {
 
     this._nodeUrl = _prop.getUrl('/mdm/environments');
-    let node: Node;
-    this._node.getNodes(node).subscribe(
-      envs => this.initLocalization(envs),
-      error => this.notificationService.notifyError('Quellen können nicht geladen werden.', error)
-    );
   }
 
-  getTranslation(type: string, comp: string) {
-    let trans: string;
-    if (comp) {
-      trans = type + '.' + comp;
-    } else {
-      trans = type;
+  // Cashes valueLists if cash is empty. Then returns observable containing cached valueLists.
+  getLocalizations() {
+    if (!this.cache) {
+      this.cache = this._node.getNodes(undefined)
+                .flatMap(envs => this.initLocalizations(envs))
+                .publishReplay(1)
+                .refCount();
     }
-    let pos = this._cache.map(function(e) { return e.name; }).indexOf(trans);
-    if (pos !== -1) {
-      return this._cache[pos].localizedName;
-    }
-    return trans;
+    return this.cache;
   }
 
-  private initLocalization(envs: Node[]) {
-    envs.forEach((env) => {
-      this.getLocalization(env).subscribe(
-        locals => this.mergeLocalizations(locals),
-        error => this.notificationService.notifyError('Lokalisierung kann nicht geladen werden.', error)
-      );
-    });
+  private initLocalizations(envs: Node[]) {
+    return Observable.forkJoin(envs.map(env => this.getLocalization(env)))
+                     .map(locs => locs.reduce((a, b) => a.concat(b), []));
   }
 
-  private mergeLocalizations(locals: Localization[]) {
-    let t_local = this._cache;
-    locals.forEach(function(local) {
-      let pos = t_local.map(function(e) { return e.name; }).indexOf(local.name);
-      if (pos === -1) {
-        t_local.push(local);
-      }
-    });
-    this._cache = t_local;
-  }
-
-  private getLocalization(node: Node) {
+  private getLocalization(node: Node): Observable<Localization[]> {
     let url = this._nodeUrl + '/' + node.sourceName;
     if (node.sourceType === 'Environment') {
       url = url + '/localizations?all=true';

@@ -128,8 +128,4 @@ export class MDMDescriptiveDataComponent implements OnInit {
   isTS() {
     return this.context.toLowerCase() === 'ts';
   }
-
-  getTrans(type: string, attr: string) {
-    return this.localService.getTranslation(type, attr);
-  }
 }
