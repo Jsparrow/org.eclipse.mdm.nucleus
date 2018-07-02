@@ -6,20 +6,26 @@
 	<service entityManagerFactoryClass="org.eclipse.mdm.api.odsadapter.ODSContextFactory">
 		<param name="nameservice">corbaloc::1.2@YOUR_HOST2:2809/NameService</param>
 		<param name="servicename">YOUR_SERVICE2.ASAM-ODS</param>
-		<!--The indexing requires a user to get the DataItems from the ODS Server. Those are the credentials for the user -->
+		
+		<!-- Specify the credentials of the technical user which opens sessions on behalf of the login user -->
+		<param name="user">sa</param>
+		<param name="password">sa</param>
+		
+		<!--Activeate indexing on Peak ODS Server -->
 		<param name="freetext.active">true</param>
-		<param name="freetext.user">sa</param>
-		<param name="freetext.password">sa</param>
 		<param name="freetext.notificationType">peak</param>
 		<param name="freetext.notificationUrl">http://YOUR_HOST2:8089/api</param>
 	</service>
 	<service entityManagerFactoryClass="org.eclipse.mdm.api.odsadapter.ODSContextFactory">
 		<param name="nameservice">corbaloc::1.2@YOUR_HOST3:2809/NameService</param>
 		<param name="servicename">YOUR_SERVICE3.ASAM-ODS</param>
-		<!--The indexing requires a user to get the DataItems from the ODS Server. Those are the credentials for the user -->
+		
+		<!-- Specify the credentials of the technical user which opens sessions on behalf of the login user -->
+		<param name="user">sa</param>
+		<param name="password">sa</param>
+		
+		<!--Activate indexing on a Avalon server -->
 		<param name="freetext.active">true</param>
-		<param name="freetext.user">sa</param>
-		<param name="freetext.password">sa</param>
 		<param name="freetext.notificationType">avalon</param>
 		<param name="freetext.pollingInterval">5000</param>
 	</service>
