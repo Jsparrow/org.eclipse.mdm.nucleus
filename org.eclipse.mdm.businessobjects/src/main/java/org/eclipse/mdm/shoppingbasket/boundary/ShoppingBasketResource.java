@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -56,7 +55,6 @@ public class ShoppingBasketResource {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ShoppingBasketResource.class);
 
-
 	private ConnectorService connectorService;
 
 	@Context
@@ -84,22 +82,13 @@ public class ShoppingBasketResource {
 			.put("Channel", Channel.class)
 			.build();
 
-	public ShoppingBasketResource() {
-		// empty constructor for Jersey
-	}
-
 	/**
-	 * Used for testing
-	 * 
 	 * @param connectorService
 	 *            {@link ConnectorService}
-	 * @param uriInfo
-	 *            {@link UriInfo}
 	 */
 	@Inject
-	ShoppingBasketResource(ConnectorService connectorService, UriInfo uriInfo) {
+	ShoppingBasketResource(ConnectorService connectorService) {
 		this.connectorService = connectorService;
-		this.uriInfo = uriInfo;
 	}
 
 	/**
