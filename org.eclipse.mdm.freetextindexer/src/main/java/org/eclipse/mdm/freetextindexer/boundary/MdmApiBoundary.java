@@ -118,7 +118,7 @@ public class MdmApiBoundary {
 			
 			@Override
 			public String getName() {
-				return globalProperties.get("USER");
+				return null;
 			}
 		};
 		
@@ -162,6 +162,8 @@ public class MdmApiBoundary {
 						"The NotificationManager could not be deregistered. In rare cases, this leads to a missed notification. This means the index might not be up-to-date.");
 			}
 		}
+		
+		connectorService.disconnect();
 	}
 
 	public void doForAllEntities(Class<? extends Entity> entityClass, ApplicationContext context, Consumer<? super MDMEntityResponse> executor) {

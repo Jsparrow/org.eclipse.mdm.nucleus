@@ -9,11 +9,10 @@
   * Sebastian Dirsch - initial implementation
   *******************************************************************************/
 
-package org.eclipse.mdm.application.logout;
+package org.eclipse.mdm.application;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,8 +32,6 @@ public class MDMRequestFilter implements Filter {
 
 	private static final String SERVLET_NAME_MDMNENUE = "/navigator/";
 
-	@Inject
-	private MDMSessionExpiredListener sessionExpiredListener;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -56,7 +53,6 @@ public class MDMRequestFilter implements Filter {
 			} else {
 				chain.doFilter(request, response);
 			}
-			// TODO: ensure session is expired when http session expires.
 		}
 	}
 

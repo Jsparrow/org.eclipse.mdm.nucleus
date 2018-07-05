@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.security.auth.spi.LoginModule;
@@ -124,6 +125,7 @@ public class ConnectorService implements Serializable {
 
 	@PostConstruct
 	public void connect() {
+		LOG.info("connecting user with name '" + principal.getName() + "'");
 		this.contexts = serviceConfigurationActivity
 				.readServiceConfigurations().stream()
 				.map(this::connectContexts)
@@ -139,6 +141,7 @@ public class ConnectorService implements Serializable {
 	 * This method is call from a {@link LoginModule}
 	 *
      */
+	@PreDestroy
     public void disconnect() {
         disconnectContexts(contexts);
         LOG.info("user with name '" + principal.getName() + "' has been disconnected!");

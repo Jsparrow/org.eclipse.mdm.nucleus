@@ -27,7 +27,7 @@
 
 	<filter>
 		<filter-name>MDMRequestFilter</filter-name>
-		<filter-class>org.eclipse.mdm.application.logout.MDMRequestFilter
+		<filter-class>org.eclipse.mdm.application.MDMRequestFilter
 		</filter-class>
 	</filter>
 
