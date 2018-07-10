@@ -49,7 +49,7 @@ commons-lang3-3.4.jar (3.4)
 gson-2.7.jar (2.7)
     * License: Apache License, 2.0
 
-guava-18.0.jar  (18.0)
+guava-25.0-jre.jar  (25.0-jre)
     * License: Apache License, 2.0
 
 hk2-api-2.5.0-b05.jar (2.5.0-b05)

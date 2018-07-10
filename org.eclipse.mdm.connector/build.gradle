@@ -15,7 +15,7 @@ dependencies {
 	compile "org.eclipse.mdm:org.eclipse.mdm.api.base:${version}"
 	compile "org.eclipse.mdm:org.eclipse.mdm.api.default:${version}"
 	compile project(':org.eclipse.mdm.property')
-	compile group: 'com.google.guava', name: 'guava', version: "24.1-jre"
+	compile group: 'com.google.guava', name: 'guava', version: "25.0-jre"
 
 	compileOnly 'javax:javaee-api:7.0'
 
