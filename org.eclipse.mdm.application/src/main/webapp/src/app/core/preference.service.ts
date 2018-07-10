@@ -72,7 +72,7 @@ export class PreferenceService {
 
       return this.http.get(this.prefEndpoint + '?scope=' + scope + '&key=' + key)
           .map(response => plainToClass(Preference, response.json().preferences))
-          .catch(e => this.httpErrorHandler.handleError(e));
+          .catch(this.handleError);
   }
 
   getPreference(key?: string) {
@@ -81,7 +81,7 @@ export class PreferenceService {
       }
       return this.http.get(this.prefEndpoint + '?key=' + key)
           .map(response => plainToClass(Preference, response.json().preferences))
-          .catch(this.httpErrorHandler.handleError);
+          .catch(this.handleError);
   }
 
   savePreference(preference: Preference) {
@@ -89,15 +89,25 @@ export class PreferenceService {
     let options = new RequestOptions({ headers: headers });
 
     return this.http.put(this.prefEndpoint, JSON.stringify(preference), options)
-      .catch(this.httpErrorHandler.handleError);
+      .catch(this.handleError);
   }
 
   deletePreference(id: number) {
     return this.http.delete(this.prefEndpoint + '/' + id)
-      .catch(this.httpErrorHandler.handleError);
+      .catch(this.handleError);
   }
 
   deletePreferenceByScopeAndKey(scope: string, key: string) {
     return this.getPreferenceForScope(scope, key).flatMap(p => this.deletePreference(p[0].id));
+  }
+
+  private handleError(e: Error | any) {
+    if (e instanceof Response) {
+      let response = <Response> e;
+      if (response.status != 200) {
+        return Observable.throw("Could not request preferences! Please check if application server is running and preference database is configured correctly.");
+      }
+    }
+    return this.httpErrorHandler.handleError(e);
   }
 }
