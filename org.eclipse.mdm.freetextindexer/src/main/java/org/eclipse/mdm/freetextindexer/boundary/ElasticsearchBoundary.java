@@ -68,7 +68,7 @@ public class ElasticsearchBoundary {
 			PutMethod put = new PutMethod(esAddress + getPath(document) + "?ignore_conflicts=true");
 
 			byte[] json = jsonMapper.writeValueAsBytes(document);
-			LOGGER.info("Document {}: {}", getPath(document), new String(json));
+			LOGGER.trace("Document {}: {}", getPath(document), new String(json));
 
 			put.setRequestEntity(new ByteArrayRequestEntity(json, "application/json"));
 

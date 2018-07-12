@@ -28,6 +28,7 @@ public class SetupIndexTest {
     private SetupIndex setup;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void init() {
         setup = new SetupIndex();
         setup.esBoundary = mock(ElasticsearchBoundary.class);

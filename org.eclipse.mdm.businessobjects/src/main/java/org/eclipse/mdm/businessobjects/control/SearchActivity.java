@@ -31,7 +31,6 @@ import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.FilterItem;
 import org.eclipse.mdm.api.base.search.SearchService;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.entity.SearchDefinition;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;

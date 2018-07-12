@@ -36,7 +36,6 @@ import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
-import org.eclipse.mdm.connector.control.ServiceConfigurationActivity;
 import org.eclipse.mdm.freetextindexer.control.UpdateIndex;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
 import org.eclipse.mdm.property.GlobalProperty;

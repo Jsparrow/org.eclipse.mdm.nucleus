@@ -11,6 +11,8 @@
 
 package org.eclipse.mdm.businessobjects.control;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,14 +30,7 @@ import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.api.dflt.model.Project;
-import org.eclipse.mdm.businessobjects.boundary.EnvironmentService;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.List;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * NavigationActivity Bean implementation to lookup specified business object
@@ -50,17 +45,13 @@ public class NavigationActivity {
 	@Inject
 	private ConnectorService connectorService;
 
-	@Inject
-	private EnvironmentService environmentService;
-
 	// here for cdi to work
 	public NavigationActivity()  {
 
 	}
 
-	public NavigationActivity(ConnectorService connectorService, EnvironmentService environmentService) {
+	public NavigationActivity(ConnectorService connectorService) {
 		this.connectorService = requireNonNull(connectorService, "ConnectorService cannot be null!");
-		this.environmentService = requireNonNull(environmentService, "EnvironmentService cannot be null!");
 	}
 
 	/**

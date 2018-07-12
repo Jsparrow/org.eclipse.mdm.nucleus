@@ -19,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.ContextComponent;

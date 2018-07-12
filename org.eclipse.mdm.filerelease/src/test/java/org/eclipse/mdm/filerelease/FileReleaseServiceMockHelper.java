@@ -17,13 +17,13 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.mdm.api.base.adapter.Core;
 import org.eclipse.mdm.api.base.adapter.EntityStore;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Test;
@@ -38,8 +38,6 @@ import org.eclipse.mdm.filerelease.control.FileConvertJobManager;
 import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.mockito.Mockito;
-
-import javax.ws.rs.HEAD;
 
 public class FileReleaseServiceMockHelper {
 

@@ -7,6 +7,19 @@
  */
 package org.eclipse.mdm.freetextindexer.control;
 
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
 import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
@@ -17,15 +30,6 @@ import org.eclipse.mdm.freetextindexer.boundary.MdmApiBoundary;
 import org.eclipse.mdm.freetextindexer.events.CreateIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.*;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.CDI;
-import javax.inject.Inject;
-import javax.ws.rs.HEAD;
-import java.util.Map;
 
 @TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
 @Startup

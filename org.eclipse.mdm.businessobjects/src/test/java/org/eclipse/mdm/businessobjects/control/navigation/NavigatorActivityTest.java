@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 import org.eclipse.mdm.api.base.model.Channel;
@@ -24,10 +23,7 @@ import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.businessobjects.boundary.EnvironmentService;
 import org.eclipse.mdm.businessobjects.control.NavigationActivity;
-import org.eclipse.mdm.businessobjects.control.i18n.I18NActivityMockHelper;
-import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +34,7 @@ public class NavigatorActivityTest {
 
 	@Before
 	public void setup() throws Exception {
-		navigationActivity = new NavigationActivity(NavigationActivityMockHelper.createConnectorMock(), NavigationActivityMockHelper.createEnvironmentMock());
+		navigationActivity = new NavigationActivity(NavigationActivityMockHelper.createConnectorMock());
 	}
 
 	@Test

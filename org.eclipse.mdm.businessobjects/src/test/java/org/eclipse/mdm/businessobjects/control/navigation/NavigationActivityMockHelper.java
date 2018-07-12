@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableList;
 import org.eclipse.mdm.api.base.adapter.Core;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.adapter.ModelManager;
@@ -40,7 +39,8 @@ import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.boundary.EnvironmentService;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
-import org.mockito.Mockito;
+
+import com.google.common.collect.ImmutableList;
 
 public final class NavigationActivityMockHelper {
 

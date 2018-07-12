@@ -36,7 +36,7 @@ public class MDMEntityResponseTest {
 	public void buildFails_nullIsReturned() throws DataAccessException {
 		TestStep ts = mock(TestStep.class);
 		EntityManager manager = mock(EntityManager.class);
-		when(manager.loadContexts(eq(ts), anyVararg())).thenThrow(new DataAccessException("test"));
+		when(manager.loadContexts(eq(ts), any())).thenThrow(new DataAccessException("test"));
 
 		assertNull(MDMEntityResponse.build(TestStep.class, ts, manager));
 	}
