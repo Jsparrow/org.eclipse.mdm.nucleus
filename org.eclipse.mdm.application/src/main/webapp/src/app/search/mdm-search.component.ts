@@ -34,7 +34,6 @@ import {TableviewComponent} from '../tableview/tableview.component';
 import {ViewComponent} from '../tableview/view.component';
 
 import {View} from '../tableview/tableview.service';
-import {IDropdownItem, IMultiselectConfig} from 'ng2-dropdown-multiselect';
 import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 
 import {ModalDirective} from 'ng2-bootstrap';
@@ -44,6 +43,7 @@ import {EditSearchFieldsComponent} from './edit-searchFields.component';
 import {OverwriteDialogComponent} from '../core/overwrite-dialog.component';
 
 import {classToClass, plainToClass, serialize, deserialize} from 'class-transformer';
+import {SelectItem} from 'primeng/primeng';
 
 @Component({
   selector: 'mdm-search',
@@ -96,13 +96,9 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   isSearchResultsOpen = false;
 
   layout: SearchLayout = new SearchLayout;
-  public dropdownModel: IDropdownItem[] = [];
-  public dropdownConfig: IMultiselectConfig = {
-      showCheckAll: false,
-      showUncheckAll: false,
-      checkClasses: ['fa', 'fa-fw', 'fa-check'],
-      uncheckClasses: ['fa', 'fa-fw', 'fa-times']
-    };
+
+  public dropdownModel: SelectItem[] = [];
+  public selectedEnvs: string[] = [];
 
   searchFields: { group: string, attribute: string }[] = [];
 
@@ -171,10 +167,11 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     this.filters = filters;
     this.definitions = definitions;
 
-    this.dropdownModel = envs.map(env => <IDropdownItem>{ id: env.sourceName, label: env.name, selected: true });
+    this.dropdownModel = envs.map(env => <SelectItem>{ value: env.sourceName, label: env.name });
+    this.selectedEnvs = envs.map(env => env.sourceName);
 
     this.updateSearchAttributesForCurrentResultType();
-    this.selectedEnvironmentsChanged(this.dropdownModel);
+    this.selectedEnvironmentsChanged();
 
     this.loadState();
   }
@@ -206,16 +203,14 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  selectedEnvironmentsChanged(items: IDropdownItem[]) {
-    this.currentFilter.environments = items.filter(item => item.selected).map(item => item.id);
+  selectedEnvironmentsChanged() {
+    this.currentFilter.environments = this.selectedEnvs;
     if (this.environments) {
       let envs = this.environments.filter(env =>
         this.currentFilter.environments.find(envName => envName === env.sourceName));
-      if (envs.length === 0 && this.selectedEnvironments.length > 0) {
-        let items = this.dropdownModel.filter(item => item.id === this.selectedEnvironments[0].sourceName);
-        if (items && items.length > 0) {
-          items[0].selected = true;
-        }
+
+      if (envs.length === 0) {
+        this.selectedEnvironments = this.environments;
       } else {
         this.selectedEnvironments = envs;
       }
@@ -310,9 +305,9 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
 
   selectFilter(filter: SearchFilter) {
     this.currentFilter = classToClass(filter);
+    this.selectedEnvs = this.currentFilter.environments;
     this.updateSearchAttributesForCurrentResultType();
-    this.dropdownModel.forEach(item => item.selected = (this.currentFilter.environments.findIndex(i => i === item.id) >= 0));
-    this.selectedEnvironmentsChanged(this.dropdownModel);
+    this.selectedEnvironmentsChanged();
     this.calcCurrentSearch();
   }
 

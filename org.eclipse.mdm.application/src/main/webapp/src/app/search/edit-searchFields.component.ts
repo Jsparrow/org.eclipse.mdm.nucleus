@@ -20,7 +20,6 @@ import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
 import {SearchattributeTreeComponent} from '../searchattribute-tree/searchattribute-tree.component';
 
-import {IDropdownItem, IMultiselectConfig} from 'ng2-dropdown-multiselect';
 import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 import {ModalDirective} from 'ng2-bootstrap';
 import {TreeNode} from 'primeng/primeng';

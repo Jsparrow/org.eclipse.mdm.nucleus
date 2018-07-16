@@ -21,9 +21,8 @@ import { DatepickerModule } from 'ng2-bootstrap';
 import { TabsModule } from 'ng2-bootstrap/tabs';
 import { PositioningService } from 'ng2-bootstrap/positioning';
 import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
-import { DropdownMultiselectModule } from 'ng2-dropdown-multiselect';
 
-import { TreeModule, DataTableModule, SharedModule, ContextMenuModule, GrowlModule } from 'primeng/primeng';
+import { TreeModule, DataTableModule, SharedModule, ContextMenuModule, GrowlModule, MultiSelectModule } from 'primeng/primeng';
 
 import { PropertyService } from './property.service';
 import { PreferenceService } from './preference.service';
@@ -42,11 +41,11 @@ import { TranslationPipe } from '../localization/translation.pipe';
     TabsModule.forRoot(),
     TypeaheadModule.forRoot(),
     DatepickerModule.forRoot(),
-    DropdownMultiselectModule,
     TreeModule,
     DataTableModule,
     SharedModule,
     ContextMenuModule,
+    MultiSelectModule,
     GrowlModule
   ],
   declarations: [
@@ -58,7 +57,7 @@ import { TranslationPipe } from '../localization/translation.pipe';
     CommonModule,
     FormsModule,
     Ng2BootstrapModule,
-    DropdownMultiselectModule,
+    MultiSelectModule,
     TreeModule,
     DataTableModule,
     SharedModule,

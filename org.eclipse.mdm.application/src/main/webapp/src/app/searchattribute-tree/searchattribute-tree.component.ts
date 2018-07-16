@@ -17,7 +17,6 @@ import {Preference, PreferenceService} from '../core/preference.service';
 import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
 
-import {IDropdownItem, IMultiselectConfig} from 'ng2-dropdown-multiselect';
 import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
 import {ModalDirective} from 'ng2-bootstrap';
 import {TreeModule, TreeNode} from 'primeng/primeng';
