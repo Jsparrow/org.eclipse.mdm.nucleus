@@ -15,12 +15,12 @@ import { CommonModule } from '@angular/common';
 import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 
-import { Ng2BootstrapModule } from 'ng2-bootstrap';
-import { TypeaheadModule } from 'ng2-bootstrap';
-import { DatepickerModule } from 'ng2-bootstrap';
-import { TabsModule } from 'ng2-bootstrap/tabs';
-import { PositioningService } from 'ng2-bootstrap/positioning';
-import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
+import { Ng2BootstrapModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap';
+import { DatepickerModule } from 'ngx-bootstrap';
+import { TabsModule } from 'ngx-bootstrap/tabs';
+import { PositioningService } from 'ngx-bootstrap/positioning';
+import { ComponentLoaderFactory } from 'ngx-bootstrap/component-loader';
 
 import { TreeModule, DataTableModule, SharedModule, ContextMenuModule, GrowlModule, MultiSelectModule } from 'primeng/primeng';
 

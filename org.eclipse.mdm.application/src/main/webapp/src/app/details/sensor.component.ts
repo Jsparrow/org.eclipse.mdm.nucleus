@@ -13,7 +13,7 @@
 import {Component, OnInit, Input, OnChanges, SimpleChange} from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
-import { AccordionComponent, AccordionModule } from 'ng2-bootstrap';
+import { AccordionComponent, AccordionModule } from 'ngx-bootstrap';
 import {LocalizationService} from '../localization/localization.service';
 
 import {NodeService} from '../navigator/node.service';

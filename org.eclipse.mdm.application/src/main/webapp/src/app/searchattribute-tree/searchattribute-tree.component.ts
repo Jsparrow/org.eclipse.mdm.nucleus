@@ -17,8 +17,8 @@ import {Preference, PreferenceService} from '../core/preference.service';
 import {Node} from '../navigator/node';
 import {MDMItem} from '../core/mdm-item';
 
-import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
-import {ModalDirective} from 'ng2-bootstrap';
+import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
+import {ModalDirective} from 'ngx-bootstrap';
 import {TreeModule, TreeNode} from 'primeng/primeng';
 
 @Component({

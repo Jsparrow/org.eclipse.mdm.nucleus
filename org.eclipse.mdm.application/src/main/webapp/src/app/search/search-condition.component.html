@@ -17,7 +17,7 @@
     <button id="operator" type="button" title="{{TtlSelectSearchOperator}}" class="btn btn-default btn-sm dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false" [disabled]="disabled">
       {{getOperatorName(condition.operator)}} <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu" dropdownMenu>
+    <ul class="dropdown-menu" *dropdownMenu>
       <li *ngFor="let op of getOperators()">
         <a class="dropdown-item" (click)="setOperator(op)">{{getOperatorName(op)}}</a>
       </li>

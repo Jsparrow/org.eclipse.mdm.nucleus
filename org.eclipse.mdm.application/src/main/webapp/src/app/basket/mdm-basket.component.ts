@@ -13,7 +13,7 @@
 
 import { Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ModalDirective } from 'ng2-bootstrap';
+import { ModalDirective } from 'ngx-bootstrap';
 
 import { BasketService, Basket} from './basket.service';
 

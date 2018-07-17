@@ -34,9 +34,10 @@ import {TableviewComponent} from '../tableview/tableview.component';
 import {ViewComponent} from '../tableview/view.component';
 
 import {View} from '../tableview/tableview.service';
-import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
+import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 
-import {ModalDirective} from 'ng2-bootstrap';
+import {ModalDirective} from 'ngx-bootstrap';
+import {AccordionPanelComponent} from 'ngx-bootstrap/accordion';
 
 import {TreeModule, TreeNode, DataTableModule, SharedModule, ContextMenuModule, MenuItem} from 'primeng/primeng';
 import {EditSearchFieldsComponent} from './edit-searchFields.component';
@@ -128,6 +129,12 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   @ViewChild(OverwriteDialogComponent)
   overwriteDialogComponent: OverwriteDialogComponent;
 
+  @ViewChild('advancedSearch')
+  advancedSearchPanel: AccordionPanelComponent;
+
+  @ViewChild('searchResults')
+  searchResultsPanel: AccordionPanelComponent;
+
   constructor(private searchService: SearchService,
     private queryService: QueryService,
     private filterService: FilterService,
@@ -177,12 +184,17 @@ export class MDMSearchComponent implements OnInit, OnDestroy {
   }
 
   loadState() {
+
     this.results = deserialize(SearchResult, sessionStorage.getItem('mdm-search.searchResult')) || new SearchResult();
     this.selectFilter(deserialize(SearchFilter, sessionStorage.getItem('mdm-search.currentFilter')) || this.filterService.EMPTY_FILTER);
     this.isAdvancedSearchActive = !('false' == sessionStorage.getItem('mdm-search.isAdvancedSearchActive'));
+    this.advancedSearchPanel.isOpen = !('false' == sessionStorage.getItem('mdm-search.isAdvancedSearchOpen'));
+    this.searchResultsPanel.isOpen = !('false' == sessionStorage.getItem('mdm-search.isSearchResultsOpen'));
   }
 
   saveState() {
+    sessionStorage.setItem('mdm-search.isSearchResultsOpen', serialize(this.searchResultsPanel.isOpen));
+    sessionStorage.setItem('mdm-search.isAdvancedSearchOpen', serialize(this.advancedSearchPanel.isOpen));
     sessionStorage.setItem('mdm-search.currentFilter', serialize(this.currentFilter));
     sessionStorage.setItem('mdm-search.searchResult', serialize(this.results));
     sessionStorage.setItem('mdm-search.isAdvancedSearchActive', this.isAdvancedSearchActive.toString());

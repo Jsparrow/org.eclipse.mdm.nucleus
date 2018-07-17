@@ -20,8 +20,8 @@ import {SearchattributeTreeComponent} from '../searchattribute-tree/searchattrib
 import {MDMNotificationService} from '../core/mdm-notification.service';
 
 import {TreeNode} from 'primeng/primeng';
-import {ModalDirective} from 'ng2-bootstrap';
-import {TypeaheadMatch} from 'ng2-bootstrap/typeahead';
+import {ModalDirective} from 'ngx-bootstrap';
+import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 import {Observable} from 'rxjs/Observable';
 import {classToClass} from 'class-transformer';
 

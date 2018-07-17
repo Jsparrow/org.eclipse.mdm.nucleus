@@ -65,7 +65,7 @@
       <button id="search-source" title="{{TtlSelectFilter}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
         {{currentFilter.name}} <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu" dropdownMenu>
+      <ul class="dropdown-menu" *dropdownMenu>
         <li *ngFor="let filter of filters">
           <a class="dropdown-item" (click)="selectFilter(filter)">{{filter.name}}</a>
         </li>
@@ -82,7 +82,7 @@
       <button id="search-resulttype" title="{{TtlSelectResultType}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
         {{getSearchDefinition(currentFilter.resultType)?.label}} <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu" dropdownMenu>
+      <ul class="dropdown-menu" *dropdownMenu>
         <li *ngFor="let def of definitions" role="menuitem">
           <a class="dropdown-item" (click)="selectResultType(def)">{{def.label}}</a>
         </li>
@@ -115,7 +115,7 @@ Wenn nach einem der Spezialsymbole gesucht werden soll, m&uuml;ssen diese mit \ 
 </div>
 
 <accordion>
-  <accordion-group [isOpen]="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isAdvancedSearchActive}">
+  <accordion-group id="advancedSearch" [isOpen]="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isAdvancedSearchActive}">
     <div accordion-heading class="thinheader">
       <div class="row">
         <div class="col-xs-9">
@@ -171,7 +171,7 @@ Wenn nach einem der Spezialsymbole gesucht werden soll, m&uuml;ssen diese mit \ 
       </div>
     </div>
   </accordion-group>
-  <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
+  <accordion-group  id="searchResults" [isOpen]="isSearchResultsOpen" #searchResults>
     <div accordion-heading class="thinheader">
       <div class="row">
         <div class="col-xs-9">

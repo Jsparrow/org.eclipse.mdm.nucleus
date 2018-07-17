@@ -12,7 +12,7 @@
 
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ComponentLoaderFactory } from 'ng2-bootstrap/component-loader';
+import { ComponentLoaderFactory } from 'ngx-bootstrap/component-loader';
 
 import { PreferenceService } from '../core/preference.service';
 import { MDMCoreModule } from '../core/mdm-core.module';

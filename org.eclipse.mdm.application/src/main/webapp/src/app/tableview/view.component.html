@@ -36,7 +36,7 @@
   <button id="view" title="{{TtlSelectView}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
     {{selectedView?.name}} <span class="caret"></span>
   </button>
-  <ul class="dropdown-menu scrollable-menu" style="height: auto; max-height: 200px; overflow-x: hidden;" dropdownMenu>
+  <ul class="dropdown-menu scrollable-menu" style="height: auto; max-height: 200px; overflow-x: hidden;" *dropdownMenu>
     <div *ngFor="let groupedView of groupedViews" class="container-fluid">
       <li class="dropdown-header" style="padding-left: 0pt;"> {{groupedView.label}} </li>
       <li *ngFor="let view of groupedView.view">

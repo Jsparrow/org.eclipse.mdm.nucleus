@@ -16,7 +16,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {FilereleaseService, Release} from './filerelease.service';
 import {MDMFilereleaseDisplayComponent} from './mdm-filerelease-display.component';
 import {PropertyService} from '../core/property.service';
-import { ModalDirective } from 'ng2-bootstrap';
+import { ModalDirective } from 'ngx-bootstrap';
 
 import {MDMNotificationService} from '../core/mdm-notification.service';
 

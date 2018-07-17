@@ -26,7 +26,7 @@
                   {{activeNodeprovider.name}}
                 <em class="caret" ></em>
               </a>
-              <ul class="dropdown-menu" dropdownMenu>
+              <ul class="dropdown-menu" *dropdownMenu>
                 <li *ngFor="let np of getNodeproviders()">
                   <a class="dropdown-item" (click)="activateNodeProvider(np)" style="cursor:pointer;">
                       {{np.name}}

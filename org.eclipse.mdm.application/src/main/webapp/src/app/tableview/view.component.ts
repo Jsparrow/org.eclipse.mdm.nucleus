@@ -16,7 +16,7 @@ import { PreferenceView, View, ViewService} from './tableview.service';
 import { EditViewComponent } from './editview.component';
 
 import {classToClass} from 'class-transformer';
-import { ModalDirective } from 'ng2-bootstrap';
+import { ModalDirective } from 'ngx-bootstrap';
 
 import { OverwriteDialogComponent } from '../core/overwrite-dialog.component';
 import { MDMNotificationService } from '../core/mdm-notification.service';
