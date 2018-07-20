@@ -38,6 +38,25 @@
       outline: 0;
       box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(0, 0, 0,.6);
   }
+  :host /deep/ #envs .ui-multiselect {
+    padding: 0;
+    width: 200px;
+    height: 34px;
+  }
+  :host /deep/ #envs .ui-multiselect .ui-multiselect-label {
+    font-weight: normal;
+    padding: 6px 2em 4px 0.5em;
+    margin: 0;
+  }
+
+  :host /deep/ #envs .ui-multiselect:not(.ui-state-disabled):hover {
+    background-color: #e6e6e6;
+    border-color: #adadad;
+  }
+  :host /deep/ #envs .ui-multiselect:not(.ui-state-disabled):hover .ui-multiselect-trigger {
+    background-color: #e6e6e6;
+  }
+
 </style>
 <form class="form-inline" style="margin-bottom: 10px; width:100% !important;">
   <div class="form-group">
@@ -46,7 +65,7 @@
       <button id="search-source" title="{{TtlSelectFilter}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
         {{currentFilter.name}} <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu" dropdownMenu>
+      <ul class="dropdown-menu" *dropdownMenu>
         <li *ngFor="let filter of filters">
           <a class="dropdown-item" (click)="selectFilter(filter)">{{filter.name}}</a>
         </li>
@@ -55,7 +74,7 @@
   </div>
   <div class="form-group">
     <label for="search-source" class="control-label">{{LblSource}}</label>
-    <dropdown-multiselect name="envs" title="{{TtlSelectSource}}" [dropdownConfig]="dropdownConfig" [(ngModel)]="dropdownModel" (ngModelChange)="selectedEnvironmentsChanged($event)"></dropdown-multiselect>
+    <p-multiSelect name="envs" id="envs" [options]="dropdownModel" [(ngModel)]="selectedEnvs" (onChange)="selectedEnvironmentsChanged()" title="{{TtlSelectSource}}" class="btn-group dropdown"></p-multiSelect>
   </div>
   <div class="form-group">
     <label for="search-resulttype" class="control-label">{{LblResultType}}</label>
@@ -63,7 +82,7 @@
       <button id="search-resulttype" title="{{TtlSelectResultType}}" type="button" class="btn btn-default dropdown-toggle" dropdownToggle aria-haspopup="true" aria-expanded="false">
         {{getSearchDefinition(currentFilter.resultType)?.label}} <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu" dropdownMenu>
+      <ul class="dropdown-menu" *dropdownMenu>
         <li *ngFor="let def of definitions" role="menuitem">
           <a class="dropdown-item" (click)="selectResultType(def)">{{def.label}}</a>
         </li>
@@ -81,12 +100,12 @@
         + steht f&uuml;r einen UND Operator
         | steht f&uuml;r einen ODER Operator
         - negiert einen einzelnen Term
-        &quot; fasst einen Menge von Termen zu eine Phrase zusammen
+        &quot; fasst einen Menge von Termen zu einer Phrase zusammen
         * am Ende eines Suchterms beschreibt eine Pr&auml;fixsuche
         ( und ) beschreibt die Operatorpr&auml;ferenz
         ~N nach einem Wort beschreibt den Editierabstand (Unsch&auml;rfe)
         ~N nach einer Phrase beschreibt den Wortabstand
-Wenn nach einem der Spezialsymbol gesucht werden soll, m&uuml;ssen dieses mit \ escaped werden.">
+Wenn nach einem der Spezialsymbole gesucht werden soll, m&uuml;ssen diese mit \ escaped werden.">
       <span class="input-group-btn">
         <button type="button" class="btn btn-default" (click)="onSearch()">{{LblSearch}}</button>
       </span>
@@ -96,8 +115,7 @@ Wenn nach einem der Spezialsymbol gesucht werden soll, m&uuml;ssen dieses mit \ 
 </div>
 
 <accordion>
-
-  <accordion-group [isOpen]="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isAdvancedSearchActive}">
+  <accordion-group id="advancedSearch" [isOpen]="isAdvancedSearchOpen" #advancedSearch [ngClass]="{'greyed': !isAdvancedSearchActive}">
     <div accordion-heading class="thinheader">
       <div class="row">
         <div class="col-xs-9">
@@ -153,7 +171,7 @@ Wenn nach einem der Spezialsymbol gesucht werden soll, m&uuml;ssen dieses mit \ 
       </div>
     </div>
   </accordion-group>
-  <accordion-group [isOpen]="isSearchResultsOpen" #searchResults>
+  <accordion-group  id="searchResults" [isOpen]="isSearchResultsOpen" #searchResults>
     <div accordion-heading class="thinheader">
       <div class="row">
         <div class="col-xs-9">

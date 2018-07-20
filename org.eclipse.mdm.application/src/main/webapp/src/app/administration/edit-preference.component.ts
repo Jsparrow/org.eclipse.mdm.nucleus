@@ -13,7 +13,7 @@
 import { Component, Input, Output, ViewChild, EventEmitter, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@angular/forms';
 
-import { ModalDirective } from 'ng2-bootstrap';
+import { ModalDirective } from 'ngx-bootstrap';
 
 import { PreferenceService, Preference, Scope } from '../core/preference.service';
 import { NodeService } from '../navigator/node.service';

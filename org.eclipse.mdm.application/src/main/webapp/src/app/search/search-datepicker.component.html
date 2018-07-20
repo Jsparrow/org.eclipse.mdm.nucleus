@@ -18,7 +18,7 @@
   <span *ngIf="disabled" class="input-group-addon" style="cursor: not-allowed; border-radius: 4px; padding-right: 12px; width: 1%; border-top-left-radius: 0; border-bottom-left-radius: 0;">
     <em class="glyphicon glyphicon-calendar"></em>
   </span>
-  <ul class="dropdown-menu" dropdownMenu>
+  <ul class="dropdown-menu" *dropdownMenu>
     <datepicker [(ngModel)]="date" [showWeeks]="false" (selectionDone)="onSelectionDone($event);"></datepicker>
   </ul>
 </div>

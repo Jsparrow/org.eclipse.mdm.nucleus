@@ -140,7 +140,7 @@ describe ( 'SearchService', () => {
       let filter = service.convertEnv('env1', [cond1, cond2, cond3], attributes, 'test');
 
       expect(filter.sourceName).toEqual('env1');
-      expect(filter.filter).toEqual("Test.Name lk 'PBN*' and Vehicle.Number eq 12 and Vehicle.Created eq '2017-07-17T12:13:14'");
+      expect(filter.filter).toEqual("Test.Name ci_lk 'PBN*' and Vehicle.Number eq 12 and Vehicle.Created eq '2017-07-17T12:13:14'");
       expect(filter.searchString).toEqual('test');
 
     })));

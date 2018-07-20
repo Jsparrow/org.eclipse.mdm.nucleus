@@ -18,7 +18,7 @@
     <!-- <mdm-filerelease-create [node]=selectedNode [disabled]="isReleasable()"></mdm-filerelease-create> -->
   </div>
   <h3 *ngIf="selectedNode" style="margin: 5px;" class="icon" [ngClass]="selectedNode.getClass()">
-    {{getTrans(selectedNode.type)}}
+    {{selectedNode.type | translate}}
   </h3>
 </div>
 <table class="table table-hover" style="margin-bottom: 0;">
@@ -31,7 +31,7 @@
   </thead>
   <tbody *ngIf="selectedNode">
     <tr *ngFor="let attr of displayAttributes">
-      <td>{{getTrans(selectedNode.type, attr.name)}}</td>
+      <td>{{selectedNode.type | translate: attr.name}}</td>
       <td>{{attr.value}}</td>
       <td>{{attr.unit}}</td>
     </tr>

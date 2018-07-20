@@ -13,7 +13,7 @@
 *******************************************************************************/
 
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import { ModalDirective } from 'ng2-bootstrap';
+import { ModalDirective } from 'ngx-bootstrap';
 import {Release, FilereleaseService} from './filerelease.service';
 import {Node} from '../navigator/node';
 

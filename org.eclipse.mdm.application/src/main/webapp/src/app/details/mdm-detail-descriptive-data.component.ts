@@ -15,7 +15,7 @@
 import {Component, OnInit, Input, OnChanges, SimpleChange} from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
-import { AccordionComponent, AccordionModule } from 'ng2-bootstrap';
+import { AccordionComponent, AccordionModule } from 'ngx-bootstrap';
 import {LocalizationService} from '../localization/localization.service';
 
 import {NodeService} from '../navigator/node.service';
@@ -127,9 +127,5 @@ export class MDMDescriptiveDataComponent implements OnInit {
 
   isTS() {
     return this.context.toLowerCase() === 'ts';
-  }
-
-  getTrans(type: string, attr: string) {
-    return this.localService.getTranslation(type, attr);
   }
 }

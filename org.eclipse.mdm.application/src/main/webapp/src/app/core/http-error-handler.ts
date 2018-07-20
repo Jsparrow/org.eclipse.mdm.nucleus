@@ -15,6 +15,8 @@ import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
+import { isDevMode } from '@angular/core';
+
 @Injectable()
 export class HttpErrorHandler {
 
@@ -27,7 +29,11 @@ export class HttpErrorHandler {
           errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
         }
         catch (e) {
-          errMsg = `${error.status} - ${error.statusText || ''} ${error.text()}`;
+          if (isDevMode()) {
+            errMsg = `${error.status} - ${error.statusText || ''} ${error.text()}`;
+          } else {
+            errMsg = `Please contact the administrator. Status code: ${error.status} - ${error.statusText || ''}`;
+          }
         }
       } else {
         errMsg = error.message ? error.message : error.toString();

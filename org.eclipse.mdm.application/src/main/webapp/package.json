@@ -13,8 +13,7 @@
     "lint": "ng lint --force --format json > coverage/tslint_out.json",
     "e2e": "ng e2e",
     "coverage": "ng test --browsers PhantomJS --singleRun --code-coverage",
-    "ci_build": "npm run coverage && npm run lint && ng build --prod --base-href /org.eclipse.mdm.nucleus/",
-    "postinstall": "rimraf node_modules/ng2-dropdown-multiselect/node_modules"
+    "ci_build": "npm run coverage && npm run lint && ng build --prod --base-href /org.eclipse.mdm.nucleus/"
   },
   "private": true,
   "dependencies": {
@@ -32,8 +31,7 @@
     "core-js": "2.4.1",
     "file-saver": "1.3.3",
     "font-awesome": "4.7.0",
-    "ng2-bootstrap": "1.3.1",
-    "ng2-dropdown-multiselect": "1.1.1",
+    "ngx-bootstrap": "1.9.1",
     "ng2-split-pane": "1.3.1",
     "primeng": "2.0.5",
     "reflect-metadata": "0.1.3",
@@ -42,7 +40,7 @@
     "zone.js": "0.7.6"
   },
   "devDependencies": {
-    "@angular-devkit/schematics":"0.0.34", 
+    "@angular-devkit/schematics":"0.0.34",
     "@angular-devkit/core": "0.0.22",
     "@angular/cli": "1.4.7",
     "@angular/compiler-cli": "2.4.8",

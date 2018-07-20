@@ -86,8 +86,4 @@ export class MDMDetailViewComponent implements OnInit, OnDestroy {
     if (this.selectedNode && this.selectedNode.sourceType === 'TestStep') { return false; }
     return true;
   }
-
-  getTrans(type: string, attr: string) {
-    return this.localService.getTranslation(type, attr);
-  }
 }

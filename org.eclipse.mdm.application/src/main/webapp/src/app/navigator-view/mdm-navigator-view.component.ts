@@ -14,7 +14,7 @@
 
 import {Component, ViewEncapsulation, OnInit, OnDestroy} from '@angular/core';
 
-import { DropdownModule, AccordionConfig, DropdownConfig } from 'ng2-bootstrap';
+import { BsDropdownModule, AccordionConfig, BsDropdownConfig } from 'ngx-bootstrap';
 
 import {NodeService} from '../navigator/node.service';
 import {Node} from '../navigator/node';
@@ -27,7 +27,7 @@ import {MDMNotificationService} from '../core/mdm-notification.service';
   selector: 'mdm-navigator-view',
   templateUrl: 'mdm-navigator-view.component.html',
   styleUrls: [ './mdm-navigator-view.component.css' ],
-  providers: [DropdownConfig, AccordionConfig],
+  providers: [BsDropdownConfig, AccordionConfig],
   encapsulation: ViewEncapsulation.None
 })
 export class MDMNavigatorViewComponent implements OnInit, OnDestroy {
