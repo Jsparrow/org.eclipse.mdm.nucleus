@@ -16,7 +16,9 @@ apply plugin: 'antlr'
 dependencies {
 	compile project(':org.eclipse.mdm.connector')
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
-
+  compile 'io.vavr:vavr:0.9.1'
+  testCompile 'org.assertj:assertj-core:3.6.2'
+  testCompile 'io.rest-assured:rest-assured:3.0.5'
 	testCompile 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.23.2'
 	testCompile 'org.glassfish.jersey.media:jersey-media-json-jackson:2.23.2'
 
@@ -24,6 +26,10 @@ dependencies {
 }
 
 generateGrammarSource { arguments += ["-visitor"] }
+
+test {
+    exclude 'org/eclipse/mdm/businessobjects/boundary/integrationtest/*'
+}
 
 compileJava.dependsOn(generateGrammarSource)
 

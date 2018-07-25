@@ -11,11 +11,16 @@
 
 package org.eclipse.mdm.businessobjects.boundary;
 
+import static org.eclipse.mdm.businessobjects.boundary.ResourceConstants.REQUESTPARAM_SOURCENAME;
+import static org.eclipse.mdm.businessobjects.service.EntityService.V;
+
 import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJB;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -31,9 +36,13 @@ import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.businessobjects.entity.I18NResponse;
 import org.eclipse.mdm.businessobjects.entity.MDMEntityResponse;
+import org.eclipse.mdm.businessobjects.service.EntityService;
+import org.eclipse.mdm.businessobjects.utils.RequestBody;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.vavr.control.Try;
 
 /**
  * {@link Environment} resource
@@ -48,6 +57,9 @@ public class EnvironmentResource {
 
 	@EJB
 	private EnvironmentService environmentService;
+
+	@EJB
+	private EntityService entityService;
 
 	/**
 	 * delegates the request to the {@link EnvironmentService}
@@ -75,8 +87,8 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}")
-	public Response getEnvironment(@PathParam("SOURCENAME") String sourceName) {
+	@Path("/{" + REQUESTPARAM_SOURCENAME + "}")
+	public Response getEnvironment(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName) {
 		try {
 			Environment environment = this.environmentService.getEnvironment(sourceName);
 			return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, environment), Status.OK);
@@ -84,6 +96,31 @@ public class EnvironmentResource {
 			LOG.error(e.getMessage(), e);
 			throw new WebApplicationException(e.getMessage(), e, Status.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * Updates the {@link Environment} with all parameters set in the given JSON
+	 * body of the request.
+	 * 
+	 * @param sourceName
+	 *            name of the source (MDM {@link Environment} name)
+	 * @param body
+	 *            the body of the request containing the attributes to update
+	 * @return the updated {@link Environment}
+	 */
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/{" + REQUESTPARAM_SOURCENAME + "}")
+	public Response update(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, String body) {
+		RequestBody requestBody = RequestBody.create(body);
+
+		return entityService
+				.update(V(sourceName), Try.of(() -> this.environmentService.getEnvironment(sourceName)),
+						requestBody.getValueMapSupplier())
+				.map(e -> ServiceUtils.buildEntityResponse(e, Status.OK))
+				.recover(ServiceUtils.ERROR_RESPONSE_SUPPLIER)
+				.getOrElse(ServiceUtils.SERVER_ERROR_RESPONSE);
 	}
 
 	/**
@@ -95,8 +132,8 @@ public class EnvironmentResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/localizations")
-	public Response localize(@PathParam("SOURCENAME") String sourceName, @QueryParam("all") boolean all) {
+	@Path("/{" + REQUESTPARAM_SOURCENAME + "}/localizations")
+	public Response localize(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @QueryParam("all") boolean all) {
 
 		try {
 
@@ -120,8 +157,8 @@ public class EnvironmentResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{SOURCENAME}/search")
-	public Response search(@PathParam("SOURCENAME") String sourceName, @QueryParam("q") String query) {
+	@Path("/{" + REQUESTPARAM_SOURCENAME + "}/search")
+	public Response search(@PathParam(REQUESTPARAM_SOURCENAME) String sourceName, @QueryParam("q") String query) {
 		List<Entity> searchResults = environmentService.search(sourceName, query);
 		return ServiceUtils.toResponse(new MDMEntityResponse(Environment.class, searchResults), Status.OK);
 	}

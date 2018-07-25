@@ -121,6 +121,201 @@ MDM 5 uses SLF4J and logback for logging. The default configuration file can be 
 * http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/POOLID
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools/123_
 
+**Business Object: ValueList**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists (JSON: { "name" : "testValueList" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/localizations
+
+**Business Object: ValueListValue**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID/valuelistvalues/VALUELISTVALUEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID/valuelistvalues
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID/valuelistvalues (JSON: { "name" : "testValueListValue" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID/valuelistvalues/VALUELISTVALUEID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID/valuelistvalues/VALUELISTVALUEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID/valuelistvalues/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/valuelists/VALUELISTID/valuelistvalues/localizations
+
+**Business Object: PhysicalDimension**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/physicaldimensions/PHYSICALDIMENSIONID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/physicaldimensions
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/physicaldimensions (JSON: { "name" : "testPhysicalDimension" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/physicaldimensions/PHYSICALDIMENSIONID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/physicaldimensions/PHYSICALDIMENSIONID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/physicaldimensions/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/physicaldimensions/localizations
+
+**Business Object: Unit**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/units/UNITID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/units
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/units (JSON: { "name" : "testUnit", "physicaldimension" : "PHYSICALDIMENSIONID" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/units/UNITID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/units/UNITID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/units/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/units/localizations
+
+**Business Object: Quantity**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/quantities/QUANTITYID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/quantities
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/quantities (JSON: { "name" : "testQuantity", "unit" : "UNITID" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/quantities/QUANTITYID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/quantities/QUANTITYID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/quantities/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/quantities/localizations
+
+**Business Object: CatalogComponent**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE (JSON: { "name" : "testCatalogComponent" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/localizations
+
+**Business Object: CatalogAttribute**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* DATATYPE is one of [STRING, STRING_SEQUENCE, DATE, DATE_SEQUENCE, BOOLEAN, BOOLEAN_SEQUENCE, BYTE, BYTE_SEQUENCE, SHORT, SHORT_SEQUENCE, INTEGER, INTEGER_SEQUENCE, LONG, LONG_SEQUENCE, FLOAT, FLOAT_SEQUENCE, DOUBLE, DOUBLE_SEQUENCE, BYTE_STREAM, BYTE_STREAM_SEQUENCE, FLOAT_COMPLEX, FLOAT_COMPLEX_SEQUENCE, DOUBLE_COMPLEX, DOUBLE_COMPLEX_SEQUENCE, FILE_LINK, FILE_LINK_SEQUENCE] 
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID/catattrs/CATALOGATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID/catattrs
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID/catattrs (JSON: { "name" : "testCatalogAttribute", "datatype" : "DATATYPE" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID/catattrs/CATALOGATTRIBUTEID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID/catattrs/CATALOGATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID/catattrs/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/CONTEXTTYPE/CATALOGCOMPONENTID/catattrs/localizations
+
+**Business Object: CatalogSensor**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors (JSON: { "name" : "testCatalogSensor" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/localizations
+
+**Business Object: CatalogSensorAttribute**
+
+* DATATYPE is one of [STRING, STRING_SEQUENCE, DATE, DATE_SEQUENCE, BOOLEAN, BOOLEAN_SEQUENCE, BYTE, BYTE_SEQUENCE, SHORT, SHORT_SEQUENCE, INTEGER, INTEGER_SEQUENCE, LONG, LONG_SEQUENCE, FLOAT, FLOAT_SEQUENCE, DOUBLE, DOUBLE_SEQUENCE, BYTE_STREAM, BYTE_STREAM_SEQUENCE, FLOAT_COMPLEX, FLOAT_COMPLEX_SEQUENCE, DOUBLE_COMPLEX, DOUBLE_COMPLEX_SEQUENCE, FILE_LINK, FILE_LINK_SEQUENCE] 
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/CATALOGATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs (JSON: { "name" : "testCatalogAttribute", "datatype" : "DATATYPE" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/CATALOGATTRIBUTEID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/CATALOGATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/catcomps/testequipment/CATALOGCOMPONENTID/catsensors/CATALOGSENSORID/catsensorattrs/localizations
+
+**Business Object: TemplateRoot**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE (JSON: { "name" : "testTemplateRoot" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/localizations
+
+**Business Object: TemplateComponent**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps (JSON: { "name" : "testTemplateComponent", "catalogcomponent" : "CATALOGCOMPONENTID" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/localizations
+
+**Business Object: TemplateAttribute**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplattrs/TEMPLATEATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplattrs
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplattrs (JSON: { "name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplattrs/TEMPLATEATTRIBUTEID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplattrs/TEMPLATEATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplattrs/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplattrs/localizations
+
+**Business Object: TemplateSensor**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors (JSON: { "name" : "testTemplateSensor", "catalogsensor" : "CATALOGSENSORID", "quantity" : "QUANTITYID" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/localizations
+
+**Business Object: TemplateSensorAttribute**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/TEMPLATEATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/TEMPLATEATTRIBUTEID (JSON: { "MimeType" : "myMimeType" })
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/testequipment/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplsensors/TEMPLATESENSORID/tplsensorattrs/localizations
+
+**Business Object: NestedTemplateComponent**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps (JSON: { "name" : "testNestedTemplateComponent", "catalogcomponent" : "CATALOGCOMPONENTID" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/localizations
+
+**Business Object: NestedTemplateAttribute**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID/tplattrs/NESTEDTEMPLATEATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID/tplattrs
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID/tplattrs (JSON: { "name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID/tplattrs/NESTEDTEMPLATEATTRIBUTEID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID/tplattrs/NESTEDTEMPLATEATTRIBUTEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID/tplattrs/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplroots/CONTEXTTYPE/TEMPLATEROOTID/tplcomps/TEMPLATECOMPONENTID/tplcomps/NESTEDTEMPLATECOMPONENTID/tplattrs/localizations
+
+**Business Object: TemplateTest**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests (JSON: { "name" : "testTemplateTest" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/localizations
+
+**Business Object: TemplateTestStep**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplteststeps/TEMPLATETESTSTEPID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplteststeps
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplteststeps (JSON: { "name" : "testTemplateTestStep" })
+* PUT: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplteststeps/TEMPLATETESTSTEPID (JSON: { "MimeType" : "myMimeType" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplteststeps/TEMPLATETESTSTEPID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplteststeps/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tplteststeps/localizations
+
+**Business Object: TemplateTestStepUsage**
+
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID/tplteststepusages/TEMPLATETESTSTEPUSAGEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID/tplteststepusages
+* POST: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID/tplteststepusages (JSON: { "name" : "testTemplateTestStepUsage", "tplteststep" : "TEMPLATETESTSTEPID" })
+* DELETE: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID/tplteststepusages/TEMPLATETESTSTEPUSAGEID
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID/tplteststepusages/searchattributes
+* GET: http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tpltests/TEMPLATETESTID/tplteststepusages/localizations
 
 **Query endpoint**
 
