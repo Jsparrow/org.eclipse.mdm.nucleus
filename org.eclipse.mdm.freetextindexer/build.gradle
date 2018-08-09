@@ -24,8 +24,7 @@ dependencies {
 	compile 'commons-httpclient:commons-httpclient:3.1'
 	compile 'org.slf4j:jcl-over-slf4j:1.7.25'
 
-	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
-	compile 'com.fasterxml.jackson.core:jackson-core:2.8.6'
+	compileOnly 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
 
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.base:1.0.0'
 	compile 'org.eclipse.mdm:org.eclipse.mdm.api.odsadapter:1.0.0'
@@ -39,6 +38,7 @@ dependencies {
 	testCompile 'org.apache.lucene:lucene-test-framework:5.3.1'
 	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4')
 	testCompile(group: 'org.elasticsearch', name: 'elasticsearch', version: '2.3.4', classifier: 'tests')
+  testRuntimeClasspath 'com.fasterxml.jackson.core:jackson-databind:2.6.6'
 }
 
 jar {

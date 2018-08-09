@@ -45,7 +45,7 @@ sonarqube {
 
 dependencies {
 	runtime 'org.glassfish.jersey.containers:jersey-container-servlet:2.23.2'
-	runtime 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.2'
+	compileOnly 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.5.1'
 
 	compile project(':org.eclipse.mdm.businessobjects')
 	compile project(':org.eclipse.mdm.filerelease')
@@ -119,10 +119,7 @@ task copyFilesForRunningWithoutNpm(type: Copy){
 }
 
 if (hasProperty('skipNode')) {
-	compileJava.dependsOn(copyFilesForRunningWithoutNpm)
-	copyFilesForRunningWithoutNpm.dependsOn(copy_loginsites)
-	copy_loginsites.dependsOn(copy_websources)
-	copy_loginsites.dependsOn(copyNoticeFile)
+  compileJava.dependsOn(copy_loginsites)
 } else {
 	compileJava.dependsOn(copy_loginsites)
 	map_tslint.dependsOn(runBuild)

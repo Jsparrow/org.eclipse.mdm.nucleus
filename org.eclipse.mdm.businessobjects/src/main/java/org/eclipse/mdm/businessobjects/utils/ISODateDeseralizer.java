@@ -37,18 +37,6 @@ class ISODateDeseralizer extends UntypedObjectDeserializer {
 	transient DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
 	/**
-	 * Overridden constructor as default one is deprecated
-	 * 
-	 * @param listType
-	 * @see #{@link com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer}
-	 * @param mapType
-	 * @see #{@link com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer}
-	 */
-	public ISODateDeseralizer(JavaType listType, JavaType mapType) {
-		super(listType, mapType);
-	}
-
-	/**
 	 * Deserialize JSON and try to parse every String as an ISO8601 date
 	 */
 	@Override

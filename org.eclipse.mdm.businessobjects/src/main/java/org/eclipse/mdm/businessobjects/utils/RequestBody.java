@@ -40,7 +40,7 @@ public final class RequestBody {
 	static {
 		mapper = new ObjectMapper();
 		SimpleModule simpleModule = new SimpleModule();
-		simpleModule.addDeserializer(Object.class, new ISODateDeseralizer(null, null));
+		simpleModule.addDeserializer(Object.class, new ISODateDeseralizer());
 		mapper.registerModule(simpleModule);
 	}
 
