@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
 	runtime  'org.glassfish.jersey.containers:jersey-container-servlet:2.23.2'
-	compileOnly  'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.5.1'
+	compile  'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.2'
 	compileOnly  'javax:javaee-api:7.0'
 
 	compile project(':org.eclipse.mdm.connector')

@@ -45,7 +45,7 @@ sonarqube {
 
 dependencies {
 	runtime 'org.glassfish.jersey.containers:jersey-container-servlet:2.23.2'
-	compileOnly 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.5.1'
+	compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.2'
 
 	compile project(':org.eclipse.mdm.businessobjects')
 	compile project(':org.eclipse.mdm.filerelease')
