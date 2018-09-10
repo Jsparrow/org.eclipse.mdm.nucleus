@@ -33,7 +33,7 @@ When deploying on command line you can use: **asadmin deploy --name org.eclipse.
 7. **install** and **configure** the **LoginModule** (see org.eclipse.mdm.realms - README.md)
 8. **restart** the application server
 9. **visit** the main page of the client to make sure everything works fine. The main page of the client should be available under
-http://SERVER:PORT/APPLICATIONROOT
+http://SERVER:PORT/{APPLICATIONROOT}
 _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
 
 ## configure logging
@@ -44,91 +44,274 @@ MDM 5 uses SLF4J and logback for logging. The default configuration file can be 
 
 **Business Object: Environment**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/localizations
+* http://{SERVER}:{PORT}/{APPLICATIONROOT}/mdm/environments
+* http://{SERVER}:{PORT}/{APPLICATIONROOT}/mdm/environments/{SOURCENAME}
+* http://{SERVER}:{PORT}/{APPLICATIONROOT}/mdm/environments/{SOURCENAME}/localizations
 * _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments_
+
+Since all other calls operate on a specific source all subsequent calls share the common prefix
+`http://{SERVER}:{PORT}/{APPLICATIONROOT}/mdm/environments/{SOURCENAME}/`, which we will be our root for the description of the next calls.
+Strings enclosed in curly brackets are meant to be replaced by appropriate values. The following parameters are recurring throughout the different URLs:
+
+* APPLICATIONROOT is the context root under which MDM is deployed
+* SOURCENAME is the source name the underlying data source
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+* DATATYPE is one of [STRING, STRING_SEQUENCE, DATE, DATE_SEQUENCE, BOOLEAN, BOOLEAN_SEQUENCE, BYTE, BYTE_SEQUENCE, SHORT, SHORT_SEQUENCE, INTEGER, INTEGER_SEQUENCE, LONG, LONG_SEQUENCE, FLOAT, FLOAT_SEQUENCE, DOUBLE, DOUBLE_SEQUENCE, BYTE_STREAM, BYTE_STREAM_SEQUENCE, FLOAT_COMPLEX, FLOAT_COMPLEX_SEQUENCE, DOUBLE_COMPLEX, DOUBLE_COMPLEX_SEQUENCE, FILE_LINK, FILE_LINK_SEQUENCE] 
+* FILTERSTRING is a String defining a filter. For example `Test.Name eq 't*'` filters for all tests which names begin with `t`.
+
 
 **Business Object: Test**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests?filter=FILTERSTRING
-* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/tests?filter=Test.Name eq 't*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/tests?filter=Test.Name%20eq%20%27t*%27)_
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/searchattributes
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/localizations
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/tests/TESTID
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/tests/123_
+* GET:    /tests
+* GET:    /tests?filter={FILTERSTRING}
+* GET:    /tests/searchattributes
+* GET:    /tests/localizations
+* GET:    /tests/{TESTID}
 
 **Business Object: TestStep**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps?filter=FILTERSTRING
-* _example: [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/teststeps?filter=TestStep.Name eq 't*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/teststeps?filter=TestStep.Name%20eq%20%27t*%27)_
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/searchattributes
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/localizations
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID/contexts
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID/contexts/unitundertest
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID/contexts/testsequence
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/teststeps/TESTSTEPID/contexts/testequipment
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/teststeps/1234/contexts_
+* GET:    /teststeps
+* GET:    /teststeps?filter=FILTERSTRING
+* GET:    /teststeps/searchattributes
+* GET:    /teststeps/localizations
+* GET:    /teststeps/{TESTSTEPID}
+* GET:    /teststeps/{TESTSTEPID}/contexts
+* GET:    /teststeps/{TESTSTEPID}/contexts/{CONTEXTTYPE}
 
 **Business Object: Measurement**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements?filter=FILTERSTRING
-* _example: [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/measurements?filter=User.Name eq 's*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/measurements?filter=User.Name%20eq%20%27s*%27)_
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/searchattributes
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/localizations
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/unitundertest
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/testsequence
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/measurements/TESTSTEPID/contexts/testequipment
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/measurements/12345/contexts_
+* GET:    /measurements
+* GET:    /measurements?filter={FILTERSTRING}
+* GET:    /measurements/searchattributes
+* GET:    /measurements/localizations
+* GET:    /measurements/{MEASUREMENTID}
+* GET:    /measurements/{MEASUREMENTID}/contexts
+* GET:    /measurements/{MEASUREMENTID}/contexts/{CONTEXTTYPE}
 
 **Business Object: ChannelGroup**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups/localizations
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channelgroups/CHANNELGROUPID
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channelgroups/12345_
+* GET:    /channelgroups
+* GET:    /channelgroups/localizations
+* GET:    /channelgroups/{CHANNELGROUPID}
 
 **Business Object: Channel**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/localizations
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/channels/CHANNELID
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/channels/123456_
+* GET:    /channels
+* GET:    /channels/localizations
+* GET:    /channels/{CHANNELID}
 
 **Business Object: Project**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects?filter=FILTERSTRING
-* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/projects?filter=Project.Name eq 'p*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/projects?filter=Project.Name%20eq%20%27p*%27)_
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/searchattributes
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/localizations
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/projects/PROJECTID
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/projects/123_
+* GET:    /projects
+* GET:    /projects?filter={FILTERSTRING}
+* GET:    /projects/searchattributes
+* GET:    /projects/localizations
+* GET:    /projects/{PROJECTID}
 
 **Business Object: Pool**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools?filter=FILTERSTRING
-* _example:  [http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools?filter=Pool.Name eq 'p*'](http://localhost:8080/org.eclipse.mdm.nucleus/mdm/MDMDATASOURCE1/pools?filter=Pool.Name%20eq%20%27p*%27)_
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/searchattributes
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/localizations
-* http://SERVER:PORT/APPLICATIONROOT/mdm/environments/SOURCENAME/pools/POOLID
-* _example: http://localhost:8080/org.eclipse.mdm.nucleus/mdm/environments/MDMDATASOURCE1/pools/123_
+* GET:    /pools
+* GET:    /pools?filter={FILTERSTRING}
+* GET:    /pools/searchattributes
+* GET:    /pools/localizations
+* GET:    /pools/{POOLID}
 
+**Business Object: ValueList**
+
+* GET:    /valuelists
+* POST:   /valuelists (JSON: { "name" : "testValueList" })
+* GET:    /valuelists/{VALUELISTID}
+* PUT:    /valuelists/{VALUELISTID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /valuelists/{VALUELISTID}
+* GET:    /valuelists/searchattributes
+* GET:    /valuelists/localizations
+
+**Business Object: ValueListValue**
+
+* GET:    /valuelists/{VALUELISTID}/valuelistvalues
+* POST:   /valuelists/{VALUELISTID}/valuelistvalues (JSON: { "name" : "testValueListValue" })
+* GET:    /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID}
+* PUT:    /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID}
+* GET:    /valuelists/{VALUELISTID}/valuelistvalues/searchattributes
+* GET:    /valuelists/{VALUELISTID}/valuelistvalues/localizations
+
+**Business Object: PhysicalDimension**
+
+* GET:    /physicaldimensions
+* POST:   /physicaldimensions (JSON: { "name" : "testPhysicalDimension" })
+* GET:    /physicaldimensions/{PHYSICALDIMENSIONID}
+* PUT:    /physicaldimensions/{PHYSICALDIMENSIONID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /physicaldimensions/{PHYSICALDIMENSIONID}
+* GET:    /physicaldimensions/searchattributes
+* GET:    /physicaldimensions/localizations
+
+**Business Object: Unit**
+
+* GET:    /units
+* POST:   /units (JSON: { "name" : "testUnit", "physicaldimension" : "PHYSICALDIMENSIONID" })
+* GET:    /units/{UNITID}
+* PUT:    /units/{UNITID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /units/{UNITID}
+* GET:    /units/searchattributes
+* GET:    /units/localizations
+
+**Business Object: Quantity**
+
+* GET:    /quantities
+* POST:   /quantities (JSON: { "name" : "testQuantity", "unit" : "UNITID" })
+* GET:    /quantities/{QUANTITYID}
+* PUT:    /quantities/{QUANTITYID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /quantities/{QUANTITYID}
+* GET:    /quantities/searchattributes
+* GET:    /quantities/localizations
+
+**Business Object: CatalogComponent**
+
+* GET:    /catcomps/{CONTEXTTYPE}
+* POST:   /catcomps/{CONTEXTTYPE} (JSON: { "name" : "testCatalogComponent" })
+* GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}
+* PUT:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}
+* GET:    /catcomps/{CONTEXTTYPE}/searchattributes
+* GET:    /catcomps/{CONTEXTTYPE}/localizations
+
+**Business Object: CatalogAttribute**
+
+* GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs
+* POST:   /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs (JSON: { "name" : "testCatalogAttribute", "datatype" : "DATATYPE" })
+* GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/{CATALOGATTRIBUTEID}
+* PUT:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/{CATALOGATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/{CATALOGATTRIBUTEID}
+* GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/searchattributes
+* GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/localizations
+
+**Business Object: CatalogSensor**
+
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors
+* POST:   /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors (JSON: { "name" : "testCatalogSensor" })
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}
+* PUT:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/searchattributes
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/localizations
+
+**Business Object: CatalogSensorAttribute**
+
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs
+* POST:   /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs (JSON: { "name" : "testCatalogAttribute", "datatype" : "DATATYPE" })
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/{CATALOGATTRIBUTEID}
+* PUT:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/{CATALOGATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/{CATALOGATTRIBUTEID}
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/searchattributes
+* GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/localizations
+
+**Business Object: TemplateRoot**
+
+* GET:    /tplroots/{CONTEXTTYPE}
+* POST:   /tplroots/{CONTEXTTYPE} (JSON: { "name" : "testTemplateRoot" })
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}
+* PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}
+* GET:    /tplroots/{CONTEXTTYPE}/searchattributes
+* GET:    /tplroots/{CONTEXTTYPE}/localizations
+
+**Business Object: TemplateComponent**
+
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps (JSON: { "name" : "testTemplateComponent", "catalogcomponent" : "CATALOGCOMPONENTID" })
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}
+* PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/searchattributes
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/localizations
+
+**Business Object: TemplateAttribute**
+
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs (JSON: { "name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/{TEMPLATEATTRIBUTEID}
+* PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/{TEMPLATEATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/{TEMPLATEATTRIBUTEID}
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/searchattributes
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/localizations
+
+**Business Object: TemplateSensor**
+
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors
+* POST:   /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors (JSON: { "name" : "testTemplateSensor", "catalogsensor" : "CATALOGSENSORID", "quantity" : "QUANTITYID" })
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}
+* PUT:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/searchattributes
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/localizations
+
+**Business Object: TemplateSensorAttribute**
+
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}/tplsensorattrs
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}/tplsensorattrs/{TEMPLATEATTRIBUTEID}
+* PUT:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}/tplsensorattrs/{TEMPLATEATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}/tplsensorattrs/searchattributes
+* GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}/tplsensorattrs/localizations
+
+**Business Object: NestedTemplateComponent**
+
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps (JSON: { "name" : "testNestedTemplateComponent", "catalogcomponent" : "CATALOGCOMPONENTID" })
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}
+* PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/searchattributes
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/localizations
+
+**Business Object: NestedTemplateAttribute**
+
+* CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
+
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs (JSON: { "name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/{NESTEDTEMPLATEATTRIBUTEID}
+* PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/{NESTEDTEMPLATEATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/{NESTEDTEMPLATEATTRIBUTEID}
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/searchattributes
+* GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/localizations
+
+**Business Object: TemplateTest**
+
+* GET:    /tpltests
+* POST:   /tpltests (JSON: { "name" : "testTemplateTest" })
+* GET:    /tpltests/{TEMPLATETESTID}
+* PUT:    /tpltests/{TEMPLATETESTID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tpltests/{TEMPLATETESTID}
+* GET:    /tpltests/searchattributes
+* GET:    /tpltests/localizations
+
+**Business Object: TemplateTestStep**
+
+* GET:    /tplteststeps
+* POST:   /tplteststeps (JSON: { "name" : "testTemplateTestStep" })
+* GET:    /tplteststeps/{TEMPLATETESTSTEPID}
+* PUT:    /tplteststeps/{TEMPLATETESTSTEPID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /tplteststeps/{TEMPLATETESTSTEPID}
+* GET:    /tplteststeps/searchattributes
+* GET:    /tplteststeps/localizations
+
+**Business Object: TemplateTestStepUsage**
+
+* GET:    /tpltests/{TEMPLATETESTID}/tplteststepusages
+* POST:   /tpltests/{TEMPLATETESTID}/tplteststepusages (JSON: { "name" : "testTemplateTestStepUsage", "tplteststep" : "TEMPLATETESTSTEPID" })
+* GET:    /tpltests/{TEMPLATETESTID}/tplteststepusages/{TEMPLATETESTSTEPUSAGEID}
+* DELETE: /tpltests/{TEMPLATETESTID}/tplteststepusages/{TEMPLATETESTSTEPUSAGEID}
+* GET:    /tpltests/{TEMPLATETESTID}/tplteststepusages/searchattributes
+* GET:    /tpltests/{TEMPLATETESTID}/tplteststepusages/localizations
 
 **Query endpoint**
 
-* http://SERVER:PORT/APPLICATIONROOT/mdm/query
+* http://{SERVER}:{PORT}/{APPLICATIONROOT}/mdm/query
 
   _example:  
 `curl -POST -H "Content-Type: application/json" -d '{"resultType": "test", "columns": ["Test.Name", "TestStep.Name"], "filters": { "sourceName": "SOURCENAME", "filter": "Test.Id gt 1", "searchString": ""}}'http://sa:sa@localhost:8080/org.eclipse.mdm.nucleus/mdm/query`
-* http://SERVER:PORT/APPLICATIONROOT/mdm/suggestions
+* http://{SERVER}:{PORT}/{APPLICATIONROOT}/mdm/suggestions
 
   _example:  `curl -POST -H "Content-Type: application/json" -d '{"sourceNames": ["SOURCENAME"], "type": "Test", "attrName": "Name"}' http://sa:sa@localhost:8080/org.eclipse.mdm.nucleus/mdm/suggestions`
 
@@ -140,7 +323,7 @@ Preference service stores its data to a relational database. The database connec
 Furthermore the schema has to be created in the configured database. Therefore database DDL scripts are available for PostgreSQL and Apache Derby databases in the folder `schema/org.eclipse.mdm.preferences` of the distribution. Other databases supported by EclipseLink may also work, but is up to the user to adapt the DDL scripts.
 
 ### available rest URLs
-* http://SERVER:POART/APPLICATIONROOT/mdm/preferences
+* http://{SERVER}:POART/{APPLICATIONROOT}/mdm/preferences
 * example: `curl -GET -H "Content-Type: application/json" http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences?scope=SYSTEM&key=ignoredAttributes`
 * example: `curl -PUT -H "Content-Type: application/json" -d '{"scope": "SYSTEM", "key": "ignoredAttributes", "value": "[\"*.MimeType\"]"}' http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences`
 * example: `curl -DELETE http://localhost:8080/org.eclipse.mdm.nucleus/mdm/preferences/ID`
