@@ -8,21 +8,16 @@
 
 package org.eclipse.mdm.freetextindexer.entities;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import org.eclipse.mdm.api.base.model.*;
+import org.eclipse.mdm.api.base.query.DataAccessException;
+import org.eclipse.mdm.api.dflt.EntityManager;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.eclipse.mdm.api.base.model.ContextComponent;
-import org.eclipse.mdm.api.base.model.ContextDescribable;
-import org.eclipse.mdm.api.base.model.ContextRoot;
-import org.eclipse.mdm.api.base.model.ContextType;
-import org.eclipse.mdm.api.base.model.Entity;
-import org.eclipse.mdm.api.base.model.Value;
-import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 
 /**
  * EntryResponse (Container for {@link MDMEntity}s)
@@ -82,7 +77,8 @@ public class MDMEntityResponse {
 					MDMEntity compEntity = toTransferable(comp);
 					entity.components.add(compEntity);
 					for (Entry<String, Value> entry : comp.getValues().entrySet()) {
-						compEntity.attributes.put(entry.getKey(), entry.getValue().extract().toString());
+						Optional<Object> extractedValue = Optional.ofNullable(entry.getValue().extract());
+						compEntity.attributes.put(entry.getKey(), extractedValue.map(Object::toString).orElse(""));
 					}
 				}
 			}

@@ -11,12 +11,14 @@
 
 package org.eclipse.mdm.businessobjects.control;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
@@ -40,8 +42,17 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 @Stateless
 public class NavigationActivity {
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
+
+	// here for cdi to work
+	public NavigationActivity()  {
+
+	}
+
+	public NavigationActivity(ConnectorService connectorService) {
+		this.connectorService = requireNonNull(connectorService, "ConnectorService cannot be null!");
+	}
 
 	/**
 	 * returns the MDM {@link Environment} business objects of all connected MDM

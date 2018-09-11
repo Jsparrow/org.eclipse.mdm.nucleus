@@ -26,6 +26,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -41,6 +43,8 @@ import org.w3c.dom.NodeList;
  */
 @Stateless
 public class ServiceConfigurationActivity {
+
+	private static final Logger LOG   = LoggerFactory.getLogger(ServiceConfigurationActivity.class);
 
 	private static final String COMPONENT_CONFIG_ROOT_FOLDER = "org.eclipse.mdm.connector";
 	private static final String SERVICE_XML_FILE_NAME = "service.xml";
@@ -71,9 +75,17 @@ public class ServiceConfigurationActivity {
 				parsedServiceElements.add(parseServiceElement((Element) serviceElements.item(i)));
 			}
 
+			if(parsedServiceElements.size() == 0) {
+				LOG.warn("No service connectors are configured. This is probably wrong!");
+				throw new IllegalStateException("No configured connectors!");
+			}
 			return parsedServiceElements;
 
+		} catch (ConnectorServiceException e) {
+			LOG.error("Could not create connector service", e);
+			throw e;
 		} catch (Exception e) {
+			LOG.error("Could not create connector service", e);
 			throw new ConnectorServiceException(e.toString(), e);
 		}
 	}

@@ -16,30 +16,34 @@ import static org.mockito.Mockito.when;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.freetextindexer.boundary.ElasticsearchBoundary;
 import org.eclipse.mdm.freetextindexer.boundary.MdmApiBoundary;
+import org.eclipse.mdm.freetextindexer.events.CreateIndex;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
+import javax.enterprise.event.Event;
 
 public class SetupIndexTest {
 
-	private SetupIndex setup;
+    private SetupIndex setup;
 
-	@Before
-	public void init() {
-		setup = new SetupIndex();
-		setup.esBoundary = mock(ElasticsearchBoundary.class);
-		setup.apiBoundary = mock(MdmApiBoundary.class);
-	}
+    @Before
+    @SuppressWarnings("unchecked")
+    public void init() {
+        setup = new SetupIndex();
+        setup.esBoundary = mock(ElasticsearchBoundary.class);
+        setup.apiBoundary = mock(MdmApiBoundary.class);
+        setup.createIndexEvent = mock(Event.class);
+    }
 
-	@Test
-	public void hasAlreadyIndex_doNothing() {
-		when(setup.esBoundary.hasIndex(any(String.class))).thenReturn(true);
+    @Test
+    public void hasAlreadyIndex_doNothing() {
+        when(setup.esBoundary.hasIndex(any(String.class))).thenReturn(true);
 
-		setup.createIndexIfNeccessary();
+        setup.createIndexIfNeccessary();
 
-		verify(setup.esBoundary, times(0)).createIndex(any(String.class));
-	}
+        verify(setup.esBoundary, times(0)).createIndex(any(String.class));
+    }
 
 	@Test
 	public void noIndex_created() {
@@ -49,6 +53,6 @@ public class SetupIndexTest {
 		
 		setup.createIndexIfNeccessary();
 
-		verify(setup.esBoundary, times(1)).createIndex(any(String.class));
-	}
+        verify(setup.createIndexEvent, times(1)).fire(any(CreateIndex.class));
+    }
 }

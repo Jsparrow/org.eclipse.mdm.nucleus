@@ -14,7 +14,6 @@ package org.eclipse.mdm.filerelease.control;
 import java.io.File;
 import java.util.concurrent.Executor;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -45,7 +44,7 @@ public class FileConvertJobManager {
 	@Inject
 	Executor executor;
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
 
 	@Inject

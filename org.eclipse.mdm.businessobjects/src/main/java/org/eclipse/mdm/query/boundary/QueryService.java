@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -57,7 +56,7 @@ public class QueryService {
 	@GlobalProperty(value = "businessobjects.query.maxresultspersource")
 	private String maxResultsPerSource = "1001";
 
-	@EJB
+	@Inject
 	ConnectorService connectorService;
 
 	public List<Row> queryRows(QueryRequest request) {
@@ -112,7 +111,7 @@ public class QueryService {
 	List<Row> queryRowsForSource(ApplicationContext context, String resultEntity, List<String> columns, String filterString,
 			String searchString) throws DataAccessException {
 
-		
+
 		ModelManager modelManager = context.getModelManager()
 				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 

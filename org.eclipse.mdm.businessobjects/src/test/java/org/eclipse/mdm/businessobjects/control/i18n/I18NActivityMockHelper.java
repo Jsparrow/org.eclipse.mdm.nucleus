@@ -12,8 +12,9 @@
 package org.eclipse.mdm.businessobjects.control.i18n;
 
 
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;

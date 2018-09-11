@@ -30,11 +30,82 @@ The ZIP archive contains the backend **org.eclipse.mdm.nucleus-${version}.war** 
 When deploying on command line you can use: **asadmin deploy --name org.eclipse.mdm.nucleus "/path/to/org.eclipse.mdm.nucleus-${version}.war"**
 5. **copy the content** of the extracted **/configuration** folder to **GLASSFISH_ROOT/glassfish/domains/domain1/config**
 6. **edit** the **org.eclipse.mdm.connector/service.xml** file to configure the data sources
-7. **install** and **configure** the **LoginModule** (see org.eclipse.mdm.realms - README.md)
+7. **configure** a **LoginModule** with name **MDMRealm** (See section **Configure LoginModule** for details)
 8. **restart** the application server
 9. **visit** the main page of the client to make sure everything works fine. The main page of the client should be available under
 http://SERVER:PORT/{APPLICATIONROOT}
 _(eg: http://localhost:8080/org.eclipse.mdm.nucleus_)
+
+## configure LoginModule
+MDM 5 backend implements the delegated approach to roles and permissions, wherein the data sources (ASAM ODS server, PAK cloud)
+themselves can implement their own security scheme (which they already have) and then delegates the appropriate
+user data to the backends.
+
+In the case of ASAM ODS servers this is done using a technical user and the `for_user` attribute on the established
+connection, so it is a form of 'login on behalf'.
+
+In the case of PAK Cloud this is done by passing the user name along with a http header `X-Remote-User` which is then
+used by PAK Cloud to establish the users roles (from an internal database or an external authentication provider).
+
+Before the user is 'logged in on behalf' he is authenticated by a LoginModule within the Glassfish application server.
+There are different implementations available (e.g. LDAP, Certificate, JDBC, ...). To keep this guide simple, we will setup
+a FileRealm, which stores the user information in a flat file:
+
+The following command will create a FileRealm with name `MDMRealm` that stores the users in a file called `mdm-keyfile`:
+
+```
+asadmin create-auth-realm --classname com.sun.enterprise.security.auth.realm.file.FileRealm --property file=${com.sun.aas.instanceRoot}/config/mdm-keyfile:jaas-context=MDMRealm:assign-groups=MDM MDMRealm
+```
+
+To be able to login you need to explicitly add users to the `MDMRealm`:
+
+```
+asadmin create-file-user --authrealmname MDMRealm
+```
+
+Next you need to add the following snippet to your `login.conf` in `${com.sun.aas.instanceRoot}/config/`
+
+```
+MDMRealm {
+  com.sun.enterprise.security.auth.login.FileLoginModule required;
+};
+```
+As a last step you have to provide the credentials of the technical user in adapter configuration in `service.xml`. 
+For the ODS adapter you you have to specify the parameters `user` and `password` of the technical user. For example:
+
+```
+<service entityManagerFactoryClass="org.eclipse.mdm.api.odsadapter.ODSContextFactory">
+    ...
+	<param name="user">sa</param>
+	<param name="password">sa</param>
+	...
+</service>
+```
+
+Make sure to restart Glassfish after this change.
+
+### Remove MDMLoginRealm from previous versions:
+In versions 5.0.0M1, 0.10 and older the configuration of a custom login realm was neccessary. If you configured your glassfish instance
+for one of these version, you can remove the old configuration options and artifact, as they are no longer needed:
+
+* **delete** the jar file **org.eclipse.mdm.realm.login.glassfish-VERSION.jar** from **GLASSFISH4_ROOT/glassfish/domains/domain1/lib**
+   
+* **open** the Glassfish login **configuration file** at **GLASSFISH4_ROOT/glassfish/domains/domain1/config/login.conf**
+   
+* **delete** custom MDM realm module entry to this config file
+    
+```   
+MDMLoginRealm {
+  org.eclipse.mdm.realm.login.glassfish.LoginRealmModule required;
+};
+```
+
+* **remove** the MDMLoginRealm by executing the following command or by deleting it in the Glassfish web console:
+ 
+```
+asadmin delete-auth-realm MDMLoginRealm
+```
+
 
 ## configure logging
 

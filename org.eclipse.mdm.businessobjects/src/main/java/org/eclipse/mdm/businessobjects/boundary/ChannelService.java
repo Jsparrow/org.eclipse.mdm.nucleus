@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
@@ -39,7 +40,7 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 @Stateless
 public class ChannelService {
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
 	@EJB
 	private I18NActivity i18nActivity;
