@@ -7,11 +7,13 @@
  */
 package org.eclipse.mdm.freetextindexer.boundary;
 
+import java.security.Principal;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -25,9 +27,6 @@ import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.Entity;
-import org.eclipse.mdm.api.base.model.Measurement;
-import org.eclipse.mdm.api.base.model.Test;
-import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.User;
 import org.eclipse.mdm.api.base.notification.NotificationException;
 import org.eclipse.mdm.api.base.notification.NotificationFilter;
@@ -45,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This boundary is a back-end Boundary to the openMDM Api. It uses the Seach
- * Server to build up {@link MDMDocument}s.
+ * Server to build up MDDocuments.
  * 
  * @author CWE
  *
@@ -60,13 +59,13 @@ public class MdmApiBoundary {
 	private static final String FREETEXT_NOTIFICATION_NAME = "freetext.notificationName";
 
 	public class FreeTextNotificationListener implements NotificationListener {
-		
+
 		private EntityManager entityManager;
-		
+
 		public FreeTextNotificationListener(EntityManager entityManager) {
 			this.entityManager = entityManager;
 		}
-		
+
 		@Override
 		public void instanceCreated(List<? extends Entity> entities, User arg1) {
 			LOGGER.debug("{} entities created: {}", entities.size(), entities);
@@ -106,44 +105,43 @@ public class MdmApiBoundary {
 	@GlobalProperty(value = "freetext.active")
 	private String active = "false";
 
-	private Map<String, ApplicationContext> contextMap = new HashMap<>();
-	
+	ConnectorService connectorService; 
+
+	@Inject
+	@GlobalProperty
+	private Map<String, String> globalProperties = Collections.emptyMap();
+
 	@PostConstruct
 	public void initalize() {
+		Principal principal = new Principal() {
+			
+			@Override
+			public String getName() {
+				return null;
+			}
+		};
 		
-		if (Boolean.parseBoolean(active)) {
-			List<ApplicationContext> contextList = service.connectFreetextSearch("freetext.user", "freetext.password", "freetext.active");
-			if (contextList.isEmpty()) {
-				throw new IllegalArgumentException("Cannot connect the Freetextindexer to a datastore! "
-						+ "Either you did not configure Freetextindexer at atleast one service or the technical user/password is not correct.");
-			}
-
-			for (ApplicationContext context : contextList) {
-				initialize(context);
-			}
-
-		} else {
-			LOGGER.warn("Freetextsearch is not active!");
-		}
+		connectorService = new ConnectorService(principal, globalProperties);
+		connectorService.connect();
+		connectorService.getContexts().forEach(this::initializeContext);
 	}
 
-	private void initialize(ApplicationContext context) {
-		EntityManager entityManager = context.getEntityManager()
-				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+	private void initializeContext(ApplicationContext context) {
 
-		String source = getApiName(entityManager);
-		
+		String source = getName(context);
+
 		try {
+			EntityManager entityManager = context.getEntityManager()
+					.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
+
 			NotificationService manager = context.getNotificationService()
 					.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"));
 
 			String notificationName = context.getParameters().getOrDefault(FREETEXT_NOTIFICATION_NAME, "mdm5");
 			LOGGER.debug("Registering with name '{}' at source '{}'", notificationName, source);
-			manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener(entityManager));
-	
-			LOGGER.info("Successfully registered for new notifications with name '{}' at source '{}!", notificationName, source);
 			
-			contextMap.put(source, context);
+			manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener(entityManager));
+			LOGGER.info("Successfully registered for new notifications with name '{}' at source '{}!", notificationName, source);
 		} catch (ConnectionException | NotificationException e) {
 			throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed for source '" + source + "'!",
 					e);
@@ -152,62 +150,61 @@ public class MdmApiBoundary {
 
 	@PreDestroy
 	public void deregister() {
-		
-		for (ApplicationContext context : contextMap.values()) {
+		for (ApplicationContext context : getContexts().values()) {
 			try {
 				context.getNotificationService()
 					.orElseThrow(() -> new ConnectionException("Context has no NotificationManager!"))
 					.close(false);
-				
+
 			} catch (ConnectionException | NotificationException e) {
 				throw new IllegalStateException(
 						"The NotificationManager could not be deregistered. In rare cases, this leads to a missed notification. This means the index might not be up-to-date.");
 			}
 		}
+		
+		connectorService.disconnect();
 	}
 
-	public void doForAllEntities(ApplicationContext context, Consumer<? super MDMEntityResponse> executor) {
+	public void doForAllEntities(Class<? extends Entity> entityClass, ApplicationContext context, Consumer<? super MDMEntityResponse> executor) {
 		if (isActive()) {
 			try {
 				EntityManager entityManager = context.getEntityManager()
 						.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
-				
-				entityManager.loadAll(Test.class).stream().map(e -> this.buildEntity(e, entityManager)).forEach(executor);
-				entityManager.loadAll(TestStep.class).stream().map(e -> this.buildEntity(e, entityManager)).forEach(executor);
-				entityManager.loadAll(Measurement.class).stream().map(e -> this.buildEntity(e, entityManager)).forEach(executor);
+
+				entityManager.loadAll(entityClass).stream().map(e -> this.buildEntity(e, entityManager)).forEach(executor);
+
 			} catch (DataAccessException e) {
-				throw new IllegalStateException("MDM cannot be querried for new elements. Please check the MDM runtime",
-						e);
+				throw new IllegalStateException("MDM cannot be querried for new elements. Please check the MDM runtime", e);
 			}
 		}
 	}
 
 	public Map<String, ApplicationContext> getContexts() {
-		return Collections.unmodifiableMap(contextMap);
+		return connectorService.getContexts().stream().collect(Collectors.toMap(this::getName, Function.identity()));
 	}
-	
+
 	public String getName(ApplicationContext context) {
 		return context.getEntityManager()
-				.map(em -> getApiName(em))
+				.map(this::getApiName)
 				.orElseThrow(() -> new ServiceNotProvidedException(EntityManager.class));
 	}
 
 	private String getApiName(EntityManager entityManager) {
 		return entityManager.loadEnvironment().getSourceName();
 	}
-	
+
 	private boolean isActive() {
-		return Boolean.parseBoolean(active) && !contextMap.isEmpty();
+		return Boolean.parseBoolean(active) && !getContexts().isEmpty();
 	}
-	
+
 	private MDMEntityResponse buildEntity(Entity e, EntityManager entityManager) {
 		return MDMEntityResponse.build(e.getClass(), e, entityManager);
 	}
-	
+
 	/**
 	 * Simple workaround for naming mismatch between Adapter and Business object
 	 * names.
-	 * 
+	 *
 	 * @param entityType
 	 *            entity type
 	 * @return MDM business object name

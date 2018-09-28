@@ -21,7 +21,6 @@ import java.util.Optional;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -38,6 +37,8 @@ import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.eclipse.mdm.shoppingbasket.entity.MDMItem;
 import org.eclipse.mdm.shoppingbasket.entity.ShoppingBasket;
 import org.eclipse.mdm.shoppingbasket.entity.ShoppingBasketRequest;
+import org.glassfish.hk2.api.Factory;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -52,23 +53,40 @@ public class ShoppingBasketResourceTest extends JerseyTest {
 	private static ApplicationContext context = Mockito.mock(ApplicationContext.class);
 	private static EntityManager em = Mockito.mock(EntityManager.class);
 	private static ConnectorService connectorService = Mockito.mock(ConnectorService.class);
-	private static UriInfo uriInfo = Mockito.mock(UriInfo.class);
 
 	private static TestStep testStep = Mockito.mock(TestStep.class);
 	private static Measurement measurement = Mockito.mock(Measurement.class);
 
+	public static class ConnectorServiceFactory implements Factory<ConnectorService> {
+		@Override
+		public void dispose(ConnectorService connectorService) {
+			// nothing to do here
+		}
+
+		@Override
+		public ConnectorService provide() {
+			return connectorService;
+		}
+	}
+	
 	@Override
 	public Application configure() {
 		ResourceConfig config = new ResourceConfig();
-		config.register(new ShoppingBasketResource(connectorService, uriInfo));
+		
+		config.register(new AbstractBinder() {
+			@Override
+			protected void configure() {
+				bindFactory(ConnectorServiceFactory.class).to(ConnectorService.class);
+			}
+		});
+
+		config.register(ShoppingBasketResource.class);
 		config.register(JacksonFeature.class);
 		return config;
 	}
 
 	@Before
 	public void init() {
-
-		when(uriInfo.getBaseUriBuilder()).thenReturn(UriBuilder.fromUri(this.getBaseUri()));
 
 		when(testStep.getSourceName()).thenReturn("MDMTEST");
 		when(testStep.getTypeName()).thenReturn("TestStep");

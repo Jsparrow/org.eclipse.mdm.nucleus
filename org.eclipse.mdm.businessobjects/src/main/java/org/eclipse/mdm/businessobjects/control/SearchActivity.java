@@ -31,7 +31,6 @@ import org.eclipse.mdm.api.base.query.Filter;
 import org.eclipse.mdm.api.base.query.FilterItem;
 import org.eclipse.mdm.api.base.search.SearchService;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
-import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.businessobjects.entity.SearchAttribute;
 import org.eclipse.mdm.businessobjects.entity.SearchDefinition;
 import org.eclipse.mdm.businessobjects.utils.ServiceUtils;
@@ -65,35 +64,35 @@ public class SearchActivity {
 	/**
 	 * lists the available search attributes for the given result type.
 	 * 
-	 * @param em
-	 *            The entity manager.
 	 * @param resultType
 	 *            The result type.
 	 * @return The available search attributes.
 	 */
 	public <T extends Entity> List<SearchAttribute> listAvailableAttributes(ApplicationContext context, Class<T> resultType) {
 
-		SearchService searchService = context.getSearchService()
-				.orElseThrow(() -> new MDMEntityAccessException("SearchService not found!"));
+			SearchService searchService = context.getSearchService()
+					.orElseThrow(() -> new MDMEntityAccessException("SearchService not found!"));
+		
+		try {
+			List<SearchAttribute> searchAttributes = new ArrayList<>();
+			List<EntityType> entityTypes = searchService.listEntityTypes(resultType);
 
-		List<EntityType> entityTypes = searchService.listEntityTypes(resultType);
-		List<SearchAttribute> searchAttributes = new ArrayList<>();
-
-		for (EntityType entityType : entityTypes) {
-			for (Attribute attr : entityType.getAttributes()) {
-				searchAttributes.add(new SearchAttribute(ServiceUtils.workaroundForTypeMapping(entityType),
-						attr.getName(), attr.getValueType().toString(), "*"));
+			for (EntityType entityType : entityTypes) {
+				for (Attribute attr : entityType.getAttributes()) {
+					searchAttributes.add(new SearchAttribute(ServiceUtils.workaroundForTypeMapping(entityType),
+							attr.getName(), attr.getValueType().toString(), "*"));
+				}
 			}
+			return searchAttributes;
+			
+		} catch (IllegalArgumentException e) {
+			return new ArrayList<>();
 		}
-
-		return searchAttributes;
 	}
 
 	/**
 	 * executes a search using the given filter and returns the search result
 	 *
-	 * @param em
-	 *            {@link EntityManager}
 	 * @param resultType
 	 *            business object type of the search results
 	 * @param filterString
@@ -130,8 +129,6 @@ public class SearchActivity {
 	/**
 	 * executes a free textsearch
 	 *
-	 * @param em
-	 *            {@link EntityManager}
 	 * @param query
 	 *            the query given to the search
 	 * @return the found business objects

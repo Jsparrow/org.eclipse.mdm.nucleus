@@ -14,6 +14,7 @@ package org.eclipse.mdm.businessobjects.control.navigation;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
@@ -36,8 +37,10 @@ import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
+import org.eclipse.mdm.businessobjects.boundary.EnvironmentService;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
-import org.mockito.Mockito;
+
+import com.google.common.collect.ImmutableList;
 
 public final class NavigationActivityMockHelper {
 
@@ -48,7 +51,7 @@ public final class NavigationActivityMockHelper {
 
 	public static ConnectorService createConnectorMock() throws Exception {
 
-		ConnectorService connectorBean = Mockito.mock(ConnectorService.class);
+		ConnectorService connectorBean = mock(ConnectorService.class);
 
 		List<ApplicationContext> contextList = new ArrayList<>();
 		for (int i = 1; i <= ITEM_COUNT; i++) {
@@ -63,7 +66,7 @@ public final class NavigationActivityMockHelper {
 
 		Environment env = createEntityMock(Environment.class, sourceName, sourceName, "1");
 
-		EntityManager em = Mockito.mock(EntityManager.class);
+		EntityManager em = mock(EntityManager.class);
 
 		when(em.loadEnvironment()).thenReturn(env);
 
@@ -84,7 +87,7 @@ public final class NavigationActivityMockHelper {
 
 		ModelManager modelManagerMock = createModelManagerMock();
 
-		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		ApplicationContext context = mock(ApplicationContext.class);
 		when(context.getEntityManager()).thenReturn(Optional.of(em));
 		when(context.getModelManager()).thenReturn(Optional.of(modelManagerMock));
 		return context;
@@ -132,25 +135,25 @@ public final class NavigationActivityMockHelper {
 
 	private static ModelManager createModelManagerMock() throws Exception {
 
-		EntityType envET = Mockito.mock(EntityType.class);
+		EntityType envET = mock(EntityType.class);
 		when(envET.getName()).thenReturn("Environment");
 
-		EntityType testET = Mockito.mock(EntityType.class);
+		EntityType testET = mock(EntityType.class);
 		when(testET.getName()).thenReturn("Test");
 
-		EntityType testStepET = Mockito.mock(EntityType.class);
+		EntityType testStepET = mock(EntityType.class);
 		when(testStepET.getName()).thenReturn("TestStep");
 
-		EntityType measurementET = Mockito.mock(EntityType.class);
+		EntityType measurementET = mock(EntityType.class);
 		when(measurementET.getName()).thenReturn("Measurement");
 
-		EntityType channelGroupET = Mockito.mock(EntityType.class);
+		EntityType channelGroupET = mock(EntityType.class);
 		when(channelGroupET.getName()).thenReturn("ChannelGroup");
 
-		EntityType channelET = Mockito.mock(EntityType.class);
+		EntityType channelET = mock(EntityType.class);
 		when(channelET.getName()).thenReturn("Channel");
 
-		ModelManager modelManager = Mockito.mock(ModelManager.class);
+		ModelManager modelManager = mock(ModelManager.class);
 		when(modelManager.getEntityType(Environment.class)).thenReturn(envET);
 		when(modelManager.getEntityType(Test.class)).thenReturn(testET);
 		when(modelManager.getEntityType(TestStep.class)).thenReturn(testStepET);
@@ -167,7 +170,7 @@ public final class NavigationActivityMockHelper {
 		HashMap<String, Value> map = new HashMap<String, Value>();
 		map.put("Name", ValueType.STRING.create("Name", name));
 
-		Core core = Mockito.mock(Core.class);
+		Core core = mock(Core.class);
 		when(core.getSourceName()).thenReturn(sourceName);
 		when(core.getValues()).thenReturn(map);
 		when(core.getID()).thenReturn(id);
@@ -179,4 +182,13 @@ public final class NavigationActivityMockHelper {
 		return instance;
 	}
 
+	public static EnvironmentService createEnvironmentMock() {
+		EnvironmentService environmentService = mock(EnvironmentService.class);
+		Environment env = mock(Environment.class);
+
+		when(env.getSourceName()).thenReturn("MDMENV_1");
+		when(environmentService.getEnvironments()).thenReturn(ImmutableList.of(env));
+
+		return environmentService;
+	}
 }

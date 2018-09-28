@@ -11,10 +11,11 @@
 
 package org.eclipse.mdm.businessobjects.control.navigation;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 import org.eclipse.mdm.api.base.model.Channel;
@@ -23,28 +24,30 @@ import org.eclipse.mdm.api.base.model.Environment;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.businessobjects.control.NavigationActivity;
+import org.junit.Before;
 import org.junit.Test;
 
 public class NavigatorActivityTest {
 
+	private NavigationActivity navigationActivity;
+	private String sourceName = "MDMENV_1";
+
+	@Before
+	public void setup() throws Exception {
+		navigationActivity = new NavigationActivity(NavigationActivityMockHelper.createConnectorMock());
+	}
+
 	@Test
 	public void testGetEnvironments() throws Exception {
 
-		NavigationActivity navigationActivity = createdMockedActivity();
 		List<Environment> envList = navigationActivity.getEnvironments();
 
 		assertNotNull("environment list should be not null", envList);
-		assertEquals("environment list size should be " + NavigationActivityMockHelper.ITEM_COUNT,
-				NavigationActivityMockHelper.ITEM_COUNT, envList.size());
-
+		assertThat(envList.size(), is(5));
 	}
 
 	@Test
 	public void testGetTests() throws Exception {
-
-		NavigationActivity navigationActivity = createdMockedActivity();
-		List<Environment> envList = navigationActivity.getEnvironments();
-		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 
 		assertNotNull("test list should be not null", testList);
@@ -54,10 +57,6 @@ public class NavigatorActivityTest {
 
 	@Test
 	public void testGetTestSteps() throws Exception {
-
-		NavigationActivity navigationActivity = createdMockedActivity();
-		List<Environment> envList = navigationActivity.getEnvironments();
-		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
 		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
@@ -69,10 +68,6 @@ public class NavigatorActivityTest {
 
 	@Test
 	public void testGetMeasurements() throws Exception {
-
-		NavigationActivity navigationActivity = createdMockedActivity();
-		List<Environment> envList = navigationActivity.getEnvironments();
-		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
 		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
@@ -87,10 +82,6 @@ public class NavigatorActivityTest {
 
 	@Test
 	public void testGetChannelGroups() throws Exception {
-
-		NavigationActivity navigationActivity = createdMockedActivity();
-		List<Environment> envList = navigationActivity.getEnvironments();
-		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
 		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
@@ -106,10 +97,6 @@ public class NavigatorActivityTest {
 
 	@Test
 	public void testGetChannels() throws Exception {
-
-		NavigationActivity navigationActivity = createdMockedActivity();
-		List<Environment> envList = navigationActivity.getEnvironments();
-		String sourceName = envList.get(0).getSourceName();
 		List<org.eclipse.mdm.api.base.model.Test> testList = navigationActivity.getTests(sourceName);
 		org.eclipse.mdm.api.base.model.Test test = testList.get(0);
 		List<TestStep> testStepList = navigationActivity.getTestSteps(sourceName, test.getID());
@@ -124,16 +111,6 @@ public class NavigatorActivityTest {
 		assertEquals("channel list size should be " + NavigationActivityMockHelper.ITEM_COUNT,
 				NavigationActivityMockHelper.ITEM_COUNT, channelList.size());
 
-	}
-
-	public NavigationActivity createdMockedActivity() throws Exception {
-
-		NavigationActivity navigationActivity = new NavigationActivity();
-		Field field = navigationActivity.getClass().getDeclaredField("connectorService");
-		field.setAccessible(true);
-		field.set(navigationActivity, NavigationActivityMockHelper.createConnectorMock());
-		field.setAccessible(false);
-		return navigationActivity;
 	}
 
 }

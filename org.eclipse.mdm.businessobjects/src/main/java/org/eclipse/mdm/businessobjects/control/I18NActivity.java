@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.adapter.Attribute;
@@ -46,7 +46,7 @@ public class I18NActivity {
 	private String RESOURCE_FILE = "org/eclipse/mdm/businessobjects/control/i18n/locale/localization";
 	private ResourceBundle LOCALIZATION_RESOURCES = ResourceBundle.getBundle(RESOURCE_FILE);
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
 
 	/**
