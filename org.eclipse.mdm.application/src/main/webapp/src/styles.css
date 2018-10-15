@@ -61,28 +61,28 @@ body .mdmtree .ui-treenode .ui-treenode-content .ui-tree-toggler {
   margin: 0;
 }
 .environment {
-  background-image: url("assets/img/environment.png");
+  background-image: url("assets/famfamfam_icons/database.png");
 }
 .project {
-  background-image: url("assets/img/project.png");
+  background-image: url("assets/famfamfam_icons/house.png");
 }
 .pool {
-  background-image: url("assets/img/structurelevel.png");
+  background-image: url("assets/famfamfam_icons/paste_plain.png");
 }
 .test {
-  background-image: url("assets/img/test.png");
+  background-image: url("assets/famfamfam_icons/brick_add.png");
 }
 .teststep {
-  background-image: url("assets/img/teststep.png");
+  background-image: url("assets/famfamfam_icons/brick.png");
 }
 .measurement {
-  background-image: url("assets/img/mearesult.png");
+  background-image: url("assets/famfamfam_icons/chart_curve.png");
 }
 .channelgroup {
-  background-image: url("assets/img/submatrix.png");
+  background-image: url("assets/famfamfam_icons/calendar.png");
 }
 .channel {
-  background-image: url("assets/img/meaquantity.png");
+  background-image: url("assets/famfamfam_icons/chart_curve_go.png");
 }
 
 .ui-datatable .ui-datatable-data > tr > td {
