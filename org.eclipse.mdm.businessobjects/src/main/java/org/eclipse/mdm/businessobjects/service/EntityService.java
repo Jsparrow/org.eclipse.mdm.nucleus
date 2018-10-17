@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.mdm.api.base.adapter.Attribute;
@@ -82,7 +83,7 @@ import io.vavr.control.Try;
 @Stateless
 public class EntityService {
 
-	@EJB
+	@Inject
 	private ConnectorService connectorService;
 
 	@EJB
