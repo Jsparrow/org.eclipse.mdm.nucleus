@@ -107,6 +107,8 @@ task distribute(type: Zip) {
 	from "${project.projectDir}/build/tmp/mdmweb"
 	from "${project.projectDir}/build/libs/"
 }
+distribute.dependsOn(collectConfiguration)
+distribute.dependsOn(copySchema)
 
 war {
 	from ('org.eclipse.mdm.application/build/node/dist') {
@@ -121,8 +123,6 @@ war {
 	metaInf { from 'LICENSE.txt' }
 }
 
-war.finalizedBy(collectConfiguration)
-war.finalizedBy(copySchema)
 war.finalizedBy(distribute)
 
 jacoco {
