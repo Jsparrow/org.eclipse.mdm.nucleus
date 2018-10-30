@@ -1,11 +1,3 @@
-<!--
-Copyright (c) 2016 Gigatronik Ingolstadt GmbH
-All rights reserved. This program and the accompanying materials
-are made available under the terms of the Eclipse Public License v1.0
-which accompanies this distribution, and is available at
-http://www.eclipse.org/legal/epl-v10.html
--->
-
 ## minimum requirements
 * JDK 1.8.0_45
 * Gradle 2.13
@@ -615,3 +607,15 @@ It should be located right after the add to basket button:
   <mdm-filerelease-create [node]=selectedNode [disabled]="isReleasable()"></mdm-filerelease-create>
 </div>
 ***
+
+## Copyright and License ##
+Copyright (c) 2015-2018 Contributors to the Eclipse Foundation
+
+ See the NOTICE file(s) distributed with this work for additional
+ information regarding copyright ownership.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v. 2.0 which is available at
+ http://www.eclipse.org/legal/epl-2.0.
+
+ SPDX-License-Identifier: EPL-2.0

@@ -1,16 +1,17 @@
-/*******************************************************************************
-*  Original work: Copyright (c) 2016 Gigatronik Ingolstadt GmbH                *
-*  Modified work: Copyright (c) 2017 Peak Solution GmbH                        *
-*                                                                              *
-*  All rights reserved. This program and the accompanying materials            *
-*  are made available under the terms of the Eclipse Public License v1.0       *
-*  which accompanies this distribution, and is available at                    *
-*  http://www.eclipse.org/legal/epl-v10.html                                   *
-*                                                                              *
-*  Contributors:                                                               *
-*  Dennis Schroeder - initial implementation                                   *
-*  Matthias Koller, Johannes Stamm - additional client functionality           *
-*******************************************************************************/
+/********************************************************************************
+ * Copyright (c) 2015-2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
+
 
 // This file includes polyfills needed by Angular and is loaded before the app.
 // You can add your own extra polyfills to this file.
