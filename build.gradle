@@ -13,7 +13,7 @@
  ********************************************************************************/
  
 group = 'org.eclipse.mdm'
-version = '5.0.0'
+version = '5.1.0M1-SNAPSHOT'
 
 description = 'mdm nucleus'
 apply plugin: 'war'
