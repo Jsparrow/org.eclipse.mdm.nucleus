@@ -87,7 +87,7 @@ task collectConfiguration() {
 		subprojects.each { subproject ->
 			copy {
 				from "${project.projectDir}/${subproject.name}/src/main/configuration/"
-				into "${project.projectDir}/build/tmp/mdmweb/configuration/${subproject.name}"
+				into "${project.projectDir}/build/tmp/openmdm_application/configuration/${subproject.name}"
 			}
 		}
 	}
@@ -97,14 +97,23 @@ task copySchema(dependsOn: ':org.eclipse.mdm.preferences:generateSchema') {
 	doLast {
 		copy {
 			from "${project.projectDir}/org.eclipse.mdm.preferences/build/generated-schema/"
-			into "${project.projectDir}/build/tmp/mdmweb/schema/org.eclipse.mdm.preferences"
+			into "${project.projectDir}/build/tmp/openmdm_application/schema/org.eclipse.mdm.preferences"
 		}
 	}
 }
 
 task distribute(type: Zip) {
-	archiveName = "mdm_web-${version}.zip"
-	from "${project.projectDir}/build/tmp/mdmweb"
+	archiveName = "openMDM_application-${version}.zip"
+	
+	from "${project.projectDir}/LICENSE.txt"
+	from "${project.projectDir}/NOTICE.txt"
+	from "${project.projectDir}/readme.md"
+	from "${project.projectDir}/release_notes.md"
+	
+	from "${project.projectDir}/doc/GettingStarted_mdmbl.pdf"
+	from "${project.projectDir}/doc/Installation Guide for the openMDM5 Application.pdf"
+	
+	from "${project.projectDir}/build/tmp/openmdm_application"
 	from "${project.projectDir}/build/libs/"
 }
 distribute.dependsOn(collectConfiguration)
