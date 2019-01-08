@@ -191,13 +191,13 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 
 **Business Object: ValueListValue**
 
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues
-* POST:   /valuelists/{VALUELISTID}/valuelistvalues (JSON: { "Name" : "testValueListValue" })
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID}
-* PUT:    /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID} (JSON: { "MimeType" : "myMimeType" })
-* DELETE: /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID}
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues/searchattributes
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues/localizations
+* GET:    /valuelists/{VALUELISTID}/values
+* POST:   /valuelists/{VALUELISTID}/values (JSON: { "Name" : "testValueListValue" })
+* GET:    /valuelists/{VALUELISTID}/values/{VALUELISTVALUEID}
+* PUT:    /valuelists/{VALUELISTID}/values/{VALUELISTVALUEID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /valuelists/{VALUELISTID}/values/{VALUELISTVALUEID}
+* GET:    /valuelists/{VALUELISTID}/values/searchattributes
+* GET:    /valuelists/{VALUELISTID}/values/localizations
 
 **Business Object: PhysicalDimension**
 
