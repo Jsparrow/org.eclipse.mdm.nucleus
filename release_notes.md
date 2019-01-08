@@ -4,7 +4,7 @@
 * [mdmbl Eclipse Git Repositories](http://git.eclipse.org/c/?q=mdmbl)
 * [mdmbl nightly builds - last stable version](http://download.eclipse.org/mdmbl/nightly_master/?d)
 
-## Milestone 5.1.0M1, 2018/12/07 ##
+## Milestone 5.1.0M1, 2019/01/11 ##
 
 ### Changes ###
 
@@ -19,7 +19,10 @@
  * [539983](https://bugs.eclipse.org/bugs/show_bug.cgi?id=539983) -	Corba File Server does not work on windows because of a path format problem
  * [539984](https://bugs.eclipse.org/bugs/show_bug.cgi?id=539984) -	Corba File Server always uses the first network interface
  * [541606](https://bugs.eclipse.org/bugs/show_bug.cgi?id=541606) - InstallationGuide improvements
-
+ * [542519](https://bugs.eclipse.org/bugs/show_bug.cgi?id=542519) - 	Nullpointer exception in InsertStatement
+ * [542658](https://bugs.eclipse.org/bugs/show_bug.cgi?id=542658)	-	Nucleus markdown file - error in json "specifications"
+ * [542656](https://bugs.eclipse.org/bugs/show_bug.cgi?id=542656)	-	Nucleus markdown file - wrong documentation of valuelist values interface
+ * [542094](https://bugs.eclipse.org/bugs/show_bug.cgi?id=542094) - NotificationManager throws IllegalArgumentException: Incompatible value type 
 
 ## Release 5.0.0, 2018/11/07 ##
 
