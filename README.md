@@ -182,7 +182,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: ValueList**
 
 * GET:    /valuelists
-* POST:   /valuelists (JSON: { "name" : "testValueList" })
+* POST:   /valuelists (JSON: { "Name" : "testValueList" })
 * GET:    /valuelists/{VALUELISTID}
 * PUT:    /valuelists/{VALUELISTID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /valuelists/{VALUELISTID}
@@ -191,18 +191,18 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 
 **Business Object: ValueListValue**
 
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues
-* POST:   /valuelists/{VALUELISTID}/valuelistvalues (JSON: { "name" : "testValueListValue" })
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID}
-* PUT:    /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID} (JSON: { "MimeType" : "myMimeType" })
-* DELETE: /valuelists/{VALUELISTID}/valuelistvalues/{VALUELISTVALUEID}
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues/searchattributes
-* GET:    /valuelists/{VALUELISTID}/valuelistvalues/localizations
+* GET:    /valuelists/{VALUELISTID}/values
+* POST:   /valuelists/{VALUELISTID}/values (JSON: { "Name" : "testValueListValue" })
+* GET:    /valuelists/{VALUELISTID}/values/{VALUELISTVALUEID}
+* PUT:    /valuelists/{VALUELISTID}/values/{VALUELISTVALUEID} (JSON: { "MimeType" : "myMimeType" })
+* DELETE: /valuelists/{VALUELISTID}/values/{VALUELISTVALUEID}
+* GET:    /valuelists/{VALUELISTID}/values/searchattributes
+* GET:    /valuelists/{VALUELISTID}/values/localizations
 
 **Business Object: PhysicalDimension**
 
 * GET:    /physicaldimensions
-* POST:   /physicaldimensions (JSON: { "name" : "testPhysicalDimension" })
+* POST:   /physicaldimensions (JSON: { "Name" : "testPhysicalDimension" })
 * GET:    /physicaldimensions/{PHYSICALDIMENSIONID}
 * PUT:    /physicaldimensions/{PHYSICALDIMENSIONID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /physicaldimensions/{PHYSICALDIMENSIONID}
@@ -212,7 +212,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: Unit**
 
 * GET:    /units
-* POST:   /units (JSON: { "name" : "testUnit", "physicaldimension" : "PHYSICALDIMENSIONID" })
+* POST:   /units (JSON: { "Name" : "testUnit", "PhysicalDimension" : "PHYSICALDIMENSIONID" })
 * GET:    /units/{UNITID}
 * PUT:    /units/{UNITID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /units/{UNITID}
@@ -222,7 +222,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: Quantity**
 
 * GET:    /quantities
-* POST:   /quantities (JSON: { "name" : "testQuantity", "unit" : "UNITID" })
+* POST:   /quantities (JSON: { "Name" : "testQuantity", "Unit" : "UNITID" })
 * GET:    /quantities/{QUANTITYID}
 * PUT:    /quantities/{QUANTITYID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /quantities/{QUANTITYID}
@@ -232,7 +232,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: CatalogComponent**
 
 * GET:    /catcomps/{CONTEXTTYPE}
-* POST:   /catcomps/{CONTEXTTYPE} (JSON: { "name" : "testCatalogComponent" })
+* POST:   /catcomps/{CONTEXTTYPE} (JSON: { "Name" : "testCatalogComponent" })
 * GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}
 * PUT:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}
@@ -242,7 +242,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: CatalogAttribute**
 
 * GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs
-* POST:   /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs (JSON: { "name" : "testCatalogAttribute", "datatype" : "DATATYPE" })
+* POST:   /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs (JSON: { "Name" : "testCatalogAttribute", "DataType" : "DATATYPE" })
 * GET:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/{CATALOGATTRIBUTEID}
 * PUT:    /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/{CATALOGATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /catcomps/{CONTEXTTYPE}/{CATALOGCOMPONENTID}/catattrs/{CATALOGATTRIBUTEID}
@@ -252,7 +252,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: CatalogSensor**
 
 * GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors
-* POST:   /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors (JSON: { "name" : "testCatalogSensor" })
+* POST:   /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors (JSON: { "Name" : "testCatalogSensor" })
 * GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}
 * PUT:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}
@@ -262,7 +262,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: CatalogSensorAttribute**
 
 * GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs
-* POST:   /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs (JSON: { "name" : "testCatalogAttribute", "datatype" : "DATATYPE" })
+* POST:   /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs (JSON: { "Name" : "testCatalogAttribute", "DataType" : "DATATYPE" })
 * GET:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/{CATALOGATTRIBUTEID}
 * PUT:    /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/{CATALOGATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /catcomps/testequipment/{CATALOGCOMPONENTID}/catsensors/{CATALOGSENSORID}/catsensorattrs/{CATALOGATTRIBUTEID}
@@ -272,7 +272,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: TemplateRoot**
 
 * GET:    /tplroots/{CONTEXTTYPE}
-* POST:   /tplroots/{CONTEXTTYPE} (JSON: { "name" : "testTemplateRoot" })
+* POST:   /tplroots/{CONTEXTTYPE} (JSON: { "Name" : "testTemplateRoot" })
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}
 * PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}
@@ -282,7 +282,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: TemplateComponent**
 
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps
-* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps (JSON: { "name" : "testTemplateComponent", "catalogcomponent" : "CATALOGCOMPONENTID" })
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps (JSON: { "Name" : "testTemplateComponent", "CatalogComponent" : "CATALOGCOMPONENTID" })
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}
 * PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}
@@ -292,7 +292,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: TemplateAttribute**
 
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs
-* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs (JSON: { "name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs (JSON: { "Name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/{TEMPLATEATTRIBUTEID}
 * PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/{TEMPLATEATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplattrs/{TEMPLATEATTRIBUTEID}
@@ -302,7 +302,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: TemplateSensor**
 
 * GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors
-* POST:   /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors (JSON: { "name" : "testTemplateSensor", "catalogsensor" : "CATALOGSENSORID", "quantity" : "QUANTITYID" })
+* POST:   /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors (JSON: { "Name" : "testTemplateSensor", "CatalogSensor" : "CATALOGSENSORID", "quantity" : "QUANTITYID" })
 * GET:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}
 * PUT:    /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tplroots/testequipment/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplsensors/{TEMPLATESENSORID}
@@ -320,7 +320,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: NestedTemplateComponent**
 
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps
-* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps (JSON: { "name" : "testNestedTemplateComponent", "catalogcomponent" : "CATALOGCOMPONENTID" })
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps (JSON: { "Name" : "testNestedTemplateComponent", "CatalogComponent" : "CATALOGCOMPONENTID" })
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}
 * PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}
@@ -332,7 +332,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 * CONTEXTTYPE is one of [unitundertest, testsequence, testequipment]
 
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs
-* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs (JSON: { "name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
+* POST:   /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs (JSON: { "Name" : "testCatalogAttribute" } (name must be identical with corresponding CatalogAttribute))
 * GET:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/{NESTEDTEMPLATEATTRIBUTEID}
 * PUT:    /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/{NESTEDTEMPLATEATTRIBUTEID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tplroots/{CONTEXTTYPE}/{TEMPLATEROOTID}/tplcomps/{TEMPLATECOMPONENTID}/tplcomps/{NESTEDTEMPLATECOMPONENTID}/tplattrs/{NESTEDTEMPLATEATTRIBUTEID}
@@ -342,7 +342,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: TemplateTest**
 
 * GET:    /tpltests
-* POST:   /tpltests (JSON: { "name" : "testTemplateTest" })
+* POST:   /tpltests (JSON: { "Name" : "testTemplateTest" })
 * GET:    /tpltests/{TEMPLATETESTID}
 * PUT:    /tpltests/{TEMPLATETESTID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tpltests/{TEMPLATETESTID}
@@ -352,7 +352,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: TemplateTestStep**
 
 * GET:    /tplteststeps
-* POST:   /tplteststeps (JSON: { "name" : "testTemplateTestStep" })
+* POST:   /tplteststeps (JSON: { "Name" : "testTemplateTestStep" })
 * GET:    /tplteststeps/{TEMPLATETESTSTEPID}
 * PUT:    /tplteststeps/{TEMPLATETESTSTEPID} (JSON: { "MimeType" : "myMimeType" })
 * DELETE: /tplteststeps/{TEMPLATETESTSTEPID}
@@ -362,7 +362,7 @@ Strings enclosed in curly brackets are meant to be replaced by appropriate value
 **Business Object: TemplateTestStepUsage**
 
 * GET:    /tpltests/{TEMPLATETESTID}/tplteststepusages
-* POST:   /tpltests/{TEMPLATETESTID}/tplteststepusages (JSON: { "name" : "testTemplateTestStepUsage", "tplteststep" : "TEMPLATETESTSTEPID" })
+* POST:   /tpltests/{TEMPLATETESTID}/tplteststepusages (JSON: { "Name" : "testTemplateTestStepUsage", "TemplateTestStep" : "TEMPLATETESTSTEPID" })
 * GET:    /tpltests/{TEMPLATETESTID}/tplteststepusages/{TEMPLATETESTSTEPUSAGEID}
 * DELETE: /tpltests/{TEMPLATETESTID}/tplteststepusages/{TEMPLATETESTSTEPUSAGEID}
 * GET:    /tpltests/{TEMPLATETESTID}/tplteststepusages/searchattributes
