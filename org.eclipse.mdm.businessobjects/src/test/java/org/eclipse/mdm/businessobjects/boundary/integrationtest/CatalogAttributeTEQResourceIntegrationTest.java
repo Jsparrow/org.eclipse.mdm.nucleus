@@ -47,8 +47,7 @@ public class CatalogAttributeTEQResourceIntegrationTest extends EntityResourceIn
 		// set up test data
 		setContextClass(CatalogAttributeTEQResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/testequipment/"
-				+ getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/catattrs");
+		putTestDataValue(TESTDATA_RESOURCE_URI, new StringBuilder().append("/catcomps/testequipment/").append(getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/catattrs").toString());
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatAttrTEQ");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogAttribute");
 

@@ -23,7 +23,6 @@ import java.util.GregorianCalendar;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
-import org.eclipse.mdm.filerelease.control.converter.FileConverterException;
 import org.eclipse.mdm.filerelease.control.converter.IFileConverter;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.slf4j.Logger;
@@ -83,10 +82,6 @@ public class FileConvertJob implements Runnable {
 			this.fileRelease.expire = calculateExpireDate(this.fileRelease.validity);
 			this.fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_RELEASED;
 
-		} catch (FileConverterException e) {
-			this.fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_PROGRESSING_ERROR;
-			this.fileRelease.errorMessage = e.getMessage();
-			LOG.error(e.getMessage(), e);
 		} catch (Exception e) {
 			this.fileRelease.state = FileReleaseManager.FILE_RELEASE_STATE_PROGRESSING_ERROR;
 			this.fileRelease.errorMessage = e.getMessage();

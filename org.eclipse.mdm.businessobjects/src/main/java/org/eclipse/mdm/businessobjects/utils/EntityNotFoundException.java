@@ -37,7 +37,7 @@ public class EntityNotFoundException extends RuntimeException {
 	 *            the cause of the exception
 	 */
 	public EntityNotFoundException(Class<? extends Entity> entityClass, String id, Throwable x) {
-		super(entityClass.getSimpleName() + " with ID " + id + " not found.", x);
+		super(new StringBuilder().append(entityClass.getSimpleName()).append(" with ID ").append(id).append(" not found.").toString(), x);
 	}
 
 	/**
@@ -49,6 +49,6 @@ public class EntityNotFoundException extends RuntimeException {
 	 *            id of entity that could not be found
 	 */
 	public EntityNotFoundException(Class<? extends Entity> entityClass, String id) {
-		super(entityClass.getSimpleName() + " with ID " + id + " not found.");
+		super(new StringBuilder().append(entityClass.getSimpleName()).append(" with ID ").append(id).append(" not found.").toString());
 	}
 }

@@ -26,6 +26,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.preferences.entity.Preference;
 import org.eclipse.mdm.preferences.entity.PreferenceMessage;
 import org.eclipse.mdm.preferences.entity.PreferenceMessage.Scope;
@@ -70,18 +71,18 @@ public class PreferenceService {
 	public List<PreferenceMessage> getPreferences(String scope, String key) {
 
 		TypedQuery<Preference> query;
-		if (scope == null || scope.trim().isEmpty()) {
+		if (scope == null || StringUtils.isEmpty(scope.trim())) {
 			query = em
 					.createQuery(
 							"select p from Preference p where (p.user is null or p.user = :user) and LOWER(p.key) like :key",
 							Preference.class)
 					.setParameter("user", sessionContext.getCallerPrincipal().getName())
-					.setParameter("key", key.toLowerCase() + "%");
+					.setParameter("key", StringUtils.lowerCase(key) + "%");
 		} else {
 			query = em.createQuery(buildQuery(scope, key), Preference.class);
 
-			if (key != null && !key.trim().isEmpty()) {
-				query.setParameter("key", key.toLowerCase() + "%");
+			if (key != null && !StringUtils.isEmpty(key.trim())) {
+				query.setParameter("key", StringUtils.lowerCase(key) + "%");
 			}
 		}
 
@@ -91,7 +92,7 @@ public class PreferenceService {
 	public List<PreferenceMessage> getPreferencesBySource(String source, String key) {
 		TypedQuery<Preference> query;
 
-		if (key == null || key.trim().isEmpty()) {
+		if (key == null || StringUtils.isEmpty(key.trim())) {
 			query = em.createQuery("select p from Preference p where p.source = :source", Preference.class)
 					.setParameter("source", Strings.emptyToNull(source));
 
@@ -178,23 +179,23 @@ public class PreferenceService {
 	private String buildQuery(String scope, String key) {
 		String query = "select p from Preference p";
 		String whereOrAnd = " where";
-		if (scope != null && scope.trim().length() > 0) {
-			switch (scope.toLowerCase()) {
+		if (scope != null && StringUtils.trim(scope).length() > 0) {
+			switch (StringUtils.lowerCase(scope)) {
 			case "system":
-				query = query.concat(whereOrAnd).concat(" p.source is null and p.user is null");
+				query = new StringBuilder().append(query).append(whereOrAnd).append(" p.source is null and p.user is null").toString();
 				break;
 			case "source":
-				query = query.concat(whereOrAnd).concat(" p.source is not null and p.user is null");
+				query = new StringBuilder().append(query).append(whereOrAnd).append(" p.source is not null and p.user is null").toString();
 				break;
 			case "user":
-				query = query.concat(whereOrAnd).concat(" p.source is null and p.user is not null");
+				query = new StringBuilder().append(query).append(whereOrAnd).append(" p.source is null and p.user is not null").toString();
 				break;
 			default:
 			}
 			whereOrAnd = " and";
 		}
-		if (key != null && key.trim().length() > 0) {
-			query = query.concat(whereOrAnd).concat(" LOWER(p.key) LIKE :key");
+		if (key != null && StringUtils.trim(key).length() > 0) {
+			query = new StringBuilder().append(query).append(whereOrAnd).append(" LOWER(p.key) LIKE :key").toString();
 		}
 		return query;
 	}

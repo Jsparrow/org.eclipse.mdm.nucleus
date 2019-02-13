@@ -28,8 +28,8 @@ import org.eclipse.mdm.api.base.model.ContextSensor;
  */
 public class ContextSensorCollection {
 
-	public List<MDMEntity> sensorContextMeasured = new ArrayList<MDMEntity>();
-	public List<MDMEntity> sensorContextOrdered = new ArrayList<MDMEntity>();
+	public List<MDMEntity> sensorContextMeasured = new ArrayList<>();
+	public List<MDMEntity> sensorContextOrdered = new ArrayList<>();
 
 	/**
 	 * set the measured context sensor data list
@@ -39,10 +39,7 @@ public class ContextSensorCollection {
 	 */
 	public void setMeasuredSensorContext(List<ContextSensor> sensorList) {
 
-		for (ContextSensor contextSensor : sensorList) {
-			MDMEntity entity = new MDMEntity(contextSensor);
-			this.sensorContextMeasured.add(entity);
-		}
+		sensorList.stream().map(MDMEntity::new).forEach(entity -> this.sensorContextMeasured.add(entity));
 	}
 
 	/**
@@ -53,10 +50,7 @@ public class ContextSensorCollection {
 	 */
 	public void setOrderedSensorContext(List<ContextSensor> sensorList) {
 
-		for (ContextSensor contextSensor : sensorList) {
-			MDMEntity entity = new MDMEntity(contextSensor);
-			this.sensorContextOrdered.add(entity);
-		}
+		sensorList.stream().map(MDMEntity::new).forEach(entity -> this.sensorContextOrdered.add(entity));
 	}
 
 }

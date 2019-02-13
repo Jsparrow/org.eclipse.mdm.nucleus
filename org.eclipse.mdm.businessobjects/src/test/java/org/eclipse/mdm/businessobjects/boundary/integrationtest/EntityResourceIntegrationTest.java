@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.NoSuchElementException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -114,7 +115,7 @@ public abstract class EntityResourceIntegrationTest {
 		RestAssured.baseURI = baseURI.toString();
 		RestAssured.basePath = ENV_PATH;
 
-		LOGGER.debug("RestAssured set up to " + RestAssured.baseURI + "/" + RestAssured.basePath);
+		LOGGER.debug(new StringBuilder().append("RestAssured set up to ").append(RestAssured.baseURI).append("/").append(RestAssured.basePath).toString());
 
 		// setup authentication
 		PreemptiveBasicAuthScheme authScheme = new PreemptiveBasicAuthScheme();
@@ -123,7 +124,7 @@ public abstract class EntityResourceIntegrationTest {
 
 		RestAssured.authentication = authScheme;
 
-		LOGGER.debug("RestAssured authentication set to credentials [" + AUTH_USERNAME + "]/[" + AUTH_PASSWORD + "]");
+		LOGGER.debug(new StringBuilder().append("RestAssured authentication set to credentials [").append(AUTH_USERNAME).append("]/[").append(AUTH_PASSWORD).append("]").toString());
 	}
 
 	@Test
@@ -144,14 +145,12 @@ public abstract class EntityResourceIntegrationTest {
 		// do not create entity if it was already created in a currently running
 		// prepareTestData() cascade
 		if (isTestDataValuePresent(TESTDATA_ENTITY_ID)) {
-			LOGGER.debug(getContextClass().getSimpleName() + ".create() aborted as entity "
-					+ getTestDataValue(TESTDATA_ENTITY_NAME) + " of type " + getTestDataValue(TESTDATA_ENTITY_TYPE)
-					+ " was already created");
+			LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(".create() aborted as entity ").append(getTestDataValue(TESTDATA_ENTITY_NAME)).append(" of type ").append(getTestDataValue(TESTDATA_ENTITY_TYPE)).append(" was already created")
+					.toString());
 			return;
 		}
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".create() sending POST to "
-				+ getTestDataValue(TESTDATA_RESOURCE_URI) + " with: " + getTestDataValue(TESTDATA_CREATE_JSON_BODY));
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(".create() sending POST to ").append(getTestDataValue(TESTDATA_RESOURCE_URI)).append(" with: ").append(getTestDataValue(TESTDATA_CREATE_JSON_BODY)).toString());
 
 		ExtractableResponse<io.restassured.response.Response> response = given().contentType(ContentType.JSON)
 				.body(getTestDataValue(TESTDATA_CREATE_JSON_BODY))
@@ -165,7 +164,7 @@ public abstract class EntityResourceIntegrationTest {
 				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
 				.extract();
 
-		LOGGER.debug(getContextClass().getSimpleName() + " created " + response.asString());
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(" created ").append(response.asString()).toString());
 
 		putTestDataValue(TESTDATA_ENTITY_ID, response.path("data.first().id"));
 		putTestDataValue(TESTDATA_ENTITY_NAME, response.path("data.first().name"));
@@ -178,12 +177,11 @@ public abstract class EntityResourceIntegrationTest {
 				.get()
 				.contains(TestType.FIND));
 
-		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/"
-				+ (EntityResourceIntegrationTest.findByName.getOrElse(getContextClass(), false)
-						? getTestDataValue(TESTDATA_ENTITY_NAME)
-						: getTestDataValue(TESTDATA_ENTITY_ID));
+		String uri = new StringBuilder().append(getTestDataValue(TESTDATA_RESOURCE_URI)).append("/").append(EntityResourceIntegrationTest.findByName.getOrElse(getContextClass(), false)
+				? getTestDataValue(TESTDATA_ENTITY_NAME)
+				: getTestDataValue(TESTDATA_ENTITY_ID)).toString();
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to " + uri);
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(".find() sending GET to ").append(uri).toString());
 
 		ExtractableResponse<Response> response = given().get(uri)
 				.then()
@@ -194,7 +192,7 @@ public abstract class EntityResourceIntegrationTest {
 				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
 				.extract();
 
-		LOGGER.debug(getContextClass().getSimpleName() + " found " + response.asString());
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(" found ").append(response.asString()).toString());
 	}
 
 	/**
@@ -202,8 +200,7 @@ public abstract class EntityResourceIntegrationTest {
 	 * the found ID in the context for further usage
 	 */
 	public static void findFirst() {
-		LOGGER.debug(getContextClass().getSimpleName() + ".find() sending GET to "
-				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(".find() sending GET to ").append(getTestDataValue(TESTDATA_RESOURCE_URI)).toString());
 
 		String id = given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
 				.then()
@@ -215,8 +212,7 @@ public abstract class EntityResourceIntegrationTest {
 				.extract()
 				.path("data.first().id");
 
-		LOGGER.debug(getContextClass().getSimpleName() + " found " + getTestDataValue(TESTDATA_ENTITY_TYPE)
-				+ " with ID " + id);
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(" found ").append(getTestDataValue(TESTDATA_ENTITY_TYPE)).append(" with ID ").append(id).toString());
 
 		putTestDataValue(TESTDATA_ENTITY_ID, id);
 	}
@@ -228,8 +224,7 @@ public abstract class EntityResourceIntegrationTest {
 				.get()
 				.contains(TestType.FINDALL));
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".findAll() sending GET to "
-				+ getTestDataValue(TESTDATA_RESOURCE_URI));
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(".findAll() sending GET to ").append(getTestDataValue(TESTDATA_RESOURCE_URI)).toString());
 
 		ExtractableResponse<Response> response = given().get(getTestDataValue(TESTDATA_RESOURCE_URI))
 				.then()
@@ -239,7 +234,7 @@ public abstract class EntityResourceIntegrationTest {
 				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
 				.extract();
 
-		LOGGER.debug(getContextClass().getSimpleName() + " found all " + response.asString());
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(" found all ").append(response.asString()).toString());
 	}
 
 	// TODO anehmer on 2017-11-09: test findAll with filter
@@ -267,10 +262,9 @@ public abstract class EntityResourceIntegrationTest {
 		json.add("MimeType", new JsonPrimitive("updatedMimeType"));
 		putTestDataValue(TESTDATA_UPDATE_JSON_BODY, json.toString());
 
-		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
+		String uri = new StringBuilder().append(getTestDataValue(TESTDATA_RESOURCE_URI)).append("/").append(getTestDataValue(TESTDATA_ENTITY_ID)).toString();
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".update() sending PUT to " + uri + " with: "
-				+ getTestDataValue(TESTDATA_UPDATE_JSON_BODY));
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(".update() sending PUT to ").append(uri).append(" with: ").append(getTestDataValue(TESTDATA_UPDATE_JSON_BODY)).toString());
 
 		ExtractableResponse<Response> response = given().contentType(ContentType.JSON)
 				// TODO anehmer on 2017-11-15: the update should use different data but as the
@@ -292,7 +286,7 @@ public abstract class EntityResourceIntegrationTest {
 				.body("data.first().attributes.find {it.name == 'MimeType'}.value", equalTo("updatedMimeType"))
 				.extract();
 
-		LOGGER.debug(getContextClass().getSimpleName() + " updated " + response.asString());
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(" updated ").append(response.asString()).toString());
 	}
 
 	@Test
@@ -310,9 +304,9 @@ public abstract class EntityResourceIntegrationTest {
 	 * called indirectly by JUnit
 	 */
 	public static void deleteEntity() {
-		String uri = getTestDataValue(TESTDATA_RESOURCE_URI) + "/" + getTestDataValue(TESTDATA_ENTITY_ID);
+		String uri = new StringBuilder().append(getTestDataValue(TESTDATA_RESOURCE_URI)).append("/").append(getTestDataValue(TESTDATA_ENTITY_ID)).toString();
 
-		LOGGER.debug(getContextClass().getSimpleName() + ".delete() sending DELETE to " + uri);
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(".delete() sending DELETE to ").append(uri).toString());
 
 		ExtractableResponse<Response> response = given().delete(uri)
 				.then()
@@ -322,7 +316,7 @@ public abstract class EntityResourceIntegrationTest {
 				.body("data.first().type", equalTo(getTestDataValue(TESTDATA_ENTITY_TYPE)))
 				.extract();
 
-		LOGGER.debug(getContextClass().getSimpleName() + " deleted " + response.asString());
+		LOGGER.debug(new StringBuilder().append(getContextClass().getSimpleName()).append(" deleted ").append(response.asString()).toString());
 
 		removeTestDataValue(TESTDATA_ENTITY_ID);
 	}
@@ -353,8 +347,8 @@ public abstract class EntityResourceIntegrationTest {
 		return testDataMap.get(contextClass)
 				.map(valueMap -> valueMap.get(key)
 						.getOrElseThrow(() -> new NoSuchElementException(
-								"Key [" + key + "] not found in test data value map in context ["
-										+ contextClass.getSimpleName() + "]")))
+								new StringBuilder().append("Key [").append(key).append("] not found in test data value map in context [").append(contextClass.getSimpleName()).append("]")
+										.toString())))
 				.get();
 	}
 
@@ -408,7 +402,7 @@ public abstract class EntityResourceIntegrationTest {
 								.equals(TESTDATA_RANDOM_DATA))) {
 			// append suffix if it was not already appended or an already suffixed value was
 			// used for a new one (e.g: TplAttr.name and CatAttr.name)
-			if (!value.endsWith(RANDOM_ENTITY_NAME_SUFFIX)) {
+			if (!StringUtils.endsWith(value, RANDOM_ENTITY_NAME_SUFFIX)) {
 				value = value + RANDOM_ENTITY_NAME_SUFFIX;
 			}
 		}

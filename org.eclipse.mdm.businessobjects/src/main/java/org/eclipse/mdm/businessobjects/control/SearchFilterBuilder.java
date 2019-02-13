@@ -17,6 +17,7 @@ package org.eclipse.mdm.businessobjects.control;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.eclipse.mdm.api.base.query.Condition;
 import org.eclipse.mdm.api.base.query.Filter;
 

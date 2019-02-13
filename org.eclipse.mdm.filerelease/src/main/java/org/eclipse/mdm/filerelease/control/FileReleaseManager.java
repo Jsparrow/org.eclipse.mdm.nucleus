@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -27,6 +28,7 @@ import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,18 +78,17 @@ public class FileReleaseManager {
 	public FileRelease getRelease(String userName, String identifier) {
 
 		if (!this.releaseMap.containsKey(identifier)) {
-			throw new FileReleaseException("unable to find FileRelease with identifier '" + identifier + "'!");
+			throw new FileReleaseException(new StringBuilder().append("unable to find FileRelease with identifier '").append(identifier).append("'!").toString());
 		}
 
 		FileRelease fileRelease = this.releaseMap.get(identifier);
 
-		if (fileRelease.sender.equalsIgnoreCase(userName) || fileRelease.receiver.equalsIgnoreCase(userName)) {
+		if (StringUtils.equalsIgnoreCase(fileRelease.sender, userName) || StringUtils.equalsIgnoreCase(fileRelease.receiver, userName)) {
 			updateExpired(fileRelease);
 			return fileRelease;
 		}
 
-		throw new FileReleaseException("unable to find FileRelease with identifier '" + identifier
-				+ "' for user with name '" + userName + "'!");
+		throw new FileReleaseException(new StringBuilder().append("unable to find FileRelease with identifier '").append(identifier).append("' for user with name '").append(userName).append("'!").toString());
 
 	}
 
@@ -109,15 +110,15 @@ public class FileReleaseManager {
 
 		Collection<FileRelease> releases = this.releaseMap.values();
 
-		if (direction.equalsIgnoreCase(FILE_RELEASE_DIRECTION_INCOMMING)) {
+		if (StringUtils.equalsIgnoreCase(direction, FILE_RELEASE_DIRECTION_INCOMMING)) {
 			return extractIncommingReleases(userName, releases);
 		}
 
-		if (direction.equalsIgnoreCase(FILE_RELEASE_DIRECTION_OUTGOING)) {
+		if (StringUtils.equalsIgnoreCase(direction, FILE_RELEASE_DIRECTION_OUTGOING)) {
 			return extractOutgoingReleases(userName, releases);
 		}
 
-		LOG.debug("unknown file request direction value '" + direction + "'. Returing empty file request list");
+		LOG.debug(new StringBuilder().append("unknown file request direction value '").append(direction).append("'. Returing empty file request list").toString());
 		return Collections.emptyList();
 	}
 
@@ -149,7 +150,7 @@ public class FileReleaseManager {
 	public void addFileRelease(FileRelease fileRelease) {
 		if (this.releaseMap.containsKey(fileRelease.identifier)) {
 			throw new FileReleaseException(
-					"FileRelease with identifier '" + fileRelease.identifier + "' already exists!");
+					new StringBuilder().append("FileRelease with identifier '").append(fileRelease.identifier).append("' already exists!").toString());
 		}
 		this.releaseMap.put(fileRelease.identifier, fileRelease);
 	}
@@ -164,7 +165,7 @@ public class FileReleaseManager {
 	public void removeFileRelease(FileRelease fileRelease) {
 		if (!this.releaseMap.containsKey(fileRelease.identifier)) {
 			throw new FileReleaseException(
-					"FileRelease with identifier '" + fileRelease.identifier + "' does not exist!");
+					new StringBuilder().append("FileRelease with identifier '").append(fileRelease.identifier).append("' does not exist!").toString());
 		}
 		this.releaseMap.remove(fileRelease.identifier);
 	}
@@ -179,18 +180,18 @@ public class FileReleaseManager {
 	 */
 	public boolean canDeleteFileLink(String identfier, String fileLink) {
 
-		if (fileLink == null || fileLink.trim().length() <= 0) {
+		if (fileLink == null || StringUtils.trim(fileLink).length() <= 0) {
 			return false;
 		}
 
 		for (FileRelease fileRelease : this.releaseMap.values()) {
 
 			// skipping fileRelease to delete
-			if (fileRelease.identifier.equalsIgnoreCase(identfier)) {
+			if (StringUtils.equalsIgnoreCase(fileRelease.identifier, identfier)) {
 				continue;
 			}
 
-			if (fileRelease.fileLink.equalsIgnoreCase(fileLink)) {
+			if (StringUtils.equalsIgnoreCase(fileRelease.fileLink, fileLink)) {
 				return false;
 			}
 		}
@@ -209,40 +210,32 @@ public class FileReleaseManager {
 
 	private List<FileRelease> extractIncommingReleases(String receiverName, Collection<FileRelease> releases) {
 		List<FileRelease> incommingList = new ArrayList<>();
-		for (FileRelease fileRelease : releases) {
-			if (fileRelease.receiver.equalsIgnoreCase(receiverName)) {
-				updateExpired(fileRelease);
-				incommingList.add(fileRelease);
-			}
-		}
+		releases.stream().filter(fileRelease -> StringUtils.equalsIgnoreCase(fileRelease.receiver, receiverName)).forEach(fileRelease -> {
+			updateExpired(fileRelease);
+			incommingList.add(fileRelease);
+		});
 		return incommingList;
 	}
 
 	private List<FileRelease> extractOutgoingReleases(String senderName, Collection<FileRelease> releases) {
 		List<FileRelease> outgoingList = new ArrayList<>();
-		for (FileRelease fileRelease : releases) {
-			if (fileRelease.sender.equalsIgnoreCase(senderName)) {
-				updateExpired(fileRelease);
-				outgoingList.add(fileRelease);
-			}
-		}
+		releases.stream().filter(fileRelease -> StringUtils.equalsIgnoreCase(fileRelease.sender, senderName)).forEach(fileRelease -> {
+			updateExpired(fileRelease);
+			outgoingList.add(fileRelease);
+		});
 		return outgoingList;
 	}
 
 	private List<FileRelease> extractReleasesByState(String state, List<FileRelease> list) {
 		List<FileRelease> statedList = new ArrayList<>();
-		for (FileRelease fileRelease : list) {
-			if (fileRelease.state.equalsIgnoreCase(state)) {
-				statedList.add(fileRelease);
-			}
-		}
+		statedList.addAll(list.stream().filter(fileRelease -> StringUtils.equalsIgnoreCase(fileRelease.state, state)).collect(Collectors.toList()));
 		return statedList;
 	}
 
 	private void updateExpired(FileRelease fileRelease) {
 		long current = System.currentTimeMillis();
 
-		if (!fileRelease.state.equalsIgnoreCase(FILE_RELEASE_STATE_RELEASED)) {
+		if (!StringUtils.equalsIgnoreCase(fileRelease.state, FILE_RELEASE_STATE_RELEASED)) {
 			return;
 		}
 

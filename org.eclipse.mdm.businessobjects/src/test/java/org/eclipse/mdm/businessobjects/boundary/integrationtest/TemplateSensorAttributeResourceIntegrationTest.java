@@ -53,11 +53,8 @@ public class TemplateSensorAttributeResourceIntegrationTest extends EntityResour
 		// skip the deletion test as TemplateSensorAttributes can't be deleted
 		skipTest(TestType.DELETE);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/"
-				+ getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/"
-				+ getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-				+ "/tplsensors/" + getTestDataValue(TemplateSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-				+ "/tplsensorattrs");
+		putTestDataValue(TESTDATA_RESOURCE_URI, new StringBuilder().append("/tplroots/testequipment/").append(getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplcomps/").append(getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplsensors/").append(getTestDataValue(TemplateSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID))
+				.append("/tplsensorattrs").toString());
 		putTestDataValue(TESTDATA_ENTITY_NAME,
 				getTestDataValue(CatalogSensorAttributeResourceIntegrationTest.class, TESTDATA_ENTITY_NAME));
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateAttribute");

@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.model.Channel;
 import org.eclipse.mdm.api.base.model.ChannelGroup;
 import org.eclipse.mdm.api.base.model.Entity;
@@ -138,7 +139,7 @@ public class ShoppingBasketResource {
 
 			List<Entity> entities = entry.getValue().stream().map(i -> getEntity(em, i)).collect(Collectors.toList());
 
-			for (Map.Entry<Entity, String> e : em.getLinks(entities).entrySet()) {
+			em.getLinks(entities).entrySet().forEach(e -> {
 
 				BasketItem basketItem = new BasketItem();
 				basketItem.setSource(context.getAdapterType());
@@ -146,7 +147,7 @@ public class ShoppingBasketResource {
 				basketItem.setRestURI(getURIForEntity(e.getKey()));
 
 				basketItems.add(basketItem);
-			}
+			});
 		}
 
 		ShoppingBasket basket = new ShoppingBasket();
@@ -186,7 +187,7 @@ public class ShoppingBasketResource {
 			}
 		}
 		// fallback to generic fragment
-		return entity.getClass().getSimpleName().toLowerCase() + "s";
+		return StringUtils.lowerCase(entity.getClass().getSimpleName()) + "s";
 	}
 
 	/**

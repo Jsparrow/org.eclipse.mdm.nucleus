@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -27,8 +28,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
-
-import java.util.Set;
 
 /**
  * I18NResponse (Container for {@link I18NLocalization}s)
@@ -63,24 +62,24 @@ public class I18NResponse {
 
 		Set<Entry<EntityType, String>> entityTypeSet = localizedEntityTypeMap.entrySet();
 
-		for (Entry<EntityType, String> entry : entityTypeSet) {
+		entityTypeSet.forEach(entry -> {
 
 			EntityType entityType = entry.getKey();
 			String key = entityType.getName();
 
 			localizationList.add(new I18NLocalization(key, entry.getValue()));
-		}
+		});
 
 		Set<Entry<Attribute, String>> attributeSet = localizedAttributeMap.entrySet();
 
-		for (Entry<Attribute, String> entry : attributeSet) {
+		attributeSet.forEach(entry -> {
 
 			Attribute attribute = entry.getKey();
 			EntityType entityType = attribute.getEntityType();
-			String key = entityType.getName() + "." + attribute.getName();
+			String key = new StringBuilder().append(entityType.getName()).append(".").append(attribute.getName()).toString();
 
 			localizationList.add(new I18NLocalization(key, entry.getValue()));
-		}
+		});
 
 		return localizationList;
 	}

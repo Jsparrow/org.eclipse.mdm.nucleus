@@ -14,10 +14,11 @@
 
 package org.eclipse.mdm.freetextindexer.events;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Objects;
+
 import org.eclipse.mdm.api.base.model.Entity;
 
-import java.util.Objects;
+import com.google.common.collect.ImmutableList;
 
 public class CreateIndex {
     private final String sourceName;
@@ -40,8 +41,12 @@ public class CreateIndex {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
         CreateIndex that = (CreateIndex) o;
         return Objects.equals(sourceName, that.sourceName) &&
                 Objects.equals(entitiesToIndex, that.entitiesToIndex);

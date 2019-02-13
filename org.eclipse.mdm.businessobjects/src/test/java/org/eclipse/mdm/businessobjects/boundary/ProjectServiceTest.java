@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Project;
@@ -53,7 +52,7 @@ public class ProjectServiceTest {
 	}
 
 	@Test
-	public void testGetProject() throws DataAccessException {
+	public void testGetProject() {
 		service.getProject("MDMTEST", "1");
 
 		verify(em).load(Project.class, "1");
@@ -61,7 +60,7 @@ public class ProjectServiceTest {
 	}
 
 	@Test
-	public void testGetProjectsEmptyFilter() throws DataAccessException {
+	public void testGetProjectsEmptyFilter() {
 		service.getProjects("MDMTEST", "");
 
 		verify(em).loadAll(Mockito.any());
@@ -69,7 +68,7 @@ public class ProjectServiceTest {
 	}
 
 	@Test
-	public void testGetProjectsNullFilter() throws DataAccessException {
+	public void testGetProjectsNullFilter() {
 		service.getProjects("MDMTEST", null);
 
 		verify(em).loadAll(Mockito.any());

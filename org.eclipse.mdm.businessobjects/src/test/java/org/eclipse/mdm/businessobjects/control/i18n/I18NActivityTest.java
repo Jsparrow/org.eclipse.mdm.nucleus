@@ -47,22 +47,22 @@ public class I18NActivityTest {
 		Map<Attribute, String> locChannelAttrs = i18nActivity.localizeAttributes("default", Channel.class);
 
 		int expected = 2;
-		assertEquals("map of environment attributes should contain '" + expected + "' localized attributes", expected,
+		assertEquals(new StringBuilder().append("map of environment attributes should contain '").append(expected).append("' localized attributes").toString(), expected,
 				locEnvironmentAttrs.size());
 
-		assertEquals("map of test attributes should contain '" + expected + "' localized attributes", expected,
+		assertEquals(new StringBuilder().append("map of test attributes should contain '").append(expected).append("' localized attributes").toString(), expected,
 				locTestAttrs.size());
 
-		assertEquals("map of test step attributes should contain '" + expected + "' localized attributes", expected,
+		assertEquals(new StringBuilder().append("map of test step attributes should contain '").append(expected).append("' localized attributes").toString(), expected,
 				locTestStepAttrs.size());
 
-		assertEquals("map of measurement attributes should contain '" + expected + "' localized attributes", expected,
+		assertEquals(new StringBuilder().append("map of measurement attributes should contain '").append(expected).append("' localized attributes").toString(), expected,
 				locMeasurementAttrs.size());
 
-		assertEquals("map of channel group attributes should contain '" + expected + "' localized attributes", expected,
+		assertEquals(new StringBuilder().append("map of channel group attributes should contain '").append(expected).append("' localized attributes").toString(), expected,
 				locChannelGroupAttrs.size());
 
-		assertEquals("map of channel attributes should contain '" + expected + "' localized attributes", expected,
+		assertEquals(new StringBuilder().append("map of channel attributes should contain '").append(expected).append("' localized attributes").toString(), expected,
 				locChannelAttrs.size());
 
 	}
@@ -80,17 +80,17 @@ public class I18NActivityTest {
 		Map<EntityType, String> locChannelType = i18nActivity.localizeType("default", Channel.class);
 
 		int expected = 1;
-		assertEquals("map of Environment types should contain '" + expected + "' localized type", expected,
+		assertEquals(new StringBuilder().append("map of Environment types should contain '").append(expected).append("' localized type").toString(), expected,
 				locEnvironmentType.size());
-		assertEquals("map of Test types should contain '" + expected + "' localized type", expected,
+		assertEquals(new StringBuilder().append("map of Test types should contain '").append(expected).append("' localized type").toString(), expected,
 				locTestType.size());
-		assertEquals("map of TestStep types should contain '" + expected + "' localized type", expected,
+		assertEquals(new StringBuilder().append("map of TestStep types should contain '").append(expected).append("' localized type").toString(), expected,
 				locTestStepType.size());
-		assertEquals("map of Measurement types should contain '" + expected + "' localized type", expected,
+		assertEquals(new StringBuilder().append("map of Measurement types should contain '").append(expected).append("' localized type").toString(), expected,
 				locMeasurementType.size());
-		assertEquals("map of ChannelGroup types should contain '" + expected + "' localized type", expected,
+		assertEquals(new StringBuilder().append("map of ChannelGroup types should contain '").append(expected).append("' localized type").toString(), expected,
 				locChannelGroupType.size());
-		assertEquals("map of Channel types should contain '" + expected + "' localized type", expected,
+		assertEquals(new StringBuilder().append("map of Channel types should contain '").append(expected).append("' localized type").toString(), expected,
 				locChannelType.size());
 	}
 
@@ -102,7 +102,7 @@ public class I18NActivityTest {
 
 		int expected = 12; // 6 types with 2 attributes
 
-		assertEquals("map of all attributes should contain '" + expected + "' localized attributes", expected,
+		assertEquals(new StringBuilder().append("map of all attributes should contain '").append(expected).append("' localized attributes").toString(), expected,
 				localizedMap.size());
 	}
 
@@ -113,7 +113,7 @@ public class I18NActivityTest {
 		Map<EntityType, String> localizedMap = i18nActivity.localizeAllTypes("default");
 
 		int expected = 6;
-		assertEquals("map of all types should contain '" + expected + "' localized types", expected,
+		assertEquals(new StringBuilder().append("map of all types should contain '").append(expected).append("' localized types").toString(), expected,
 				localizedMap.size());
 	}
 

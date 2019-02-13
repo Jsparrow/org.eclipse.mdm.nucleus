@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import io.vavr.Value;
 import io.vavr.collection.Stream;
 import io.vavr.control.Try;
+import org.apache.commons.lang3.StringUtils;
 
 public final class ServiceUtils {
 
@@ -77,7 +78,7 @@ public final class ServiceUtils {
 		
 		if (filterItems.size() == 1 && filterItems.get(0).isCondition()) {
 			Condition c = filterItems.get(0).getCondition();
-			return et.getIDAttribute().equals(c.getAttribute()) && ComparisonOperator.EQUAL.equals(c.getComparisonOperator());
+			return et.getIDAttribute().equals(c.getAttribute()) && ComparisonOperator.EQUAL == c.getComparisonOperator();
 		} else {
 			return false;
 		}
@@ -109,7 +110,7 @@ public final class ServiceUtils {
 		
 		if (filterItems.size() == 1 && filterItems.get(0).isCondition()) {
 			Condition c = filterItems.get(0).getCondition();
-			if (et.getIDAttribute().equals(c.getAttribute()) && ComparisonOperator.EQUAL.equals(c.getComparisonOperator()))
+			if (et.getIDAttribute().equals(c.getAttribute()) && ComparisonOperator.EQUAL == c.getComparisonOperator())
 			{
 				return c.getValue().extract(ValueType.STRING);
 			}
@@ -149,19 +150,18 @@ public final class ServiceUtils {
 	 * @return the build {@link Response}
 	 */
 	public static <T extends Entity> Response buildEntityResponse(T entity, Status status) {
-		if (entity != null) {
-			MDMEntityResponse response = new MDMEntityResponse(entity.getClass(), entity);
-			// TODO anehmer on 2018-02-08: relations should be included in the output
-			GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
-			return Response.status(status)
-					.entity(genEntity)
-					.type(MediaType.APPLICATION_JSON)
-					.build();
-		} else {
+		if (entity == null) {
 			return Response.status(Status.NO_CONTENT)
 					.type(MediaType.APPLICATION_JSON)
 					.build();
 		}
+		MDMEntityResponse response = new MDMEntityResponse(entity.getClass(), entity);
+		// TODO anehmer on 2018-02-08: relations should be included in the output
+		GenericEntity<Object> genEntity = new GenericEntity<>(response, response.getClass());
+		return Response.status(status)
+				.entity(genEntity)
+				.type(MediaType.APPLICATION_JSON)
+				.build();
 	}
 
 	/**
@@ -172,21 +172,20 @@ public final class ServiceUtils {
 	 * @return the build {@link Response}
 	 */
 	public static <T extends Entity> Response buildEntityResponse(io.vavr.collection.List<T> entities, Status status) {
-		if (entities.nonEmpty()) {
-			@SuppressWarnings("unchecked")
-			Class<T> entityClass = (Class<T>) entities.get()
-					.getClass();
-			MDMEntityResponse response = new MDMEntityResponse(entityClass, entities.asJava());
-			GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
-			return Response.status(status)
-					.entity(genEntity)
-					.type(MediaType.APPLICATION_JSON)
-					.build();
-		} else {
+		if (!entities.nonEmpty()) {
 			return Response.status(Status.NO_CONTENT)
 					.type(MediaType.APPLICATION_JSON)
 					.build();
 		}
+		@SuppressWarnings("unchecked")
+		Class<T> entityClass = (Class<T>) entities.get()
+				.getClass();
+		MDMEntityResponse response = new MDMEntityResponse(entityClass, entities.asJava());
+		GenericEntity<Object> genEntity = new GenericEntity<>(response, response.getClass());
+		return Response.status(status)
+				.entity(genEntity)
+				.type(MediaType.APPLICATION_JSON)
+				.build();
 	}
 
 	/**
@@ -213,7 +212,7 @@ public final class ServiceUtils {
 	 * @return the created {@link Response}
 	 */
 	public static Response toResponse(Object response, Status status) {
-		GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
+		GenericEntity<Object> genEntity = new GenericEntity<>(response, response.getClass());
 		return Response.status(status)
 				.entity(genEntity)
 				.type(MediaType.APPLICATION_JSON)
@@ -282,8 +281,8 @@ public final class ServiceUtils {
 				.error(e.getMessage(), e);
 		// TODO anehmer on 2017-11-22: customize status according to exception
 		return Response.status(Status.INTERNAL_SERVER_ERROR)
-				.entity(e.getStackTrace()[0].getClassName() + "." + e.getStackTrace()[0].getMethodName() + ": "
-						+ e.getMessage())
+				.entity(new StringBuilder().append(e.getStackTrace()[0].getClassName()).append(".").append(e.getStackTrace()[0].getMethodName()).append(": ").append(e.getMessage())
+						.toString())
 				.type(MediaType.APPLICATION_JSON)
 				.build();
 	};
@@ -298,7 +297,7 @@ public final class ServiceUtils {
 	public static Try<ContextType> getContextTypeSupplier(String contextTypeName) {
 		return Stream.of(ContextType.values())
 				.filter(contextType -> contextType.name()
-						.equals(contextTypeName.toUpperCase()))
+						.equals(StringUtils.upperCase(contextTypeName)))
 				.toTry();
 	}
 }

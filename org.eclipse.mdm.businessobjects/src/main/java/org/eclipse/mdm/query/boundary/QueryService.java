@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
@@ -40,7 +41,6 @@ import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
 import org.eclipse.mdm.property.GlobalProperty;
 import org.eclipse.mdm.query.entity.QueryRequest;
 import org.eclipse.mdm.query.entity.Row;
-import org.eclipse.mdm.query.entity.SourceFilter;
 import org.eclipse.mdm.query.entity.SuggestionRequest;
 import org.eclipse.mdm.query.util.Util;
 import org.slf4j.Logger;
@@ -66,19 +66,18 @@ public class QueryService {
 	public List<Row> queryRows(QueryRequest request) {
 		List<Row> rows = new ArrayList<>();
 
-		for (SourceFilter filter : request.getFilters()) {
+		request.getFilters().forEach(filter -> {
 			try {
 				ApplicationContext context = this.connectorService.getContextByName(filter.getSourceName());
 
 				rows.addAll(queryRowsForSource(context, request.getResultType(), request.getColumns(), filter.getFilter(),
 						filter.getSearchString()));
 			} catch (ConnectorServiceException e) {
-				LOG.warn("Could not retrieve EntityManager for environment '" + filter.getSourceName() + "'!", e);
+				LOG.warn(new StringBuilder().append("Could not retrieve EntityManager for environment '").append(filter.getSourceName()).append("'!").toString(), e);
 			} catch (Exception e) {
-				LOG.warn("Could not retrieve query results for environment '" + filter.getSourceName() + "': "
-						+ e.getMessage(), e);
+				LOG.warn(new StringBuilder().append("Could not retrieve query results for environment '").append(filter.getSourceName()).append("': ").append(e.getMessage()).toString(), e);
 			}
-		}
+		});
 
 		return rows;
 	}
@@ -87,7 +86,7 @@ public class QueryService {
 
 		List<String> suggestions = new ArrayList<>();
 
-		for (String envName : suggestionRequest.getSourceNames()) {
+		suggestionRequest.getSourceNames().forEach(envName -> {
 
 			ApplicationContext context = this.connectorService.getContextByName(envName);
 			Optional<ModelManager> mm = context.getModelManager();
@@ -104,16 +103,16 @@ public class QueryService {
 							.map(r -> Objects.toString(r.getValue(attr).extract())).collect(Collectors.toList()));
 
 				} catch (DataAccessException | IllegalArgumentException e) {
-					LOG.warn("Cannot retreive suggestions " + suggestionRequest + " for Environment + " + envName + "!",
+					LOG.warn(new StringBuilder().append("Cannot retreive suggestions ").append(suggestionRequest).append(" for Environment + ").append(envName).append("!").toString(),
 							e);
 				}
 			}
-		}
+		});
 		return suggestions;
 	}
 
 	List<Row> queryRowsForSource(ApplicationContext context, String resultEntity, List<String> columns, String filterString,
-			String searchString) throws DataAccessException {
+			String searchString) {
 
 
 		ModelManager modelManager = context.getModelManager()
@@ -140,17 +139,17 @@ public class QueryService {
 		String[] parts = c.split("\\.");
 
 		if (parts.length != 2) {
-			throw new IllegalArgumentException("Cannot parse attribute " + c + "!");
+			throw new IllegalArgumentException(new StringBuilder().append("Cannot parse attribute ").append(c).append("!").toString());
 		}
 
 		String type = parts[0];
 		String attributeName = parts[1];
 
 		Optional<EntityType> entityType = searchableTypes.stream()
-				.filter(e -> ServiceUtils.workaroundForTypeMapping(e).equalsIgnoreCase(type)).findFirst();
+				.filter(e -> StringUtils.equalsIgnoreCase(ServiceUtils.workaroundForTypeMapping(e), type)).findFirst();
 
 		if (entityType.isPresent()) {
-			return entityType.get().getAttributes().stream().filter(a -> a.getName().equalsIgnoreCase(attributeName))
+			return entityType.get().getAttributes().stream().filter(a -> StringUtils.equalsIgnoreCase(a.getName(), attributeName))
 					.findFirst();
 		} else {
 			return Optional.empty();
@@ -160,12 +159,11 @@ public class QueryService {
 	private Class<? extends Entity> getEntityClassByNameType(SearchService s, String name) {
 
 		for (Class<? extends Entity> entityClass : s.listSearchableTypes()) {
-			if (entityClass.getSimpleName().equalsIgnoreCase(name)) {
+			if (StringUtils.equalsIgnoreCase(entityClass.getSimpleName(), name)) {
 				return entityClass;
 			}
 		}
-		throw new IllegalArgumentException("Invalid Entity '" + name + "'. Allowed values are: "
-				+ s.listSearchableTypes().stream().map(Class::getSimpleName).collect(Collectors.joining(", ")));
+		throw new IllegalArgumentException(new StringBuilder().append("Invalid Entity '").append(name).append("'. Allowed values are: ").append(s.listSearchableTypes().stream().map(Class::getSimpleName).collect(Collectors.joining(", "))).toString());
 	}
 
 	private int getMaxResultsPerSource() {

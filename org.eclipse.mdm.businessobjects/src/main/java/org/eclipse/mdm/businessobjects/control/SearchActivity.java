@@ -17,7 +17,6 @@ package org.eclipse.mdm.businessobjects.control;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -81,12 +80,9 @@ public class SearchActivity {
 			List<SearchAttribute> searchAttributes = new ArrayList<>();
 			List<EntityType> entityTypes = searchService.listEntityTypes(resultType);
 
-			for (EntityType entityType : entityTypes) {
-				for (Attribute attr : entityType.getAttributes()) {
-					searchAttributes.add(new SearchAttribute(ServiceUtils.workaroundForTypeMapping(entityType),
-							attr.getName(), attr.getValueType().toString(), "*"));
-				}
-			}
+			entityTypes.forEach(entityType -> entityType.getAttributes().forEach(
+					attr -> searchAttributes.add(new SearchAttribute(ServiceUtils.workaroundForTypeMapping(entityType),
+							attr.getName(), attr.getValueType().toString(), "*"))));
 			return searchAttributes;
 			
 		} catch (IllegalArgumentException e) {
@@ -119,9 +115,7 @@ public class SearchActivity {
 	private List<Attribute> getAttributeListFromFilter(Filter filter) {
 
 		List<Attribute> attributeList = new ArrayList<>();
-		Iterator<FilterItem> fIterator = filter.iterator();
-		while (fIterator.hasNext()) {
-			FilterItem filterItem = fIterator.next();
+		for (FilterItem filterItem : filter) {
 			if (filterItem.isCondition()) {
 				attributeList.add(filterItem.getCondition().getAttribute());
 			}
@@ -145,9 +139,7 @@ public class SearchActivity {
 
 			if (searchService.isTextSearchAvailable()) {
 				Map<Class<? extends Entity>, List<Entity>> fetch = searchService.fetch(query);
-				for (List<Entity> entities : fetch.values()) {
-					allEntities.addAll(entities);
-				}
+				fetch.values().forEach(allEntities::addAll);
 			}
 
 			return allEntities;

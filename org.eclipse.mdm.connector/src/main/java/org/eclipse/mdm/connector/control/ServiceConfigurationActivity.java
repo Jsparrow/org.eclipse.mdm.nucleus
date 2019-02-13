@@ -28,6 +28,7 @@ import javax.ejb.Stateless;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.connector.boundary.ConnectorServiceException;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
 import org.slf4j.Logger;
@@ -70,7 +71,7 @@ public class ServiceConfigurationActivity {
 			Element root = doc.getDocumentElement();
 			if (!ROOT_ELEMENT_NAME.equals(root.getNodeName())) {
 				throw new ConnectorServiceException(
-						"unable to find root element with name '" + ROOT_ELEMENT_NAME + "'");
+						new StringBuilder().append("unable to find root element with name '").append(ROOT_ELEMENT_NAME).append("'").toString());
 			}
 
 			NodeList serviceElements = root.getElementsByTagName(SERVICE_ELEMENT_NAME);
@@ -102,7 +103,7 @@ public class ServiceConfigurationActivity {
 			Element paramElement = (Element) paramElements.item(i);
 			String paramName = readElementAttribute(paramElement, NAME_ATTRIBUTE_NAME);
 			String paramValue = paramElement.getTextContent();
-			if (paramValue != null && !(paramValue = paramValue.trim()).isEmpty()) {
+			if (paramValue != null && !StringUtils.isEmpty((paramValue = paramValue.trim()))) {
 				connectionParameters.put(paramName, paramValue);
 			}
 		}
@@ -111,9 +112,9 @@ public class ServiceConfigurationActivity {
 
 	private static String readElementAttribute(Element element, String attrName) {
 		String value = element.getAttribute(attrName);
-		if (value.trim().isEmpty()) {
+		if (StringUtils.isEmpty(value.trim())) {
 			throw new ConnectorServiceException(
-					"mandatory attribute '" + attrName + "' of element '" + element.getNodeName() + "' is missing!");
+					new StringBuilder().append("mandatory attribute '").append(attrName).append("' of element '").append(element.getNodeName()).append("' is missing!").toString());
 		}
 		return value;
 	}
@@ -122,12 +123,12 @@ public class ServiceConfigurationActivity {
 		File file = new File(COMPONENT_CONFIG_ROOT_FOLDER);
 		if (!file.exists() || !file.isDirectory()) {
 			throw new ConnectorServiceException(
-					"mandatory configuration folder '" + file.getAbsolutePath() + "' does not exist!");
+					new StringBuilder().append("mandatory configuration folder '").append(file.getAbsolutePath()).append("' does not exist!").toString());
 		}
 		File serviceXML = new File(file, SERVICE_XML_FILE_NAME);
 		if (!file.exists()) {
 			throw new ConnectorServiceException(
-					"mandatory service configuration file at '" + serviceXML.getAbsolutePath() + "' does not exist!");
+					new StringBuilder().append("mandatory service configuration file at '").append(serviceXML.getAbsolutePath()).append("' does not exist!").toString());
 		}
 		return serviceXML;
 	}

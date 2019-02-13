@@ -171,7 +171,7 @@ public final class NavigationActivityMockHelper {
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
 			throws Exception {
 
-		HashMap<String, Value> map = new HashMap<String, Value>();
+		HashMap<String, Value> map = new HashMap<>();
 		map.put("Name", ValueType.STRING.create("Name", name));
 
 		Core core = mock(Core.class);

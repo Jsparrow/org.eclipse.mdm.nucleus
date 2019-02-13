@@ -31,7 +31,6 @@ import org.eclipse.mdm.api.base.model.Entity;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.freetextindexer.boundary.ElasticsearchBoundary;
 import org.eclipse.mdm.freetextindexer.boundary.MdmApiBoundary;
 import org.eclipse.mdm.freetextindexer.events.CreateIndex;
@@ -56,14 +55,12 @@ public class SetupIndex {
 
 	@PostConstruct
 	public void createIndexIfNeccessary() {
-		for (Map.Entry<String, ApplicationContext> entry : apiBoundary.getContexts().entrySet()) {
-			String source = entry.getKey();
-
+		apiBoundary.getContexts().entrySet().stream().map(Map.Entry::getKey).forEach(source -> {
 			if (!esBoundary.hasIndex(source)) {
 				LOGGER.info("About to create new lucene index!");
 				createIndexEvent.fire(new CreateIndex(source, Test.class, TestStep.class, Measurement.class));
 			}
-		}
+		});
 	}
 
 	@Asynchronous
@@ -71,8 +68,8 @@ public class SetupIndex {
 		String source = event.getSourceName();
 		esBoundary.createIndex(source);
 		for(Class<? extends Entity> entityType : event.getEntitiesToIndex()) {
-			apiBoundary.doForAllEntities(entityType, apiBoundary.getContexts().get(source), e -> esBoundary.index(e));
+			apiBoundary.doForAllEntities(entityType, apiBoundary.getContexts().get(source), esBoundary::index);
 		}
-		LOGGER.info("Index '" + source + "' initialized");
+		LOGGER.info(new StringBuilder().append("Index '").append(source).append("' initialized").toString());
 	}
 }

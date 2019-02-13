@@ -29,7 +29,6 @@ import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.ValueType;
-import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.Query;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
@@ -49,7 +48,7 @@ import org.mockito.Mockito;
 public class QueryServiceTest {
 
 	@org.junit.Test
-	public void testQuery() throws DataAccessException {
+	public void testQuery() {
 
 		ApplicationContext context = mockContext();
 		ConnectorService connectorService = Mockito.mock(ConnectorService.class);
@@ -79,7 +78,7 @@ public class QueryServiceTest {
 	}
 
 	@org.junit.Test
-	public void testQueryMissingEnvironmentShouldByIgnored() throws DataAccessException {
+	public void testQueryMissingEnvironmentShouldByIgnored() {
 
 		ApplicationContext context = mockContext();
 		ConnectorService connectorService = Mockito.mock(ConnectorService.class);
@@ -113,7 +112,7 @@ public class QueryServiceTest {
 	}
 
 	@org.junit.Test
-	public void testQueryMissingEntitiesShouldBeIgnored() throws DataAccessException {
+	public void testQueryMissingEntitiesShouldBeIgnored() {
 
 		ApplicationContext context1 = mockContext();
 		ApplicationContext context2 = mockContext();

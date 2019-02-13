@@ -100,7 +100,7 @@ public final class RequestBody {
 				.get(key)
 				.map(Object::toString)
 				.onEmpty(() -> {
-					throw new NoSuchElementException("Key [" + key + "] not found in request body.");
+					throw new NoSuchElementException(new StringBuilder().append("Key [").append(key).append("] not found in request body.").toString());
 				})
 				.get())
 				.get());
@@ -121,7 +121,7 @@ public final class RequestBody {
 				.get(key)
 				.map(Object::toString)
 				.onEmpty(() -> {
-					throw new NoSuchElementException("Key [" + key + "] not found in request body.");
+					throw new NoSuchElementException(new StringBuilder().append("Key [").append(key).append("] not found in request body.").toString());
 				})
 				.get())
 				.get());
@@ -134,6 +134,6 @@ public final class RequestBody {
 	 * @return a {@link Try} of {@link Map<String, Object>} of the request body
 	 */
 	public Try<Map<String, Object>> getValueMapSupplier() {
-		return Try.of(() -> requestBodyMap.get());
+		return Try.of(requestBodyMap::get);
 	}
 }

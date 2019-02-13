@@ -28,6 +28,7 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
 import org.eclipse.mdm.property.GlobalProperty;
 import org.slf4j.Logger;
@@ -72,7 +73,7 @@ public class ElasticsearchBoundary {
 
 	public void index(MDMEntityResponse document) {
 		try {
-			PutMethod put = new PutMethod(esAddress + getPath(document) + "?ignore_conflicts=true");
+			PutMethod put = new PutMethod(new StringBuilder().append(esAddress).append(getPath(document)).append("?ignore_conflicts=true").toString());
 
 			byte[] json = jsonMapper.writeValueAsBytes(document);
 			LOGGER.trace("Document {}: {}", getPath(document), new String(json));
@@ -87,7 +88,8 @@ public class ElasticsearchBoundary {
 	}
 
 	private String getPath(MDMEntityResponse document) {
-		return document.source.toLowerCase() + "/" + document.type + "/" + document.id;
+		return new StringBuilder().append(StringUtils.lowerCase(document.source)).append("/").append(document.type).append("/").append(document.id)
+				.toString();
 	}
 
 	private void execute(HttpMethod put) {
@@ -109,7 +111,7 @@ public class ElasticsearchBoundary {
 			text = text + "This indicates a Client error: ";
 			break;
 		case 5:
-			text = text + "This indicates a Server error. The ES instance must be checked (" + esAddress + "): ";
+			text = new StringBuilder().append(text).append("This indicates a Server error. The ES instance must be checked (").append(esAddress).append("): ").toString();
 			break;
 		}
 
@@ -123,7 +125,7 @@ public class ElasticsearchBoundary {
 	}
 
 	public void delete(String api, String type, String id) {
-		String path = api.toLowerCase() + "/" + type + "/" + id;
+		String path = new StringBuilder().append(StringUtils.lowerCase(api)).append("/").append(type).append("/").append(id).toString();
 		DeleteMethod put = new DeleteMethod(esAddress + path);
 
 		execute(put);
@@ -138,7 +140,7 @@ public class ElasticsearchBoundary {
 
 		if (active()) {
 			try {
-				GetMethod get = new GetMethod(esAddress + source.toLowerCase());
+				GetMethod get = new GetMethod(esAddress + StringUtils.lowerCase(source));
 				int status = client.executeMethod(get);
 				LOGGER.info("Checking index {}: {}", source, status);
 
@@ -153,10 +155,11 @@ public class ElasticsearchBoundary {
 	}
 
 	public void createIndex(String source) {
-		if (Boolean.valueOf(active)) {
-			execute(new PutMethod(esAddress + source.toLowerCase()));
-			LOGGER.info("New Index created!");
+		if (!Boolean.valueOf(active)) {
+			return;
 		}
+		execute(new PutMethod(esAddress + StringUtils.lowerCase(source)));
+		LOGGER.info("New Index created!");
 	}
 
 	public void validateConnectionIsPossible() {

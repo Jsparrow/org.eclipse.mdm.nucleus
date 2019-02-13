@@ -34,7 +34,6 @@ import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.Value;
-import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.freetextindexer.entities.MDMEntityResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -101,7 +100,7 @@ public class ElasticsearchBoundaryTest {
 
 	@Ignore
 	@Test
-	public void deletedDoc_isGone() throws InterruptedException, DataAccessException {
+	public void deletedDoc_isGone() throws InterruptedException {
 		TestStep ts = mock(TestStep.class);
 		when(ts.getID()).thenReturn("1");
 		when(ts.getSourceName()).thenReturn("mdmdiff");
@@ -117,7 +116,7 @@ public class ElasticsearchBoundaryTest {
 
 	@Ignore
 	@Test
-	public void docIsIndexed_isFound() throws DataAccessException, InterruptedException {
+	public void docIsIndexed_isFound() throws InterruptedException {
 		TestStep ts = mock(TestStep.class);
 		when(ts.getSourceName()).thenReturn("mdm");
 		EntityManager manager = mockManager();
@@ -152,7 +151,7 @@ public class ElasticsearchBoundaryTest {
 		return hits;
 	}
 
-	private EntityManager mockManager() throws DataAccessException {
+	private EntityManager mockManager() {
 		EntityManager manager = mock(EntityManager.class);
 		ContextRoot root = mock(ContextRoot.class);
 		ContextComponent comp = mock(ContextComponent.class);

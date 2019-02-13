@@ -17,6 +17,7 @@ package org.eclipse.mdm.freetextindexer.entities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,8 +36,8 @@ import org.eclipse.mdm.api.base.model.Value;
  */
 public class MDMEntity {
 
-	private static final Set<String> NOTINDEXED = new HashSet<>(
-			Arrays.asList(BaseEntity.ATTR_ID, BaseEntity.ATTR_MIMETYPE, "Optional", "SortIndex"));
+	private static final Set<String> NOTINDEXED = Collections.unmodifiableSet(new HashSet<>(
+			Arrays.asList(BaseEntity.ATTR_ID, BaseEntity.ATTR_MIMETYPE, "Optional", "SortIndex")));
 
 	/** name of the MDM business object */
 	public final String name;
@@ -81,13 +82,13 @@ public class MDMEntity {
 	 */
 	private Map<String, String> initAttributes(Map<String, Value> values) {
 		Map<String, String> mapAttrs = new HashMap<>();
-		for (java.util.Map.Entry<String, Value> entry : values.entrySet()) {
+		values.entrySet().forEach(entry -> {
 
 			String key = entry.getKey();
 			if (!NOTINDEXED.contains(key) && entry.getValue().isValid()) {
 				mapAttrs.put(key, entry.getValue().extract().toString());
 			}
-		}
+		});
 		
 		return mapAttrs;
 	}

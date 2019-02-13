@@ -135,7 +135,7 @@ public final class I18NActivityMockHelper {
 		List<Attribute> attributeList = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
 			Attribute attribute = Mockito.mock(Attribute.class);
-			when(attribute.getName()).thenReturn(type.getSimpleName() + "_attribute_" + i);
+			when(attribute.getName()).thenReturn(new StringBuilder().append(type.getSimpleName()).append("_attribute_").append(i).toString());
 			attributeList.add(attribute);
 		}
 		return attributeList;
@@ -144,7 +144,7 @@ public final class I18NActivityMockHelper {
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
 			throws Exception {
 
-		HashMap<String, Value> map = new HashMap<String, Value>();
+		HashMap<String, Value> map = new HashMap<>();
 		map.put("Name", ValueType.STRING.create("Name", name));
 
 		Core core = Mockito.mock(Core.class);

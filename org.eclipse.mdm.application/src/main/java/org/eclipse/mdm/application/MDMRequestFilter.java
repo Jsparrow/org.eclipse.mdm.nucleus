@@ -26,6 +26,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * MDMRequestFilter
  * 
@@ -45,18 +47,18 @@ public class MDMRequestFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		if (request instanceof HttpServletRequest) {
-			HttpServletRequest httpRequest = (HttpServletRequest) request;
-			String requestedURL = httpRequest.getRequestURI().toLowerCase();
-
-			if (requestedURL.trim().contains(SERVLET_NAME_MDMNENUE)) {
-				if (response instanceof HttpServletResponse) {
-					String location = httpRequest.getContextPath();
-					((HttpServletResponse) response).sendRedirect(location);
-				}
-			} else {
-				chain.doFilter(request, response);
+		if (!(request instanceof HttpServletRequest)) {
+			return;
+		}
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		String requestedURL = StringUtils.lowerCase(httpRequest.getRequestURI());
+		if (StringUtils.contains(requestedURL.trim(), SERVLET_NAME_MDMNENUE)) {
+			if (response instanceof HttpServletResponse) {
+				String location = httpRequest.getContextPath();
+				((HttpServletResponse) response).sendRedirect(location);
 			}
+		} else {
+			chain.doFilter(request, response);
 		}
 	}
 

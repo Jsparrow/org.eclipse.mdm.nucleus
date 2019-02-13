@@ -15,19 +15,32 @@
 
 package org.eclipse.mdm.businessobjects.control.context;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.adapter.ChildrenStore;
 import org.eclipse.mdm.api.base.adapter.Core;
-import org.eclipse.mdm.api.base.model.*;
+import org.eclipse.mdm.api.base.model.ContextComponent;
+import org.eclipse.mdm.api.base.model.ContextRoot;
+import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.model.Environment;
+import org.eclipse.mdm.api.base.model.Measurement;
+import org.eclipse.mdm.api.base.model.TestStep;
+import org.eclipse.mdm.api.base.model.Value;
+import org.eclipse.mdm.api.base.model.ValueType;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
 import org.mockito.Mockito;
-
-import java.lang.reflect.Constructor;
-import java.util.*;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 public final class ContextActivityMockHelper {
 
@@ -83,7 +96,7 @@ public final class ContextActivityMockHelper {
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id,
 			ChildrenStore childrenStore) throws Exception {
 
-		HashMap<String, Value> map = new HashMap<String, Value>();
+		HashMap<String, Value> map = new HashMap<>();
 		map.put("Name", ValueType.STRING.create("Name", name));
 
 		Core core = Mockito.mock(Core.class);
@@ -95,9 +108,9 @@ public final class ContextActivityMockHelper {
 		}
 
 		if (ContextRoot.class.equals(type)) {
-			if (name.contains("TSQ_")) {
+			if (StringUtils.contains(name, "TSQ_")) {
 				when(core.getTypeName()).thenReturn("TestSequence");
-			} else if (name.contains("UUT")) {
+			} else if (StringUtils.contains(name, "UUT")) {
 				when(core.getTypeName()).thenReturn("UnitUnderTest");
 			} else {
 				when(core.getTypeName()).thenReturn("TestEquipment");
@@ -116,9 +129,7 @@ public final class ContextActivityMockHelper {
 		List<ContextComponent> ccList = createContextComponentMocks("UUT");
 
 		ChildrenStore childrenStore = new ChildrenStore();
-		for (ContextComponent cc : ccList) {
-			childrenStore.add(cc);
-		}
+		ccList.forEach(childrenStore::add);
 
 		return createEntityMock(ContextRoot.class, "MessungUUT_" + type, "MDM", "1", childrenStore);
 	}
@@ -128,9 +139,7 @@ public final class ContextActivityMockHelper {
 		List<ContextComponent> ccList = createContextComponentMocks("TSQ");
 
 		ChildrenStore childrenStore = new ChildrenStore();
-		for (ContextComponent cc : ccList) {
-			childrenStore.add(cc);
-		}
+		ccList.forEach(childrenStore::add);
 
 		return createEntityMock(ContextRoot.class, "MessungTSQ_" + type, "MDM", "1", childrenStore);
 	}
@@ -140,9 +149,7 @@ public final class ContextActivityMockHelper {
 		List<ContextComponent> ccList = createContextComponentMocks("TEQ");
 
 		ChildrenStore childrenStore = new ChildrenStore();
-		for (ContextComponent cc : ccList) {
-			childrenStore.add(cc);
-		}
+		ccList.forEach(childrenStore::add);
 
 		return createEntityMock(ContextRoot.class, "MessungTEQ_" + type, "MDM", "1", childrenStore);
 	}
@@ -150,7 +157,7 @@ public final class ContextActivityMockHelper {
 	private static List<ContextComponent> createContextComponentMocks(String type) throws Exception {
 		List<ContextComponent> ccList = new ArrayList<>();
 		for (int i = 1; i <= CC_COUNT; i++) {
-			ContextComponent cc = createEntityMock(ContextComponent.class, type + "_ContextComponent_" + i, "MDM",
+			ContextComponent cc = createEntityMock(ContextComponent.class, new StringBuilder().append(type).append("_ContextComponent_").append(i).toString(), "MDM",
 					Integer.toString(i), null);
 			when(cc.getValues()).thenReturn(createValues(type));
 			ccList.add(cc);
@@ -161,8 +168,8 @@ public final class ContextActivityMockHelper {
 	private static Map<String, Value> createValues(String type) {
 		Map<String, Value> valueMap = new HashMap<>();
 		for (int i = 1; i <= CC_VALUE_COUNT; i++) {
-			String vName = type + "_ValueName_" + i;
-			valueMap.put(vName, ValueType.STRING.create(vName, type + "_Value_" + i));
+			String vName = new StringBuilder().append(type).append("_ValueName_").append(i).toString();
+			valueMap.put(vName, ValueType.STRING.create(vName, new StringBuilder().append(type).append("_Value_").append(i).toString()));
 		}
 		return valueMap;
 	}

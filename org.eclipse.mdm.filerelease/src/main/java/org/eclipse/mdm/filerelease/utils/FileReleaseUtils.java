@@ -15,6 +15,18 @@
 
 package org.eclipse.mdm.filerelease.utils;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.User;
@@ -27,16 +39,6 @@ import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 
@@ -71,7 +73,7 @@ public final class FileReleaseUtils {
 
 			return extractUser(contextList.get(0)
 					.getEntityManager()
-					.map(em -> em.loadLoggedOnUser())
+					.map(EntityManager::loadLoggedOnUser)
 					.orElseThrow(() -> new FileReleaseException("Entity manager not present!")));
 		} catch (DataAccessException e) {
 			throw new FileReleaseException(e.getMessage(), e);
@@ -131,7 +133,7 @@ public final class FileReleaseUtils {
 	 * @return The {@link Response}
 	 */
 	public static Response toResponse(Object response, Status status) {
-		GenericEntity<Object> genEntity = new GenericEntity<Object>(response, response.getClass());
+		GenericEntity<Object> genEntity = new GenericEntity<>(response, response.getClass());
 		return Response.status(status).entity(genEntity).type(MediaType.APPLICATION_JSON).build();
 	}
 
@@ -144,13 +146,13 @@ public final class FileReleaseUtils {
 	public static void deleteFileLink(File file) {
 
 		if (!file.exists() || file.isDirectory()) {
-			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "' (file does not exist)!");
+			LOG.warn(new StringBuilder().append("unable to delete file '").append(file.getAbsolutePath()).append("' (file does not exist)!").toString());
 			return;
 		}
 
 		boolean deleted = file.delete();
 		if (!deleted) {
-			LOG.warn("unable to delete file '" + file.getAbsolutePath() + "' (unkown error)!");
+			LOG.warn(new StringBuilder().append("unable to delete file '").append(file.getAbsolutePath()).append("' (unkown error)!").toString());
 		}
 	}
 
@@ -164,11 +166,11 @@ public final class FileReleaseUtils {
 	public static boolean isFormatValid(String format) {
 		boolean valid = false;
 
-		if (FileReleaseManager.CONVERTER_FORMAT_PAK2RAW.equalsIgnoreCase(format)) {
+		if (StringUtils.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2RAW, format)) {
 			valid = true;
 		}
 
-		if (FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX.equalsIgnoreCase(format)) {
+		if (StringUtils.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX, format)) {
 			valid = true;
 		}
 
@@ -178,26 +180,22 @@ public final class FileReleaseUtils {
 	public static List<FileRelease> filterByConnectedSources(List<FileRelease> fileReleases,
 			ConnectorService connectorService) {
 
-		List<FileRelease> filteredList = new ArrayList<FileRelease>();
+		List<FileRelease> filteredList = new ArrayList<>();
 
 		List<String> sourceNameList = listConnectedSourceNames(connectorService);
-		for (FileRelease fileRelease : fileReleases) {
-			if (isFileReleaseSourceConnected(fileRelease, sourceNameList)) {
-				filteredList.add(fileRelease);
-			}
-		}
+		filteredList.addAll(fileReleases.stream().filter(fileRelease -> isFileReleaseSourceConnected(fileRelease, sourceNameList)).collect(Collectors.toList()));
 		return filteredList;
 
 	}
 
 	public static File locateTargetDirectory(String targetDirectoryPath) {
-		if (targetDirectoryPath == null || targetDirectoryPath.trim().length() <= 0) {
+		if (targetDirectoryPath == null || StringUtils.trim(targetDirectoryPath).length() <= 0) {
 			throw new FileReleaseException("mandatory targetDirectoryPath property is missing");
 		}
 		File targetDirectory = new File(targetDirectoryPath);
 		if (!targetDirectory.exists()) {
 			throw new FileReleaseException(
-					"configured target directory at '" + targetDirectory.getAbsolutePath() + "' does not exist!");
+					new StringBuilder().append("configured target directory at '").append(targetDirectory.getAbsolutePath()).append("' does not exist!").toString());
 		}
 		return targetDirectory;
 	}
@@ -215,7 +213,7 @@ public final class FileReleaseUtils {
 		try {
 			return connectorService.getContexts()
 					.stream()
-					.map(c -> c.getEntityManager())
+					.map(ApplicationContext::getEntityManager)
 					.filter(Optional::isPresent)
 				    .map(Optional::get)
 				    .map(em -> em.loadEnvironment().getSourceName())
@@ -237,7 +235,7 @@ public final class FileReleaseUtils {
 			Optional<Test> oTest = em.loadParent(testStep, TestStep.PARENT_TYPE_TEST);
 			if (!oTest.isPresent()) {
 				throw new FileReleaseException(
-						"unable to locate Test parent for TestStep with ID '" + testStep.getID() + "'");
+						new StringBuilder().append("unable to locate Test parent for TestStep with ID '").append(testStep.getID()).append("'").toString());
 			}
 			return oTest.get();
 		} catch (DataAccessException e) {

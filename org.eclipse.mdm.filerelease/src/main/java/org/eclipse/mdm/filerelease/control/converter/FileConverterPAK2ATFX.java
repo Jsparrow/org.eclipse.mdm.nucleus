@@ -81,9 +81,9 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 		File pakApplicationFile = locatePakApplicationFile(pakApplicationPathValue);
 		File modelFile = locateModelFileForModelType(modelType);
 		File inputDirectory = locateInputDirectory(inputPath);
-		File outputDirectory = createDirectory(targetDirectory.getAbsolutePath() + File.separator + fileRelease.name);
+		File outputDirectory = createDirectory(new StringBuilder().append(targetDirectory.getAbsolutePath()).append(File.separator).append(fileRelease.name).toString());
 		File outputTempDirectory = createDirectory(
-				outputDirectory.getAbsolutePath() + File.separator + OUTPUT_SUB_TEMP_DIRECTORY);
+				new StringBuilder().append(outputDirectory.getAbsolutePath()).append(File.separator).append(OUTPUT_SUB_TEMP_DIRECTORY).toString());
 		File outputZIPFile = new File(outputDirectory, fileRelease.name + ATFX_OUTPUT_FILE_NAME_PREFIX);
 
 		try {
@@ -93,7 +93,7 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 				if (returnValue != 0) {
 					String errorMessage = translateErrorCode(returnValue);
 					throw new FileConverterException(
-							"external pak application ends with an error (message: '" + errorMessage + "')");
+							new StringBuilder().append("external pak application ends with an error (message: '").append(errorMessage).append("')").toString());
 				}
 				LOG.debug("executing external pak application ... done!");
 
@@ -103,7 +103,7 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 				LOG.debug("executing zip process for pak application result ... done");
 			}
 
-			fileRelease.fileLink = fileRelease.name + File.separator + outputZIPFile.getName();
+			fileRelease.fileLink = new StringBuilder().append(fileRelease.name).append(File.separator).append(outputZIPFile.getName()).toString();
 
 		} catch (IOException | InterruptedException e) {
 			throw new FileConverterException(e.getMessage(), e);
@@ -149,26 +149,25 @@ public class FileConverterPAK2ATFX extends AbstractFileConverter {
 		} else if (returnValue == 11) {
 			errorMessage = "illegal commant (model file parameter is missing)";
 		} else {
-			errorMessage = "unknown error with error code '" + returnValue + "'";
+			errorMessage = new StringBuilder().append("unknown error with error code '").append(returnValue).append("'").toString();
 		}
-		return errorMessage + "  (errorCode = '" + returnValue + "')";
+		return new StringBuilder().append(errorMessage).append("  (errorCode = '").append(returnValue).append("')").toString();
 	}
 
 	private File locatePakApplicationFile(String pakApplicationFilePath) {
 		File pakApplicationFile = new File(pakApplicationFilePath);
 		if (!pakApplicationFile.exists()) {
-			throw new FileReleaseException("pak application executable file at '" + pakApplicationFile.getAbsolutePath()
-					+ "' does not exist!");
+			throw new FileReleaseException(new StringBuilder().append("pak application executable file at '").append(pakApplicationFile.getAbsolutePath()).append("' does not exist!").toString());
 		}
 		return pakApplicationFile;
 	}
 
 	private File locateModelFileForModelType(String modelType) {
 		File modelFile = new File(
-				COMPONENT_CONFIG_ROOT_FOLDER + File.separator + modelType + File.separator + MODEL_FILE_NAME);
+				new StringBuilder().append(COMPONENT_CONFIG_ROOT_FOLDER).append(File.separator).append(modelType).append(File.separator)
+						.append(MODEL_FILE_NAME).toString());
 		if (!modelFile.exists()) {
-			throw new FileReleaseException("mapping file for atfx model with type '" + modelType
-					+ "' does not exist! (expected at: '" + modelFile.getAbsolutePath() + "')");
+			throw new FileReleaseException(new StringBuilder().append("mapping file for atfx model with type '").append(modelType).append("' does not exist! (expected at: '").append(modelFile.getAbsolutePath()).append("')").toString());
 		}
 		return modelFile;
 	}

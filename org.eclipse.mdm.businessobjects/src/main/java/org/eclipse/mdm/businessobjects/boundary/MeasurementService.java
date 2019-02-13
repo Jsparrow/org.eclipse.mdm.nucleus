@@ -21,6 +21,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.ContextRoot;
@@ -78,7 +79,7 @@ public class MeasurementService {
 					.getEntityManager()
 					.orElseThrow(() -> new MDMEntityAccessException("Entity manager not present!"));
 
-			if (filter == null || filter.trim().length() <= 0) {
+			if (filter == null || StringUtils.trim(filter).length() <= 0) {
 				return em.loadAll(Measurement.class);
 			}
 

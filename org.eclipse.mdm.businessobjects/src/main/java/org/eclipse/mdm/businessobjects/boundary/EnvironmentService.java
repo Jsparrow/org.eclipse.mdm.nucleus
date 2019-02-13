@@ -65,7 +65,7 @@ public class EnvironmentService {
 					.map(ApplicationContext::getEntityManager)
 					.filter(Optional::isPresent)
 				    .map(Optional::get)
-					.map(em -> em.loadEnvironment())
+					.map(EntityManager::loadEnvironment)
 					.collect(Collectors.toList());
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);

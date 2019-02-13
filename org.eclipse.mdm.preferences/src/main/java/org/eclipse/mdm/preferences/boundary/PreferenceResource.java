@@ -32,8 +32,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.mdm.preferences.controller.PreferenceService;
-import org.eclipse.mdm.preferences.entity.PreferenceMessage;
 import org.eclipse.mdm.preferences.entity.PreferenceList;
+import org.eclipse.mdm.preferences.entity.PreferenceMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

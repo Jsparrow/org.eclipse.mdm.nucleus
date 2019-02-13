@@ -15,14 +15,29 @@
 package org.eclipse.mdm.businessobjects.control.search;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.mdm.api.base.query.ComparisonOperator.*;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.BETWEEN;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_EQUAL;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_GREATER_THAN;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_GREATER_THAN_OR_EQUAL;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_IN_SET;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_LESS_THAN;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_LESS_THAN_OR_EQUAL;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_LIKE;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_NOT_EQUAL;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_NOT_IN_SET;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.CASE_INSENSITIVE_NOT_LIKE;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.EQUAL;
 import static org.eclipse.mdm.api.base.query.ComparisonOperator.GREATER_THAN;
 import static org.eclipse.mdm.api.base.query.ComparisonOperator.GREATER_THAN_OR_EQUAL;
 import static org.eclipse.mdm.api.base.query.ComparisonOperator.IN_SET;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.IS_NOT_NULL;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.IS_NULL;
 import static org.eclipse.mdm.api.base.query.ComparisonOperator.LESS_THAN;
 import static org.eclipse.mdm.api.base.query.ComparisonOperator.LESS_THAN_OR_EQUAL;
 import static org.eclipse.mdm.api.base.query.ComparisonOperator.LIKE;
 import static org.eclipse.mdm.api.base.query.ComparisonOperator.NOT_EQUAL;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.NOT_IN_SET;
+import static org.eclipse.mdm.api.base.query.ComparisonOperator.NOT_LIKE;
 import static org.eclipse.mdm.businessobjects.control.FilterParser.parseFilterString;
 
 import java.time.LocalDateTime;

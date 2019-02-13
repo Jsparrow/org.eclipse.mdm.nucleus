@@ -47,7 +47,7 @@ public class TemplateComponentTEQResourceIntegrationTest extends EntityResourceI
 		// set up test data
 		setContextClass(TemplateComponentTEQResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/" + getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps");
+		putTestDataValue(TESTDATA_RESOURCE_URI, new StringBuilder().append("/tplroots/testequipment/").append(getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplcomps").toString());
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testTplCompTEQ");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateComponent");
 

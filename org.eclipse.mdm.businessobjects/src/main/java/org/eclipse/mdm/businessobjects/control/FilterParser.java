@@ -219,11 +219,7 @@ public class FilterParser {
 		 */
 		private List<String> getValues(ValuesContext ctx) {
 			List<String> values = new ArrayList<>();
-			for (org.antlr.v4.runtime.tree.ParseTree child : ctx.children) {
-				if (child instanceof ValueContext) {
-					values.add(getValue((ValueContext) child));
-				}
-			}
+			ctx.children.stream().filter(child -> child instanceof ValueContext).forEach(child -> values.add(getValue((ValueContext) child)));
 			return values;
 		}
 
@@ -243,7 +239,7 @@ public class FilterParser {
 			return availableEntityTypes.stream()
 					.filter(e -> ServiceUtils.workaroundForTypeMapping(e).equals(name[0]))
 					.findAny()
-					.orElseThrow(() -> new IllegalArgumentException("Entity " + name[0] + " not found in data source!"))
+					.orElseThrow(() -> new IllegalArgumentException(new StringBuilder().append("Entity ").append(name[0]).append(" not found in data source!").toString()))
 					.getAttribute(name[1]);
 		}
 
@@ -311,7 +307,7 @@ public class FilterParser {
 				return ComparisonOperator.BETWEEN;
 			default:
 				throw new IllegalArgumentException(
-						"Operator " + typeNode.getSymbol().getType() + " not supported yet!");
+						new StringBuilder().append("Operator ").append(typeNode.getSymbol().getType()).append(" not supported yet!").toString());
 			}
 		}
 	}
@@ -333,8 +329,9 @@ public class FilterParser {
 		 */
 		@Override
 		public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
-				String msg, RecognitionException e) throws ParseCancellationException {
-			throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
+				String msg, RecognitionException e) {
+			throw new ParseCancellationException(new StringBuilder().append("line ").append(line).append(":").append(charPositionInLine).append(" ").append(msg)
+					.toString());
 		}
 	}
 
@@ -350,8 +347,7 @@ public class FilterParser {
 	 * @throws IllegalArgumentExceptionThrown
 	 *             if parsing fails.
 	 */
-	public static Filter parseFilterString(List<EntityType> possibleEntityTypes, String filterString)
-			throws IllegalArgumentException {
+	public static Filter parseFilterString(List<EntityType> possibleEntityTypes, String filterString) {
 
 		if (Strings.isNullOrEmpty(filterString)) {
 			return Filter.and();
@@ -369,7 +365,7 @@ public class FilterParser {
 			return new FilterVisitor(possibleEntityTypes).visit(parser.parse());
 		} catch (ParseCancellationException e) {
 			throw new IllegalArgumentException(
-					"Could not parse filter string '" + filterString + "'. Error: " + e.getMessage(), e);
+					new StringBuilder().append("Could not parse filter string '").append(filterString).append("'. Error: ").append(e.getMessage()).toString(), e);
 		}
 	}
 
@@ -407,7 +403,7 @@ public class FilterParser {
 				ret = LocalDateTime.parse(valueAsString);
 			} catch (DateTimeParseException e) {
 				throw new IllegalArgumentException(
-						"Unsupported value for date: '" + valueAsString + "'. Expected format: '2007-12-03T10:15:30'");
+						new StringBuilder().append("Unsupported value for date: '").append(valueAsString).append("'. Expected format: '2007-12-03T10:15:30'").toString());
 			}
 		} else {
 			throw new IllegalArgumentException("Unsupported value type: " + valueType.toString());
@@ -431,9 +427,7 @@ public class FilterParser {
 
 		if (ValueType.BOOLEAN.equals(valueType)) {
 			List<Boolean> list = new ArrayList<>();
-			for (String valueAsString : valuesAsStrings) {
-				list.add(Boolean.valueOf(valueAsString));
-			}
+			valuesAsStrings.forEach(valueAsString -> list.add(Boolean.valueOf(valueAsString)));
 			return Booleans.toArray(list);
 		} else if (ValueType.LONG.equals(valueType)) {
 			List<Long> list = new ArrayList<>();
@@ -443,9 +437,7 @@ public class FilterParser {
 			return Longs.toArray(list);
 		} else if (ValueType.STRING.equals(valueType)) {
 			List<String> list = new ArrayList<>();
-			for (String valueAsString : valuesAsStrings) {
-				list.add(valueAsString);
-			}
+			valuesAsStrings.forEach(list::add);
 			return list.toArray(new String[0]);
 		} else if (ValueType.BYTE.equals(valueType)) {
 			List<Byte> list = new ArrayList<>();
@@ -483,8 +475,7 @@ public class FilterParser {
 				try {
 					list.add(LocalDateTime.parse(valueAsString));
 				} catch (DateTimeParseException e) {
-					throw new IllegalArgumentException("Unsupported value for date: '" + valueAsString
-							+ "'. Expected format: '2007-12-03T10:15:30'");
+					throw new IllegalArgumentException(new StringBuilder().append("Unsupported value for date: '").append(valueAsString).append("'. Expected format: '2007-12-03T10:15:30'").toString());
 				}
 			}
 			return list.toArray(new LocalDateTime[0]);

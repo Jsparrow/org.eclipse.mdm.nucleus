@@ -15,6 +15,22 @@
 
 package org.eclipse.mdm.connector.boundary;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Constructor;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import javax.ejb.SessionContext;
+
 import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.adapter.Core;
 import org.eclipse.mdm.api.base.model.Entity;
@@ -27,17 +43,6 @@ import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.control.ServiceConfigurationActivity;
 import org.eclipse.mdm.connector.entity.ServiceConfiguration;
 import org.junit.Test;
-
-import javax.ejb.SessionContext;
-import java.lang.reflect.Constructor;
-import java.security.Principal;
-import java.util.*;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * JUNIT Test for {@link ConnectorService}

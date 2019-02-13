@@ -58,15 +58,13 @@ public class GlobalPropertyService {
 			File componentConfigFolder = new File(COMPONENT_CONFIG_ROOT_FOLDER);
 
 			if (!componentConfigFolder.exists() || !componentConfigFolder.isDirectory()) {
-				LOG.warn("property configuration folder  at '" + componentConfigFolder.getAbsolutePath()
-						+ "' does not exist! No properties available!");
+				LOG.warn(new StringBuilder().append("property configuration folder  at '").append(componentConfigFolder.getAbsolutePath()).append("' does not exist! No properties available!").toString());
 				return;
 			}
 
 			File globalConfigFile = new File(componentConfigFolder, GLOBAL_PROPERTIES_FILENAME);
 			if (!componentConfigFolder.exists()) {
-				LOG.warn("property configuration file for global properties at '" + globalConfigFile.getAbsolutePath()
-						+ "' does not exist! no global properties available");
+				LOG.warn(new StringBuilder().append("property configuration file for global properties at '").append(globalConfigFile.getAbsolutePath()).append("' does not exist! no global properties available").toString());
 				return;
 			}
 
@@ -92,14 +90,14 @@ public class GlobalPropertyService {
 	 */
 	@Produces
 	@GlobalProperty
-	public String getGlobalPropertyValue(InjectionPoint ip) throws GlobalPropertyException {
+	public String getGlobalPropertyValue(InjectionPoint ip) {
 		GlobalProperty property = ip.getAnnotated().getAnnotation(GlobalProperty.class);
 		String propertyName = property.value();
-		if (!globalProperties.containsKey(propertyName)) {
-			LOG.warn("global property with name '" + propertyName + "' not found!");
-			return "";
+		if (globalProperties.containsKey(propertyName)) {
+			return globalProperties.getProperty(propertyName);
 		}
-		return globalProperties.getProperty(propertyName);
+		LOG.warn(new StringBuilder().append("global property with name '").append(propertyName).append("' not found!").toString());
+		return "";
 	}
 	
 	/**
@@ -113,9 +111,7 @@ public class GlobalPropertyService {
 	@GlobalProperty
 	public Map<String, String> getGlobalPropertyMap(InjectionPoint ip) {
 		Map<String, String> map = new HashMap<>();
-		for (String key : globalProperties.stringPropertyNames()) {
-			map.put(key, globalProperties.getProperty(key));
-		}
+		globalProperties.stringPropertyNames().forEach(key -> map.put(key, globalProperties.getProperty(key)));
 		return map;
 	}
 

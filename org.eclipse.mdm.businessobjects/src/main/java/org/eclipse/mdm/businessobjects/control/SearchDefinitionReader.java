@@ -25,10 +25,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.mail.search.SearchException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.businessobjects.entity.SearchDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,9 +91,7 @@ public class SearchDefinitionReader {
 		List<SearchDefinition> searchDefinitionList = new ArrayList<>();
 		List<File> files = listSearchDefinitionFiles();
 
-		for (File file : files) {
-			searchDefinitionList.add(readSearchDefinitionFile(file));
-		}
+		files.forEach(file -> searchDefinitionList.add(readSearchDefinitionFile(file)));
 
 		return searchDefinitionList;
 	}
@@ -108,8 +108,8 @@ public class SearchDefinitionReader {
 			is = new BufferedInputStream(new FileInputStream(file));
 			Document doc = db.parse(is);
 			Element root = doc.getDocumentElement();
-			if (!root.getNodeName().equalsIgnoreCase(ROOT_ELEMENT_NAME)) {
-				String message = "unable to find root element with name '" + ROOT_ELEMENT_NAME + "'";
+			if (!StringUtils.equalsIgnoreCase(root.getNodeName(), ROOT_ELEMENT_NAME)) {
+				String message = new StringBuilder().append("unable to find root element with name '").append(ROOT_ELEMENT_NAME).append("'").toString();
 				throw new XMLFormatException(message);
 			}
 
@@ -140,18 +140,18 @@ public class SearchDefinitionReader {
 
 	private Element[] getChildElementsByName(Element element, String name, boolean mandatory) {
 
-		List<Element> elements = new ArrayList<Element>();
+		List<Element> elements = new ArrayList<>();
 
 		NodeList childNodes = element.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node node = childNodes.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equalsIgnoreCase(name)) {
+			if (node.getNodeType() == Node.ELEMENT_NODE && StringUtils.equalsIgnoreCase(node.getNodeName(), name)) {
 				elements.add((Element) node);
 			}
 		}
 
 		if (mandatory && elements.size() <= 0) {
-			String message = "mandatory element '" + name + "' not found!";
+			String message = new StringBuilder().append("mandatory element '").append(name).append("' not found!").toString();
 			throw new XMLFormatException(message);
 		}
 
@@ -161,10 +161,10 @@ public class SearchDefinitionReader {
 	private String readElementAttribute(String attrName, String defaultValue, boolean mandatory, Element element) {
 
 		String value = element.getAttribute(attrName);
-		if (value.trim().length() <= 0) {
+		if (StringUtils.trim(value).length() <= 0) {
 			if (mandatory) {
 				String elementName = element.getNodeName();
-				String message = "mandatory attribute '" + attrName + "' at element '" + elementName + "' is missing!";
+				String message = new StringBuilder().append("mandatory attribute '").append(attrName).append("' at element '").append(elementName).append("' is missing!").toString();
 				throw new XMLFormatException(message);
 			}
 			value = defaultValue;
@@ -197,7 +197,7 @@ public class SearchDefinitionReader {
 			if (file.isDirectory()) {
 				continue;
 			}
-			if (file.getName().toLowerCase().endsWith(".xml")) {
+			if (StringUtils.endsWith(file.getName().toLowerCase(), ".xml")) {
 				list.add(file);
 			}
 		}

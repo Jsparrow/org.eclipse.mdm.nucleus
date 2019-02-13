@@ -26,11 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.ConnectionException;
 import org.eclipse.mdm.api.base.ServiceNotProvidedException;
 import org.eclipse.mdm.api.base.adapter.ModelManager;
-import org.eclipse.mdm.api.base.model.Value;
-import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.base.query.QueryService;
 import org.eclipse.mdm.api.base.query.Record;
 import org.eclipse.mdm.api.base.query.Result;
@@ -42,8 +41,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Strings;
@@ -73,16 +70,16 @@ public class QueryTest {
 		String nameServicePort = System.getProperty("port");
 		String serviceName = System.getProperty("service");
 
-		if (nameServiceHost == null || nameServiceHost.isEmpty()) {
+		if (nameServiceHost == null || StringUtils.isEmpty(nameServiceHost)) {
 			throw new IllegalArgumentException("name service host is unknown: define system property 'host'");
 		}
 
-		nameServicePort = nameServicePort == null || nameServicePort.isEmpty() ? String.valueOf(2809) : nameServicePort;
-		if (nameServicePort == null || nameServicePort.isEmpty()) {
+		nameServicePort = nameServicePort == null || StringUtils.isEmpty(nameServicePort) ? String.valueOf(2809) : nameServicePort;
+		if (nameServicePort == null || StringUtils.isEmpty(nameServicePort)) {
 			throw new IllegalArgumentException("name service port is unknown: define system property 'port'");
 		}
 
-		if (serviceName == null || serviceName.isEmpty()) {
+		if (serviceName == null || StringUtils.isEmpty(serviceName)) {
 			throw new IllegalArgumentException("service name is unknown: define system property 'service'");
 		}
 
@@ -108,7 +105,7 @@ public class QueryTest {
 
 	@org.junit.Test
 	@Ignore
-	public void test() throws DataAccessException, JsonGenerationException, JsonMappingException, IOException {
+	public void test() throws IOException {
 		
 
 		List<Result> result = queryService.createQuery().select(modelManager.getEntityType("Test").getAttribute("Id"))
@@ -118,17 +115,14 @@ public class QueryTest {
 
 		List<Row> rows = new ArrayList<>();
 
-		for (Result r : result) {
+		result.forEach(r -> {
 			Row row = new Row();
 			for (Record record : r) {
-				for (Value value : record.getValues().values()) {
-					row.addColumn(new Column(record.getEntityType().getName(), value.getName(),
-							Strings.emptyToNull(Objects.toString(value.extract())),
-							Strings.emptyToNull(value.getUnit())));
-				}
+				record.getValues().values().forEach(value -> row.addColumn(new Column(record.getEntityType().getName(), value.getName(),
+						Strings.emptyToNull(Objects.toString(value.extract())), Strings.emptyToNull(value.getUnit()))));
 			}
 			rows.add(row);
-		}
+		});
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);

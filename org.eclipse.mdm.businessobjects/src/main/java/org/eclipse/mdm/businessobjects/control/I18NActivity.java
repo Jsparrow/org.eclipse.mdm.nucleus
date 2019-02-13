@@ -111,9 +111,7 @@ public class I18NActivity {
 		ApplicationContext context = this.connectorService.getContextByName(sourceName);
 		List<EntityType> list = lookupAllEntityTypes(context);
 
-		for (EntityType entityType : list) {
-			localizeAttributes(entityType, map);
-		}
+		list.forEach(entityType -> localizeAttributes(entityType, map));
 
 		return map;
 	}
@@ -132,9 +130,7 @@ public class I18NActivity {
 		ApplicationContext context = this.connectorService.getContextByName(sourceName);
 		List<EntityType> list = lookupAllEntityTypes(context);
 
-		for (EntityType entityType : list) {
-			localizeType(entityType, map);
-		}
+		list.forEach(entityType -> localizeType(entityType, map));
 
 		return map;
 	}
@@ -146,11 +142,11 @@ public class I18NActivity {
 
 	private void localizeAttributes(EntityType entityType, Map<Attribute, String> map) {
 
-		for (Attribute attribute : entityType.getAttributes()) {
-			String key = entityType.getName() + "." + attribute.getName();
+		entityType.getAttributes().forEach(attribute -> {
+			String key = new StringBuilder().append(entityType.getName()).append(".").append(attribute.getName()).toString();
 			String localization = localize(key, attribute.getName());
 			map.put(attribute, localization);
-		}
+		});
 
 	}
 
@@ -162,7 +158,7 @@ public class I18NActivity {
 
 	private List<EntityType> lookupAllEntityTypes(ApplicationContext context) {
 		return context.getModelManager()
-				.map(mm -> mm.listEntityTypes())
+				.map(ModelManager::listEntityTypes)
 				.orElseThrow(() -> new ServiceNotProvidedException(ModelManager.class));
 	}
 
@@ -170,7 +166,7 @@ public class I18NActivity {
 		try {
 			return LOCALIZATION_RESOURCES.getString(key);
 		} catch (MissingResourceException e) {
-			LOG.debug("unable to localize key '" + key + "', no translation possible!");
+			LOG.debug(new StringBuilder().append("unable to localize key '").append(key).append("', no translation possible!").toString());
 			return defaultValue;
 		}
 	}

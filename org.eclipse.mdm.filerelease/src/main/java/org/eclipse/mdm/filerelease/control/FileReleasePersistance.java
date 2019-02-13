@@ -79,7 +79,7 @@ public class FileReleasePersistance {
 
 	private void writeFile(File targetFile, Map<String, FileRelease> map) {
 
-		LOG.debug("Writing FileRelease storage file to '" + targetFile.getAbsolutePath() + "'");
+		LOG.debug(new StringBuilder().append("Writing FileRelease storage file to '").append(targetFile.getAbsolutePath()).append("'").toString());
 
 		try {
 			if (targetFile.exists()) {
@@ -98,22 +98,19 @@ public class FileReleasePersistance {
 	@SuppressWarnings("unchecked")
 	private Map<String, FileRelease> loadFile(File targetFile) {
 
-		LOG.debug("Loading FileRelease storage file from '" + targetFile.getAbsolutePath() + "'");
+		LOG.debug(new StringBuilder().append("Loading FileRelease storage file from '").append(targetFile.getAbsolutePath()).append("'").toString());
 
 		try {
 			if (!targetFile.exists()) {
-				LOG.warn("Storage file does not exist at '" + targetFile.getAbsolutePath()
-						+ "'. Using an empty FileRelease pool");
-				return new HashMap<String, FileRelease>();
+				LOG.warn(new StringBuilder().append("Storage file does not exist at '").append(targetFile.getAbsolutePath()).append("'. Using an empty FileRelease pool").toString());
+				return new HashMap<>();
 			}
 
 			try (ObjectInputStream ois = new ObjectInputStream(
 					new BufferedInputStream(new FileInputStream(targetFile)))) {
 				return (Map<String, FileRelease>) ois.readObject();
 			}
-		} catch (IOException e) {
-			throw new FileReleaseException(e.getMessage(), e);
-		} catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException | IOException e) {
 			throw new FileReleaseException(e.getMessage(), e);
 		}
 	}
@@ -122,7 +119,7 @@ public class FileReleasePersistance {
 		boolean deleted = targetFile.delete();
 		if (!deleted) {
 			throw new FileReleaseException(
-					"Unable to delete FileRelease storage file at '" + targetFile.getAbsolutePath() + "'");
+					new StringBuilder().append("Unable to delete FileRelease storage file at '").append(targetFile.getAbsolutePath()).append("'").toString());
 		}
 	}
 }

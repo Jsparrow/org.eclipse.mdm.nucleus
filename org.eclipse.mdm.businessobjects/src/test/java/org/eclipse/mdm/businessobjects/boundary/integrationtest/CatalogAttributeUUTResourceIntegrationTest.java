@@ -47,7 +47,7 @@ public class CatalogAttributeUUTResourceIntegrationTest extends EntityResourceIn
 		// set up test data
 		setContextClass(CatalogAttributeUUTResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/unitundertest/" + getTestDataValue(CatalogComponentUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/catattrs");
+		putTestDataValue(TESTDATA_RESOURCE_URI, new StringBuilder().append("/catcomps/unitundertest/").append(getTestDataValue(CatalogComponentUUTResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/catattrs").toString());
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatAttrUUT");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogAttribute");
 

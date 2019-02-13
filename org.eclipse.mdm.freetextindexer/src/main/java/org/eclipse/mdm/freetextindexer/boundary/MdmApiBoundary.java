@@ -120,13 +120,7 @@ public class MdmApiBoundary {
 
 	@PostConstruct
 	public void initalize() {
-		Principal principal = new Principal() {
-			
-			@Override
-			public String getName() {
-				return null;
-			}
-		};
+		Principal principal = () -> null;
 		
 		connectorService = new ConnectorService(principal, globalProperties);
 		connectorService.connect();
@@ -150,7 +144,7 @@ public class MdmApiBoundary {
 			manager.register(notificationName, new NotificationFilter(), new FreeTextNotificationListener(entityManager));
 			LOGGER.info("Successfully registered for new notifications with name '{}' at source '{}!", notificationName, source);
 		} catch (ConnectionException | NotificationException e) {
-			throw new IllegalArgumentException("The ODS Server and/or the Notification Service cannot be accessed for source '" + source + "'!",
+			throw new IllegalArgumentException(new StringBuilder().append("The ODS Server and/or the Notification Service cannot be accessed for source '").append(source).append("'!").toString(),
 					e);
 		}
 	}

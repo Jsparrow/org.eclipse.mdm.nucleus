@@ -16,7 +16,10 @@ package org.eclipse.mdm.freetextindexer.entities;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.eclipse.mdm.api.base.model.Quantity;
 import org.eclipse.mdm.api.base.model.TestStep;
@@ -40,7 +43,7 @@ public class MDMEntityResponseTest {
 
 	@Ignore
 	@Test
-	public void buildFails_nullIsReturned() throws DataAccessException {
+	public void buildFails_nullIsReturned() {
 		TestStep ts = mock(TestStep.class);
 		EntityManager manager = mock(EntityManager.class);
 		when(manager.loadContexts(eq(ts), any())).thenThrow(new DataAccessException("test"));

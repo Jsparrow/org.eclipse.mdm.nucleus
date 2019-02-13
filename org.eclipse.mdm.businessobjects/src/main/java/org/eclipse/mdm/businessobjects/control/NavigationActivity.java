@@ -32,6 +32,7 @@ import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.Test;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
+import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.model.Pool;
 import org.eclipse.mdm.api.dflt.model.Project;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -68,7 +69,7 @@ public class NavigationActivity {
 		try {
 			return this.connectorService.getContexts()
 					.stream()
-					.map(c -> c.getEntityManager())
+					.map(ApplicationContext::getEntityManager)
 					.filter(Optional::isPresent)
 					.map(em -> em.get().loadEnvironment())
 					.collect(Collectors.toList());
@@ -90,7 +91,7 @@ public class NavigationActivity {
 			return this.connectorService.getContextByName(sourceName)
 					.getEntityManager()
 					.map(em -> em.loadAll(Project.class))
-					.orElseThrow(() -> new MDMEntityAccessException("No EntityManager found for source " + sourceName + "!"));
+					.orElseThrow(() -> new MDMEntityAccessException(new StringBuilder().append("No EntityManager found for source ").append(sourceName).append("!").toString()));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -109,7 +110,7 @@ public class NavigationActivity {
 			return this.connectorService.getContextByName(sourceName)
 					.getEntityManager()
 					.map(em -> em.loadAll(Test.class))
-					.orElseThrow(() -> new MDMEntityAccessException("No EntityManager found for source " + sourceName + "!"));
+					.orElseThrow(() -> new MDMEntityAccessException(new StringBuilder().append("No EntityManager found for source ").append(sourceName).append("!").toString()));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}
@@ -209,7 +210,7 @@ public class NavigationActivity {
 			return this.connectorService.getContextByName(sourceName)
 					.getEntityManager()
 					.map(em -> em.loadChildren(em.load(parentType, parentID), childType))
-					.orElseThrow(() -> new MDMEntityAccessException("No EntityManager found for source " + sourceName + "!"));
+					.orElseThrow(() -> new MDMEntityAccessException(new StringBuilder().append("No EntityManager found for source ").append(sourceName).append("!").toString()));
 		} catch (DataAccessException e) {
 			throw new MDMEntityAccessException(e.getMessage(), e);
 		}

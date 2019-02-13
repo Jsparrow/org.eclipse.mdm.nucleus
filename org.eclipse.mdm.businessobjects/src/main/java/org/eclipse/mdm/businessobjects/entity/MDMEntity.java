@@ -151,7 +151,7 @@ public class MDMEntity {
 		}
 
 		String dt = sequenceValue.getValueType().toString();
-		String defValue = "sequence type '" + dt + "' not implemented yet";
+		String defValue = new StringBuilder().append("sequence type '").append(dt).append("' not implemented yet").toString();
 		return new MDMAttribute(name, defValue, "", dt);
 	}
 
@@ -167,7 +167,7 @@ public class MDMEntity {
 	 */
 	private MDMAttribute stringSeq2Attribute(String name, Value value) {
 		String[] stringSeq = value.extract();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		for (String stringSeqValue : stringSeq) {
 			sb.append(";").append(stringSeqValue);

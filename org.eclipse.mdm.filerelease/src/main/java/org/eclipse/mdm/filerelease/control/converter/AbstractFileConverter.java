@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.model.TestStep;
@@ -81,11 +82,11 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		File source = new File(folderToZip);
 		File target = new File(targetFile);
 		if (!source.exists()) {
-			throw new FileConverterException("Unable to zip folder: " + folderToZip + ". The folder does not exist.");
+			throw new FileConverterException(new StringBuilder().append("Unable to zip folder: ").append(folderToZip).append(". The folder does not exist.").toString());
 		}
 		if (!overWrite && target.exists()) {
 			throw new FileConverterException(
-					"Unable to zip folder: " + folderToZip + ". The target file" + targetFile + "already exists.");
+					new StringBuilder().append("Unable to zip folder: ").append(folderToZip).append(". The target file").append(targetFile).append("already exists.").toString());
 		}
 		if (overWrite && target.exists()) {
 			target.delete();
@@ -126,7 +127,7 @@ public abstract class AbstractFileConverter implements IFileConverter {
 
 			if (results.size() < 0 || results.size() > 1) {
 				throw new FileReleaseException(
-						"Illegal search result for attribute value from '" + entityName + "." + attributeName + "'");
+						new StringBuilder().append("Illegal search result for attribute value from '").append(entityName).append(".").append(attributeName).append("'").toString());
 			}
 
 			TestStep resultTestStep = results.get(0);
@@ -146,7 +147,7 @@ public abstract class AbstractFileConverter implements IFileConverter {
 	protected File createDirectory(String path) {
 		File directory = new File(path);
 		if (!directory.exists() && !directory.mkdir()) {
-			throw new FileReleaseException("Unable to create directory at '" + directory.getAbsolutePath() + "'");
+			throw new FileReleaseException(new StringBuilder().append("Unable to create directory at '").append(directory.getAbsolutePath()).append("'").toString());
 		}
 
 		return directory;
@@ -169,11 +170,11 @@ public abstract class AbstractFileConverter implements IFileConverter {
 				deleteDirectory(file);
 			}
 			if (!file.delete()) {
-				LOG.warn("Unable to delete file at '" + file.getAbsolutePath() + "'");
+				LOG.warn(new StringBuilder().append("Unable to delete file at '").append(file.getAbsolutePath()).append("'").toString());
 			}
 		}
 		if (!directory.delete()) {
-			LOG.warn("Unable to delete directory at '" + directory.getAbsolutePath() + "'");
+			LOG.warn(new StringBuilder().append("Unable to delete directory at '").append(directory.getAbsolutePath()).append("'").toString());
 		}
 	}
 
@@ -188,12 +189,12 @@ public abstract class AbstractFileConverter implements IFileConverter {
 		File pakInputDirectory = new File(inputPath);
 		if (!pakInputDirectory.exists()) {
 			throw new FileReleaseException(
-					"Input path at '" + pakInputDirectory.getAbsolutePath() + "' does not exist!");
+					new StringBuilder().append("Input path at '").append(pakInputDirectory.getAbsolutePath()).append("' does not exist!").toString());
 		}
 
 		if (!pakInputDirectory.isDirectory()) {
 			throw new FileReleaseException(
-					"Input path at '" + pakInputDirectory.getAbsolutePath() + "' is not a directory path!");
+					new StringBuilder().append("Input path at '").append(pakInputDirectory.getAbsolutePath()).append("' is not a directory path!").toString());
 		}
 
 		return pakInputDirectory;
@@ -201,13 +202,13 @@ public abstract class AbstractFileConverter implements IFileConverter {
 
 	protected String readPropertyValue(String propertyValue, boolean mandatory, String defaultValue,
 			String propertyName) throws FileConverterException {
-		if (propertyValue == null || propertyValue.trim().length() <= 0) {
-			if (mandatory) {
-				throw new FileConverterException("Mandatory property with name '" + propertyName + "' is not defined!");
-			}
-			return defaultValue;
+		if (!(propertyValue == null || StringUtils.trim(propertyValue).length() <= 0)) {
+			return propertyValue;
 		}
-		return propertyValue;
+		if (mandatory) {
+			throw new FileConverterException(new StringBuilder().append("Mandatory property with name '").append(propertyName).append("' is not defined!").toString());
+		}
+		return defaultValue;
 	}
 
 	private void zipFiles(List<File> list, File target, String sourcePath) throws FileConverterException {
@@ -258,7 +259,7 @@ public abstract class AbstractFileConverter implements IFileConverter {
 				return entityType;
 			}
 		}
-		throw new FileReleaseException("Entity with name '" + entityName + "' not available for TestStep query");
+		throw new FileReleaseException(new StringBuilder().append("Entity with name '").append(entityName).append("' not available for TestStep query").toString());
 	}
 
 	private Attribute locateAttribute(EntityType entityType, String attributeName) {
@@ -269,7 +270,7 @@ public abstract class AbstractFileConverter implements IFileConverter {
 			}
 		}
 		throw new FileReleaseException(
-				"Attribute with name '" + attributeName + "' does not exist at entity '" + entityType.getName() + "'");
+				new StringBuilder().append("Attribute with name '").append(attributeName).append("' does not exist at entity '").append(entityType.getName()).append("'").toString());
 	}
 
 }

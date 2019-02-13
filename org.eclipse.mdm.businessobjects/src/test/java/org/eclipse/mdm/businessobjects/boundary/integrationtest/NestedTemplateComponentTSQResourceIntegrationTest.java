@@ -47,7 +47,7 @@ public class NestedTemplateComponentTSQResourceIntegrationTest extends EntityRes
 		// set up test data
 		setContextClass(NestedTemplateComponentTSQResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testsequence/" + getTestDataValue(TemplateRootTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/" + getTestDataValue(TemplateComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps");
+		putTestDataValue(TESTDATA_RESOURCE_URI, new StringBuilder().append("/tplroots/testsequence/").append(getTestDataValue(TemplateRootTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplcomps/").append(getTestDataValue(TemplateComponentTSQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplcomps").toString());
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testNestedTplCompTSQ");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateComponent");
 

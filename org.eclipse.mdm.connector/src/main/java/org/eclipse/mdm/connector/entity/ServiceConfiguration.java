@@ -85,7 +85,7 @@ public class ServiceConfiguration {
 
 	@Override
 	public String toString() {
-		return this.contextFactoryClass + "#" + connectionParameters;
+		return new StringBuilder().append(this.contextFactoryClass).append("#").append(connectionParameters).toString();
 	}
 
 }

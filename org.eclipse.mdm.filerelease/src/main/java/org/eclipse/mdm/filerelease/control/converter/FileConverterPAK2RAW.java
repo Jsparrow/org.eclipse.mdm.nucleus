@@ -55,7 +55,7 @@ public class FileConverterPAK2RAW extends AbstractFileConverter {
 		String inputPath = locateStringAttributeValue(context, testStep, pakInputEntityValue, pakInputAttributeValue);
 		File inputDirectory = locateInputDirectory(inputPath);
 
-		File outputDirectory = createDirectory(targetDirectory.getAbsolutePath() + File.separator + fileRelease.name);
+		File outputDirectory = createDirectory(new StringBuilder().append(targetDirectory.getAbsolutePath()).append(File.separator).append(fileRelease.name).toString());
 		File outputZIPFile = new File(outputDirectory, fileRelease.name + ATFX_OUTPUT_FILE_NAME_PREFIX);
 
 		if (!outputZIPFile.exists()) {
@@ -64,7 +64,7 @@ public class FileConverterPAK2RAW extends AbstractFileConverter {
 			LOG.debug("executing zip process for pak raw data ... done");
 		}
 
-		fileRelease.fileLink = fileRelease.name + File.separator + outputZIPFile.getName();
+		fileRelease.fileLink = new StringBuilder().append(fileRelease.name).append(File.separator).append(outputZIPFile.getName()).toString();
 	}
 
 	@Override

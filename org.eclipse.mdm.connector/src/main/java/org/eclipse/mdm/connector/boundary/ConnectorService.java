@@ -83,7 +83,6 @@ public class ConnectorService implements Serializable {
 	 * @param globalProperties global properties supplied the opened application contexts.
 	 */
 	public ConnectorService(Principal principal, Map<String, String> globalProperties) {
-		super();
 		this.principal = principal;
 		this.serviceConfigurationActivity = new ServiceConfigurationActivity();
 		this.globalProperties = globalProperties;
@@ -117,7 +116,7 @@ public class ConnectorService implements Serializable {
 					return context;
 				}
 			}
-			String errorMessage = "no data source with environment name '" + name + "' connected!";
+			String errorMessage = new StringBuilder().append("no data source with environment name '").append(name).append("' connected!").toString();
 			throw new ConnectorServiceException(errorMessage);
 
 		} catch (DataAccessException e) {
@@ -129,7 +128,7 @@ public class ConnectorService implements Serializable {
 
 	@PostConstruct
 	public void connect() {
-		LOG.info("connecting user with name '" + principal.getName() + "'");
+		LOG.info(new StringBuilder().append("connecting user with name '").append(principal.getName()).append("'").toString());
 		this.contexts = serviceConfigurationActivity
 				.readServiceConfigurations().stream()
 				.map(this::connectContexts)
@@ -148,7 +147,7 @@ public class ConnectorService implements Serializable {
 	@PreDestroy
     public void disconnect() {
         disconnectContexts(contexts);
-        LOG.info("user with name '" + principal.getName() + "' has been disconnected!");
+        LOG.info(new StringBuilder().append("user with name '").append(principal.getName()).append("' has been disconnected!").toString());
     }
 
 	private Optional<ApplicationContext> connectContexts(ServiceConfiguration source) {
@@ -168,19 +167,16 @@ public class ConnectorService implements Serializable {
 			return Optional.of(context);
 
 		} catch (ConnectionException e) {
-			LOG.warn("unable to logon user with name '" + principal.getName() + "' at data source '" + source.toString()
-					+ "' (reason: " + e.getMessage() + ")");
+			LOG.warn(new StringBuilder().append("unable to logon user with name '").append(principal.getName()).append("' at data source '").append(source.toString()).append("' (reason: ").append(e.getMessage())
+					.append(")").toString());
 		} catch (Exception e) {
-			LOG.error("failed to initialize entity manager using factory '" + source.getContextFactoryClass()
-					+ "' (reason: " + e + ")", e);
+			LOG.error(new StringBuilder().append("failed to initialize entity manager using factory '").append(source.getContextFactoryClass()).append("' (reason: ").append(e).append(")").toString(), e);
 		}
 		return Optional.empty();
 	}
 
 	private static void disconnectContexts(List<ApplicationContext> contextList) {
-		for (ApplicationContext context : contextList) {
-			disconnectContext(context);
-		}
+		contextList.forEach(ConnectorService::disconnectContext);
 	}
 
 	private static void disconnectContext(ApplicationContext context) {
@@ -189,7 +185,7 @@ public class ConnectorService implements Serializable {
 				context.close();
 			}
 		} catch (ConnectionException e) {
-			LOG.error("unable to logout user from MDM datasource (reason: " + e.getMessage() + ")");
+			LOG.error(new StringBuilder().append("unable to logout user from MDM datasource (reason: ").append(e.getMessage()).append(")").toString());
 			throw new ConnectorServiceException(e.getMessage(), e);
 		}
 	}

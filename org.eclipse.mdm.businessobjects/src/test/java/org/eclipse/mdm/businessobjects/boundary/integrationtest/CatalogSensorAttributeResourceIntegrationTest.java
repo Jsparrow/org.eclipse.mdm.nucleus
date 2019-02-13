@@ -41,10 +41,7 @@ public class CatalogSensorAttributeResourceIntegrationTest extends EntityResourc
 		// set up test data
 		setContextClass(CatalogSensorAttributeResourceIntegrationTest.class);
 
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/catcomps/testequipment/"
-				+ getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-				+ "/catsensors/" + getTestDataValue(CatalogSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-				+ "/catsensorattrs");
+		putTestDataValue(TESTDATA_RESOURCE_URI, new StringBuilder().append("/catcomps/testequipment/").append(getTestDataValue(CatalogComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/catsensors/").append(getTestDataValue(CatalogSensorResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/catsensorattrs").toString());
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testCatSensorAttr");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "CatalogAttribute");
 

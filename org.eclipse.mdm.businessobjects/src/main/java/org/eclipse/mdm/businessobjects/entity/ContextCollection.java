@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
 
@@ -43,18 +42,15 @@ public class ContextCollection {
 	 */
 	public void setMeasuredContext(Map<ContextType, ContextRoot> contextMap) {
 
-		for (java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
+		contextMap.entrySet().forEach(setEntry -> {
 
 			ContextType contextType = setEntry.getKey();
 			ContextRoot contextRoot = setEntry.getValue();
 
 			this.contextMeasured.put(contextType, new ArrayList<>());
 
-			for (ContextComponent contextComponent : contextRoot.getContextComponents()) {
-				MDMEntity entity = new MDMEntity(contextComponent);
-				this.contextMeasured.get(contextType).add(entity);
-			}
-		}
+			contextRoot.getContextComponents().stream().map(MDMEntity::new).forEach(entity -> this.contextMeasured.get(contextType).add(entity));
+		});
 	}
 
 	/**
@@ -65,18 +61,15 @@ public class ContextCollection {
 	 */
 	public void setOrderedContext(Map<ContextType, ContextRoot> contextMap) {
 
-		for (java.util.Map.Entry<ContextType, ContextRoot> setEntry : contextMap.entrySet()) {
+		contextMap.entrySet().forEach(setEntry -> {
 
 			ContextType contextType = setEntry.getKey();
 			ContextRoot contextRoot = setEntry.getValue();
 
 			this.contextOrdered.put(contextType, new ArrayList<>());
 
-			for (ContextComponent contextComponent : contextRoot.getContextComponents()) {
-				MDMEntity entity = new MDMEntity(contextComponent);
-				this.contextOrdered.get(contextType).add(entity);
-			}
-		}
+			contextRoot.getContextComponents().stream().map(MDMEntity::new).forEach(entity -> this.contextOrdered.get(contextType).add(entity));
+		});
 	}
 
 }

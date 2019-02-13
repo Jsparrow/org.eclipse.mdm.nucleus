@@ -20,6 +20,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import javax.enterprise.event.Event;
+
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.freetextindexer.boundary.ElasticsearchBoundary;
 import org.eclipse.mdm.freetextindexer.boundary.MdmApiBoundary;
@@ -28,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
-import javax.enterprise.event.Event;
 
 public class SetupIndexTest {
 

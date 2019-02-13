@@ -86,7 +86,7 @@ public class SearchMockHelper {
 		List<Entity> mockedRes = new ArrayList<>();
 
 		for (int i = 1; i <= ITEM_COUNT; i++) {
-			T etMock = createEntityMock(clazz, entityTypeName + "_" + i, "Environment", Integer.toString(i));
+			T etMock = createEntityMock(clazz, new StringBuilder().append(entityTypeName).append("_").append(i).toString(), "Environment", Integer.toString(i));
 			mockedRes.add(etMock);
 		}
 
@@ -146,7 +146,7 @@ public class SearchMockHelper {
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
 			throws Exception {
 
-		HashMap<String, Value> map = new HashMap<String, Value>();
+		HashMap<String, Value> map = new HashMap<>();
 		map.put("Name", ValueType.STRING.create("Name", name));
 
 		Core core = Mockito.mock(Core.class);

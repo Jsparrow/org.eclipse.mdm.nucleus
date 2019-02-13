@@ -78,11 +78,8 @@ public class MDMEntityResponse {
 	}
 
 	private <T extends Entity> List<MDMEntity> toTransferable(List<T> businessObjects) {
-		List<MDMEntity> mdmEntityList = new ArrayList<MDMEntity>();
-		for (Entity businessObject : businessObjects) {
-			MDMEntity mdmEntity = new MDMEntity(businessObject);
-			mdmEntityList.add(mdmEntity);
-		}
+		List<MDMEntity> mdmEntityList = new ArrayList<>();
+		businessObjects.stream().map(MDMEntity::new).forEach(mdmEntityList::add);
 		return mdmEntityList;
 	}
 

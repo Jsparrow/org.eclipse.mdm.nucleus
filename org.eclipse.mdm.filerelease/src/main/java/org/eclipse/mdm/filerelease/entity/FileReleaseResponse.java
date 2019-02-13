@@ -37,7 +37,7 @@ public class FileReleaseResponse {
 	 *            {@link FileRelease}
 	 */
 	public FileReleaseResponse(FileRelease fileRelease) {
-		this.data = new ArrayList<FileRelease>();
+		this.data = new ArrayList<>();
 		this.data.add(fileRelease);
 	}
 
@@ -48,7 +48,7 @@ public class FileReleaseResponse {
 	 *            list of {@link FileRelease}s
 	 */
 	public FileReleaseResponse(List<FileRelease> list) {
-		this.data = new ArrayList<FileRelease>();
+		this.data = new ArrayList<>();
 		this.data.addAll(list);
 	}
 

@@ -15,16 +15,19 @@
 
 package org.eclipse.mdm.freetextindexer.entities;
 
-import org.eclipse.mdm.api.base.model.*;
-import org.eclipse.mdm.api.base.query.DataAccessException;
-import org.eclipse.mdm.api.dflt.EntityManager;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
+
+import org.eclipse.mdm.api.base.model.ContextDescribable;
+import org.eclipse.mdm.api.base.model.ContextRoot;
+import org.eclipse.mdm.api.base.model.ContextType;
+import org.eclipse.mdm.api.base.model.Entity;
+import org.eclipse.mdm.api.base.query.DataAccessException;
+import org.eclipse.mdm.api.dflt.EntityManager;
 
 /**
  * EntryResponse (Container for {@link MDMEntity}s)
@@ -72,24 +75,24 @@ public class MDMEntityResponse {
 		return response;
 	}
 
-	private <T extends Entity> void addContext(T businessObject, EntityManager manager) throws DataAccessException {
-		if (businessObject instanceof ContextDescribable) {
-			Map<ContextType, ContextRoot> contexts = manager.loadContexts((ContextDescribable) businessObject,
-					ContextType.UNITUNDERTEST, ContextType.TESTSEQUENCE, ContextType.TESTEQUIPMENT);
-
-			for (ContextRoot root : contexts.values()) {
-				MDMEntity entity = toTransferable(root);
-				data.components.add(entity);
-				for (ContextComponent comp : root.getContextComponents()) {
-					MDMEntity compEntity = toTransferable(comp);
-					entity.components.add(compEntity);
-					for (Entry<String, Value> entry : comp.getValues().entrySet()) {
-						Optional<Object> extractedValue = Optional.ofNullable(entry.getValue().extract());
-						compEntity.attributes.put(entry.getKey(), extractedValue.map(Object::toString).orElse(""));
-					}
-				}
-			}
+	private <T extends Entity> void addContext(T businessObject, EntityManager manager) {
+		if (!(businessObject instanceof ContextDescribable)) {
+			return;
 		}
+		Map<ContextType, ContextRoot> contexts = manager.loadContexts((ContextDescribable) businessObject,
+				ContextType.UNITUNDERTEST, ContextType.TESTSEQUENCE, ContextType.TESTEQUIPMENT);
+		contexts.values().forEach(root -> {
+			MDMEntity entity = toTransferable(root);
+			data.components.add(entity);
+			root.getContextComponents().forEach(comp -> {
+				MDMEntity compEntity = toTransferable(comp);
+				entity.components.add(compEntity);
+				comp.getValues().entrySet().forEach(entry -> {
+					Optional<Object> extractedValue = Optional.ofNullable(entry.getValue().extract());
+					compEntity.attributes.put(entry.getKey(), extractedValue.map(Object::toString).orElse(""));
+				});
+			});
+		});
 	}
 
 	private static <T extends Entity> MDMEntity toTransferable(T businessObject) {

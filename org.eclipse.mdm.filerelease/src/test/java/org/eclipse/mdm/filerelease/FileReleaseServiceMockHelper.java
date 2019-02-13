@@ -65,9 +65,7 @@ public class FileReleaseServiceMockHelper {
 		Field releaseMapField = frManagerMock.getClass().getDeclaredField("releaseMap");
 		releaseMapField.setAccessible(true);
 		releaseMapField.set(frManagerMock, new HashMap<>());
-		for (FileRelease fr : createFileReleaseMockList()) {
-			frManagerMock.addFileRelease(fr);
-		}
+		createFileReleaseMockList().forEach(frManagerMock::addFileRelease);
 
 		releaseMapField.setAccessible(false);
 		return frManagerMock;
@@ -145,7 +143,7 @@ public class FileReleaseServiceMockHelper {
 	private static <T extends Entity> T createEntityMock(Class<T> type, String name, String sourceName, String id)
 			throws Exception {
 
-		HashMap<String, Value> map = new HashMap<String, Value>();
+		HashMap<String, Value> map = new HashMap<>();
 		map.put("Name", ValueType.STRING.create("Name", name));
 
 		Core core = Mockito.mock(Core.class);

@@ -26,6 +26,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.model.User;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -98,7 +99,7 @@ public class FileReleaseService {
 	public List<FileRelease> getIncommingReleases(String state) {
 
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);
-		if (state == null || state.trim().length() <= 0) {
+		if (state == null || StringUtils.trim(state).length() <= 0) {
 			List<FileRelease> list = this.manager.getReleases(user.getName(),
 					FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING);
 			return FileReleaseUtils.filterByConnectedSources(list, this.connectorService);
@@ -120,7 +121,7 @@ public class FileReleaseService {
 	public List<FileRelease> getOutgoingReleases(String state) {
 
 		User user = FileReleaseUtils.getLoggedOnUser(this.connectorService);
-		if (state == null || state.trim().length() <= 0) {
+		if (state == null || StringUtils.trim(state).length() <= 0) {
 			List<FileRelease> list = this.manager.getReleases(user.getName(),
 					FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING);
 			return FileReleaseUtils.filterByConnectedSources(list, this.connectorService);
@@ -158,7 +159,7 @@ public class FileReleaseService {
 
 		this.manager.addFileRelease(newFileRelease);
 
-		if (newFileRelease.sender.equalsIgnoreCase(newFileRelease.receiver)) {
+		if (StringUtils.equalsIgnoreCase(newFileRelease.sender, newFileRelease.receiver)) {
 			FileRelease fileRelease2Approve = new FileRelease();
 			fileRelease2Approve.identifier = newFileRelease.identifier;
 			fileRelease2Approve.state = FileReleaseManager.FILE_RELEASE_STATE_APPROVED;
@@ -227,15 +228,15 @@ public class FileReleaseService {
 	}
 
 	private void checkFileReleaseRequest(FileRelease newFileRelease) {
-		if (newFileRelease.sourceName == null || newFileRelease.sourceName.trim().length() < 1) {
+		if (newFileRelease.sourceName == null || StringUtils.trim(newFileRelease.sourceName).length() < 1) {
 			throw new FileReleaseException("source name for new FileRelease is missing!");
 		}
 
-		if (newFileRelease.typeName == null || newFileRelease.typeName.trim().length() < 1) {
+		if (newFileRelease.typeName == null || StringUtils.trim(newFileRelease.typeName).length() < 1) {
 			throw new FileReleaseException("type name for new FileRelease is missing!");
 		}
 
-		if (newFileRelease.id == null || newFileRelease.id.isEmpty()) {
+		if (newFileRelease.id == null || StringUtils.isEmpty(newFileRelease.id)) {
 			throw new FileReleaseException("is is not valid for new FileRelease");
 		}
 
@@ -243,13 +244,13 @@ public class FileReleaseService {
 			throw new FileReleaseException("validity [days] is not set for new FileRelease");
 		}
 
-		if (newFileRelease.format == null || newFileRelease.format.trim().length() <= 0) {
+		if (newFileRelease.format == null || StringUtils.trim(newFileRelease.format).length() <= 0) {
 			throw new FileReleaseException("output format for new FileRelease is missing!");
 		}
 
 		if (!FileReleaseUtils.isFormatValid(newFileRelease.format)) {
 			throw new FileReleaseException(
-					"unsupported file output format '" + newFileRelease.format + "' was defined for new FileRelease");
+					new StringBuilder().append("unsupported file output format '").append(newFileRelease.format).append("' was defined for new FileRelease").toString());
 		}
 
 	}

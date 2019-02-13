@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.filerelease.control.FileReleaseManager;
 import org.eclipse.mdm.filerelease.entity.FileRelease;
 import org.eclipse.mdm.filerelease.entity.FileReleaseResponse;
@@ -89,10 +90,10 @@ public class FileReleaseResource {
 			List<FileRelease> list = null;
 
 			if ((direction != null)
-					&& direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING)) {
+					&& StringUtils.equalsIgnoreCase(direction, FileReleaseManager.FILE_RELEASE_DIRECTION_INCOMMING)) {
 				list = this.fileReleaseService.getIncommingReleases(state);
 			} else if ((direction != null)
-					&& direction.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING)) {
+					&& StringUtils.equalsIgnoreCase(direction, FileReleaseManager.FILE_RELEASE_DIRECTION_OUTGOING)) {
 				list = this.fileReleaseService.getOutgoingReleases(state);
 			} else {
 				list = this.fileReleaseService.getReleases(state);
@@ -145,10 +146,10 @@ public class FileReleaseResource {
 						Status.FORBIDDEN);
 			}
 
-			if (updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
+			if (StringUtils.equalsIgnoreCase(updatedFileRelease.state, FileReleaseManager.FILE_RELEASE_STATE_APPROVED)) {
 				FileRelease fr = this.fileReleaseService.approve(updatedFileRelease);
 				return FileReleaseUtils.toResponse(new FileReleaseResponse(fr), Status.OK);
-			} else if (updatedFileRelease.state.equalsIgnoreCase(FileReleaseManager.FILE_RELEASE_STATE_REJECTED)) {
+			} else if (StringUtils.equalsIgnoreCase(updatedFileRelease.state, FileReleaseManager.FILE_RELEASE_STATE_REJECTED)) {
 				FileRelease fr = this.fileReleaseService.reject(updatedFileRelease);
 				return FileReleaseUtils.toResponse(new FileReleaseResponse(fr), Status.OK);
 			}

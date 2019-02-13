@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdm.api.base.model.TestStep;
 import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
@@ -78,8 +79,7 @@ public class FileConvertJobManager {
 			IFileConverter converter = getFileConverterByFormat(fileRelease);
 			String identifier = fileRelease.identifier;
 
-			LOG.info("starting file release process for FileRelease with identifier '" + identifier + "' (with '"
-					+ converter.getConverterName() + "') ...");
+			LOG.info(new StringBuilder().append("starting file release process for FileRelease with identifier '").append(identifier).append("' (with '").append(converter.getConverterName()).append("') ...").toString());
 
 			Runnable runnable = new FileConvertJob(fileRelease, converter, testStep, context, targetDirectory);
 			this.executor.execute(runnable);
@@ -90,15 +90,14 @@ public class FileConvertJobManager {
 	}
 
 	private IFileConverter getFileConverterByFormat(FileRelease fileRelease) {
-		if (fileRelease.format.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2RAW)) {
+		if (StringUtils.equalsIgnoreCase(fileRelease.format, FileReleaseManager.CONVERTER_FORMAT_PAK2RAW)) {
 			return this.fileConverterPAK2RAW;
 
-		} else if (fileRelease.format.equalsIgnoreCase(FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX)) {
+		} else if (StringUtils.equalsIgnoreCase(fileRelease.format, FileReleaseManager.CONVERTER_FORMAT_PAK2ATFX)) {
 			return this.fileConverterPAK2ATFX;
 		}
 
-		throw new FileReleaseException("no FileConverter found for format '" + fileRelease.format
-				+ "' on executing FileRelease with identifier '" + fileRelease.identifier + "'!");
+		throw new FileReleaseException(new StringBuilder().append("no FileConverter found for format '").append(fileRelease.format).append("' on executing FileRelease with identifier '").append(fileRelease.identifier).append("'!").toString());
 	}
 
 }

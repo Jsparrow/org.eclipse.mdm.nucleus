@@ -30,7 +30,6 @@ import org.eclipse.mdm.api.base.adapter.Attribute;
 import org.eclipse.mdm.api.base.adapter.EntityType;
 import org.eclipse.mdm.api.base.adapter.ModelManager;
 import org.eclipse.mdm.api.base.model.ValueType;
-import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.api.dflt.model.Pool;
@@ -64,7 +63,7 @@ public class PoolServiceTest {
 	}
 
 	@Test
-	public void testGetPool() throws DataAccessException {
+	public void testGetPool() {
 		service.getPool("MDMTEST", "1");
 
 		verify(em).load(Pool.class, "1");
@@ -72,7 +71,7 @@ public class PoolServiceTest {
 	}
 
 	@Test
-	public void testGetPoolsEmptyFilter() throws DataAccessException {
+	public void testGetPoolsEmptyFilter() {
 		service.getPools("MDMTEST", "");
 
 		verify(em).loadAll(Mockito.any());
@@ -80,7 +79,7 @@ public class PoolServiceTest {
 	}
 
 	@Test
-	public void testGetPoolsNullFilter() throws DataAccessException {
+	public void testGetPoolsNullFilter() {
 		service.getPools("MDMTEST", null);
 
 		verify(em).loadAll(Mockito.any());

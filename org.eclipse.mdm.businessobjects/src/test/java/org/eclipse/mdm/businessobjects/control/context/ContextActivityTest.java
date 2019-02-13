@@ -27,7 +27,6 @@ import java.util.Set;
 import org.eclipse.mdm.api.base.model.ContextComponent;
 import org.eclipse.mdm.api.base.model.ContextRoot;
 import org.eclipse.mdm.api.base.model.ContextType;
-import org.eclipse.mdm.api.base.model.Value;
 import org.eclipse.mdm.businessobjects.control.ContextActivity;
 import org.junit.Test;
 
@@ -60,29 +59,21 @@ public class ContextActivityTest {
 		Set<Entry<ContextType, ContextRoot>> orderedEntrySet = orderedContext.entrySet();
 		assertEquals("size of entry set should be 3", 3, orderedEntrySet.size());
 
-		for (Entry<ContextType, ContextRoot> entry : orderedEntrySet) {
-			ContextRoot cr = entry.getValue();
+		orderedEntrySet.stream().map(Map.Entry::getValue).forEach(cr -> {
 			List<ContextComponent> ccList = cr.getContextComponents();
 			assertEquals("size of context components should be 10", 10, ccList.size());
-			for (ContextComponent cc : ccList) {
-				Map<String, Value> values = cc.getValues();
-				assertEquals("size of value map should be 10", 10, values.size());
-			}
-		}
+			ccList.stream().map(ContextComponent::getValues).forEach(values -> assertEquals("size of value map should be 10", 10, values.size()));
+		});
 
 		Map<ContextType, ContextRoot> measuredContext = contextMap.get(ContextActivity.CONTEXT_GROUP_MEASURED);
 		Set<Entry<ContextType, ContextRoot>> measuredEntrySet = measuredContext.entrySet();
 		assertEquals("size of entry set should be 3", 3, measuredEntrySet.size());
 
-		for (Entry<ContextType, ContextRoot> entry : measuredEntrySet) {
-			ContextRoot cr = entry.getValue();
+		measuredEntrySet.stream().map(Map.Entry::getValue).forEach(cr -> {
 			List<ContextComponent> ccList = cr.getContextComponents();
 			assertEquals("size of context components should be 10", 10, ccList.size());
-			for (ContextComponent cc : ccList) {
-				Map<String, Value> values = cc.getValues();
-				assertEquals("size of value map should be 10", 10, values.size());
-			}
-		}
+			ccList.stream().map(ContextComponent::getValues).forEach(values -> assertEquals("size of value map should be 10", 10, values.size()));
+		});
 	}
 
 	public ContextActivity createMockedActivity() throws Exception {

@@ -36,7 +36,6 @@ import javax.xml.validation.Validator;
 import org.assertj.core.groups.Tuple;
 import org.eclipse.mdm.api.base.model.Measurement;
 import org.eclipse.mdm.api.base.model.TestStep;
-import org.eclipse.mdm.api.base.query.DataAccessException;
 import org.eclipse.mdm.api.dflt.ApplicationContext;
 import org.eclipse.mdm.api.dflt.EntityManager;
 import org.eclipse.mdm.connector.boundary.ConnectorService;
@@ -118,7 +117,7 @@ public class ShoppingBasketResourceTest extends JerseyTest {
 	}
 
 	@Test
-	public void testShoppingBasket() throws DataAccessException, URISyntaxException {
+	public void testShoppingBasket() throws URISyntaxException {
 		when(em.getLinks(Mockito.anyList()))
 				.thenReturn(ImmutableMap.of(testStep, "servicename/asampath/testStep", measurement,
 						"servicename/asampath/measurement"));

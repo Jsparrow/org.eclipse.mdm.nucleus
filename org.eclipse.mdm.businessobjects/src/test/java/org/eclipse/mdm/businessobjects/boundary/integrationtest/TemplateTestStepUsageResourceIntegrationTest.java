@@ -49,8 +49,7 @@ public class TemplateTestStepUsageResourceIntegrationTest extends EntityResource
 		// skipTest(TestType.UPDATE);
 
 		putTestDataValue(TESTDATA_RESOURCE_URI,
-				"/tpltests/" + getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID)
-						+ "/tplteststepusages");
+				new StringBuilder().append("/tpltests/").append(getTestDataValue(TemplateTestResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplteststepusages").toString());
 		// indicates that the value is set with the response data from create()
 		putTestDataValue(TESTDATA_ENTITY_NAME, TESTDATA_RANDOM_DATA);
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateTestStepUsage");

@@ -213,7 +213,7 @@ public class ContextActivity implements Serializable {
 	}
 
 	private Map<ContextType, ContextRoot> lookupOrderedContextByMeasurement(EntityManager em, Measurement measurement,
-			ContextType... contextTypes) throws DataAccessException {
+			ContextType... contextTypes) {
 
 		Optional<TestStep> optional = em.loadParent(measurement, Measurement.PARENT_TYPE_TESTSTEP);
 
@@ -226,7 +226,7 @@ public class ContextActivity implements Serializable {
 	}
 
 	private Map<ContextType, ContextRoot> lookupMeasuredContextByTestStep(EntityManager em, TestStep testStep,
-			ContextType... contextTypes) throws DataAccessException {
+			ContextType... contextTypes) {
 
 		List<Measurement> childList = em.loadChildren(testStep, TestStep.CHILD_TYPE_MEASUREMENT);
 		if (childList.size() > 0) {
@@ -238,7 +238,7 @@ public class ContextActivity implements Serializable {
 	private Map<String, List<ContextSensor>> createSensorMap(Map<ContextType, ContextRoot> orderedContext,
 			Map<ContextType, ContextRoot> measuredContext) {
 
-		Map<String, List<ContextSensor>> sensorMap = new HashMap<String, List<ContextSensor>>();
+		Map<String, List<ContextSensor>> sensorMap = new HashMap<>();
 
 		ContextRoot orderedContextRoot = orderedContext.get(ContextType.TESTEQUIPMENT);
 		if (orderedContextRoot != null) {
@@ -256,11 +256,9 @@ public class ContextActivity implements Serializable {
 	}
 
 	private List<ContextSensor> extractContextSensors(ContextRoot contextRoot) {
-		List<ContextSensor> contextSensors = new ArrayList<ContextSensor>();
+		List<ContextSensor> contextSensors = new ArrayList<>();
 		List<ContextComponent> contextComponents = contextRoot.getContextComponents();
-		for (ContextComponent contextComponent : contextComponents) {
-			contextSensors.addAll(contextComponent.getContextSensors());
-		}
+		contextComponents.forEach(contextComponent -> contextSensors.addAll(contextComponent.getContextSensors()));
 		return contextSensors;
 	}
 

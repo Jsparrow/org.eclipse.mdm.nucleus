@@ -126,7 +126,5 @@ public final class DataAccessHelper {
 	 * Function that handles an occurred exception without rethrowing it
 	 */
 	// TODO anehmer on 2017-11-22: remove method and logger
-	public static final Consumer<? super Throwable> handleException = e -> {
-		LOG.error(e.getMessage(), e);
-	};
+	public static final Consumer<? super Throwable> handleException = e -> LOG.error(e.getMessage(), e);
 }

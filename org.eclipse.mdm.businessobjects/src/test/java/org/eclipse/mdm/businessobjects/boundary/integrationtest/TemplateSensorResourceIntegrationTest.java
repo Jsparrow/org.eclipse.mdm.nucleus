@@ -50,7 +50,7 @@ public class TemplateSensorResourceIntegrationTest extends EntityResourceIntegra
 		setContextClass(TemplateSensorResourceIntegrationTest.class);
 
 		// set up test data
-		putTestDataValue(TESTDATA_RESOURCE_URI, "/tplroots/testequipment/" + getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplcomps/" + getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID) + "/tplsensors");
+		putTestDataValue(TESTDATA_RESOURCE_URI, new StringBuilder().append("/tplroots/testequipment/").append(getTestDataValue(TemplateRootTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplcomps/").append(getTestDataValue(TemplateComponentTEQResourceIntegrationTest.class, TESTDATA_ENTITY_ID)).append("/tplsensors").toString());
 		putTestDataValue(TESTDATA_ENTITY_NAME, "testTplSensor");
 		putTestDataValue(TESTDATA_ENTITY_TYPE, "TemplateSensor");
 

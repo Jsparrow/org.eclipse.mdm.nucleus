@@ -56,11 +56,9 @@ public class Preference {
 	private String value;
 
 	public Preference() {
-		super();
 	}
 
 	public Preference(String source, String user, String key, String value) {
-		super();
 		this.source = source;
 		this.user = user;
 		this.key = key;

@@ -73,6 +73,7 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Class providing basic data access methods to {@link Entity}s.
@@ -230,8 +231,7 @@ public class EntityService {
 		Option<Integer> minParents = minParentsForEntity.get(entityClass);
 		// TODO anehmer on 2017-11-25: add entity types to message
 		if (minParents.isDefined() && (parentIdSuppliers == null || minParents.get() > parentIdSuppliers.size())) {
-			return Try.failure(new IllegalArgumentException("ParentId(s) of " + entityClass.getSimpleName()
-					+ " not set appropriately. Expected minimum: " + minParents.get()));
+			return Try.failure(new IllegalArgumentException(new StringBuilder().append("ParentId(s) of ").append(entityClass.getSimpleName()).append(" not set appropriately. Expected minimum: ").append(minParents.get()).toString()));
 		}
 
 		// if the find is contextType specific
@@ -388,18 +388,18 @@ public class EntityService {
 			String filter, Value<ContextType> contextTypeSupplier) {
 		// TODO anehmer on 2017-11-22: do we need to implement the navigationActivity
 		// filter shortcut like in ChannelGroupService.getChannelGroups()
-		if (filter == null || filter.trim()
+		if (filter == null || StringUtils.trim(filter)
 				.length() <= 0) {
 			return Try
 					.of(getLoadAllEntitiesMethod(getEntityManager(sourceNameSupplier).get(), entityClass,
 							contextTypeSupplier))
-					.map(javaList -> List.ofAll(javaList));
+					.map(List::ofAll);
 		} else {
 			// TODO anehmer on 2017-11-15: not tested
 			return Try
 					.of(() -> this.searchActivity.search(connectorService.getContextByName(sourceNameSupplier.get()),
 							entityClass, filter))
-					.map(javaList -> List.ofAll(javaList));
+					.map(List::ofAll);
 		}
 	}
 
@@ -459,11 +459,10 @@ public class EntityService {
 										.getClass())
 										.toJavaList()))
 						.getOrElseThrow(() -> new NoSuchMethodException(
-								"No matching create()-method found for EntityType " + entityClass.getSimpleName()
-										+ " taking the parameters " + argumentSuppliers.map(s -> s.get()
-												.getClass()
-												.getName())
-												.collect(Collectors.joining(", "))))
+								new StringBuilder().append("No matching create()-method found for EntityType ").append(entityClass.getSimpleName()).append(" taking the parameters ").append(argumentSuppliers.map(s -> s.get()
+										.getClass()
+										.getName())
+										.collect(Collectors.joining(", "))).toString()))
 						// invoke with given arguments
 						.invoke(factory.get(), argumentSuppliers.map(Value::get)
 								.toJavaArray()))
@@ -635,9 +634,7 @@ public class EntityService {
 										.get("EnumerationValue");
 
 								if (enumName == null || enumValueName == null) {
-									throw new IllegalArgumentException("EnumerationValue is set by providing a map "
-											+ "containing the keys 'Enumeration' and 'EnumerationValue' "
-											+ "and the respective names as the values");
+									throw new IllegalArgumentException(new StringBuilder().append("EnumerationValue is set by providing a map ").append("containing the keys 'Enumeration' and 'EnumerationValue' ").append("and the respective names as the values").toString());
 								}
 
 								// find enumeration and the enumeration value
@@ -646,15 +643,15 @@ public class EntityService {
 										.get(enumName))
 										.onEmpty(() -> {
 											throw new IllegalArgumentException(
-													"Enumeration [" + enumName + "] not found");
+													new StringBuilder().append("Enumeration [").append(enumName).append("] not found").toString());
 										})
 										// get enumValue
 										.map(enumeration -> enumeration.valueOf(enumValueName))
 										// if enumValue is not found, null is returned
 										.filter(Objects::nonNull)
 										.onEmpty(() -> {
-											throw new IllegalArgumentException("EnumerationValue [" + enumValueName
-													+ "] not found in Enumeration [" + enumName + "]");
+											throw new IllegalArgumentException(new StringBuilder().append("EnumerationValue [").append(enumValueName).append("] not found in Enumeration [").append(enumName)
+													.append("]").toString());
 										})
 										// set enumValue
 										.map(enumValue -> {
@@ -680,13 +677,13 @@ public class EntityService {
 					ContextType contextType = null;
 					// determine if class has a context type
 					for (ContextType ct : ContextType.values()) {
-						int index = relatedEntityClassName.toUpperCase()
-								.indexOf(ct.name());
+						int index = StringUtils
+								.indexOf(relatedEntityClassName.toUpperCase(), ct.name());
 						if (index > 0) {
 							contextType = ct;
 							// cut out ContextType
-							relatedEntityClassName = relatedEntityClassName.substring(0, index)
-									+ relatedEntityClassName.substring(index + ct.name()
+							relatedEntityClassName = StringUtils.substring(relatedEntityClassName, 0, index)
+									+ StringUtils.substring(relatedEntityClassName, index + ct.name()
 											.length());
 						}
 					}
@@ -715,8 +712,8 @@ public class EntityService {
 											contextTypeIfPresent);
 								}
 							})
-							.onFailure(e -> LOGGER.error("Entity of type [" + processedRelatedEntityClassName
-									+ "] and ID " + relatedEntityId + " not found", e));
+							.onFailure(e -> LOGGER.error(new StringBuilder().append("Entity of type [").append(processedRelatedEntityClassName).append("] and ID ").append(relatedEntityId).append(" not found")
+									.toString(), e));
 
 					return updateTry.isSuccess() ? true : false;
 				})
@@ -730,11 +727,9 @@ public class EntityService {
 				.map(Tuple::toString)
 				.collect(Collectors.joining(", "));
 
-		if (unmappedKeys != null && !unmappedKeys.isEmpty()) {
+		if (unmappedKeys != null && !StringUtils.isEmpty(unmappedKeys)) {
 			return Try.failure(
-					new IllegalArgumentException("ValueMap to update entity contains the following keys that either "
-							+ "have no match in the entity values or relations to update "
-							+ "or an error occurred while finding the related entity: " + unmappedKeys));
+					new IllegalArgumentException(new StringBuilder().append("ValueMap to update entity contains the following keys that either ").append("have no match in the entity values or relations to update ").append("or an error occurred while finding the related entity: ").append(unmappedKeys).toString()));
 		} else {
 			return Try.of(() -> entity);
 		}
@@ -756,7 +751,7 @@ public class EntityService {
 				getMetod.setAccessible(true);
 			} catch (NoSuchMethodException | SecurityException x) {
 				throw new IllegalStateException(
-						"Unable to load 'getCore()' in class '" + BaseEntity.class.getSimpleName() + "'.", x);
+						new StringBuilder().append("Unable to load 'getCore()' in class '").append(BaseEntity.class.getSimpleName()).append("'.").toString(), x);
 			}
 			Core core = (Core) getMetod.invoke(e);
 			return core.getMutableStore();
